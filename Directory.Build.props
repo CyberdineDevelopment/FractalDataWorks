@@ -19,7 +19,7 @@
     <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/CyberdineDevelopment/smart-generators</RepositoryUrl>
+    <RepositoryUrl>https://github.com/CyberdineDevelopment/FractalDataWorks</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageReadmeFile>README.md</PackageReadmeFile>
