@@ -25,12 +25,14 @@ Core interface definitions for the FractalDataWorks platform, providing foundati
 
 ## Overview
 
-FractalDataWorks is a Layer 0.5 package containing pure interface definitions that serve as the foundation for the FractalDataWorks platform. This package includes interfaces like `IEnhancedEnum` which enable advanced enumeration patterns.
+FractalDataWorks is a Layer 0.5 package containing pure interface definitions that serve as the foundation for the FractalDataWorks platform. This package includes interfaces like `IEnhancedEnumOption` for advanced enumeration patterns and `IGenericResult` for functional error handling.
 
 ## Features
 
-- **IEnhancedEnum**: Interface for enhanced enumeration types with ID and name properties
-- **IEnhancedEnum<T>**: Generic interface supporting self-referencing enum patterns
+- **IGenericResult<T>**: Result/Either monad pattern for functional error handling
+- **IEnhancedEnumOption**: Interface for enhanced enumeration types with ID and name properties
+- **IEnhancedEnumOption<T>**: Generic interface supporting self-referencing enum patterns
+- **Fractal**: Unit type for operations without meaningful return values
 - Pure interfaces with no implementation dependencies
 - netstandard2.0 compatible for broad framework support
 
@@ -39,21 +41,31 @@ FractalDataWorks is a Layer 0.5 package containing pure interface definitions th
 ### Prerequisites
 
 - .NET Standard 2.0 compatible runtime
-- For development: .NET 9.0 SDK or later
+- For development: .NET 10.0 SDK or later
 
 ### Installation
 
-From the REC-DevOps Azure Artifacts feed:
+#### From NuGet
 
 ```bash
 dotnet add package FractalDataWorks
+```
+
+#### From GitHub Packages
+
+```bash
+# Add GitHub Packages source (if not already added)
+dotnet nuget add source --username YOUR_USERNAME --password YOUR_TOKEN --store-password-in-clear-text --name github "https://nuget.pkg.github.com/CyberdineDevelopment/index.json"
+
+# Install the package
+dotnet add package FractalDataWorks --source "github"
 ```
 
 ### Building from Source
 
 ```bash
 # Clone the repository
-git clone https://REC-DevOps@dev.azure.com/REC-DevOps/Developer-Kit/_git/FractalDataWorks
+git clone https://github.com/CyberdineDevelopment/FractalDataWorks.git
 
 # Navigate to the project directory
 cd FractalDataWorks
@@ -80,7 +92,7 @@ dotnet test --collect:"XPlat Code Coverage"
 ```csharp
 using FractalDataWorks;
 
-public class OrderStatus : IEnhancedEnum<OrderStatus>
+public class OrderStatus : IEnhancedEnumOption<OrderStatus>
 {
     public int Id { get; }
     public string Name { get; }
