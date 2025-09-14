@@ -13,6 +13,10 @@ public sealed class MsSqlConnectionFactory : IConnectionFactory<MsSqlConnection,
 {
     private readonly ILoggerFactory _loggerFactory;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MsSqlConnectionFactory"/> class.
+    /// </summary>
+    /// <param name="loggerFactory">The logger factory.</param>
     public MsSqlConnectionFactory(ILoggerFactory loggerFactory)
     {
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));

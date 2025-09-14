@@ -18,6 +18,11 @@ public sealed class MsSqlConnection : IFdwConnection
     private SqlConnection? _sqlConnection;
     private bool _disposed;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MsSqlConnection"/> class.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="configuration">The configuration.</param>
     public MsSqlConnection(ILogger<MsSqlConnection> logger, MsSqlConfiguration configuration)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

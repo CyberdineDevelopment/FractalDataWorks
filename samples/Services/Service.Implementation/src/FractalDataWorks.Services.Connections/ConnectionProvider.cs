@@ -18,6 +18,10 @@ public sealed partial class ConnectionProvider : IConnectionProvider
     private readonly ILogger<ConnectionProvider> _logger;
     private readonly ConcurrentDictionary<string, IConnectionFactory> _factories;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConnectionProvider"/> class.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
     public ConnectionProvider(ILogger<ConnectionProvider> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -39,11 +43,13 @@ public sealed partial class ConnectionProvider : IConnectionProvider
     [LoggerMessage(Level = LogLevel.Error, Message = "Failed to create connection of type '{ConnectionType}' using factory '{FactoryType}'")]
     private partial void LogConnectionCreationFailed(Exception ex, string connectionType, string factoryType);
 
+    /// <inheritdoc />
     public IEnumerable<string> GetSupportedConnectionTypes()
     {
         return _factories.Keys.ToList();
     }
 
+    /// <inheritdoc />
     public void RegisterFactory(IConnectionFactory factory)
     {
         if (factory == null)
@@ -68,6 +74,7 @@ public sealed partial class ConnectionProvider : IConnectionProvider
         LogFactoryRegistered(factory.GetType().Name, factory.ConnectionTypeName);
     }
 
+    /// <inheritdoc />
     public async Task<IFdwConnection> Create(
         IConnectionConfiguration configuration,
         CancellationToken cancellationToken = default)
@@ -108,6 +115,7 @@ public sealed partial class ConnectionProvider : IConnectionProvider
         }
     }
 
+    /// <inheritdoc />
     public bool IsConnectionTypeSupported(string connectionTypeName)
     {
         return !string.IsNullOrWhiteSpace(connectionTypeName) &&
