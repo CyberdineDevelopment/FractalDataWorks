@@ -1,0 +1,24 @@
+<Project>
+  <!-- Completely override parent Directory.Build.props for samples -->
+  <PropertyGroup>
+    <!-- Basic settings -->
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    
+    <!-- Disable central package management -->
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    
+    <!-- Basic framework -->
+    <TargetFramework Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == ''">net8.0</TargetFramework>
+    
+    <!-- Minimal build settings for samples -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  
+  <!-- No analyzer packages for samples -->
+  <ItemGroup>
+    <!-- Empty - no global analyzers -->
+  </ItemGroup>
+</Project>

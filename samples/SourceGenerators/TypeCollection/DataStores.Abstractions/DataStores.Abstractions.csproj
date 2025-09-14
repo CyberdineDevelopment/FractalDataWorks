@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>DataStores.Abstractions</PackageId>
+    <PackageVersion>1.1.0</PackageVersion>
+    <Description>DataStore types abstractions with embedded Enhanced Enum source generator</Description>
+    <RootNamespace>DataStore.Abstractions</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference Collections framework -->
+    <ProjectReference Include="..\..\..\..\src\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
+    
+    <!-- Build dependency on the source generator -->
+    <ProjectReference Include="..\..\..\..\src\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj" 
+                      ReferenceOutputAssembly="false" 
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Explicitly embed the TypeCollectionGenerator DLL -->
+    <None Include="..\..\..\..\src\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll" 
+          Pack="true" 
+          PackagePath="analyzers/dotnet/cs" 
+          Visible="false" 
+          Condition="Exists('..\..\..\..\src\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll')" />
+  </ItemGroup>
+
+</Project>

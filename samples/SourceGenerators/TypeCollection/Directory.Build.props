@@ -1,0 +1,16 @@
+<Project>
+  <!-- Inherit from parent Directory.Build.props -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../../../'))" />
+  
+  <PropertyGroup>
+    <!-- Sample-specific settings -->
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+  
+  <!-- Remove IsExternalInit package since samples don't need it -->
+  <ItemGroup>
+    <PackageReference Remove="IsExternalInit" />
+  </ItemGroup>
+  
+</Project>

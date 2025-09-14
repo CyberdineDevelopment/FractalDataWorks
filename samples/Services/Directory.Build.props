@@ -1,0 +1,31 @@
+<Project>
+  <!-- Don't import parent Directory.Build.props to avoid automatic references -->
+  
+  <PropertyGroup>
+    <!-- Disable centralized package management for samples to keep them independent -->
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <!-- Mark these as sample projects that shouldn't be packaged or tested -->
+    <IsPackable>false</IsPackable>
+    <IsTestProject>false</IsTestProject>
+    <IsSample>true</IsSample>
+    <ExcludeFromBuild>true</ExcludeFromBuild>
+    
+    <!-- Samples use latest C# features for demonstration -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    
+    <!-- Don't generate documentation for samples -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    
+    <!-- Samples don't need to be signed -->
+    <SignAssembly>false</SignAssembly>
+    
+    <!-- Exclude from code coverage -->
+    <ExcludeFromCodeCoverage>true</ExcludeFromCodeCoverage>
+
+    <!-- Disable implicit FractalDataWorks references -->
+    <DisableImplicitFractalDataWorksReferences>true</DisableImplicitFractalDataWorksReferences>
+  </PropertyGroup>
+
+  <!-- No automatic project references for Services samples -->
+</Project>

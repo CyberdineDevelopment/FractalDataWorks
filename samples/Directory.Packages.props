@@ -1,0 +1,11 @@
+<Project>
+  <!-- Override parent Directory.Packages.props for samples -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  
+  <!-- No global package versions for samples -->
+  <ItemGroup>
+    <!-- Empty - samples manage their own package versions -->
+  </ItemGroup>
+</Project>
