@@ -66,9 +66,17 @@ catch (Exception ex)
 
 Console.WriteLine("Demo completed!");
 
-// Simple test implementation of IDataCommand
+/// <summary>
+/// Simple test implementation of IDataCommand for demonstration purposes.
+/// </summary>
 public class TestDataCommand : IDataCommand
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestDataCommand"/> class.
+    /// </summary>
+    /// <param name="commandType">The type of command.</param>
+    /// <param name="entityName">The name of the entity.</param>
+    /// <param name="parameters">The command parameters.</param>
     public TestDataCommand(string commandType, string entityName, IReadOnlyDictionary<string, object> parameters)
     {
         CommandType = commandType;
@@ -78,9 +86,14 @@ public class TestDataCommand : IDataCommand
         Values = new Dictionary<string, object>();
     }
 
+    /// <inheritdoc />
     public string CommandType { get; }
+    /// <inheritdoc />
     public string EntityName { get; }
+    /// <inheritdoc />
     public IReadOnlyDictionary<string, object> Parameters { get; }
+    /// <inheritdoc />
     public IReadOnlyDictionary<string, object> Filters { get; }
+    /// <inheritdoc />
     public IReadOnlyDictionary<string, object> Values { get; }
 }
