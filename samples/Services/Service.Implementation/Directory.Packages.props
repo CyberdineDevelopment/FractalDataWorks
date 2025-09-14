@@ -2,7 +2,6 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <ItemGroup>
     <!-- Microsoft packages -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.7.25380.108" />
@@ -15,9 +14,8 @@
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0-preview.7.25380.108" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0-preview.7.25380.108" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0-preview.7.25380.108" />
-
     <!-- Data access -->
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.1.5" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.0-preview2.24304.8" />
     <PackageVersion Include="System.Data.Common" Version="4.3.0" />
   </ItemGroup>
 </Project>
