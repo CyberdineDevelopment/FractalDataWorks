@@ -16,8 +16,8 @@ public interface IFractalServiceProvider
     /// <typeparam name="TService">The type of service to retrieve.</typeparam>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
-    IFdwResult<TService> Get<TService>(IFractalConfiguration configuration)
-        where TService : IFractalService;
+    IFdwResult<TService> Get<TService>(IFdwConfiguration configuration)
+        where TService : IFdwService;
 
     /// <summary>
     /// Gets a service instance by configuration ID.
@@ -26,7 +26,7 @@ public interface IFractalServiceProvider
     /// <param name="configurationId">The ID of the configuration.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
     IFdwResult<TService> Get<TService>(int configurationId)
-        where TService : IFractalService;
+        where TService : IFdwService;
     
     /// <summary>
     /// Gets a service instance by service type name.
@@ -35,7 +35,7 @@ public interface IFractalServiceProvider
     /// <param name="serviceTypeName">The name of the service type.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
     Task<IFdwResult<TService>> Get<TService>(string serviceTypeName)
-        where TService : IFractalService;
+        where TService : IFdwService;
 }
 
 /// <summary>
@@ -44,14 +44,14 @@ public interface IFractalServiceProvider
 /// </summary>
 /// <typeparam name="TService">The type of service this provider manages.</typeparam>
 public interface IFractalServiceProvider<TService>
-    where TService : IFractalService
+    where TService : IFdwService
 {
     /// <summary>
     /// Gets a service instance by configuration.
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
-    IFdwResult<TService> Get(IFractalConfiguration configuration);
+    IFdwResult<TService> Get(IFdwConfiguration configuration);
 
     /// <summary>
     /// Gets a service instance by configuration ID.

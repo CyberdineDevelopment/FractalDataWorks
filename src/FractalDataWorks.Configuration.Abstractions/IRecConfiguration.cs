@@ -7,7 +7,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// Base interface for all configuration objects in the FractalDataWorks framework.
 /// Provides common properties and validation for all configuration types.
 /// </summary>
-public interface IFractalConfiguration
+public interface IFdwConfiguration
 {
     /// <summary>
     /// Gets the unique identifier for this configuration instance.

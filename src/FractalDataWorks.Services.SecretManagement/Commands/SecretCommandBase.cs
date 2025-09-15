@@ -78,7 +78,7 @@ public abstract class SecretCommandBase : ISecretCommand
     public DateTimeOffset Timestamp { get; }
 
     /// <inheritdoc/>
-    public IFractalConfiguration? Configuration { get; }
+    public IFdwConfiguration? Configuration { get; }
 
     /// <summary>
     /// Gets the base command identifier as a Guid.

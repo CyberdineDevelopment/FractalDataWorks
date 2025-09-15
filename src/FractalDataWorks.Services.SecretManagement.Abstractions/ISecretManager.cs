@@ -16,7 +16,7 @@ namespace FractalDataWorks.Services.SecretManagement.Abstractions;
 /// allowing different secret storage providers (AWS Secrets Manager, Azure Key Vault, etc.)
 /// to be used interchangeably through a consistent API.
 /// </remarks>
-public interface ISecretManager : IFractalService
+public interface ISecretManager : IFdwService
 {
     /// <summary>
     /// Executes a secret management command.

@@ -17,8 +17,8 @@ public abstract partial class DataGatewayTypeCollectionBase<TBase, TGeneric, TSe
     ServiceTypeCollectionBase<TBase, TGeneric, TService, TConfiguration, TFactory>
     where TBase : DataGatewayTypeBase<TService, TConfiguration, TFactory>
     where TGeneric : DataGatewayTypeBase<TService, TConfiguration, TFactory>
-    where TService : class, IDataService, IFractalService
-    where TConfiguration : class, IDataGatewaysConfiguration, IFractalConfiguration
+    where TService : class, IDataService, IFdwService
+    where TConfiguration : class, IDataGatewaysConfiguration, IFdwConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
     /// <summary>

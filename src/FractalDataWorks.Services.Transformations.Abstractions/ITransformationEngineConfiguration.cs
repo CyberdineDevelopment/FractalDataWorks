@@ -6,7 +6,7 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// <summary>
 /// Configuration for a transformation engine.
 /// </summary>
-public interface ITransformationEngineConfiguration : IFractalConfiguration
+public interface ITransformationEngineConfiguration : IFdwConfiguration
 {
     /// <summary>
     /// Gets the engine type to create.

@@ -53,7 +53,7 @@ public sealed class MsSqlConnectionTestCommand : IFdwConnectionCommand
     /// <summary>
     /// Gets the configuration associated with this command.
     /// </summary>
-    public IFractalConfiguration? Configuration { get; }
+    public IFdwConfiguration? Configuration { get; }
 
     /// <summary>
     /// Validates this command.

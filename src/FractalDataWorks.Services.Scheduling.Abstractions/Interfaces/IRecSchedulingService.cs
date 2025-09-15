@@ -61,7 +61,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// }
 /// </code>
 /// </example>
-public interface IFractalSchedulingService : IFractalService
+public interface IFractalSchedulingService : IFdwService
 {
     /// <summary>
     /// Gets the underlying scheduler instance used by this service.

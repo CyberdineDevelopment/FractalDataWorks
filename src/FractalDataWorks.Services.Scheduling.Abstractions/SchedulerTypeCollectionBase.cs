@@ -20,7 +20,7 @@ public abstract partial class SchedulerTypeCollectionBase<TBase, TGeneric, TServ
     where TGeneric : SchedulerTypeBase<TService, TConfiguration, TFactory>
     where TService : class, IFractalSchedulingService
     where TConfiguration : class, ISchedulingConfiguration
-    where TFactory : class, ISchedulingServiceFactory<TService, TConfiguration>
+    where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SchedulerTypeCollectionBase{TBase,TGeneric,TService,TConfiguration,TFactory}"/> class.

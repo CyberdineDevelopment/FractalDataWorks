@@ -20,7 +20,7 @@ namespace FractalDataWorks.Services;
 public abstract class ServiceFactoryBase<TService, TConfiguration> :
     IServiceFactory<TService, TConfiguration>
     where TService : class
-    where TConfiguration : class, IFractalConfiguration
+    where TConfiguration : class, IFdwConfiguration
 {
     private readonly ILogger _logger;
 
@@ -103,7 +103,7 @@ public abstract class ServiceFactoryBase<TService, TConfiguration> :
     /// <param name="validConfiguration">The valid configuration if successful.</param>
     /// <returns>The validation result.</returns>
     protected IFdwResult<TConfiguration> ValidateConfiguration(
-        IFractalConfiguration? configuration,
+        IFdwConfiguration? configuration,
         out TConfiguration? validConfiguration)
     {
         if (configuration == null)
@@ -146,7 +146,7 @@ public abstract class ServiceFactoryBase<TService, TConfiguration> :
     /// <typeparam name="T">The type of service to create.</typeparam>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    public IFdwResult<T> Create<T>(IFractalConfiguration configuration) where T : IFractalService
+    public IFdwResult<T> Create<T>(IFdwConfiguration configuration) where T : IFdwService
     {
         // Check if the requested type is assignable from our service type
         if (!typeof(T).IsAssignableFrom(typeof(TService)))
@@ -192,31 +192,31 @@ public abstract class ServiceFactoryBase<TService, TConfiguration> :
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    IFdwResult<IFractalService> IServiceFactory.Create(IFractalConfiguration configuration)
+    IFdwResult<IFdwService> IServiceFactory.Create(IFdwConfiguration configuration)
     {
         // Validate configuration and create service
         var validationResult = ValidateConfiguration(configuration, out var validConfig);
         if (validationResult.Error || validConfig == null)
         {
-            return FdwResult<IFractalService>.Failure(validationResult.Message ?? "Configuration validation failed");
+            return FdwResult<IFdwService>.Failure(validationResult.Message ?? "Configuration validation failed");
         }
 
         var serviceResult = Create(validConfig);
         if (serviceResult.Error || serviceResult.Value == null)
         {
-            return FdwResult<IFractalService>.Failure(serviceResult.Message ?? "Service creation failed");
+            return FdwResult<IFdwService>.Failure(serviceResult.Message ?? "Service creation failed");
         }
 
-        if (serviceResult.Value is IFractalService recService)
+        if (serviceResult.Value is IFdwService recService)
         {
-            return FdwResult<IFractalService>.Success(recService);
+            return FdwResult<IFdwService>.Success(recService);
         }
 
         // Use structured logging and Enhanced Enum factory method with parameters
         var sourceTypeName = typeof(TService).Name;
-        Logging.ServiceBaseLog.ServiceTypeCastFailed(_logger, sourceTypeName, nameof(IFractalService));
+        Logging.ServiceBaseLog.ServiceTypeCastFailed(_logger, sourceTypeName, nameof(IFdwService));
         
-        return FdwResult<IFractalService>.Failure($"Service type cast failed from {sourceTypeName} to {nameof(IFractalService)}");
+        return FdwResult<IFdwService>.Failure($"Service type cast failed from {sourceTypeName} to {nameof(IFdwService)}");
     }
 
     #endregion
@@ -229,7 +229,7 @@ public abstract class ServiceFactoryBase<TService, TConfiguration> :
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    IFdwResult<TService> IServiceFactory<TService>.Create(IFractalConfiguration configuration)
+    IFdwResult<TService> IServiceFactory<TService>.Create(IFdwConfiguration configuration)
     {
         // Validate configuration and create service
         var validationResult = ValidateConfiguration(configuration, out var validConfig);

@@ -19,8 +19,8 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions;
 public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> : 
     ServiceTypeBase<TService, TConfiguration, TFactory>,
     IDataGatewayServiceType
-    where TService : class, IDataService, IFractalService
-    where TConfiguration : class, IDataGatewaysConfiguration, IFractalConfiguration
+    where TService : class, IDataService, IFdwService
+    where TConfiguration : class, IDataGatewaysConfiguration, IFdwConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
     /// <summary>

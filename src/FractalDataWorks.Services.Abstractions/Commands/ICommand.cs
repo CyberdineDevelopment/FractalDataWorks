@@ -28,7 +28,7 @@ public interface ICommand
     /// <summary>
     /// Gets the configuration associated with this command.
     /// </summary>
-    IFractalConfiguration? Configuration { get; }
+    IFdwConfiguration? Configuration { get; }
 
     /// <summary>
     /// Validates this command.

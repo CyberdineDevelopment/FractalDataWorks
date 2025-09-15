@@ -15,8 +15,8 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions;
 /// <typeparam name="TConfiguration">The configuration type for the data provider service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating data provider service instances.</typeparam>
 public interface IDataGatewayType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
-    where TService : class, IDataService, IFractalService
-    where TConfiguration : class, IDataGatewaysConfiguration, IFractalConfiguration
+    where TService : class, IDataService, IFdwService
+    where TConfiguration : class, IDataGatewaysConfiguration, IFdwConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
     /// <summary>

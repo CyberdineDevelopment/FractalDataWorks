@@ -5,7 +5,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// <summary>
 /// Configuration interface for scheduling services.
 /// </summary>
-public interface ISchedulingConfiguration : IFractalConfiguration
+public interface ISchedulingConfiguration : IFdwConfiguration
 {
     /// <summary>
     /// Gets the maximum number of concurrent jobs that can be executed.

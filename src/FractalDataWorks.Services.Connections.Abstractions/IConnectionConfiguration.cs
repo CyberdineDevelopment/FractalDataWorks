@@ -9,7 +9,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// and their desired service lifetimeBase for dependency injection registration.
 /// Validation is provided by the source generator extension methods.
 /// </summary>
-public interface IConnectionConfiguration : IFractalConfiguration
+public interface IConnectionConfiguration : IFdwConfiguration
 {
     /// <summary>
     /// Gets the connection type name this configuration is for.

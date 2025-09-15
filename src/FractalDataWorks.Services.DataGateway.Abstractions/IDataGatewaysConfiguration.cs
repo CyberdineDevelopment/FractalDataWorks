@@ -5,6 +5,6 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions;
 /// <summary>
 /// Configuration interface for data provider services.
 /// </summary>
-public interface IDataGatewaysConfiguration : IFractalConfiguration 
+public interface IDataGatewaysConfiguration : IFdwConfiguration 
 {
 }

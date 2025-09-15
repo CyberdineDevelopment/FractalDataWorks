@@ -116,7 +116,7 @@ public static partial class ServiceBaseLog
         EventId = 9,
         Level = LogLevel.Debug,
         Message = "Service configuration validated {@Configuration}")]
-    public static partial void ConfigurationValidated(ILogger logger, IFractalConfiguration? configuration);
+    public static partial void ConfigurationValidated(ILogger logger, IFdwConfiguration? configuration);
 
     /// <summary>
     /// Logs performance metrics with structured data.

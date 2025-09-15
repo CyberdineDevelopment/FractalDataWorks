@@ -25,9 +25,9 @@ namespace FractalDataWorks.Services;
 /// </list>
 /// </remarks>
 public interface IServiceType<TService, TConfiguration, TFactory> : IServiceType
-    where TService : class, IFractalService
+    where TService : class, IFdwService
     where TFactory : class, IServiceFactory<TService, TConfiguration>
-    where TConfiguration : class, IFractalConfiguration
+    where TConfiguration : class, IFdwConfiguration
 {
     /// <summary>
     /// Creates a factory instance for this service type.
@@ -61,8 +61,8 @@ public interface IServiceType<TService, TConfiguration, TFactory> : IServiceType
 /// </list>
 /// </remarks>
 public interface IServiceType<TService, TConfiguration> : IServiceType<TService>
-    where TService : class, IFractalService
-    where TConfiguration : IFractalConfiguration
+    where TService : class, IFdwService
+    where TConfiguration : IFdwConfiguration
 {
 
 }
@@ -82,7 +82,7 @@ public interface IServiceType<TService, TConfiguration> : IServiceType<TService>
 /// </list>
 /// </remarks>
 public interface IServiceType<TService> : IServiceType
-    where TService : class, IFractalService
+    where TService : class, IFdwService
 {
 
 }

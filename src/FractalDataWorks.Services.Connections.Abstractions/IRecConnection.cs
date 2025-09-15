@@ -15,7 +15,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// and other external systems. Implementations should handle connection lifecycle, authentication,
 /// and basic connectivity operations.
 /// </remarks>
-public interface IConnection : IDisposable,IFractalService
+public interface IConnection : IDisposable,IFdwService
 {
     /// <summary>
     /// Gets the unique identifier for this connection.

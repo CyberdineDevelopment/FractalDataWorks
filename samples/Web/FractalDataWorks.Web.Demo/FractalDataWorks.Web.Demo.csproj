@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!-- FractalDataWorks ServiceType packages -->
+  <ItemGroup>
+    <ProjectReference Include="../../../src/FractalDataWorks.Services.Connections/FractalDataWorks.Services.Connections.csproj" />
+    <ProjectReference Include="../../../src/FractalDataWorks.Services.Connections.MsSql/FractalDataWorks.Services.Connections.MsSql.csproj" />
+    <ProjectReference Include="../../../src/FractalDataWorks.Services.Authentication/FractalDataWorks.Services.Authentication.csproj" />
+    <ProjectReference Include="../../../src/FractalDataWorks.Services.SecretManagement/FractalDataWorks.Services.SecretManagement.csproj" />
+    <ProjectReference Include="../../../src/FractalDataWorks.Services.Transformations/FractalDataWorks.Services.Transformations.csproj" />
+    <ProjectReference Include="../../../src/FractalDataWorks.Services.DataGateway/FractalDataWorks.Services.DataGateway.csproj" />
+    <ProjectReference Include="../../../src/FractalDataWorks.DataStores/FractalDataWorks.DataStores.csproj" />
+    <ProjectReference Include="../../../src/FractalDataWorks.Configuration/FractalDataWorks.Configuration.csproj" />
+    <ProjectReference Include="../../../src/FractalDataWorks.Results/FractalDataWorks.Results.csproj" />
+  </ItemGroup>
+
+  <!-- FastEndpoints and related packages -->
+  <ItemGroup>
+    <PackageReference Include="FastEndpoints" />
+    <PackageReference Include="FastEndpoints.Swagger" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+  </ItemGroup>
+
+</Project>

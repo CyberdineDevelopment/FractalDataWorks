@@ -17,7 +17,7 @@ namespace FractalDataWorks;
 /// overridden to implement custom validation and initialization logic.
 /// The "Rec" prefix avoids namespace collisions with common configuration types.
 /// </remarks>
-public abstract class FractalConfigurationBase : IFractalConfiguration
+public abstract class FractalConfigurationBase : IFdwConfiguration
 {
     /// <summary>
     /// Gets or sets the unique identifier for this configuration instance.

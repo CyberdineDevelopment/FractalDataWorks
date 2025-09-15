@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// Provides robust enterprise-grade scheduling with persistence and clustering support.
 /// </summary>
 public sealed class QuartzNetSchedulerType : 
-    SchedulerTypeBase<IFractalSchedulingService, ISchedulingConfiguration, ISchedulingServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>>
+    SchedulerTypeBase<IFractalSchedulingService, ISchedulingConfiguration, IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>>
 {
     /// <summary>
     /// Gets the singleton instance of the Quartz.NET scheduler type.
@@ -58,7 +58,7 @@ public sealed class QuartzNetSchedulerType :
     public override int MaxConcurrentJobs => 100; // Configurable
 
     /// <inheritdoc/>
-    public override Type FactoryType => typeof(ISchedulingServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>);
+    public override Type FactoryType => typeof(IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>);
 
     /// <inheritdoc/>
     public override void Register(IServiceCollection services)

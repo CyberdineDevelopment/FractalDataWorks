@@ -7,7 +7,7 @@ namespace FractalDataWorks.Services.SecretManagement.Abstractions;
 /// <summary>
 /// Non-generic marker interface for secret services.
 /// </summary>
-public interface ISecretService : IFractalService
+public interface ISecretService : IFdwService
 {
 }
 
@@ -21,7 +21,7 @@ public interface ISecretService : IFractalService
 /// secret storage systems. They handle service-specific authentication, API calls,
 /// error handling, and result formatting.
 /// </remarks>
-public interface ISecretService<TSecretCommand> : ISecretService, IFractalService<TSecretCommand>
+public interface ISecretService<TSecretCommand> : ISecretService, IFdwService<TSecretCommand>
     where TSecretCommand : ISecretCommand
 {
 }

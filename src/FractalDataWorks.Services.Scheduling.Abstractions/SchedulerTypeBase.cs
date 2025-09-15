@@ -20,7 +20,7 @@ public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> :
     ServiceTypeBase<TService, TConfiguration, TFactory>
     where TService : class, IFractalSchedulingService
     where TConfiguration : class, ISchedulingConfiguration
-    where TFactory : class, ISchedulingServiceFactory<TService, TConfiguration>
+    where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
     /// <summary>
     /// Gets the scheduling engine used by this service type.

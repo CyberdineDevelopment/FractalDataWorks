@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// Interface for connection data services that handle data operations across external systems.
 /// Extends IFractalService with connection-specific data operations.
 /// </summary>
-public interface IConnectionDataService : IFractalService
+public interface IConnectionDataService : IFdwService
 {
     /// <summary>
     /// Gets the unique identifier for this service instance.

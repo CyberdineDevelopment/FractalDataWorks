@@ -70,7 +70,7 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
     /// </summary>
     /// <param name="configuration">The configuration object.</param>
     /// <returns>A result containing the connection instance.</returns>
-    public async Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFractalConfiguration configuration)
+    public async Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFdwConfiguration configuration)
     {
         if (configuration is RestConnectionConfiguration restConfig)
         {
@@ -91,7 +91,7 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
     /// <param name="configuration">The configuration object.</param>
     /// <param name="connectionType">The connection type name.</param>
     /// <returns>A result containing the connection instance.</returns>
-    public async Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFractalConfiguration configuration, string connectionType)
+    public async Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFdwConfiguration configuration, string connectionType)
     {
         return await CreateConnectionAsync(configuration);
     }
@@ -101,7 +101,7 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
     /// </summary>
     /// <param name="configuration">The configuration to validate.</param>
     /// <returns>A result indicating whether the configuration is valid.</returns>
-    public IFdwResult ValidateConfiguration(IFractalConfiguration configuration)
+    public IFdwResult ValidateConfiguration(IFdwConfiguration configuration)
     {
         if (configuration is RestConnectionConfiguration restConfig)
         {

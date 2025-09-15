@@ -81,5 +81,5 @@ public sealed class MsSqlFdwConnectionCreateCommand : IFdwConnectionCommand, IFd
     /// <summary>
     /// Gets the configuration associated with this command.
     /// </summary>
-    public IFractalConfiguration? Configuration => ConnectionConfiguration as IFractalConfiguration;
+    public IFdwConfiguration? Configuration => ConnectionConfiguration as IFdwConfiguration;
 }

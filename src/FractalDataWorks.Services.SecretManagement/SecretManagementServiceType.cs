@@ -18,8 +18,8 @@ namespace FractalDataWorks.Services.SecretManagement;
 public abstract class SecretManagementServiceType<TSelf, TService, TConfiguration, TFactory> :
     ServiceType<TSelf, TService, TConfiguration, TFactory>
     where TSelf : SecretManagementServiceType<TSelf, TService, TConfiguration, TFactory>, IEnumOption<TSelf>
-    where TService : class, IFractalService
-    where TConfiguration : class, IFractalConfiguration
+    where TService : class, IFdwService
+    where TConfiguration : class, IFdwConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
     /// <summary>

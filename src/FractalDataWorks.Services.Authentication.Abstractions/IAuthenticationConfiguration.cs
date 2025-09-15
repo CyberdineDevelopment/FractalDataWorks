@@ -5,7 +5,7 @@ namespace FractalDataWorks.Services.Authentication.Abstractions;
 /// <summary>
 /// Configuration interface for authentication services.
 /// </summary>
-public interface IAuthenticationConfiguration : IFractalConfiguration
+public interface IAuthenticationConfiguration : IFdwConfiguration
 {
     /// <summary>
     /// Gets the client identifier for the authentication provider.

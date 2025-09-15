@@ -18,7 +18,7 @@ public interface IFractalConfigurationProvider
     /// <param name="id">The ID of the configuration.</param>
     /// <returns>A task containing the configuration result.</returns>
     Task<IFdwResult<TConfiguration>> Get<TConfiguration>(int id)
-        where TConfiguration : IFractalConfiguration;
+        where TConfiguration : IFdwConfiguration;
 
     /// <summary>
     /// Gets a configuration by its name.
@@ -27,7 +27,7 @@ public interface IFractalConfigurationProvider
     /// <param name="name">The name of the configuration.</param>
     /// <returns>A task containing the configuration result.</returns>
     Task<IFdwResult<TConfiguration>> Get<TConfiguration>(string name)
-        where TConfiguration : IFractalConfiguration;
+        where TConfiguration : IFdwConfiguration;
 
     /// <summary>
     /// Gets all configurations of a specific type.
@@ -35,7 +35,7 @@ public interface IFractalConfigurationProvider
     /// <typeparam name="TConfiguration">The type of configurations to retrieve.</typeparam>
     /// <returns>A task containing the collection of configurations.</returns>
     Task<IFdwResult<IEnumerable<TConfiguration>>> GetAll<TConfiguration>()
-        where TConfiguration : IFractalConfiguration;
+        where TConfiguration : IFdwConfiguration;
 
     /// <summary>
     /// Gets all enabled configurations of a specific type.
@@ -43,7 +43,7 @@ public interface IFractalConfigurationProvider
     /// <typeparam name="TConfiguration">The type of configurations to retrieve.</typeparam>
     /// <returns>A task containing the collection of enabled configurations.</returns>
     Task<IFdwResult<IEnumerable<TConfiguration>>> GetEnabled<TConfiguration>()
-        where TConfiguration : IFractalConfiguration;
+        where TConfiguration : IFdwConfiguration;
 
     /// <summary>
     /// Reloads configurations from the source.
@@ -62,7 +62,7 @@ public interface IFractalConfigurationProvider
 /// </summary>
 /// <typeparam name="TConfiguration">The type of configuration this provider manages.</typeparam>
 public interface IFractalConfigurationProvider<TConfiguration>
-    where TConfiguration : IFractalConfiguration
+    where TConfiguration : IFdwConfiguration
 {
     /// <summary>
     /// Gets a configuration by its ID.

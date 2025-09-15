@@ -55,7 +55,7 @@ public abstract class ConfigurationSourceBase : IFractalConfigurationSource
     /// <typeparam name="TConfiguration">The type of configuration to load.</typeparam>
     /// <returns>A task containing the loaded configurations.</returns>
     public abstract Task<IFdwResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
-        where TConfiguration : IFractalConfiguration;
+        where TConfiguration : IFdwConfiguration;
 
     /// <summary>
     /// Saves a configuration to this source.
@@ -64,7 +64,7 @@ public abstract class ConfigurationSourceBase : IFractalConfigurationSource
     /// <param name="configuration">The configuration to save.</param>
     /// <returns>A task containing the save operation result.</returns>
     public virtual Task<IFdwResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration)
-        where TConfiguration : IFractalConfiguration
+        where TConfiguration : IFdwConfiguration
     {
         if (!IsWritable)
         {
@@ -82,7 +82,7 @@ public abstract class ConfigurationSourceBase : IFractalConfigurationSource
     /// <param name="id">The ID of the configuration to delete.</param>
     /// <returns>A task containing the delete operation result.</returns>
     public virtual Task<IFdwResult<NonResult>> Delete<TConfiguration>(int id)
-        where TConfiguration : IFractalConfiguration
+        where TConfiguration : IFdwConfiguration
     {
         if (!IsWritable)
         {
@@ -100,7 +100,7 @@ public abstract class ConfigurationSourceBase : IFractalConfigurationSource
     /// <param name="configuration">The configuration to save.</param>
     /// <returns>A task containing the save operation result.</returns>
     protected abstract Task<IFdwResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
-        where TConfiguration : IFractalConfiguration;
+        where TConfiguration : IFdwConfiguration;
 
     /// <summary>
     /// Core implementation of delete operation.
@@ -109,7 +109,7 @@ public abstract class ConfigurationSourceBase : IFractalConfigurationSource
     /// <param name="id">The ID of the configuration to delete.</param>
     /// <returns>A task containing the delete operation result.</returns>
     protected abstract Task<IFdwResult<NonResult>> DeleteCore<TConfiguration>(int id)
-        where TConfiguration : IFractalConfiguration;
+        where TConfiguration : IFdwConfiguration;
 
     /// <summary>
     /// Raises the Changed event.

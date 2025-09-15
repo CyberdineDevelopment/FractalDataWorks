@@ -12,7 +12,7 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions;
 /// </summary>
 public abstract class HttpConnectionTypeBase<TService, TConfiguration, TFactory> : 
     ConnectionTypeBase<TService, TConfiguration, TFactory>
-    where TService : class, IFdwConnection, IFractalService
+    where TService : class, IFdwConnection, IFdwService
     where TConfiguration : class, IConnectionConfiguration
     where TFactory : class, IConnectionFactory<TService, TConfiguration>
 {

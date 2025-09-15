@@ -11,7 +11,7 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// <summary>
 /// Non-generic marker interface for transformation providers.
 /// </summary>
-public interface ITransformationProvider : IFractalService
+public interface ITransformationProvider : IFdwService
 {
 }
 
@@ -25,7 +25,7 @@ public interface ITransformationProvider : IFractalService
 /// different formats, structures, and representations. They enable data pipeline operations
 /// and ETL (Extract, Transform, Load) processes within the framework.
 /// </remarks>
-public interface ITransformationProvider<TTransformationRequest> : ITransformationProvider, IFractalService<TTransformationRequest>
+public interface ITransformationProvider<TTransformationRequest> : ITransformationProvider, IFdwService<TTransformationRequest>
     where TTransformationRequest : ITransformationRequest
 {
     /// <summary>

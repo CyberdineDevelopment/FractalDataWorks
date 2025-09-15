@@ -89,7 +89,7 @@ public class JsonConfigurationSource : ConfigurationSourceBase
     /// <param name="id">The ID of the configuration to load.</param>
     /// <returns>A task containing the loaded configuration.</returns>
     public Task<IFdwResult<TConfiguration>> Load<TConfiguration>(int id)
-        where TConfiguration : IFractalConfiguration
+        where TConfiguration : IFdwConfiguration
     {
         var fileName = GetFileName<TConfiguration>(id);
         var filePath = Path.Combine(_basePath, fileName);
@@ -170,7 +170,7 @@ public class JsonConfigurationSource : ConfigurationSourceBase
     }
 
     private static string GetFileName<TConfiguration>(TConfiguration configuration)
-        where TConfiguration : IFractalConfiguration
+        where TConfiguration : IFdwConfiguration
     {
         // Try to get ID if configuration has it
         int configId = 0;
@@ -182,7 +182,7 @@ public class JsonConfigurationSource : ConfigurationSourceBase
     }
 
     private static string GetFileName<TConfiguration>(int id)
-        where TConfiguration : IFractalConfiguration
+        where TConfiguration : IFdwConfiguration
     {
         var typeName = typeof(TConfiguration).Name;
         return $"{typeName}_{id}.json";

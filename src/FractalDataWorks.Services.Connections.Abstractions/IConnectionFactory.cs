@@ -57,7 +57,7 @@ public interface IConnectionFactory : IServiceFactory
     /// This method creates and initializes a new connection instance. The connection
     /// is not automatically opened - callers must call OpenAsync() separately.
     /// </remarks>
-    Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFractalConfiguration configuration);
+    Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFdwConfiguration configuration);
     
     /// <summary>
     /// Creates a connection using the provided configuration with connection type specification.
@@ -79,7 +79,7 @@ public interface IConnectionFactory : IServiceFactory
     /// This overload allows specifying the exact type of connection to create when
     /// the factory supports multiple connection types.
     /// </remarks>
-    Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFractalConfiguration configuration, string connectionType);
+    Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFdwConfiguration configuration, string connectionType);
     
     /// <summary>
     /// Validates the provided configuration without creating a connection.
@@ -94,7 +94,7 @@ public interface IConnectionFactory : IServiceFactory
     /// This method performs configuration validation without the overhead of creating
     /// an actual connection. Useful for configuration validation in setup processes.
     /// </remarks>
-    Task<IFdwResult> ValidateConfigurationAsync(IFractalConfiguration configuration);
+    Task<IFdwResult> ValidateConfigurationAsync(IFdwConfiguration configuration);
     
     /// <summary>
     /// Tests connectivity using the provided configuration.
@@ -108,7 +108,7 @@ public interface IConnectionFactory : IServiceFactory
     /// This method creates a temporary connection, tests connectivity, and immediately
     /// disposes the connection. Useful for validation and health checks.
     /// </remarks>
-    Task<IFdwResult> TestConnectivityAsync(IFractalConfiguration configuration);
+    Task<IFdwResult> TestConnectivityAsync(IFdwConfiguration configuration);
 }
 
 /// <summary>

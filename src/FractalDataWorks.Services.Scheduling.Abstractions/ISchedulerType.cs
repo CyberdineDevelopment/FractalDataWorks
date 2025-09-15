@@ -17,7 +17,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 public interface ISchedulerType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
     where TService : class, IFractalSchedulingService
     where TConfiguration : class, ISchedulingConfiguration
-    where TFactory : class, ISchedulingServiceFactory<TService, TConfiguration>
+    where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
     /// <summary>
     /// Gets the name of the underlying scheduling engine (e.g., "Quartz.NET", "Hangfire").

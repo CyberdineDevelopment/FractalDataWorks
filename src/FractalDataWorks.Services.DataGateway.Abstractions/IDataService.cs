@@ -7,7 +7,7 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions;
 /// <summary>
 /// Non-generic marker interface for data services.
 /// </summary>
-public interface IDataService : IFractalService
+public interface IDataService : IFdwService
 {
 }
 
@@ -21,7 +21,7 @@ public interface IDataService : IFractalService
 /// and provide a consistent command execution interface. They handle connection management,
 /// transaction coordination, and result processing for data operations.
 /// </remarks>
-public interface IDataService<TDataCommand> : IDataService, IFractalService<TDataCommand>
+public interface IDataService<TDataCommand> : IDataService, IFdwService<TDataCommand>
     where TDataCommand : IDataCommand
 {
 }

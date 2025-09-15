@@ -15,7 +15,7 @@ namespace FractalDataWorks.Services.Abstractions;
 /// behavior and integration with the service management infrastructure.
 /// The "Rec" prefix avoids namespace collisions with common service interfaces.
 /// </remarks>
-public interface IFractalService
+public interface IFdwService
 {
     /// <summary>
     /// Gets the unique identifier for this service instance.
@@ -59,7 +59,7 @@ public interface IFractalService
 /// Use this interface for services that require specific configuration objects
 /// to function properly. The configuration should be provided via constructor.
 /// </remarks>
-public interface IFractalService<TCommand>
+public interface IFdwService<TCommand>
     where TCommand : ICommand
 {
     /// <summary>
@@ -111,9 +111,9 @@ public interface IFractalService<TCommand>
 /// and access to strongly-typed configuration objects. It represents the contract
 /// that most service base classes implement.
 /// </remarks>
-public interface IFractalService<TCommand, TConfiguration> : IFractalService<TCommand>
+public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
     where TCommand : ICommand
-    where TConfiguration : IFractalConfiguration
+    where TConfiguration : IFdwConfiguration
 {
     /// <summary>
     /// Gets the service name for display purposes.
@@ -173,9 +173,9 @@ public interface IFractalService<TCommand, TConfiguration> : IFractalService<TCo
 /// configuration access, and service type identification. It matches the pattern
 /// used by ServiceBase and ConnectionServiceBase classes.
 /// </remarks>
-public interface IFractalService<TCommand, TConfiguration, TService> : IFractalService<TCommand, TConfiguration>
+public interface IFdwService<TCommand, TConfiguration, TService> : IFdwService<TCommand, TConfiguration>
     where TCommand : ICommand
-    where TConfiguration : IFractalConfiguration
+    where TConfiguration : IFdwConfiguration
     where TService : class
 {
     // No additional members - the TService is used for type identification and logging

@@ -77,5 +77,5 @@ public sealed class MsSqlFdwConnectionManagementCommand : IFdwConnectionCommand,
     /// <summary>
     /// Gets the configuration associated with this command.
     /// </summary>
-    public IFractalConfiguration? Configuration => null; // Management commands don't have associated configuration
+    public IFdwConfiguration? Configuration => null; // Management commands don't have associated configuration
 }

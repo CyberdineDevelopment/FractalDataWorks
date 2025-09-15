@@ -87,7 +87,7 @@ public sealed class AzureKeyVaultCommand : ISecretCommand
     /// <summary>
     /// Gets the configuration for this command.
     /// </summary>
-    public IFractalConfiguration? Configuration { get; set; }
+    public IFdwConfiguration? Configuration { get; set; }
 
     /// <summary>
     /// Validates the command parameters.

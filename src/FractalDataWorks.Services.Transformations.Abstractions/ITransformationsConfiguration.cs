@@ -6,6 +6,6 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// <summary>
 /// Configuration interface for transformation services.
 /// </summary>
-public interface ITransformationsConfiguration : IFractalConfiguration 
+public interface ITransformationsConfiguration : IFdwConfiguration 
 {
 }

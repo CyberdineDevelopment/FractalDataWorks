@@ -20,7 +20,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// All connection services should inherit from this class to ensure consistent
 /// behavior across different connection types (HTTP, SQL, REST, etc.).
 /// </remarks>
-public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> : IFractalService<TCommand, TConfiguration, TService>, IFdwConnection
+public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> : IFdwService<TCommand, TConfiguration, TService>, IFdwConnection
     where TCommand : IConnectionCommand
     where TConfiguration : class, IConnectionConfiguration
     where TService : class

@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// Provides simple background job processing with web-based monitoring dashboard.
 /// </summary>
 public sealed class HangfireSchedulerType : 
-    SchedulerTypeBase<IFractalSchedulingService, ISchedulingConfiguration, ISchedulingServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>>
+    SchedulerTypeBase<IFractalSchedulingService, ISchedulingConfiguration, IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>>
 {
     /// <summary>
     /// Gets the singleton instance of the Hangfire scheduler type.
@@ -58,7 +58,7 @@ public sealed class HangfireSchedulerType :
     public override int MaxConcurrentJobs => 20; // Default worker count
 
     /// <inheritdoc/>
-    public override Type FactoryType => typeof(ISchedulingServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>);
+    public override Type FactoryType => typeof(IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>);
 
     /// <inheritdoc/>
     public override void Register(IServiceCollection services)

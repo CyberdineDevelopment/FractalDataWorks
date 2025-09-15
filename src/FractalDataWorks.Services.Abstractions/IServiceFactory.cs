@@ -14,14 +14,14 @@ public interface IServiceFactory
     /// <typeparam name="T">The type of service to create.</typeparam>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    public IFdwResult<T> Create<T>(IFractalConfiguration configuration) where T : IFractalService;
+    public IFdwResult<T> Create<T>(IFdwConfiguration configuration) where T : IFdwService;
 
     /// <summary>
     /// Creates a service instance.
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    public IFdwResult<IFractalService> Create(IFractalConfiguration configuration);
+    public IFdwResult<IFdwService> Create(IFdwConfiguration configuration);
 }
 /// <summary>
 /// Generic factory interface for creating Service instances of a specific type
@@ -35,7 +35,7 @@ public interface IServiceFactory<TService> : IServiceFactory
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    new IFdwResult<TService> Create(IFractalConfiguration configuration);
+    new IFdwResult<TService> Create(IFdwConfiguration configuration);
 }
 
 /// <summary>
@@ -45,7 +45,7 @@ public interface IServiceFactory<TService> : IServiceFactory
 /// <typeparam name="TConfiguration">The configuration type required by the service</typeparam>
 public interface IServiceFactory<TService, in TConfiguration> : IServiceFactory<TService>
     where TService : class
-    where TConfiguration : IFractalConfiguration
+    where TConfiguration : IFdwConfiguration
 {
     /// <summary>
     /// Creates a service instance using the strongly-typed configuration.

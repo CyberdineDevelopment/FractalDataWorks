@@ -9,7 +9,7 @@ namespace FractalDataWorks.Services;
 /// </summary>
 /// <typeparam name="TConfiguration">The type of configuration managed by this registry.</typeparam>
 public sealed class ConfigurationRegistryCore<TConfiguration> : IConfigurationRegistry<TConfiguration>
-    where TConfiguration : IFractalConfiguration
+    where TConfiguration : IFdwConfiguration
 {
     private readonly Dictionary<int, TConfiguration> _configurationsById;
     private readonly Dictionary<string, TConfiguration> _configurationsByName;

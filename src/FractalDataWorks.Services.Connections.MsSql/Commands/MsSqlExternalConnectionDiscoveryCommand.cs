@@ -86,5 +86,5 @@ public sealed class MsSqlFdwConnectionDiscoveryCommand : IFdwConnectionCommand, 
     /// <summary>
     /// Gets the configuration associated with this command.
     /// </summary>
-    public IFractalConfiguration? Configuration => null; // Discovery commands don't have associated configuration
+    public IFdwConfiguration? Configuration => null; // Discovery commands don't have associated configuration
 }

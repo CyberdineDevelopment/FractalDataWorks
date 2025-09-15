@@ -26,7 +26,7 @@ namespace FractalDataWorks.Services.Authentication.Abstractions.Security;
 /// requirements and thread-safety characteristics.
 /// </para>
 /// </remarks>
-public interface IAuthenticationService : IFractalService
+public interface IAuthenticationService : IFdwService
 {
     /// <summary>
     /// Authenticates a user based on the provided authentication token.

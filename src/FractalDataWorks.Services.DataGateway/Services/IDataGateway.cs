@@ -23,7 +23,7 @@ namespace FractalDataWorks.Services.DataGateway.Services;
 /// provides a unified interface for data operations across different data stores such as
 /// SQL databases, NoSQL databases, file systems, REST APIs, and other external systems.
 /// </remarks>
-public interface IDataGateway : IFractalService<DataCommandBase>
+public interface IDataGateway : IFdwService<DataCommandBase>
 {
     /// <summary>
     /// Executes a data command against the specified connection and returns a typed result.

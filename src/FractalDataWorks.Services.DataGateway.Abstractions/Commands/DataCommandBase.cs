@@ -35,7 +35,7 @@ public abstract class DataCommandBase : IDataCommand
     public DateTimeOffset Timestamp { get; }
 
     /// <inheritdoc/>
-    public IFractalConfiguration? Configuration { get; }
+    public IFdwConfiguration? Configuration { get; }
 
     /// <inheritdoc/>
     public string CommandType { get; private set; }

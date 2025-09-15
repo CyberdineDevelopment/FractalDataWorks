@@ -6,6 +6,6 @@ namespace FractalDataWorks.Services.SecretManagement.Abstractions;
 /// <summary>
 /// Configuration interface for secret management services.
 /// </summary>
-public interface ISecretManagementConfiguration : IFractalConfiguration 
+public interface ISecretManagementConfiguration : IFdwConfiguration 
 {
 }

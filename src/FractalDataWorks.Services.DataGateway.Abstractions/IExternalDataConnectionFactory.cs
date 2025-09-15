@@ -15,7 +15,7 @@ public interface IExternalDataConnectionFactory
     /// </summary>
     /// <param name="configuration">The configuration for the connection.</param>
     /// <returns>A result containing the created connection or an error message.</returns>
-    IFdwResult<IExternalDataConnection<IConnectionConfiguration>> Create(IFractalConfiguration configuration);
+    IFdwResult<IExternalDataConnection<IConnectionConfiguration>> Create(IFdwConfiguration configuration);
 }
 
 /// <summary>

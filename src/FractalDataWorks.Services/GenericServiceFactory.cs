@@ -18,8 +18,8 @@ namespace FractalDataWorks.Services;
 /// <typeparam name="TService">The service type to create.</typeparam>
 /// <typeparam name="TConfiguration">The configuration type for the service.</typeparam>
 public class GenericServiceFactory<TService, TConfiguration> : ServiceFactoryBase<TService, TConfiguration>
-    where TService : class, IFractalService
-    where TConfiguration : class, IFractalConfiguration
+    where TService : class, IFdwService
+    where TConfiguration : class, IFdwConfiguration
 {
     private readonly ILogger<GenericServiceFactory<TService, TConfiguration>> _logger;
 
