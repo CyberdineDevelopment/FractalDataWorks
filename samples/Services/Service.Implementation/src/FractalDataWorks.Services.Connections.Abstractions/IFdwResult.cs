@@ -1,7 +1,8 @@
 namespace FractalDataWorks.Services.Connections.Abstractions;
 
 /// <summary>
-/// Represents the result of an operation.
+/// Basic result interface for sample.
+/// NOTE: In production, use IFdwResult from FractalDataWorks.Results
 /// </summary>
 public interface IFdwResult
 {
@@ -11,18 +12,14 @@ public interface IFdwResult
     bool IsSuccess { get; }
 
     /// <summary>
-    /// Gets a value indicating whether the operation failed.
-    /// </summary>
-    bool IsFailure { get; }
-
-    /// <summary>
     /// Gets the error message if the operation failed.
     /// </summary>
     string Error { get; }
 }
 
 /// <summary>
-/// Represents the result of an operation with a return value.
+/// Basic result interface with value for sample.
+/// NOTE: In production, use IFdwResult&lt;T&gt; from FractalDataWorks.Results
 /// </summary>
 public interface IFdwResult<T> : IFdwResult
 {

@@ -9,4 +9,11 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
   </ItemGroup>
+
+  <!-- TODO: In production, reference these packages from local packages:
+       - FractalDataWorks.Services.Abstractions (for IDataCommand)
+       - FractalDataWorks.Results (for IFdwResult)
+       - FractalDataWorks.Services.Connections.Abstractions (for ConnectionTypeBase)
+       This sample uses simplified versions for demonstration purposes.
+  -->
 </Project>

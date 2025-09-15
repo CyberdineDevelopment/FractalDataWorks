@@ -891,7 +891,7 @@ public sealed class MsSqlConnection : IFdwConnection
 This document provides the complete requirements with all the corrections we discussed:
 - Only `Execute` and `Execute<T>` methods (no Open/Close)
 - All method names without "Async" suffix
-- `FdwResult` instead of `FractalResult`
+- `FdwResult` instead of `FdwResult`
 - Source-generated logging with `partial` classes
 - No reflection - proper interface-based design
 - Factory methods named `Create` (not `CreateConnection`)
