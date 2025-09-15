@@ -1,68 +1,123 @@
 # Services Framework
 
 ## Overview
-The FractalDataWorks Services framework provides a structured approach to building scalable, maintainable services with built-in configuration, validation, logging, and error handling.
+The FractalDataWorks Services framework provides a ServiceType-based plugin architecture for building scalable, maintainable services with automatic discovery, registration, and type-safe configuration.
+
+## Service Architecture Overview
+
+The framework uses ServiceTypes to define, discover, and manage services automatically:
+
+1. **ServiceType Implementation**: Define service capabilities as singleton types
+2. **Auto-Discovery**: Source generators discover and register ServiceTypes
+3. **Interface-Based Usage**: Access services through interfaces for polymorphism
+4. **Configuration Management**: Dynamic configuration loading using ServiceType metadata
 
 ## Base Service Implementation
 
-All services inherit from `ServiceBase<TExecutor, TConfiguration>`:
+Services implement the `IFdwService` interface hierarchy:
 
 ```csharp
-public abstract class ServiceBase<TExecutor, TConfiguration> : IFractalService<TExecutor, TConfiguration>
-    where TExecutor : class
-    where TConfiguration : class
+public interface IFdwService
 {
-    protected TExecutor Executor { get; }
-    protected ILogger Logger { get; }
-    
-    protected ServiceBase(TExecutor executor, ILogger logger)
+    // Base service contract
+}
+
+public interface IFdwService<TCommand> : IFdwService
+{
+    Task<IFdwResult> ExecuteAsync(TCommand command, CancellationToken cancellationToken = default);
+}
+
+public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
+{
+    Task<IFdwResult> ExecuteAsync(TCommand command, TConfiguration configuration, CancellationToken cancellationToken = default);
+}
+```
+
+## ServiceType Implementation Pattern
+
+### 1. Define ServiceType (Singleton)
+
+```csharp
+public sealed class MyDomainServiceType :
+    ServiceTypeBase<IMyDomainService, MyDomainConfiguration, IMyDomainServiceFactory>
+{
+    public static MyDomainServiceType Instance { get; } = new();
+
+    private MyDomainServiceType() : base(id: 1, name: "MyDomain", category: "Business") { }
+
+    public override string SectionName => "MyDomain";
+    public override string DisplayName => "My Domain Service";
+    public override string Description => "Handles core business logic for My Domain operations.";
+
+    public override void Register(IServiceCollection services)
     {
-        Executor = executor ?? throw new ArgumentNullException(nameof(executor));
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        services.AddScoped<IMyDomainServiceFactory, MyDomainServiceFactory>();
+        services.AddScoped<MyDomainService>();
+        services.AddScoped<MyDomainExecutor>();
     }
-    
-    protected IDisposable? StartActivity([CallerMemberName] string? operationName = null)
+
+    public override void Configure(IConfiguration configuration)
     {
-        return Activity.StartActivity($"{GetType().Name}.{operationName}");
+        var config = configuration.GetSection(SectionName).Get<MyDomainConfiguration>();
+        if (config == null)
+            throw new InvalidOperationException($"Configuration section '{SectionName}' not found");
+
+        // Validate configuration
+        var validator = new MyDomainConfigurationValidator();
+        var validationResult = validator.Validate(config);
+        if (!validationResult.IsValid)
+            throw new InvalidOperationException($"Invalid configuration: {string.Join(", ", validationResult.Errors)}");
     }
 }
 ```
 
-## Service Interface Pattern
+### 2. Define Service Interface
 
 ```csharp
-public interface IMyDomainService : IFractalService<MyDomainExecutor, MyDomainConfiguration>
+public interface IMyDomainService : IFdwService<MyDomainCommand, MyDomainConfiguration>
 {
     // Primary operations
-    Task<IFdwResult<MyDomainResult>> ProcessAsync(MyDomainConfiguration config, CancellationToken cancellationToken = default);
-    
+    Task<IFdwResult<MyDomainResult>> ProcessAsync(MyDomainCommand command, CancellationToken cancellationToken = default);
+
     // Validation operations
     Task<IFdwResult<ValidationResult>> ValidateConfigurationAsync(MyDomainConfiguration config, CancellationToken cancellationToken = default);
-    
+
     // Query operations
     Task<IFdwResult<MyDomainStatus>> GetStatusAsync(string processId, CancellationToken cancellationToken = default);
-    
+
     // Management operations
     Task<IFdwResult> CancelAsync(string processId, CancellationToken cancellationToken = default);
 }
 ```
 
-## Configuration Pattern
+### 3. Define Configuration Class
 
-All service configurations inherit from `ConfigurationBase<T>`:
+Configuration classes implement appropriate interfaces and support validation:
 
 ```csharp
-public class MyServiceConfiguration : ConfigurationBase<MyServiceConfiguration>
+public class MyDomainConfiguration : IServiceConfiguration
 {
-    public override string SectionName => "MyService";
-    
     public string Source { get; set; } = string.Empty;
     public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(5);
     public int MaxRetries { get; set; } = 3;
-    
-    protected override IValidator<MyServiceConfiguration> GetValidator()
+    public bool EnableLogging { get; set; } = true;
+}
+
+public class MyDomainConfigurationValidator : AbstractValidator<MyDomainConfiguration>
+{
+    public MyDomainConfigurationValidator()
     {
-        return new MyServiceConfigurationValidator();
+        RuleFor(x => x.Source)
+            .NotEmpty()
+            .WithMessage("Source cannot be empty");
+
+        RuleFor(x => x.Timeout)
+            .GreaterThan(TimeSpan.Zero)
+            .WithMessage("Timeout must be greater than zero");
+
+        RuleFor(x => x.MaxRetries)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("MaxRetries must be non-negative");
     }
 }
 ```

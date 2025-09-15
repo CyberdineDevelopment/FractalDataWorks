@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "roslyn-analyzer": {
+      "command": "C:\\dotnet-reference-resolution\\published\\RoslynMcpServer.exe",
+      "args": [],
+      "env": {
+        "DOTNET_ENVIRONMENT": "Production"
+      }
+    }
+  }
+}

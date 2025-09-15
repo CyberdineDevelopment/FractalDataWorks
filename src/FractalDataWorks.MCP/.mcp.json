@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "roslyn-analyzer": {
+      "type": "stdio",
+      "command": "C:\\development\\tools\\mcp\\roslyn\\RoslynMcpServer.exe",
+      "args": [],
+      "env": {}
+    }
+  }
+}

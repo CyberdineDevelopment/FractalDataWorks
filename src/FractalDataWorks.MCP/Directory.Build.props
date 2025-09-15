@@ -1,0 +1,33 @@
+<Project>
+  <PropertyGroup>
+    <!-- Language version and framework settings -->
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    
+    <!-- Build settings -->
+    <Deterministic>true</Deterministic>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    
+    <!-- Disable specific warnings matching user preferences -->
+    <!-- MA0004: ConfigureAwait - not needed for console app -->
+    <!-- CA1869: JsonSerializerOptions singleton - performance optimization we'll handle later -->
+    <!-- MA0016: Prefer return collection abstraction - not critical -->
+    <!-- MA0048: File name must match type name - legacy code structure -->
+    <!-- MA0074: Avoid implicit culture-sensitive ToString - not critical for internal tool -->
+    <!-- CA1310: String comparisons - will fix critical ones manually -->
+    <!-- CA1860: Use Count > 0 instead of Any() - performance optimization -->
+    <!-- MA0006: Use string.Equals - code clarity -->
+    <!-- CA1305: Specify IFormatProvider - culture-specific, not critical for internal tool -->
+    <!-- MA0011: Use ContainsKey - performance optimization -->
+    <!-- VSTHRD103: Console.WriteLine in console apps is fine -->
+    <NoWarn>$(NoWarn);VSTHRD200;VSTHRD103;CA1716;CA1000;CA1848;CA1510;CA1834;MA0051;CS1570;MA0004;CA1869;MA0016;MA0048;MA0074;CA1310;CA1860;MA0006;CA1305;MA0011</NoWarn>
+    
+    <!-- Release configuration -->
+    <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <RunAnalyzers>true</RunAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+</Project>

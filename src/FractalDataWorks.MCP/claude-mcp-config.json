@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "roslyn-analyzer": {
+      "command": "dotnet",
+      "args": [
+        "run", 
+        "--project", 
+        "C:\\dotnet-reference-resolution\\RoslynMcpServer\\RoslynMcpServer.csproj"
+      ],
+      "env": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
