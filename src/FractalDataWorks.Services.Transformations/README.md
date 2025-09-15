@@ -2,170 +2,177 @@
 
 ## Overview
 
-This project provides concrete service type definitions and collections for data transformation services within the FractalDataWorks framework. It implements the transformation service type patterns defined in the abstractions layer, providing a standard transformation service type that supports common data transformation scenarios.
+The Transformations framework provides ServiceType auto-discovery for data transformation engines with unified interfaces that work across different transformation providers and processing patterns.
 
-## Key Types
+## Features
 
-### Service Type Definitions
+- **ServiceType Auto-Discovery**: Add transformation packages and they're automatically registered
+- **Universal Transformation Interface**: Same API works with all transformation engines
+- **Dynamic Engine Creation**: Transformation services created via factories
+- **Source-Generated Collections**: High-performance engine lookup
 
-#### StandardTransformationServiceType
-A concrete service type definition for the standard transformation service implementation:
+## Quick Start
 
-```csharp
-public sealed class StandardTransformationServiceType : 
-    TransformationServiceType<StandardTransformationServiceType, ITransformationProvider, ITransformationsConfiguration, IServiceFactory<ITransformationProvider, ITransformationsConfiguration>>
-{
-    // Configured with comprehensive transformation capabilities
-}
-```
-
-**Capabilities:**
-- **Supported Input Types**: JSON, XML, CSV, Object, Dictionary, Stream
-- **Supported Output Types**: JSON, XML, CSV, Object, Dictionary, Stream  
-- **Supported Categories**: Mapping, Filtering, Validation, Aggregation, Formatting, Conversion
-- **Parallel Execution**: Supported
-- **Transformation Caching**: Supported
-- **Pipeline Mode**: Supported
-- **Maximum Input Size**: 100MB (104,857,600 bytes)
-- **Priority**: 75
-
-### Enhanced Enums Collections
-
-#### TransformationServiceTypesCollection
-A source-generated collection class that provides strongly-typed access to transformation service types:
-
-```csharp
-[EnumCollection(CollectionName = "TransformationServiceTypes", DefaultGenericReturnType = typeof(IServiceType))]
-public sealed class TransformationServiceTypesCollection : 
-    TransformationServiceTypes<StandardTransformationServiceType, IServiceFactory<ITransformationProvider, ITransformationsConfiguration>>
-{
-    // Source generator automatically creates:
-    // - TransformationServiceTypes.Standard (returns IServiceType)
-    // - TransformationServiceTypes.All (collection)
-    // - TransformationServiceTypes.GetById(int id)
-    // - TransformationServiceTypes.GetByName(string name)
-}
-```
-
-## Dependencies
-
-### Project References
-- **FractalDataWorks.Services.Transformations.Abstractions** - Core transformation abstractions
-- **FractalDataWorks.Services** - Core service framework functionality
-
-### Package References
-None - inherits dependencies from referenced projects.
-
-## Usage Patterns
-
-### Accessing Service Types
-
-```csharp
-// Get the standard transformation service type
-var standardType = TransformationServiceTypes.Standard;
-
-// Access service type properties
-Console.WriteLine($"Service: {standardType.Name}");
-Console.WriteLine($"Description: {standardType.Description}");
-Console.WriteLine($"Supports Parallel: {standardType.SupportsParallelExecution}");
-Console.WriteLine($"Max Input Size: {standardType.MaxInputSizeBytes} bytes");
-
-// Get all available service types
-var allTypes = TransformationServiceTypes.All;
-
-// Find service type by ID or name
-var typeById = TransformationServiceTypes.GetById(1);
-var typeByName = TransformationServiceTypes.GetByName("StandardTransformation");
-```
-
-### Service Registration
-
-```csharp
-// Service types can be used with dependency injection
-services.AddTransformationService(TransformationServiceTypes.Standard);
-
-// Or accessed for factory creation
-var factory = serviceProvider.GetService<IServiceFactory<ITransformationProvider, ITransformationsConfiguration>>();
-var provider = await factory.CreateServiceAsync(TransformationServiceTypes.Standard, configuration);
-```
-
-## Generated Code
-
-The `TransformationServiceTypesCollection` class uses the Enhanced Enums source generator to automatically create:
-
-- **Static Access Properties**: `TransformationServiceTypes.Standard`
-- **Collection Access**: `TransformationServiceTypes.All`
-- **Lookup Methods**: `GetById(int)`, `GetByName(string)`
-- **Type Safety**: Returns `IServiceType` interface for framework compatibility
-
-## Code Coverage Exclusions
-
-The following patterns should be excluded from code coverage as they represent infrastructure or generated code:
+### 1. Install Packages
 
 ```xml
-<ExcludeFromCodeCoverage>
-  <!-- Enhanced Enums source-generated classes -->
-  <Attribute>FractalDataWorks.EnhancedEnums.Attributes.EnumCollectionAttribute</Attribute>
-  
-  <!-- Source-generated collection classes -->
-  <Class>TransformationServiceTypesCollection</Class>
-  
-  <!-- Service type constructors (configuration only) -->
-  <Method>StandardTransformationServiceType..ctor</Method>
-  
-  <!-- Factory implementation type getters -->
-  <Method>*.GetFactoryImplementationType</Method>
-</ExcludeFromCodeCoverage>
+<ProjectReference Include="..\FractalDataWorks.Services.Transformations\FractalDataWorks.Services.Transformations.csproj" />
+<ProjectReference Include="..\FractalDataWorks.Services.Transformations.Parallel\FractalDataWorks.Services.Transformations.Parallel.csproj" />
 ```
 
-## Architecture Notes
+### 2. Register Services
 
-### Enhanced Enums Pattern
-This project implements the FractalDataWorks Enhanced Enums pattern where service types are strongly-typed objects with rich metadata rather than simple enumerations. The source generator creates static collections and lookup methods automatically.
-
-### Factory Integration
-The `StandardTransformationServiceType` uses the generic service factory by default but can be overridden to use custom factory implementations as needed.
-
-### Configuration Inheritance
-Service types inherit comprehensive configuration from the base `TransformationServiceType` class, including input/output type definitions, capability flags, and resource limits.
-
-## Implementation Status
-
-✅ **Complete**: Standard transformation service type with comprehensive capabilities  
-✅ **Complete**: Enhanced Enums collection with source generation  
-✅ **Complete**: Integration with generic service factory pattern  
-✅ **Complete**: Full metadata specification for transformation capabilities  
-
-## Extending Service Types
-
-To add new transformation service types:
-
-1. Create a new service type class extending `TransformationServiceType`
-2. Configure supported input/output types and capabilities
-3. Add the service type to the collection class
-4. Implement corresponding transformation provider if needed
-
-Example:
 ```csharp
-public sealed class AdvancedTransformationServiceType : 
-    TransformationServiceType<AdvancedTransformationServiceType, ITransformationProvider, ITransformationsConfiguration, IAdvancedFactory>
+// Program.cs - Zero-configuration registration
+builder.Services.AddScoped<IFdwTransformationProvider, FdwTransformationProvider>();
+
+// Single line registers ALL discovered transformation types
+TransformationTypes.Register(builder.Services);
+```
+
+### 3. Configure Transformations
+
+```json
 {
-    public AdvancedTransformationServiceType() 
-        : base(
-            id: 2,
-            name: "AdvancedTransformation",
-            description: "Advanced transformation service with ML capabilities",
-            supportedInputTypes: new[] { "JSON", "Parquet", "Avro" },
-            supportedOutputTypes: new[] { "JSON", "Parquet", "TensorFlow" },
-            supportedCategories: new[] { "MachineLearning", "Analytics", "Prediction" },
-            supportsParallelExecution: true,
-            supportsTransformationCaching: true,
-            supportsPipelineMode: true,
-            maxInputSizeBytes: 1073741824L, // 1GB
-            priority: 90)
+  "Transformations": {
+    "DataProcessor": {
+      "TransformationType": "Parallel",
+      "MaxConcurrency": 8,
+      "BatchSize": 1000,
+      "EnableRetry": true,
+      "MaxRetryAttempts": 3
+    }
+  }
+}
+```
+
+### 4. Use Universal Transformations
+
+```csharp
+public class DataProcessingService
+{
+    private readonly IFdwTransformationProvider _transformationProvider;
+
+    public DataProcessingService(IFdwTransformationProvider transformationProvider)
     {
+        _transformationProvider = transformationProvider;
+    }
+
+    public async Task<IFdwResult<List<ProcessedData>>> ProcessDataAsync(List<RawData> rawData)
+    {
+        var engineResult = await _transformationProvider.GetTransformationEngine("DataProcessor");
+        if (!engineResult.IsSuccess)
+            return FdwResult<List<ProcessedData>>.Failure(engineResult.Error);
+
+        using var engine = engineResult.Value;
+
+        // Universal transformation - works with any engine
+        var transformationResult = await engine.TransformAsync<RawData, ProcessedData>(
+            rawData,
+            data => new ProcessedData
+            {
+                Id = data.Id,
+                ProcessedValue = data.RawValue.ToUpper(),
+                ProcessedAt = DateTimeOffset.UtcNow
+            });
+
+        return transformationResult;
     }
 }
 ```
 
-This project provides the concrete service type definitions needed to register and use transformation services within the FractalDataWorks framework.
+## Available Transformation Types
+
+| Package | Transformation Type | Purpose |
+|---------|-------------------|---------|
+| `FractalDataWorks.Services.Transformations.Parallel` | Parallel | High-performance parallel processing |
+| `FractalDataWorks.Services.Transformations.Sequential` | Sequential | Sequential data processing |
+| `FractalDataWorks.Services.Transformations.Streaming` | Streaming | Real-time stream processing |
+
+## How Auto-Discovery Works
+
+1. **Source Generator Scans**: `[ServiceTypeCollection]` attribute triggers compile-time discovery
+2. **Finds Implementations**: Scans referenced assemblies for types inheriting from `TransformationTypeBase`
+3. **Generates Collections**: Creates `TransformationTypes.All`, `TransformationTypes.Name()`, etc.
+4. **Self-Registration**: Each transformation type handles its own DI registration
+
+## Adding Custom Transformation Types
+
+```csharp
+// 1. Create your transformation type (singleton pattern)
+public sealed class CustomTransformationType : TransformationTypeBase<IFdwTransformationEngine, CustomTransformationConfiguration, ICustomTransformationFactory>
+{
+    public static CustomTransformationType Instance { get; } = new();
+
+    private CustomTransformationType() : base(4, "Custom", "Transformation Engines") { }
+
+    public override Type FactoryType => typeof(ICustomTransformationFactory);
+
+    public override void Register(IServiceCollection services)
+    {
+        services.AddScoped<ICustomTransformationFactory, CustomTransformationFactory>();
+        services.AddScoped<CustomTransformationProcessor>();
+        services.AddScoped<CustomDataValidator>();
+    }
+}
+
+// 2. Add package reference - source generator automatically discovers it
+// 3. TransformationTypes.Register(services) will include it automatically
+```
+
+## Common Transformation Patterns
+
+### Batch Processing
+
+```csharp
+public async Task<IFdwResult> ProcessLargeDatatAsync(IEnumerable<DataRecord> records)
+{
+    var engineResult = await _transformationProvider.GetTransformationEngine("Parallel");
+    if (!engineResult.IsSuccess)
+        return FdwResult.Failure(engineResult.Error);
+
+    using var engine = engineResult.Value;
+
+    // Process in batches for memory efficiency
+    var result = await engine.TransformBatchAsync<DataRecord, ProcessedRecord>(
+        records,
+        batchSize: 1000,
+        transformer: batch => batch.Select(ProcessRecord).ToList());
+
+    return result;
+}
+```
+
+### Streaming Transformations
+
+```csharp
+public async Task<IFdwResult> ProcessStreamAsync(IAsyncEnumerable<StreamData> dataStream)
+{
+    var engineResult = await _transformationProvider.GetTransformationEngine("Streaming");
+    if (!engineResult.IsSuccess)
+        return FdwResult.Failure(engineResult.Error);
+
+    using var engine = engineResult.Value;
+
+    // Real-time stream processing
+    await foreach (var item in dataStream)
+    {
+        var transformResult = await engine.TransformAsync(item, TransformStreamItem);
+        if (!transformResult.IsSuccess)
+            // Handle transformation errors
+            continue;
+    }
+
+    return FdwResult.Success();
+}
+```
+
+## Architecture Benefits
+
+- **Engine Agnostic**: Switch transformation engines without code changes
+- **Zero Configuration**: Add package reference, get functionality
+- **Type Safety**: Compile-time validation of transformation types
+- **Performance**: Source-generated collections use FrozenDictionary
+- **Scalability**: Each transformation type manages its own processing strategy
+
+For complete architecture details, see [Services.Abstractions README](../FractalDataWorks.Services.Abstractions/README.md).

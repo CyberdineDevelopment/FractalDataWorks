@@ -1,10 +1,28 @@
 # FractalDataWorks Developer Kit
 
-A comprehensive framework for building scalable, maintainable data-driven applications with universal command patterns, dependency injection, and source generation.
+A comprehensive framework for building scalable, maintainable data-driven applications with ServiceType auto-discovery, universal command patterns, and source generation.
 
 ## 🏗️ Architecture Overview
 
 The FractalDataWorks Developer Kit provides a complete architecture for building enterprise applications with these core principles:
+
+### ServiceType Auto-Discovery
+**Zero-configuration registration** - Add a package reference and get functionality:
+
+```csharp
+// Single line registers ALL discovered connection types
+ConnectionTypes.Register(services);
+
+// Add new providers by just adding package references
+// Authentication types
+AuthenticationTypes.Register(services);
+
+// Secret management providers
+SecretManagementTypes.Register(services);
+
+// Data transformation engines
+TransformationTypes.Register(services);
+```
 
 ### Universal Command Pattern
 **Single syntax, multiple backends** - Write your data commands once, execute anywhere:
@@ -14,50 +32,58 @@ The FractalDataWorks Developer Kit provides a complete architecture for building
 IConnectionCommand query = new QueryCommand("SELECT * FROM users WHERE active = @active")
     .WithParameter("active", true);
 
-// PostgreSQL: Translates to `SELECT * FROM "users" WHERE "active" = $1`
 // SQL Server: Translates to `SELECT * FROM [users] WHERE [active] = @active`
+// PostgreSQL: Translates to `SELECT * FROM "users" WHERE "active" = $1`
 // MongoDB: Translates to `db.users.find({"active": true})`
 ```
 
-### Dynamic Connection Management
-Connections are **NOT** registered in dependency injection. Instead, they're created dynamically:
+### Dynamic Service Creation
+Services are **NOT** registered in dependency injection. Instead, they're created dynamically via factories:
 
 ```csharp
 // ✅ Correct - Register factories and providers
 services.AddScoped<IFdwConnectionProvider, FdwConnectionProvider>();
-PostgreSqlConnectionType.Instance.Register(services); // Registers factory, not connection
+ConnectionTypes.Register(services); // Registers all factories automatically
 
-// ❌ Wrong - Don't register connections directly
-services.AddScoped<PostgreSqlConnection>(); // Never do this
+// ❌ Wrong - Don't register services directly
+services.AddScoped<MsSqlConnection>(); // Never do this
 ```
 
 ### Source-Generated Discovery
-Type discovery happens at compile time for maximum performance:
+Type discovery happens at compile time using source generators for maximum performance:
 
 ```csharp
-// Generated static class provides O(1) lookup
-var connectionType = ConnectionTypes.PostgreSql; // No reflection
-var factory = serviceProvider.GetService(connectionType.FactoryType);
+// Generated static class provides O(1) lookup with FrozenDictionary
+var connectionType = ConnectionTypes.MsSql; // No reflection, no LINQ
+var allTypes = ConnectionTypes.All; // Source-generated collection
 ```
 
 ## 🚀 Key Features
 
 ### 🔧 ServiceTypes Framework
-Standalone plugin architecture with **progressive constraint refinement**:
+Auto-discovering plugin architecture with **compile-time type safety**:
 
 ```csharp
-// Base interface - minimal constraints
-public interface IServiceType<TService>
-    where TService : IFractalService
-{ }
+// ServiceType provides metadata and self-registration
+public sealed class MsSqlConnectionType : ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
+{
+    public static MsSqlConnectionType Instance { get; } = new();
 
-// More specific interface adds constraints
-public interface IConnectionType<TConnection, TConfiguration, TFactory>
-    : IServiceType<TConnection>
-    where TConnection : IFdwConnection
-    where TConfiguration : IFractalConfiguration
-    where TFactory : IServiceFactory<TConnection, TConfiguration>
-{ }
+    public override void Register(IServiceCollection services)
+    {
+        // Each type knows exactly what it needs
+        services.AddScoped<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
+        services.AddScoped<MsSqlCommandTranslator>();
+        services.AddScoped<ExpressionTranslator>();
+    }
+}
+
+// Source generator creates collection automatically
+[ServiceTypeCollection("IConnectionType", "ConnectionTypes")]
+public static partial class ConnectionTypes
+{
+    // Generated: All, Name(), Id() methods with FrozenDictionary performance
+}
 ```
 
 ### 📦 Enhanced Enums
@@ -179,29 +205,33 @@ public sealed class PostgreSqlConnection : ConnectionServiceBase<IConnectionComm
 ### Service Registration Pattern
 
 ```csharp
-// In Program.cs
+// In Program.cs - ServiceType auto-discovery
 services.AddScoped<IFdwConnectionProvider, FdwConnectionProvider>();
 
-// Register connection types (factories, not connections)
-PostgreSqlConnectionType.Instance.Register(services);
+// Single line registers ALL discovered connection types
+ConnectionTypes.Register(services);
 
-// In production, register all available connection types:
-foreach (var connectionType in ConnectionTypes.All())
-{
-    connectionType.Register(services);
-}
+// Register all service domains
+AuthenticationTypes.Register(services);
+SecretManagementTypes.Register(services);
+TransformationTypes.Register(services);
+DataGatewayTypes.Register(services);
+DataStoreTypes.Register(services);
+
+// Or register individual types manually if needed
+MsSqlConnectionType.Instance.Register(services);
 ```
 
 ### Dynamic Connection Usage
 
 ```csharp
-var config = new PostgreSqlConfiguration
+var config = new MsSqlConfiguration
 {
     ConnectionId = "MyDatabase",
-    ConnectionString = "Host=localhost;Database=sample;Username=user;Password=pass;"
+    ConnectionString = "Server=localhost;Database=sample;Integrated Security=true;"
 };
 
-// ConnectionProvider creates connections dynamically
+// ConnectionProvider creates connections dynamically using auto-discovered types
 var connectionResult = await connectionProvider.GetConnection(config);
 
 if (connectionResult.IsSuccess)
@@ -263,11 +293,13 @@ The sample demonstrates:
 // Register the connection provider
 services.AddScoped<IFdwConnectionProvider, FdwConnectionProvider>();
 
-// Register all available connection types
-foreach (var connectionType in ConnectionTypes.All())
-{
-    connectionType.Register(services);
-}
+// Register all available connection types with auto-discovery
+ConnectionTypes.Register(services);
+
+// Register other service domains
+AuthenticationTypes.Register(services);
+SecretManagementTypes.Register(services);
+TransformationTypes.Register(services);
 ```
 
 ## 🎨 Design Patterns Demonstrated
@@ -277,15 +309,17 @@ foreach (var connectionType in ConnectionTypes.All())
 - Backend-specific translators handle conversion
 - Application code remains unchanged when switching databases
 
-### 2. **Factory Pattern**
+### 2. **ServiceType Auto-Discovery**
+- Source generators scan assemblies at compile time
+- ServiceTypeCollection attribute creates type-safe collections
+- Zero-configuration registration with single method calls
+- Self-assembling architecture where adding packages auto-extends system
+
+### 3. **Factory Pattern with Auto-Discovery**
 - Services created via factories, not directly from DI
+- Factories registered automatically by ServiceType.Register()
 - Enables dynamic service creation based on configuration
 - Supports multiple configurations per service type
-
-### 3. **Plugin Architecture**
-- ServiceTypes enable standalone plugins
-- Progressive constraint refinement
-- Compile-time type discovery
 
 ### 4. **Railway-Oriented Programming**
 - All operations return `IFdwResult<T>`

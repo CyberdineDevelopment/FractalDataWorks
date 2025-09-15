@@ -1,4 +1,4 @@
-# Getting Started with FractalDataWorks Framework
+# Getting Started with FractalDataWorks Developer Kit
 
 ## Table of Contents
 - [Overview](#overview)
@@ -11,10 +11,12 @@
 
 ## Overview
 
-The FractalDataWorks Framework provides a comprehensive foundation for building scalable .NET applications with:
+The FractalDataWorks Developer Kit provides a comprehensive foundation for building scalable .NET applications with:
+- ServiceType auto-discovery with source generation
+- Universal command patterns that work across all backends
 - Type-safe Enhanced Enums with business logic
 - Configuration-driven services with validation
-- Consistent error handling and messaging
+- Railway-oriented programming for robust error handling
 - High-performance data transformations
 
 ## Prerequisites
@@ -29,13 +31,16 @@ The FractalDataWorks Framework provides a comprehensive foundation for building 
 
 | Package | Purpose | When to Use |
 |---------|---------|-------------|
-| `FractalDataWorks.Messages` | Message framework core | Type-safe messaging system |
-| `FractalDataWorks.Messages.SourceGenerators` | Message factory generation | Auto-generate message collections |
-| `FractalDataWorks.EnhancedEnums` | Core Enhanced Enums | Foundation for type safety |
-| `FractalDataWorks.EnhancedEnums.SourceGenerators` | Auto-generated collections | When using Enhanced Enums |
-| `FractalDataWorks.Services` | Service framework | Building scalable services |
-| `FractalDataWorks.Configuration` | Typed configuration | Service configuration management |
-| `FractalDataWorks.Transformations` | Data processing | Data transformation pipelines |
+| `FractalDataWorks.Services.Connections` | Connection framework | Universal data access across backends |
+| `FractalDataWorks.Services.Connections.MsSql` | SQL Server provider | SQL Server database connections |
+| `FractalDataWorks.Services.Authentication` | Authentication services | User authentication across providers |
+| `FractalDataWorks.Services.SecretManagement` | Secret storage | Secure configuration and keys |
+| `FractalDataWorks.Services.Transformations` | Data processing | Data transformation pipelines |
+| `FractalDataWorks.ServiceTypes` | ServiceType framework | Auto-discovery and plugin architecture |
+| `FractalDataWorks.ServiceTypes.SourceGenerators` | Source generation | Auto-generate service collections |
+| `FractalDataWorks.EnhancedEnums` | Enhanced Enums | Type-safe enumerations |
+| `FractalDataWorks.Messages` | Messaging framework | Type-safe messaging system |
+| `FractalDataWorks.Configuration` | Configuration management | Validated service configuration |
 
 ### Basic Installation
 
@@ -43,14 +48,15 @@ For projects in this solution, add project references in your `.csproj`:
 
 ```xml
 <ItemGroup>
-  <!-- Messages framework with source generation -->
-  <ProjectReference Include="..\FractalDataWorks.Messages\FractalDataWorks.Messages.csproj" />
-  <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj" 
+  <!-- ServiceType framework with source generation -->
+  <ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.ServiceTypes.csproj" />
+  <ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"
                     OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-  
-  <!-- Services framework -->
-  <ProjectReference Include="..\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />
-  
+
+  <!-- Connection services -->
+  <ProjectReference Include="..\FractalDataWorks.Services.Connections\FractalDataWorks.Services.Connections.csproj" />
+  <ProjectReference Include="..\FractalDataWorks.Services.Connections.MsSql\FractalDataWorks.Services.Connections.MsSql.csproj" />
+
   <!-- Configuration framework -->
   <ProjectReference Include="..\FractalDataWorks.Configuration\FractalDataWorks.Configuration.csproj" />
 </ItemGroup>
@@ -61,18 +67,51 @@ For projects in this solution, add project references in your `.csproj`:
 ### Advanced Installation
 
 ```bash
-# For data processing applications
-dotnet add package FractalDataWorks.Transformations
-dotnet add package FractalDataWorks.Transformations.Parallel
+# For comprehensive service support
+dotnet add package FractalDataWorks.Services.Authentication
+dotnet add package FractalDataWorks.Services.SecretManagement
+dotnet add package FractalDataWorks.Services.Transformations
 
-# For code generation scenarios
-dotnet add package FractalDataWorks.CodeBuilder
-dotnet add package FractalDataWorks.CodeBuilder.Analysis
+# For data access
+dotnet add package FractalDataWorks.DataStores
+dotnet add package FractalDataWorks.Services.DataGateway
 ```
 
 ## Quick Start Examples
 
-### 1. Your First Enhanced Enum
+### 1. ServiceType Auto-Discovery
+
+```csharp
+// In Program.cs - Zero-configuration registration
+var builder = WebApplication.CreateBuilder(args);
+
+// Register connection provider
+builder.Services.AddScoped<IFdwConnectionProvider, FdwConnectionProvider>();
+
+// Single line registers ALL discovered connection types
+ConnectionTypes.Register(builder.Services);
+
+// Register other service domains
+AuthenticationTypes.Register(builder.Services);
+SecretManagementTypes.Register(builder.Services);
+
+var app = builder.Build();
+
+// Use connections via provider
+app.MapGet("/users", async (IFdwConnectionProvider connectionProvider) =>
+{
+    var connection = await connectionProvider.GetConnection("Database");
+    if (connection.IsSuccess)
+    {
+        using var conn = connection.Value;
+        var command = new QueryCommand("SELECT * FROM Users");
+        return await conn.Execute<List<User>>(command);
+    }
+    return Results.Problem(connection.Error);
+});
+```
+
+### 2. Your First Enhanced Enum
 
 ```csharp
 // Define the base enum
@@ -110,66 +149,61 @@ var allPriorities = Priorities.All();
 var byLevel = allPriorities.OrderByDescending(p => p.Level);
 ```
 
-### 2. Simple Service Configuration
+### 3. Connection Configuration
 
 ```csharp
-public class EmailServiceConfiguration : ConfigurationBase<EmailServiceConfiguration>
+// appsettings.json
 {
-    public override string SectionName => "EmailService";
-    
-    public string SmtpHost { get; set; } = string.Empty;
-    public int Port { get; set; } = 587;
-    public bool UseSsl { get; set; } = true;
-    public string Username { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-    
-    protected override IValidator<EmailServiceConfiguration> GetValidator()
-    {
-        return new EmailServiceConfigurationValidator();
+  "Connections": {
+    "Database": {
+      "ConnectionType": "MsSql",
+      "ConnectionId": "MainDatabase",
+      "ConnectionString": "Server=localhost;Database=MyApp;Integrated Security=true;",
+      "CommandTimeout": 30,
+      "MaxPoolSize": 100
+    },
+    "Analytics": {
+      "ConnectionType": "MsSql",
+      "ConnectionId": "AnalyticsDb",
+      "ConnectionString": "Server=analytics;Database=Analytics;Integrated Security=true;"
     }
+  }
 }
 
-public class EmailServiceConfigurationValidator : AbstractValidator<EmailServiceConfiguration>
+// Usage - ConnectionProvider resolves by name
+var connection = await connectionProvider.GetConnection("Database");
+if (connection.IsSuccess)
 {
-    public EmailServiceConfigurationValidator()
-    {
-        RuleFor(x => x.SmtpHost).NotEmpty().WithMessage("SMTP host is required");
-        RuleFor(x => x.Port).InclusiveBetween(1, 65535).WithMessage("Port must be valid");
-        RuleFor(x => x.Username).NotEmpty().WithMessage("Username is required");
-    }
+    using var conn = connection.Value;
+    // Universal command works with any backend
+    var result = await conn.Execute<User>(universalCommand);
 }
 ```
 
-### 3. Basic Service Implementation
+### 4. Creating a Custom ConnectionType
 
 ```csharp
-public interface IEmailService : IFractalService<EmailExecutor, EmailServiceConfiguration>
+// 1. Create your ConnectionType (singleton pattern)
+public sealed class PostgreSqlConnectionType : ConnectionTypeBase<IFdwConnection, PostgreSqlConfiguration, IPostgreSqlConnectionFactory>
 {
-    Task<IFdwResult> SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default);
-}
+    public static PostgreSqlConnectionType Instance { get; } = new();
 
-public class EmailService : ServiceBase<EmailExecutor, EmailServiceConfiguration>, IEmailService
-{
-    public EmailService(EmailExecutor executor, ILogger<EmailService> logger) 
-        : base(executor, logger) { }
-    
-    public async Task<IFdwResult> SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default)
+    private PostgreSqlConnectionType() : base(2, "PostgreSql", "Database Connections") { }
+
+    public override Type FactoryType => typeof(IPostgreSqlConnectionFactory);
+
+    public override void Register(IServiceCollection services)
     {
-        using var activity = StartActivity();
-        
-        try
-        {
-            await Executor.SendEmailAsync(to, subject, body, cancellationToken);
-            Logger.LogInformation("Email sent successfully to {Recipient}", to);
-            return FdwResult.Success();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Failed to send email to {Recipient}", to);
-            return FdwResult.Failure($"Email delivery failed: {ex.Message}");
-        }
+        // Register factory and dependencies
+        services.AddScoped<IPostgreSqlConnectionFactory, PostgreSqlConnectionFactory>();
+        services.AddScoped<PostgreSqlCommandTranslator>();
+        services.AddScoped<PostgreSqlExpressionTranslator>();
     }
 }
+
+// 2. Add to your project - source generator automatically discovers it
+// 3. ConnectionTypes.Register(services) will include it automatically
+// 4. ConnectionProvider can now create PostgreSQL connections
 ```
 
 ## Creating Your First Service
@@ -255,56 +289,60 @@ public class EmailExecutor
 }
 ```
 
-### Step 4: Register Services
+### Step 4: Register Services with ServiceType Auto-Discovery
 
 ```csharp
-public static class ServiceCollectionExtensions
-{
-    public static IServiceCollection AddEmailServices(this IServiceCollection services, IConfiguration configuration)
-    {
-        // Register configuration
-        services.Configure<EmailServiceConfiguration>(configuration.GetSection("EmailService"));
-        
-        // Register executor and service
-        services.AddScoped<EmailExecutor>();
-        services.AddScoped<IEmailService, EmailService>();
-        
-        return services;
-    }
-}
+// In Program.cs - ServiceType pattern handles registration
+var builder = WebApplication.CreateBuilder(args);
 
-// In Program.cs
-builder.Services.AddEmailServices(builder.Configuration);
+// Register connection provider
+builder.Services.AddScoped<IFdwConnectionProvider, FdwConnectionProvider>();
+
+// Auto-discover and register all connection types
+ConnectionTypes.Register(builder.Services);
+
+// Register other service domains
+AuthenticationTypes.Register(builder.Services);
+SecretManagementTypes.Register(builder.Services);
+TransformationTypes.Register(builder.Services);
+
+var app = builder.Build();
 ```
 
-### Step 5: Use the Service
+### Step 5: Use Connections with Universal Commands
 
 ```csharp
 [ApiController]
 [Route("api/[controller]")]
-public class NotificationController : ControllerBase
+public class UsersController : ControllerBase
 {
-    private readonly IEmailService _emailService;
-    
-    public NotificationController(IEmailService emailService)
+    private readonly IFdwConnectionProvider _connectionProvider;
+
+    public UsersController(IFdwConnectionProvider connectionProvider)
     {
-        _emailService = emailService;
+        _connectionProvider = connectionProvider;
     }
-    
-    [HttpPost("send")]
-    public async Task<IActionResult> SendNotification([FromBody] NotificationRequest request)
+
+    [HttpGet]
+    public async Task<IActionResult> GetUsers()
     {
-        var result = await _emailService.SendEmailAsync(
-            request.Email, 
-            request.Subject, 
-            request.Body);
-        
-        if (result.IsSuccess)
-        {
-            return Ok(new { Message = "Email sent successfully" });
-        }
-        
-        return BadRequest(new { Error = result.Message });
+        // Get connection via provider (auto-resolved from configuration)
+        var connectionResult = await _connectionProvider.GetConnection("Database");
+
+        if (!connectionResult.IsSuccess)
+            return Problem(connectionResult.Error);
+
+        using var connection = connectionResult.Value;
+
+        // Universal command - works with any backend
+        var command = new QueryCommand("SELECT * FROM Users WHERE Active = @active")
+            .WithParameter("active", true);
+
+        var result = await connection.Execute<List<User>>(command);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : Problem(result.Error);
     }
 }
 ```
@@ -313,45 +351,57 @@ public class NotificationController : ControllerBase
 
 ### Adding to Existing ASP.NET Core Application
 
-1. **Install packages** using the package selection guide above
-2. **Add configuration sections** to your appsettings.json
-3. **Register services** in your Program.cs or Startup.cs
-4. **Replace string constants** with Enhanced Enums gradually
-5. **Implement service patterns** for new features
+1. **Install ServiceType framework** using the package selection guide above
+2. **Add ServiceType auto-discovery** to your Program.cs
+3. **Configure connections** in your appsettings.json
+4. **Replace direct database access** with ConnectionProvider gradually
+5. **Implement universal commands** for new features
 
 ### Migration Strategy
 
 #### Phase 1: Foundation (Week 1)
-- Install FractalDataWorks.EnhancedEnums.SourceGenerators
-- Replace critical string constants with Enhanced Enums
-- Add configuration validation to key services
+- Install FractalDataWorks.ServiceTypes and source generators
+- Add ConnectionTypes.Register() to Program.cs
+- Configure connection strings in appsettings.json
 
-#### Phase 2: Services (Week 2-3)  
-- Implement service base classes for new services
-- Add Enhanced Enum messages for error handling
-- Migrate existing services to use typed configuration
+#### Phase 2: Data Access (Week 2-3)
+- Replace direct database access with ConnectionProvider
+- Implement universal commands for data operations
+- Add connection-specific providers (MsSql, PostgreSql, etc.)
 
-#### Phase 3: Data Processing (Week 4)
-- Add transformation capabilities for data pipelines
-- Implement parallel processing for performance-critical operations
+#### Phase 3: Extended Services (Week 4)
+- Add Authentication, SecretManagement, and other service types
+- Implement service-specific auto-discovery patterns
+- Add custom ServiceTypes for domain-specific functionality
 
 ### Integration Examples
 
 #### With Entity Framework
 ```csharp
-public class UserService : ServiceBase<UserRepository, UserServiceConfiguration>
+public class UserService
 {
+    private readonly IFdwConnectionProvider _connectionProvider;
+
+    public UserService(IFdwConnectionProvider connectionProvider)
+    {
+        _connectionProvider = connectionProvider;
+    }
+
     public async Task<IFdwResult<User>> CreateUserAsync(CreateUserRequest request)
     {
-        // Enhanced Enum validation
-        if (!UserRoles.IsValid(request.Role))
-        {
-            return FdwResult<User>.Failure(UserMessages.InvalidRole(request.Role));
-        }
-        
-        // Use executor (repository) for data operations
-        var user = await Executor.CreateAsync(request);
-        return FdwResult<User>.Success(user);
+        var connectionResult = await _connectionProvider.GetConnection("Database");
+        if (!connectionResult.IsSuccess)
+            return FdwResult<User>.Failure(connectionResult.Error);
+
+        using var connection = connectionResult.Value;
+
+        // Universal command - translates to appropriate SQL
+        var command = new CreateCommand("Users")
+            .WithValue("Name", request.Name)
+            .WithValue("Email", request.Email);
+
+        var result = await connection.Execute<User>(command);
+        return result;
     }
 }
 ```
@@ -360,12 +410,22 @@ public class UserService : ServiceBase<UserRepository, UserServiceConfiguration>
 ```csharp
 public class CreateUserHandler : IRequestHandler<CreateUserCommand, IFdwResult<User>>
 {
-    private readonly IUserService _userService;
-    
+    private readonly IFdwConnectionProvider _connectionProvider;
+
+    public CreateUserHandler(IFdwConnectionProvider connectionProvider)
+    {
+        _connectionProvider = connectionProvider;
+    }
+
     public async Task<IFdwResult<User>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        var config = new UserServiceConfiguration { /* populate from request */ };
-        return await _userService.CreateUserAsync(config, cancellationToken);
+        var connectionResult = await _connectionProvider.GetConnection("Database");
+        if (!connectionResult.IsSuccess)
+            return FdwResult<User>.Failure(connectionResult.Error);
+
+        using var connection = connectionResult.Value;
+        var command = new CreateCommand("Users").WithValues(request.Values);
+        return await connection.Execute<User>(command);
     }
 }
 ```
@@ -374,19 +434,34 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, IFdwResult<U
 ```csharp
 public class NotificationHub : Hub
 {
-    private readonly INotificationService _notificationService;
-    
+    private readonly IFdwConnectionProvider _connectionProvider;
+
+    public NotificationHub(IFdwConnectionProvider connectionProvider)
+    {
+        _connectionProvider = connectionProvider;
+    }
+
     public async Task SendNotification(string message)
     {
-        var result = await _notificationService.BroadcastAsync(message);
-        
-        if (result.IsSuccess)
+        // Store notification using universal command
+        var connectionResult = await _connectionProvider.GetConnection("Database");
+        if (connectionResult.IsSuccess)
         {
-            await Clients.All.SendAsync("NotificationSent", NotificationMessages.BroadcastSuccessful());
-        }
-        else
-        {
-            await Clients.Caller.SendAsync("Error", result.Message);
+            using var connection = connectionResult.Value;
+            var command = new CreateCommand("Notifications")
+                .WithValue("Message", message)
+                .WithValue("Timestamp", DateTimeOffset.UtcNow);
+
+            var result = await connection.Execute<Notification>(command);
+
+            if (result.IsSuccess)
+            {
+                await Clients.All.SendAsync("NotificationSent", result.Value);
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("Error", result.Error);
+            }
         }
     }
 }
@@ -395,20 +470,20 @@ public class NotificationHub : Hub
 ## Next Steps
 
 ### Learning Path
-1. **📖 Read [Architecture Documentation](Architecture.md)** - Understand the layered architecture
-2. **🔧 Study [Enhanced Enums Guide](EnhancedEnums.md)** - Master type-safe enumerations  
+1. **📖 Read [Services.Abstractions README](../src/FractalDataWorks.Services.Abstractions/README.md)** - Complete ServiceType architecture guide
+2. **🔧 Study [Enhanced Enums Guide](EnhancedEnums.md)** - Master type-safe enumerations
 3. **⚙️ Review [Services Framework](Services.md)** - Learn service patterns and best practices
 4. **🔄 Explore [Transformations](Transformations.md)** - For data processing scenarios
 
 ### Advanced Topics
-- **[Naming Conventions](NamingConventions.md)** - Maintain consistency across large projects
-- **[CodeBuilder](CodeBuilder.md)** - Programmatic code generation and analysis
-- **[Dependency Injection](DependencyInjection.md)** - Advanced DI patterns and service registration
+- **[ServiceType Auto-Discovery](ServiceTypes.md)** - Source generation and plugin architecture
+- **[Universal Commands](UniversalCommands.md)** - Cross-platform data access patterns
+- **[Connection Management](Connections.md)** - Dynamic service creation and lifecycle
 
 ### Sample Projects
-- **Simple Enhanced Enums**: `samples/EnhancedEnums/SimpleExample/`
-- **Service Patterns**: `samples/Services/ServicePatterns/`
-- **Configuration Management**: `samples/Services/ConfigurationExample/`
+- **ServiceType Auto-Discovery**: `samples/Services/Service.Implementation/`
+- **Connection Patterns**: `samples/Web/FractalDataWorks.Web.Demo/`
+- **Universal Commands**: `samples/Services/Service.Implementation/samples/ConnectionExample/`
 
 ### Community and Support
 - **Issues**: Report bugs and feature requests via GitHub Issues
