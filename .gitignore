@@ -8,6 +8,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*nul
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -120,6 +121,10 @@ coverage*.json
 coverage*.xml
 coverage*.info
 lcov.info
+
+# Coverage reports
+CoverageReport/
+coverage-report/
 
 # ===============================================
 # Build and Publish
@@ -324,3 +329,14 @@ Help/
 
 # GitVersion
 GitVersion.yml.bak
+
+# Claude Code configuration files
+CLAUDE.md
+.claude/
+
+
+# Local packages
+localpackages/
+
+# Local NuGet configuration (user-specific)
+nuget.config.local

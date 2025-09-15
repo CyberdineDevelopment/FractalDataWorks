@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks Framework",
+  "classifications": ["Enhanced", "Enum", "Option"],
+  "identity": "FractalDataWorks.Templates.EnhancedEnumOption",
+  "name": "FractalDataWorks Enhanced Enum Option",
+  "shortName": "Rec-enum-option",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "description": "Creates a new concrete option for an existing FractalDataWorks Enhanced Enum",
+  "sourceName": "OptionName",
+  "preferNameDirectory": false,
+  "symbols": {
+    "OptionName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "NewOption",
+      "description": "The name of the new Enhanced Enum option (e.g., Pending, Completed, Cancelled)"
+    },
+    "TemplateNamespace": {
+      "type": "parameter", 
+      "datatype": "string",
+      "defaultValue": "MyProject.Enums",
+      "description": "The namespace for the Enhanced Enum option"
+    },
+    "OptionId": {
+      "type": "parameter",
+      "datatype": "int",
+      "defaultValue": "99",
+      "description": "The unique ID for this option (make sure it's unique within your Enhanced Enum)"
+    },
+    "BaseClassName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "StatusBase",
+      "description": "The name of the Enhanced Enum base class (e.g., StatusBase, PriorityBase)"
+    },
+    "DisplayName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "New Option",
+      "description": "The display name for this option"
+    },
+    "Description": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "A new Enhanced Enum option",
+      "description": "Description of what this option represents"
+    },
+    "SortOrder": {
+      "type": "parameter",
+      "datatype": "int",
+      "defaultValue": "99",
+      "description": "Sort order for displaying this option"
+    },
+    "IsActiveByDefault": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Whether this option should be active by default"
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "OptionName.cs"
+    }
+  ]
+}

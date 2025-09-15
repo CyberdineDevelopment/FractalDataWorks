@@ -1,47 +1,49 @@
 <Project>
   <PropertyGroup>
-    <!-- Language and Compiler Settings -->
-    <LangVersion>latest</LangVersion>
+    <!-- Language version and framework settings -->
+    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <!-- Build configuration settings -->
     <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview</Configurations>
     
-    <!-- Target Framework (except for FractalDataWorks.net which uses netstandard2.0) -->
-    <TargetFramework Condition="'$(TargetFramework)' == '' AND '$(MSBuildProjectName)' != 'FractalDataWorks.net'">net10.0</TargetFramework>
+    <!-- Target Framework (except for FractalDataWorks.net which uses netstandard2.0 and projects with explicit TargetFrameworks) -->
+    <TargetFrameworks Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == '' AND '$(MSBuildProjectName)' != 'FractalDataWorks'">netstandard2.0;net10.0</TargetFrameworks>
     
     <!-- Build settings -->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-    
-    <!-- Build Settings -->
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    
+    <!-- Package settings -->
+    <Authors>Rec Team</Authors>
+    <Company>Rec</Company>
+    <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/CyberdineDevelopment/Developer-Kit.git</RepositoryUrl>
+    <PackageDescription>Development tools and utilities for the FractalDataWorks ecosystem. Build: $(NBGV_GitCommitIdShort)</PackageDescription>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <!-- Symbol packages -->
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     
-    <!-- Package Management -->
+    <!-- Central Package Management -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Exclude samples from central package management and global settings -->
+    <ManagePackageVersionsCentrally Condition="$(MSBuildProjectDirectory.Contains('\samples\'))">false</ManagePackageVersionsCentrally>
     
-    <!-- Source Generator Settings for netstandard2.0 projects -->
-    <IsRoslynComponent Condition="'$(TargetFramework)' == 'netstandard2.0'">true</IsRoslynComponent>
-    <EnforceExtendedAnalyzerRules Condition="'$(TargetFramework)' == 'netstandard2.0'">true</EnforceExtendedAnalyzerRules>
+    <!-- Disable specific warnings -->
+    <!-- CA1510: Use ArgumentNullException.ThrowIfNull (new .NET feature) -->
+    <!-- CA1834: Use StringBuilder.Append(char) (performance) -->
+    <!-- MA0051: Method too long (style preference) -->
+    <NoWarn>$(NoWarn);VSTHRD200;CA1716;CA1000;CA1848;CA1510;CA1834;MA0051</NoWarn>
     
-    <!-- Test Project Settings -->
-    <IsTestProject Condition="$(MSBuildProjectName.EndsWith('Tests'))">true</IsTestProject>
-    <IsPackable Condition="'$(IsTestProject)' == 'true'">false</IsPackable>
-    
-    <!-- Company Information -->
-    <Authors>FractalDataWorks Development Team</Authors>
-    <Company>FractalDataWorks</Company>
-    <Copyright>Copyright © FractalDataWorks $([System.DateTime]::Now.Year)</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://dev.azure.com/REC-DevOps/Developer-Kit</PackageProjectUrl>
-    <RepositoryUrl>https://dev.azure.com/REC-DevOps/Developer-Kit/_git/Developer-Kit</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    
+    <!-- Nerdbank.GitVersioning -->
+    <GitVersioningVersion>3.7.115</GitVersioningVersion>
   </PropertyGroup>
 
   <!-- Debug: Minimal checks for fast development -->
@@ -55,6 +57,8 @@
     <AnalysisLevel>none</AnalysisLevel>
     <RunAnalyzers>false</RunAnalyzers>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <!-- Treat analyzer warnings as warnings, not errors -->
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
   </PropertyGroup>
   
   <!-- Experimental: Minimal enforcement -->
@@ -68,6 +72,9 @@
     <AnalysisLevel>latest-minimum</AnalysisLevel>
     <RunAnalyzers>true</RunAnalyzers>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <!-- Treat analyzer warnings as warnings, not errors -->
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    <ReportAnalyzer>true</ReportAnalyzer>
   </PropertyGroup>
   
   <!-- Alpha: Basic checks -->
@@ -81,6 +88,9 @@
     <AnalysisLevel>latest-minimum</AnalysisLevel>
     <RunAnalyzers>true</RunAnalyzers>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <!-- Treat analyzer warnings as warnings, not errors -->
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    <ReportAnalyzer>true</ReportAnalyzer>
   </PropertyGroup>
   
   <!-- Beta: Recommended checks, warnings as errors -->
@@ -121,19 +131,52 @@
     <RunAnalyzers>true</RunAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
-  
+
+  <!-- Target Framework for FractalDataWorks.net -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'FractalDataWorks.net'">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- IsExternalInit package for netstandard2.0 projects (required for init-only properties) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="IsExternalInit" PrivateAssets="all">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- Test projects -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Tests are now enabled for building -->
+  </PropertyGroup>
+
   <!-- Nerdbank.GitVersioning -->
-  <ItemGroup>
+  <ItemGroup Condition="!$(MSBuildProjectDirectory.Contains('\samples\'))">
     <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" Condition="'$(IsTestProject)' != 'true'" />
   </ItemGroup>
 
   <!-- Source Link -->
-  <ItemGroup>
+  <ItemGroup Condition="!$(MSBuildProjectDirectory.Contains('\samples\'))">
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
   </ItemGroup>
 
-  <!-- Analyzers - Applied to all projects -->
-  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
+  <!-- Include README in NuGet packages -->
+  <ItemGroup Condition="'$(IsPackable)' == 'true' And Exists('$(MSBuildThisFileDirectory)README.md')">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- Suppress XML documentation warnings for generated files -->
+  <PropertyGroup>
+    <!-- Add CS1570 to global NoWarn for source generator XML issues -->
+    <NoWarn Condition="'$(Configuration)' == 'Release'">$(NoWarn);CS1570</NoWarn>
+  </PropertyGroup>
+
+  <!-- Analyzers - Applied to all projects except samples -->
+  <ItemGroup Condition="'$(IsTestProject)' != 'true' AND !$(MSBuildProjectDirectory.Contains('\samples\'))">
     <PackageReference Include="AsyncFixer" PrivateAssets="All" />
     <PackageReference Include="Meziantou.Analyzer" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="All" />

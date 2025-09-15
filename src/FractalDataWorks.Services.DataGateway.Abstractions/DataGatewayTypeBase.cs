@@ -1,0 +1,173 @@
+using System;
+using System.Collections.Generic;
+using FractalDataWorks.ServiceTypes;
+
+namespace FractalDataWorks.Services.DataGateway.Abstractions;
+
+/// <summary>
+/// Base class for data provider service type definitions that inherit from ServiceTypeBase.
+/// Provides data provider-specific metadata and capabilities.
+/// </summary>
+/// <typeparam name="TService">The data provider service type.</typeparam>
+/// <typeparam name="TConfiguration">The data provider configuration type.</typeparam>
+/// <typeparam name="TFactory">The factory type for creating data provider service instances.</typeparam>
+/// <remarks>
+/// Data provider types should inherit from this class and provide metadata only - 
+/// no instantiation logic should be included (that belongs in factories).
+/// The ServiceTypeCollectionGenerator will discover all types inheriting from this base.
+/// </remarks>
+public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> : 
+    ServiceTypeBase<TService, TConfiguration, TFactory>,
+    IDataGatewayServiceType
+    where TService : class, IDataService, IFractalService
+    where TConfiguration : class, IDataGatewaysConfiguration, IFractalConfiguration
+    where TFactory : class, IServiceFactory<TService, TConfiguration>
+{
+    /// <summary>
+    /// Gets the data store types supported by this provider.
+    /// </summary>
+    /// <remarks>
+    /// Examples: ["SqlServer", "PostgreSQL"] for SQL providers,
+    /// ["MongoDB", "CosmosDB"] for document providers,
+    /// ["Redis", "InMemory"] for cache providers.
+    /// </remarks>
+    public abstract string[] SupportedDataStores { get; }
+
+    /// <summary>
+    /// Gets the priority for provider selection when multiple providers are available.
+    /// </summary>
+    /// <remarks>
+    /// Higher values indicate higher priority. When multiple data providers
+    /// can handle the same data store type, the system uses this to determine
+    /// the preferred provider.
+    /// </remarks>
+    public abstract int Priority { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports database transactions.
+    /// </summary>
+    /// <remarks>
+    /// Transaction support enables ACID properties for data operations,
+    /// ensuring data consistency across multiple operations.
+    /// </remarks>
+    public abstract bool SupportsTransactions { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports bulk operations.
+    /// </summary>
+    /// <remarks>
+    /// Bulk operations allow inserting, updating, or deleting multiple records
+    /// in a single operation, improving performance for large datasets.
+    /// </remarks>
+    public abstract bool SupportsBulkOperations { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports streaming results.
+    /// </summary>
+    /// <remarks>
+    /// Streaming enables processing large result sets without loading
+    /// all data into memory at once, essential for big data scenarios.
+    /// </remarks>
+    public abstract bool SupportsStreaming { get; }
+
+    /// <summary>
+    /// Gets the maximum batch size for bulk operations.
+    /// </summary>
+    /// <remarks>
+    /// Defines the maximum number of records that can be processed
+    /// in a single batch operation. -1 indicates no limit.
+    /// </remarks>
+    public abstract int MaxBatchSize { get; }
+
+    /// <summary>
+    /// Gets the provider name for this data provider type.
+    /// </summary>
+    /// <remarks>
+    /// Technical name of the underlying data provider technology
+    /// (e.g., "Entity Framework", "Dapper", "ADO.NET", "MongoDB Driver").
+    /// </remarks>
+    public abstract string ProviderName { get; }
+
+    /// <summary>
+    /// Gets the connection string template for this provider.
+    /// </summary>
+    /// <remarks>
+    /// Template showing the expected connection string format with placeholders
+    /// (e.g., "Server={server};Database={database};Trusted_Connection=true").
+    /// </remarks>
+    public abstract string ConnectionString { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports schema discovery.
+    /// </summary>
+    /// <remarks>
+    /// Schema discovery automatically detects table structures, relationships,
+    /// and metadata from the data store without manual configuration.
+    /// </remarks>
+    public abstract bool SupportsSchemaDiscovery { get; }
+
+    /// <summary>
+    /// Gets the supported data commands for this provider.
+    /// </summary>
+    /// <remarks>
+    /// List of supported operation types such as:
+    /// ["Select", "Insert", "Update", "Delete", "BulkInsert", "Upsert", "Count", "Exists"]
+    /// </remarks>
+    public abstract IReadOnlyList<string> SupportedCommands { get; }
+
+    /// <summary>
+    /// Gets the maximum connection pool size for this provider.
+    /// </summary>
+    /// <remarks>
+    /// Maximum number of concurrent connections this provider can maintain.
+    /// Important for performance tuning and resource management.
+    /// </remarks>
+    public abstract int MaxConnectionPoolSize { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports connection pooling.
+    /// </summary>
+    /// <remarks>
+    /// Connection pooling reuses database connections to improve performance
+    /// and reduce overhead of connection establishment.
+    /// </remarks>
+    public virtual bool SupportsConnectionPooling => true;
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports asynchronous operations.
+    /// </summary>
+    /// <remarks>
+    /// Async support enables non-blocking operations, improving scalability
+    /// in high-concurrency scenarios.
+    /// </remarks>
+    public virtual bool SupportsAsyncOperations => true;
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports read replicas.
+    /// </summary>
+    /// <remarks>
+    /// Read replica support allows distributing read operations across
+    /// multiple database instances for improved performance.
+    /// </remarks>
+    public virtual bool SupportsReadReplicas => false;
+
+    /// <summary>
+    /// Gets the estimated performance category for this provider.
+    /// </summary>
+    /// <remarks>
+    /// Performance category helps with provider selection based on expected workload:
+    /// "high-performance", "balanced", "memory-efficient", "network-optimized"
+    /// </remarks>
+    public virtual string PerformanceCategory => "balanced";
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataGatewayTypeBase{TService, TConfiguration, TFactory}"/> class.
+    /// </summary>
+    /// <param name="id">The unique identifier for the data provider type.</param>
+    /// <param name="name">The name of the data provider type.</param>
+    /// <param name="category">The category for this data provider type (defaults to "Data Provider").</param>
+    protected DataGatewayTypeBase(int id, string name, string? category = null)
+        : base(id, name, category ?? "Data Provider")
+    {
+    }
+}

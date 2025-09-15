@@ -40,7 +40,12 @@ dotnet_diagnostic.CA2241.severity = error  # String format mismatches
 # ===============================================
 
 # All these have automatic fixes and improve performance
-dotnet_diagnostic.CA1822.severity = suggestion  # Mark members as static
+dotnet_diagnostic.CA1510.severity = warning     # Remove redundant null checks
+dotnet_diagnostic.CA1822.severity = warning     # Mark members as static
+dotnet_diagnostic.CA1865.severity = warning     # Use char overloads instead of string
+dotnet_diagnostic.CA1805.severity = warning     # Remove explicit initialization to default
+dotnet_diagnostic.CA1859.severity = warning     # Use concrete return types
+dotnet_diagnostic.CA1720.severity = warning     # Rename identifier that conflicts with type
 dotnet_diagnostic.CA1827.severity = suggestion  # Use Any() instead of Count() > 0
 dotnet_diagnostic.CA1829.severity = suggestion  # Use Length/Count property
 dotnet_diagnostic.CA1834.severity = suggestion  # Use StringBuilder.Append(char)
@@ -110,7 +115,7 @@ dotnet_diagnostic.MA0009.severity = warning  # Regex DoS (real security issue)
 dotnet_diagnostic.MA0016.severity = suggestion  # Prefer abstraction over implementation
 dotnet_diagnostic.MA0048.severity = suggestion  # File name must match type name
 dotnet_diagnostic.MA0051.severity = suggestion  # Method is too long
-dotnet_diagnostic.VSTHRD200.severity = warning  # Async suffix - confusing API
+dotnet_diagnostic.VSTHRD200.severity = none  # Async suffix - confusing API
 
 # ===============================================
 # MODERN ANALYZER RECOMMENDATIONS

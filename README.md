@@ -1,127 +1,379 @@
 # FractalDataWorks Developer Kit
 
-Core packages for the FractalDataWorks platform, providing foundational abstractions and implementations for services, connections, configuration, and more.
+A comprehensive framework for building scalable, maintainable data-driven applications with universal command patterns, dependency injection, and source generation.
 
-## Repository Structure
+## 🏗️ Architecture Overview
 
-This repository contains the Layer 0.5 and Layer 1 packages as defined in the FractalDataWorks architecture:
+The FractalDataWorks Developer Kit provides a complete architecture for building enterprise applications with these core principles:
 
-### Layer 0.5 - Core Foundation (No Dependencies)
-- **FractalDataWorks.net** - Core abstractions and base types (targets netstandard2.0 for maximum compatibility)
+### Universal Command Pattern
+**Single syntax, multiple backends** - Write your data commands once, execute anywhere:
 
-### Layer 1 - Base Abstractions
-- **FractalDataWorks.Services** - Service abstractions and patterns
-- **FractalDataWorks.Connections** - Connection abstractions for data and messaging
-- **FractalDataWorks.Configuration** - Configuration abstractions and providers
-- **FractalDataWorks.DependencyInjection** - DI abstractions and extensions
-- **FractalDataWorks.Tools** - Common tools and utilities
-- **FractalDataWorks.Hosts** - Host abstractions for web and worker services
-- **FractalDataWorks.Data** - Data abstractions and common types
+```csharp
+// Same command works across all backends
+IConnectionCommand query = new QueryCommand("SELECT * FROM users WHERE active = @active")
+    .WithParameter("active", true);
 
-## Git Workflow
-
-This repository follows a git-flow branching strategy:
-
-1. **master** - Production-ready releases only
-2. **develop** - Main development branch
-3. **feature/** - Feature branches
-4. **beta/** - Beta release branches
-5. **release/** - Release candidate branches
-6. **experimental/** - Experimental features
-
-### Setting up the Development Branch
-
-After cloning, create the develop branch from master:
-
-```bash
-git checkout -b develop
-git push -u origin develop
+// PostgreSQL: Translates to `SELECT * FROM "users" WHERE "active" = $1`
+// SQL Server: Translates to `SELECT * FROM [users] WHERE [active] = @active`
+// MongoDB: Translates to `db.users.find({"active": true})`
 ```
 
-### Creating Feature Branches
+### Dynamic Connection Management
+Connections are **NOT** registered in dependency injection. Instead, they're created dynamically:
 
-Always branch from develop:
+```csharp
+// ✅ Correct - Register factories and providers
+services.AddScoped<IFdwConnectionProvider, FdwConnectionProvider>();
+PostgreSqlConnectionType.Instance.Register(services); // Registers factory, not connection
 
-```bash
-git checkout develop
-git pull origin develop
-git checkout -b feature/your-feature-name
+// ❌ Wrong - Don't register connections directly
+services.AddScoped<PostgreSqlConnection>(); // Never do this
 ```
 
-## Building and Testing
+### Source-Generated Discovery
+Type discovery happens at compile time for maximum performance:
 
-### Prerequisites
-- .NET 10.0 Preview SDK
-- Visual Studio 2022 Preview or VS Code
-
-### Build Commands
-
-```bash
-# Restore packages
-dotnet restore
-
-# Build solution
-dotnet build
-
-# Run tests
-dotnet test
-
-# Pack NuGet packages
-dotnet pack
+```csharp
+// Generated static class provides O(1) lookup
+var connectionType = ConnectionTypes.PostgreSql; // No reflection
+var factory = serviceProvider.GetService(connectionType.FactoryType);
 ```
 
-### Configuration-Specific Builds
+## 🚀 Key Features
 
-```bash
-# Debug build (default)
-dotnet build
+### 🔧 ServiceTypes Framework
+Standalone plugin architecture with **progressive constraint refinement**:
 
-# Alpha build
-dotnet build -c Alpha
+```csharp
+// Base interface - minimal constraints
+public interface IServiceType<TService>
+    where TService : IFractalService
+{ }
 
-# Beta build
-dotnet build -c Beta
-
-# Release build
-dotnet build -c Release
+// More specific interface adds constraints
+public interface IConnectionType<TConnection, TConfiguration, TFactory>
+    : IServiceType<TConnection>
+    where TConnection : IFdwConnection
+    where TConfiguration : IFractalConfiguration
+    where TFactory : IServiceFactory<TConnection, TConfiguration>
+{ }
 ```
 
-## Package Dependencies
+### 📦 Enhanced Enums
+Type-safe enumerations with source-generated collections:
 
-Each Layer 1 package depends on FractalDataWorks.net. Additional dependencies:
+```csharp
+public sealed class ConnectionState : EnhancedEnumBase<ConnectionState>
+{
+    public static readonly ConnectionState Closed = new("Closed", 0);
+    public static readonly ConnectionState Open = new("Open", 1);
+    public static readonly ConnectionState Connecting = new("Connecting", 2);
+}
 
-- **FractalDataWorks.DependencyInjection** also depends on FractalDataWorks.Configuration
-- **FractalDataWorks.Hosts** also depends on FractalDataWorks.Services
-
-## Testing
-
-All projects use xUnit.v3 for testing. Test projects follow the naming convention:
-`FractalDataWorks.[Package].Tests`
-
-Run tests with:
-```bash
-dotnet test
+// Source-generated collection provides O(1) operations
+var state = ConnectionStates.ByName("Open"); // No LINQ, no reflection
 ```
 
-## CI/CD
+### 🔀 Railway-Oriented Programming
+All operations return `IFdwResult<T>` for robust error handling:
 
-This repository includes both Azure Pipelines and GitHub Actions workflows for CI/CD.
+```csharp
+var connectionResult = await connectionProvider.GetConnection(config);
+if (connectionResult.IsSuccess)
+{
+    using var connection = connectionResult.Value;
+    var queryResult = await connection.Execute<User>(command);
+    // Chain operations safely
+}
+```
 
-### Azure Pipelines
-- Configuration: `azure-pipelines.yml`
-- Publishes to Azure Artifacts feed: `dotnet-packages`
+### ⚡ Source-Generated Logging
+High-performance logging with compile-time optimization:
 
-### GitHub Actions
-- Configuration: `.github/workflows/ci.yml`
-- Publishes to GitHub Packages and optionally Azure Artifacts
+```csharp
+[LoggerMessage(EventId = 3001, Level = LogLevel.Debug,
+    Message = "Creating PostgreSQL connection: {ConnectionId}")]
+public static partial void CreatingConnection(ILogger logger, string connectionId);
+```
 
-## Contributing
+### 🏭 Factory Pattern Integration
+Services use factories for creation, enabling dynamic instantiation:
 
-1. Create a feature branch from develop
-2. Make your changes
-3. Ensure all tests pass
-4. Submit a pull request to develop
+```csharp
+public interface IServiceFactory<TService, TConfiguration>
+    where TService : IFractalService
+    where TConfiguration : IFractalConfiguration
+{
+    Task<IFdwResult<TService>> CreateServiceAsync(TConfiguration configuration);
+}
+```
 
-## License
+## 📁 Project Structure
 
-MIT License - see LICENSE file for details.
+```
+FractalDataWorks.DeveloperKit/
+├── src/                              # Core framework packages
+│   ├── FractalDataWorks.Abstractions/ # Base interfaces and types
+│   ├── FractalDataWorks.Results/      # Railway-oriented programming
+│   ├── FractalDataWorks.Collections/  # High-performance collections
+│   ├── FractalDataWorks.EnhancedEnums/ # Type-safe enumerations
+│   ├── FractalDataWorks.Messages/     # Messaging framework
+│   ├── FractalDataWorks.ServiceTypes/ # Plugin architecture
+│   ├── FractalDataWorks.Configuration/ # Configuration management
+│   ├── FractalDataWorks.Services/     # Service base classes
+│   ├── FractalDataWorks.Data/         # Data access patterns
+│   └── FractalDataWorks.Services.Connections/ # Connection framework
+├── samples/                          # Working examples
+│   └── Services/Service.Implementation/ # Complete PostgreSQL example
+└── docs/                            # Architecture documentation
+```
+
+## 🎯 Complete Working Sample
+
+The `samples/Services/Service.Implementation` directory contains a **complete, runnable example** demonstrating:
+
+### PostgreSQL Connection Implementation
+
+```csharp
+// 1. Connection Type (Singleton)
+public sealed class PostgreSqlConnectionType : ConnectionTypeBase<IFdwConnection, PostgreSqlConfiguration, IPostgreSqlConnectionFactory>
+{
+    public static PostgreSqlConnectionType Instance { get; } = new();
+
+    public override void Register(IServiceCollection services)
+    {
+        services.AddScoped<IPostgreSqlConnectionFactory, PostgreSqlConnectionFactory>();
+        services.AddScoped<PostgreSqlCommandTranslator>();
+    }
+}
+
+// 2. Command Translator (Universal → SQL)
+public class PostgreSqlCommandTranslator
+{
+    public PostgreSqlTranslationResult Translate(IConnectionCommand command)
+    {
+        return command switch
+        {
+            IConnectionQueryCommand => TranslateQuery(command),
+            IConnectionCreateCommand => TranslateCreate(command),
+            // Universal interface, PostgreSQL-specific implementation
+        };
+    }
+}
+
+// 3. Connection Service
+public sealed class PostgreSqlConnection : ConnectionServiceBase<IConnectionCommand, PostgreSqlConfiguration, PostgreSqlConnection>
+{
+    public override async Task<IFdwResult<T>> Execute<T>(IConnectionCommand command)
+    {
+        // 1. Translate universal command to PostgreSQL SQL
+        var sql = _translator.Translate(command);
+
+        // 2. Execute against PostgreSQL
+        // 3. Return via Railway-Oriented Programming
+    }
+}
+```
+
+### Service Registration Pattern
+
+```csharp
+// In Program.cs
+services.AddScoped<IFdwConnectionProvider, FdwConnectionProvider>();
+
+// Register connection types (factories, not connections)
+PostgreSqlConnectionType.Instance.Register(services);
+
+// In production, register all available connection types:
+foreach (var connectionType in ConnectionTypes.All())
+{
+    connectionType.Register(services);
+}
+```
+
+### Dynamic Connection Usage
+
+```csharp
+var config = new PostgreSqlConfiguration
+{
+    ConnectionId = "MyDatabase",
+    ConnectionString = "Host=localhost;Database=sample;Username=user;Password=pass;"
+};
+
+// ConnectionProvider creates connections dynamically
+var connectionResult = await connectionProvider.GetConnection(config);
+
+if (connectionResult.IsSuccess)
+{
+    using var connection = connectionResult.Value;
+    var result = await connection.Execute<User>(universalCommand);
+}
+```
+
+## 🏃‍♂️ Quick Start
+
+### 1. Build the Framework
+
+```bash
+# Build all core packages to local NuGet
+./scripts/localpack.ps1
+```
+
+### 2. Run the Sample
+
+```bash
+cd samples/Services/Service.Implementation/src/SampleApp
+dotnet run
+```
+
+### 3. Expected Output
+
+The sample demonstrates:
+- **Service Registration** - How factories and translators are registered
+- **Connection Creation** - Dynamic connection creation via `ConnectionProvider`
+- **Universal Commands** - Same interface across all backends
+- **Source-Generated Logging** - High-performance logging
+- **Railway-Oriented Programming** - All operations return `IFdwResult`
+- **Connection Lifecycle** - Open, execute, test, close operations
+
+## 🔧 Configuration Examples
+
+### Connection Configuration (`appsettings.json`)
+
+```json
+{
+  "Connections": {
+    "PostgreSqlDemo": {
+      "ConnectionType": "PostgreSql",
+      "ConnectionId": "DemoDatabase",
+      "ConnectionString": "Host=localhost;Database=sample;Username=demo;Password=demo;",
+      "CommandTimeout": 30,
+      "MaxPoolSize": 10,
+      "EnableRetry": true,
+      "MaxRetryAttempts": 3
+    }
+  }
+}
+```
+
+### Service Registration
+
+```csharp
+// Register the connection provider
+services.AddScoped<IFdwConnectionProvider, FdwConnectionProvider>();
+
+// Register all available connection types
+foreach (var connectionType in ConnectionTypes.All())
+{
+    connectionType.Register(services);
+}
+```
+
+## 🎨 Design Patterns Demonstrated
+
+### 1. **Universal Command Pattern**
+- Single interface works across all persistence systems
+- Backend-specific translators handle conversion
+- Application code remains unchanged when switching databases
+
+### 2. **Factory Pattern**
+- Services created via factories, not directly from DI
+- Enables dynamic service creation based on configuration
+- Supports multiple configurations per service type
+
+### 3. **Plugin Architecture**
+- ServiceTypes enable standalone plugins
+- Progressive constraint refinement
+- Compile-time type discovery
+
+### 4. **Railway-Oriented Programming**
+- All operations return `IFdwResult<T>`
+- Explicit error handling without exceptions
+- Chainable operations with failure propagation
+
+### 5. **Source Generation**
+- Compile-time collection generation for performance
+- No runtime reflection or LINQ overhead
+- Type-safe code generation
+
+## 📚 Architecture Benefits
+
+### Performance
+- **Source-generated collections** eliminate runtime overhead
+- **Compiled logging** removes string formatting costs
+- **Direct type resolution** avoids reflection
+
+### Maintainability
+- **Universal commands** eliminate database-specific code
+- **Railway-oriented programming** makes error handling explicit
+- **Progressive constraints** catch errors at compile time
+
+### Scalability
+- **Dynamic connection creation** scales with load
+- **Factory pattern** supports connection pooling
+- **Plugin architecture** enables modular growth
+
+### Testability
+- **Dependency injection** enables easy mocking
+- **Interface-based design** supports test doubles
+- **Railway results** make testing error paths simple
+
+## 🔄 Connection Lifecycle
+
+```
+Configuration → ConnectionProvider → Factory → Connection → Translator → Backend
+      ↓               ↓              ↓           ↓            ↓          ↓
+   JSON/Code    Dynamic Lookup   Create     Execute     Universal   SQL/NoSQL
+                                          Command      Command    Specific
+```
+
+## 🚀 Advanced Features
+
+### DataGateway Integration
+The connection architecture integrates with DataGateway and DataSet/DataContainer patterns:
+
+```csharp
+// Same DataCommand syntax regardless of persistence system
+var command = new DataCommand("GetActiveUsers")
+    .WithParameter("status", "Active");
+
+// Works with SQL databases, NoSQL, APIs, files, etc.
+var result = await dataGateway.Execute<User>(command);
+```
+
+### Multi-Backend Support
+Add new backends by implementing the connection interface:
+
+```csharp
+public sealed class MongoDbConnectionType : ConnectionTypeBase<IFdwConnection, MongoDbConfiguration, IMongoDbConnectionFactory>
+{
+    // Universal commands automatically work with MongoDB
+    // Translator converts to MongoDB queries
+}
+```
+
+## 📋 Prerequisites
+
+- **.NET 10.0 SDK** (RC or later)
+- **PostgreSQL** (optional - sample handles connection failures gracefully)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Follow the established patterns and conventions
+4. Ensure all tests pass
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
+
+## 🏷️ Version
+
+Current version: `0.0.0-alpha` (Development build)
+
+---
+
+**Built with ❤️ by the FractalDataWorks team**

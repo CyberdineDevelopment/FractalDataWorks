@@ -1,0 +1,212 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using FractalDataWorks.Results;
+
+namespace FractalDataWorks.DataContainers.Abstractions;
+
+/// <summary>
+/// Interface for reading data from containers in a streaming fashion.
+/// Provides both synchronous and asynchronous enumeration of records.
+/// </summary>
+/// <remarks>
+/// IDataReader abstracts the reading process across different container formats.
+/// It provides a consistent interface whether reading from CSV files, SQL tables,
+/// JSON documents, or any other supported format. The reader handles format-specific
+/// parsing and type conversion while presenting a uniform API.
+/// </remarks>
+public interface IDataReader : IDisposable
+{
+    /// <summary>
+    /// Gets the schema of data being read from this reader.
+    /// </summary>
+    /// <value>The schema describing field names, types, and constraints.</value>
+    IDataSchema Schema { get; }
+
+    /// <summary>
+    /// Gets the current position within the data stream.
+    /// </summary>
+    /// <value>The current record number, or -1 if before the first record.</value>
+    long CurrentPosition { get; }
+
+    /// <summary>
+    /// Gets metadata about the data source being read.
+    /// </summary>
+    /// <value>Additional information about the source data.</value>
+    IReadOnlyDictionary<string, object> SourceMetadata { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the reader has more records to read.
+    /// </summary>
+    /// <value><c>true</c> if more records are available; otherwise, <c>false</c>.</value>
+    bool HasMoreRecords { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the reader supports seeking to specific positions.
+    /// </summary>
+    /// <value><c>true</c> if seeking is supported; otherwise, <c>false</c>.</value>
+    bool SupportsSeek { get; }
+
+    /// <summary>
+    /// Reads the next record as a dictionary of field names to values.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>
+    /// The next record as key-value pairs, or null if no more records are available.
+    /// </returns>
+    /// <remarks>
+    /// This method provides dynamic access to record data without requiring
+    /// compile-time knowledge of the record structure. Field values are returned
+    /// as objects and may need casting to their actual types.
+    /// </remarks>
+    Task<IFdwResult<IReadOnlyDictionary<string, object>?>> ReadRecordAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Reads the next record and maps it to a strongly-typed object.
+    /// </summary>
+    /// <typeparam name="T">The type to map the record to.</typeparam>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>
+    /// The next record mapped to the specified type, or null if no more records are available.
+    /// </returns>
+    /// <remarks>
+    /// This method provides strongly-typed access to record data with automatic
+    /// type conversion and mapping. The mapping is based on property names and
+    /// the container's schema information.
+    /// </remarks>
+    Task<IFdwResult<T?>> ReadRecordAsync<T>(CancellationToken cancellationToken = default) where T : class;
+
+    /// <summary>
+    /// Reads multiple records as dictionaries.
+    /// </summary>
+    /// <param name="maxRecords">The maximum number of records to read.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A collection of records as key-value pairs.</returns>
+    /// <remarks>
+    /// This method is optimized for bulk reading operations. It may be more
+    /// efficient than calling ReadRecordAsync repeatedly for large datasets.
+    /// </remarks>
+    Task<IFdwResult<IEnumerable<IReadOnlyDictionary<string, object>>>> ReadRecordsAsync(
+        int maxRecords, 
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Reads multiple records and maps them to strongly-typed objects.
+    /// </summary>
+    /// <typeparam name="T">The type to map records to.</typeparam>
+    /// <param name="maxRecords">The maximum number of records to read.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A collection of records mapped to the specified type.</returns>
+    /// <remarks>
+    /// This method is optimized for bulk reading operations with type mapping.
+    /// It provides better performance than individual record reading for large datasets.
+    /// </remarks>
+    Task<IFdwResult<IEnumerable<T>>> ReadRecordsAsync<T>(
+        int maxRecords, 
+        CancellationToken cancellationToken = default) where T : class;
+
+    /// <summary>
+    /// Reads all remaining records as dictionaries.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>All remaining records as key-value pairs.</returns>
+    /// <remarks>
+    /// Use this method with caution on large datasets as it loads all data into memory.
+    /// Consider using ReadRecordsAsync with batching for better memory management.
+    /// </remarks>
+    Task<IFdwResult<IEnumerable<IReadOnlyDictionary<string, object>>>> ReadAllRecordsAsync(
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Reads all remaining records and maps them to strongly-typed objects.
+    /// </summary>
+    /// <typeparam name="T">The type to map records to.</typeparam>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>All remaining records mapped to the specified type.</returns>
+    /// <remarks>
+    /// Use this method with caution on large datasets as it loads all data into memory.
+    /// Consider using ReadRecordsAsync with batching for better memory management.
+    /// </remarks>
+    Task<IFdwResult<IEnumerable<T>>> ReadAllRecordsAsync<T>(
+        CancellationToken cancellationToken = default) where T : class;
+
+    /// <summary>
+    /// Seeks to a specific position in the data stream.
+    /// </summary>
+    /// <param name="position">The position to seek to (0-based record index).</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A result indicating whether the seek operation succeeded.</returns>
+    /// <remarks>
+    /// This method is only supported if SupportsSeek returns true. The position
+    /// is 0-based, where position 0 represents the first record.
+    /// </remarks>
+    Task<IFdwResult> SeekAsync(long position, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Resets the reader to the beginning of the data stream.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A result indicating whether the reset operation succeeded.</returns>
+    /// <remarks>
+    /// This method is equivalent to SeekAsync(0) but may be more efficient for
+    /// some container types. It's only supported if SupportsSeek returns true.
+    /// </remarks>
+    Task<IFdwResult> ResetAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets statistics about the reading operation so far.
+    /// </summary>
+    /// <returns>Statistics about records read, time elapsed, etc.</returns>
+    /// <remarks>
+    /// This method provides performance and progress information that can be
+    /// useful for monitoring long-running read operations.
+    /// </remarks>
+    IReaderStatistics GetStatistics();
+}
+
+/// <summary>
+/// Provides statistics about a data reading operation.
+/// </summary>
+/// <remarks>
+/// IReaderStatistics offers insights into reading performance and progress,
+/// which can be valuable for monitoring, optimization, and user feedback.
+/// </remarks>
+public interface IReaderStatistics
+{
+    /// <summary>
+    /// Gets the total number of records read so far.
+    /// </summary>
+    /// <value>The number of records that have been successfully read.</value>
+    long RecordsRead { get; }
+
+    /// <summary>
+    /// Gets the total number of bytes read from the source.
+    /// </summary>
+    /// <value>The number of bytes read, or -1 if not measurable.</value>
+    long BytesRead { get; }
+
+    /// <summary>
+    /// Gets the elapsed time since reading began.
+    /// </summary>
+    /// <value>The total elapsed time for the reading operation.</value>
+    TimeSpan ElapsedTime { get; }
+
+    /// <summary>
+    /// Gets the average records per second reading rate.
+    /// </summary>
+    /// <value>The reading rate in records per second, or 0 if not measurable.</value>
+    double RecordsPerSecond { get; }
+
+    /// <summary>
+    /// Gets the number of errors encountered during reading.
+    /// </summary>
+    /// <value>The count of non-fatal errors that were handled during reading.</value>
+    int ErrorCount { get; }
+
+    /// <summary>
+    /// Gets additional statistics specific to the container type.
+    /// </summary>
+    /// <value>Container-specific metrics and performance data.</value>
+    IReadOnlyDictionary<string, object> AdditionalMetrics { get; }
+}

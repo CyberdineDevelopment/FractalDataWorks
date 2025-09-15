@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks Team",
+  "classifications": ["Connection", "External", "Integration", "FractalDataWorks"],
+  "name": "FractalDataWorks External Connection",
+  "description": "A template for creating external connection services with resilience patterns and retry logic.",
+  "identity": "FractalDataWorks.Templates.ExternalConnection",
+  "groupIdentity": "FractalDataWorks.Templates.ExternalConnection",
+  "shortName": "Rec-connection",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "FractalDataWorks.Templates.ExternalConnection",
+  "preferNameDirectory": true,
+  "symbols": {
+    "ProjectName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "MyConnection",
+      "replaces": "FractalDataWorks.Templates.ExternalConnection",
+      "fileRename": "FractalDataWorks.Templates.ExternalConnection"
+    },
+    "ConnectionType": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "http",
+          "description": "HTTP/REST API connection"
+        },
+        {
+          "choice": "database",
+          "description": "Database connection"
+        },
+        {
+          "choice": "message-queue",
+          "description": "Message queue connection"
+        },
+        {
+          "choice": "custom",
+          "description": "Custom connection type"
+        }
+      ],
+      "defaultValue": "http",
+      "description": "The type of external connection"
+    },
+    "IncludeTests": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include unit test project"
+    }
+  }
+}

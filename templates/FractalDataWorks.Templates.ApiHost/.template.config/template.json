@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks",
+  "classifications": ["Web", "API", "Backend", "FastEndpoints"],
+  "identity": "FractalDataWorks.Templates.ApiHost",
+  "name": "FractalDataWorks API Host",
+  "shortName": "Rec-api",
+  "description": "FastEndpoints-based API host with authentication, rate limiting, and FractalDataWorks services",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "FractalDataWorksApiHost",
+  "preferNameDirectory": true,
+  "guids": ["11111111-1111-1111-1111-111111111111"],
+  "symbols": {
+    "AuthenticationType": {
+      "type": "parameter",
+      "description": "Authentication type to use",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "None",
+          "description": "No authentication (development only)"
+        },
+        {
+          "choice": "JWT",
+          "description": "JWT Bearer tokens"
+        },
+        {
+          "choice": "ApiKey",
+          "description": "API Key authentication"
+        }
+      ],
+      "defaultValue": "None"
+    },
+    "DatabaseProvider": {
+      "type": "parameter",
+      "description": "Database provider to use",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "None",
+          "description": "No database provider"
+        },
+        {
+          "choice": "SqlServer",
+          "description": "Microsoft SQL Server"
+        },
+        {
+          "choice": "PostgreSQL",
+          "description": "PostgreSQL"
+        }
+      ],
+      "defaultValue": "SqlServer"
+    },
+    "EnableSwagger": {
+      "type": "parameter",
+      "description": "Include Swagger/OpenAPI documentation",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "EnableRateLimiting": {
+      "type": "parameter",
+      "description": "Include rate limiting middleware",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "EnableCORS": {
+      "type": "parameter",
+      "description": "Include CORS configuration",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "IncludeDocker": {
+      "type": "parameter",
+      "description": "Include Docker support",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "IncludeHealthChecks": {
+      "type": "parameter",
+      "description": "Include health check endpoints",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "IncludeExampleEndpoints": {
+      "type": "parameter",
+      "description": "Include example Query and Command endpoints",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "UseMinimalHosting": {
+      "type": "parameter",
+      "description": "Use minimal hosting model (Program.cs only)",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "TargetFrameworkOverride": {
+      "type": "parameter",
+      "description": "Target framework",
+      "datatype": "string",
+      "replaces": "net10.0",
+      "defaultValue": "net10.0"
+    }
+  },
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "exclude": [
+        ".template.config/**/*",
+        "**/*.filelist",
+        "**/*.user",
+        "**/*.lock.json",
+        "**/bin/**",
+        "**/obj/**"
+      ],
+      "modifiers": [
+        {
+          "condition": "(!UseMinimalHosting)",
+          "exclude": [
+            "Program.cs"
+          ]
+        },
+        {
+          "condition": "(UseMinimalHosting)",
+          "exclude": [
+            "Startup.cs"
+          ]
+        },
+        {
+          "condition": "(!IncludeDocker)",
+          "exclude": [
+            "Dockerfile",
+            "docker-compose.yml",
+            ".dockerignore"
+          ]
+        },
+        {
+          "condition": "(!IncludeExampleEndpoints)",
+          "exclude": [
+            "Endpoints/**"
+          ]
+        }
+      ]
+    }
+  ],
+  "primaryOutputs": [
+    {
+      "path": "Program.cs"
+    },
+    {
+      "path": "appsettings.json"
+    }
+  ],
+  "postActions": [
+    {
+      "condition": "(IncludeDocker)",
+      "description": "Instructions for using Docker",
+      "manualInstructions": [
+        {
+          "text": "Run 'docker build -t your-api-name .' to build the Docker image",
+          "condition": "(IncludeDocker)"
+        }
+      ]
+    }
+  ]
+}

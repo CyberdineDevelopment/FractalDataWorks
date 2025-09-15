@@ -1,0 +1,462 @@
+{
+  "version": "1.0.0",
+  "description": "FractalDataWorks Template Catalog",
+  "lastUpdated": "2025-08-25",
+  "templates": [
+    {
+      "id": "Rec-api-host",
+      "name": "FractalDataWorks API Host",
+      "shortName": "Rec-api",
+      "description": "FastEndpoints-based API host with authentication, rate limiting, and FractalDataWorks services",
+      "category": "host",
+      "tags": ["api", "fastendpoints", "authentication", "host", "fractaldataworks"],
+      "sourceName": "FractalDataWorks.Templates.ApiHost",
+      "preferredPackage": "FractalDataWorks.Templates",
+      "author": "FractalDataWorks",
+      "classifications": ["Web", "API", "Backend", "FastEndpoints"],
+      "identity": "FractalDataWorks.Templates.ApiHost",
+      "groupIdentity": "FractalDataWorks.Templates.ApiHost",
+      "precedence": "9000",
+      "guids": ["11111111-1111-1111-1111-111111111111"],
+      "primaryOutputs": [
+        {
+          "path": "Program.cs"
+        },
+        {
+          "path": "appsettings.json"
+        },
+        {
+          "path": "Dockerfile"
+        }
+      ],
+      "defaultName": "MyApiHost",
+      "symbols": {
+        "AuthenticationType": {
+          "type": "parameter",
+          "description": "Authentication type to use",
+          "datatype": "choice",
+          "choices": [
+            {
+              "choice": "None",
+              "description": "No authentication (development only)"
+            },
+            {
+              "choice": "JWT",
+              "description": "JWT Bearer tokens"
+            },
+            {
+              "choice": "ApiKey",
+              "description": "API Key authentication"
+            }
+          ],
+          "defaultValue": "None"
+        },
+        "DatabaseProvider": {
+          "type": "parameter",
+          "description": "Database provider to use",
+          "datatype": "choice",
+          "choices": [
+            {
+              "choice": "None",
+              "description": "No database provider"
+            },
+            {
+              "choice": "SqlServer",
+              "description": "Microsoft SQL Server"
+            },
+            {
+              "choice": "PostgreSQL",
+              "description": "PostgreSQL"
+            }
+          ],
+          "defaultValue": "SqlServer"
+        },
+        "EnableSwagger": {
+          "type": "parameter",
+          "description": "Include Swagger/OpenAPI documentation",
+          "datatype": "bool",
+          "defaultValue": "true"
+        },
+        "EnableRateLimiting": {
+          "type": "parameter",
+          "description": "Include rate limiting middleware",
+          "datatype": "bool",
+          "defaultValue": "true"
+        },
+        "EnableCORS": {
+          "type": "parameter",
+          "description": "Include CORS configuration",
+          "datatype": "bool",
+          "defaultValue": "true"
+        },
+        "IncludeDocker": {
+          "type": "parameter",
+          "description": "Include Docker support",
+          "datatype": "bool",
+          "defaultValue": "true"
+        },
+        "IncludeHealthChecks": {
+          "type": "parameter",
+          "description": "Include health check endpoints",
+          "datatype": "bool",
+          "defaultValue": "true"
+        },
+        "IncludeExampleEndpoints": {
+          "type": "parameter",
+          "description": "Include example Query and Command endpoints",
+          "datatype": "bool",
+          "defaultValue": "true"
+        },
+        "UseMinimalHosting": {
+          "type": "parameter",
+          "description": "Use minimal hosting model (Program.cs only)",
+          "datatype": "bool",
+          "defaultValue": "true"
+        }
+      },
+      "sources": [
+        {
+          "source": "./",
+          "target": "./",
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**",
+            "**/*.user",
+            "**/.vs/**"
+          ]
+        }
+      ],
+      "postActions": [
+        {
+          "condition": "IncludeDocker == true",
+          "description": "Add Docker files",
+          "actionId": "3A7C4B45-1F5D-4A30-960B-2576618C4574",
+          "continueOnError": false
+        }
+      ]
+    },
+    {
+      "id": "Rec-service",
+      "name": "FractalDataWorks Service",
+      "shortName": "Rec-service",
+      "description": "Generic FractalDataWorks service with dependency injection and configuration",
+      "category": "service",
+      "tags": ["service", "di", "configuration"],
+      "sourceName": "FractalDataWorks.Templates.Service",
+      "preferredPackage": "FractalDataWorks.Templates",
+      "author": "FractalDataWorks",
+      "classifications": ["Service", "Library"],
+      "identity": "FractalDataWorks.Templates.Service",
+      "groupIdentity": "FractalDataWorks.Templates.Service",
+      "precedence": "9000",
+      "guids": ["44444444-4444-4444-4444-444444444444"],
+      "primaryOutputs": [
+        {
+          "path": "ServiceBase.cs"
+        }
+      ],
+      "defaultName": "MyService"
+    },
+    {
+      "id": "Rec-external-connection",
+      "name": "FractalDataWorks External Connection",
+      "shortName": "Rec-connection",
+      "description": "External connection service for integrating with external systems",
+      "category": "connection",
+      "tags": ["connection", "external", "integration"],
+      "sourceName": "FractalDataWorks.Templates.ExternalConnection",
+      "preferredPackage": "FractalDataWorks.Templates",
+      "author": "FractalDataWorks",
+      "classifications": ["Connection", "Integration"],
+      "identity": "FractalDataWorks.Templates.ExternalConnection",
+      "groupIdentity": "FractalDataWorks.Templates.ExternalConnection",
+      "precedence": "9000",
+      "guids": ["55555555-5555-5555-5555-555555555555"],
+      "primaryOutputs": [
+        {
+          "path": "ConnectionService.cs"
+        }
+      ],
+      "defaultName": "MyConnection",
+      "symbols": {
+        "ConnectionType": {
+          "type": "parameter",
+          "description": "Type of external connection",
+          "datatype": "choice",
+          "choices": [
+            {
+              "choice": "Http",
+              "description": "HTTP/REST connection"
+            },
+            {
+              "choice": "Database",
+              "description": "Database connection"
+            },
+            {
+              "choice": "MessageQueue",
+              "description": "Message queue connection"
+            }
+          ],
+          "defaultValue": "Http"
+        }
+      }
+    },
+    {
+      "id": "Rec-query-endpoint",
+      "name": "FractalDataWorks Query Endpoint",
+      "shortName": "Rec-query",
+      "description": "FastEndpoints Query endpoint with pagination and RecEndpoint base class",
+      "category": "item",
+      "tags": ["endpoint", "query", "pagination", "fastendpoints"],
+      "sourceName": "FractalDataWorks.Templates.QueryEndpoint",
+      "preferredPackage": "FractalDataWorks.Templates",
+      "author": "FractalDataWorks",
+      "classifications": ["Web", "Endpoint", "Query"],
+      "identity": "FractalDataWorks.Templates.QueryEndpoint",
+      "groupIdentity": "FractalDataWorks.Templates.QueryEndpoint",
+      "precedence": "8000",
+      "guids": ["66666666-6666-6666-6666-666666666666"],
+      "primaryOutputs": [
+        {
+          "path": "Get{Name}Endpoint.cs"
+        },
+        {
+          "path": "Get{Name}Request.cs"
+        },
+        {
+          "path": "{Name}Response.cs"
+        }
+      ],
+      "defaultName": "User",
+      "symbols": {
+        "Name": {
+          "type": "parameter",
+          "description": "Name of the entity/resource",
+          "datatype": "string",
+          "defaultValue": "User"
+        },
+        "EnablePagination": {
+          "type": "parameter",
+          "description": "Include pagination support",
+          "datatype": "bool",
+          "defaultValue": "true"
+        },
+        "RequireAuthentication": {
+          "type": "parameter",
+          "description": "Require authentication for this endpoint",
+          "datatype": "bool",
+          "defaultValue": "true"
+        }
+      }
+    },
+    {
+      "id": "Rec-command-endpoint",
+      "name": "FractalDataWorks Command Endpoint",
+      "shortName": "Rec-command",
+      "description": "FastEndpoints Command endpoint with validation and RecEndpoint base class",
+      "category": "item",
+      "tags": ["endpoint", "command", "cqrs", "fastendpoints"],
+      "sourceName": "FractalDataWorks.Templates.CommandEndpoint",
+      "preferredPackage": "FractalDataWorks.Templates",
+      "author": "FractalDataWorks",
+      "classifications": ["Web", "Endpoint", "Command"],
+      "identity": "FractalDataWorks.Templates.CommandEndpoint",
+      "groupIdentity": "FractalDataWorks.Templates.CommandEndpoint",
+      "precedence": "8000",
+      "guids": ["77777777-7777-7777-7777-777777777777"],
+      "primaryOutputs": [
+        {
+          "path": "{Action}{Name}Endpoint.cs"
+        },
+        {
+          "path": "{Action}{Name}Request.cs"
+        },
+        {
+          "path": "{Action}{Name}Response.cs"
+        }
+      ],
+      "defaultName": "User",
+      "symbols": {
+        "Name": {
+          "type": "parameter",
+          "description": "Name of the entity/resource",
+          "datatype": "string",
+          "defaultValue": "User"
+        },
+        "Action": {
+          "type": "parameter",
+          "description": "Command action type",
+          "datatype": "choice",
+          "choices": [
+            {
+              "choice": "Create",
+              "description": "Create new entity"
+            },
+            {
+              "choice": "Update",
+              "description": "Update existing entity"
+            },
+            {
+              "choice": "Delete",
+              "description": "Delete entity"
+            }
+          ],
+          "defaultValue": "Create"
+        },
+        "RequireAuthentication": {
+          "type": "parameter",
+          "description": "Require authentication for this endpoint",
+          "datatype": "bool",
+          "defaultValue": "true"
+        }
+      }
+    },
+    {
+      "id": "Rec-stream-endpoint",
+      "name": "FractalDataWorks Stream Endpoint",
+      "shortName": "Rec-stream",
+      "description": "FastEndpoints streaming endpoint with IAsyncEnumerable support",
+      "category": "item",
+      "tags": ["endpoint", "stream", "async", "fastendpoints"],
+      "sourceName": "FractalDataWorks.Templates.StreamEndpoint",
+      "preferredPackage": "FractalDataWorks.Templates",
+      "author": "FractalDataWorks",
+      "classifications": ["Web", "Endpoint", "Stream"],
+      "identity": "FractalDataWorks.Templates.StreamEndpoint",
+      "groupIdentity": "FractalDataWorks.Templates.StreamEndpoint",
+      "precedence": "8000",
+      "guids": ["88888888-8888-8888-8888-888888888888"],
+      "primaryOutputs": [
+        {
+          "path": "Stream{Name}Endpoint.cs"
+        },
+        {
+          "path": "Stream{Name}Request.cs"
+        }
+      ],
+      "defaultName": "Data",
+      "symbols": {
+        "Name": {
+          "type": "parameter",
+          "description": "Name of the data being streamed",
+          "datatype": "string",
+          "defaultValue": "Data"
+        },
+        "ResponseType": {
+          "type": "parameter",
+          "description": "Type of data being streamed",
+          "datatype": "string",
+          "defaultValue": "object"
+        },
+        "RequireAuthentication": {
+          "type": "parameter",
+          "description": "Require authentication for this endpoint",
+          "datatype": "bool",
+          "defaultValue": "true"
+        }
+      }
+    },
+    {
+      "id": "Rec-enhanced-enum",
+      "name": "FractalDataWorks Enhanced Enum",
+      "shortName": "Rec-enum",
+      "description": "FractalDataWorks Enhanced Enum with collection base and concrete implementations",
+      "category": "item",
+      "tags": ["enum", "enhanced", "collection", "fractaldataworks"],
+      "sourceName": "FractalDataWorks.Templates.EnhancedEnum",
+      "preferredPackage": "FractalDataWorks.Templates",
+      "author": "FractalDataWorks",
+      "classifications": ["Enum", "Collection", "Enhanced"],
+      "identity": "FractalDataWorks.Templates.EnhancedEnum",
+      "groupIdentity": "FractalDataWorks.Templates.EnhancedEnum",
+      "precedence": "8000",
+      "guids": ["99999999-9999-9999-9999-999999999999"],
+      "primaryOutputs": [
+        {
+          "path": "I{Name}.cs"
+        },
+        {
+          "path": "{Name}Base.cs"
+        },
+        {
+          "path": "{Name}CollectionBase.cs"
+        },
+        {
+          "path": "ConcreteOptions/{FirstOption}.cs"
+        },
+        {
+          "path": "ConcreteOptions/{SecondOption}.cs"
+        }
+      ],
+      "defaultName": "Status",
+      "symbols": {
+        "Name": {
+          "type": "parameter",
+          "description": "Name of the Enhanced Enum",
+          "datatype": "string",
+          "defaultValue": "Status"
+        },
+        "FirstOption": {
+          "type": "parameter",
+          "description": "Name of the first concrete option",
+          "datatype": "string",
+          "defaultValue": "Active"
+        },
+        "SecondOption": {
+          "type": "parameter",
+          "description": "Name of the second concrete option",
+          "datatype": "string",
+          "defaultValue": "Inactive"
+        },
+        "IncludeGlobalCollection": {
+          "type": "parameter",
+          "description": "Generate global collection attribute",
+          "datatype": "bool",
+          "defaultValue": "true"
+        }
+      }
+    },
+    {
+      "id": "Rec-enhanced-enum-option",
+      "name": "FractalDataWorks Enhanced Enum Option",
+      "shortName": "Rec-enum-option",
+      "description": "Individual Enhanced Enum option/implementation",
+      "category": "item",
+      "tags": ["enum", "option", "enhanced", "fractaldataworks"],
+      "sourceName": "FractalDataWorks.Templates.EnhancedEnumOption",
+      "preferredPackage": "FractalDataWorks.Templates",
+      "author": "FractalDataWorks",
+      "classifications": ["Enum", "Option", "Enhanced"],
+      "identity": "FractalDataWorks.Templates.EnhancedEnumOption",
+      "groupIdentity": "FractalDataWorks.Templates.EnhancedEnumOption",
+      "precedence": "7000",
+      "guids": ["AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"],
+      "primaryOutputs": [
+        {
+          "path": "{Name}.cs"
+        }
+      ],
+      "defaultName": "NewOption",
+      "symbols": {
+        "Name": {
+          "type": "parameter",
+          "description": "Name of the new option",
+          "datatype": "string",
+          "defaultValue": "NewOption"
+        },
+        "Id": {
+          "type": "parameter",
+          "description": "Unique ID for this option",
+          "datatype": "int",
+          "defaultValue": "1"
+        },
+        "BaseClass": {
+          "type": "parameter",
+          "description": "Name of the base Enhanced Enum class",
+          "datatype": "string",
+          "defaultValue": "StatusBase"
+        }
+      }
+    }
+  ]
+}

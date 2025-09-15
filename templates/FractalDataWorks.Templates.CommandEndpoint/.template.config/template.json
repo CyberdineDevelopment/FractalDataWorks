@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks",
+  "classifications": ["Web", "Endpoint", "Command"],
+  "identity": "FractalDataWorks.Templates.CommandEndpoint",
+  "name": "FractalDataWorks Command Endpoint",
+  "shortName": "Rec-command",
+  "description": "FastEndpoints Command endpoint with validation and RecEndpoint base class",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "EntityName",
+  "preferNameDirectory": false,
+  "guids": ["77777777-7777-7777-7777-777777777777"],
+  "symbols": {
+    "Name": {
+      "type": "parameter",
+      "description": "Name of the entity/resource (e.g., User, Product)",
+      "datatype": "string",
+      "defaultValue": "User",
+      "replaces": "EntityName"
+    },
+    "Action": {
+      "type": "parameter",
+      "description": "Command action type",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "Create",
+          "description": "Create new entity"
+        },
+        {
+          "choice": "Update",
+          "description": "Update existing entity"
+        },
+        {
+          "choice": "Delete",
+          "description": "Delete entity"
+        }
+      ],
+      "defaultValue": "Create",
+      "replaces": "CommandAction"
+    },
+    "RequireAuthentication": {
+      "type": "parameter",
+      "description": "Require authentication for this endpoint",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "Namespace": {
+      "type": "parameter",
+      "description": "Namespace for the endpoint",
+      "datatype": "string",
+      "defaultValue": "MyApp.Endpoints",
+      "replaces": "TemplateNamespace"
+    },
+    "RequireAdminRole": {
+      "type": "parameter",
+      "description": "Require admin role for this command",
+      "datatype": "bool",
+      "defaultValue": "false"
+    }
+  },
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "exclude": [
+        ".template.config/**/*"
+      ]
+    }
+  ],
+  "primaryOutputs": [
+    {
+      "path": "CommandActionEntityNameEndpoint.cs"
+    },
+    {
+      "path": "CommandActionEntityNameRequest.cs"
+    },
+    {
+      "path": "CommandActionEntityNameResponse.cs"
+    }
+  ]
+}

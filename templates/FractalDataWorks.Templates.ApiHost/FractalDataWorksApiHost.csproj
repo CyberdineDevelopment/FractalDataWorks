@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>TargetFrameworkOverride</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- FractalDataWorks Framework Packages -->
+    <PackageReference Include="FractalDataWorks.Web.RestEndpoints" />
+    <PackageReference Include="FractalDataWorks.Services.DataGateway" />
+    <PackageReference Include="FractalDataWorks.Web.Http.Abstractions" />
+    
+    <!-- FastEndpoints (used by FractalDataWorks) -->
+    <PackageReference Include="FastEndpoints" />
+//#if (EnableSwagger)
+    <PackageReference Include="FastEndpoints.Swagger" />
+//#endif
+
+    <!-- Authentication -->
+//#if (AuthenticationType == "JWT")
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+//#endif
+
+    <!-- Rate Limiting -->
+//#if (EnableRateLimiting)
+    <PackageReference Include="System.Threading.RateLimiting" />
+//#endif
+
+    <!-- Database Providers -->
+//#if (DatabaseProvider == "SqlServer")
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+//#endif
+//#if (DatabaseProvider == "PostgreSQL")
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+//#endif
+
+    <!-- Health Checks -->
+//#if (IncludeHealthChecks)
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+//#if (DatabaseProvider == "SqlServer")
+    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" />
+//#endif
+//#if (DatabaseProvider == "PostgreSQL")
+    <PackageReference Include="AspNetCore.HealthChecks.Npgsql" />
+//#endif
+//#endif
+
+    <!-- Docker Support -->
+//#if (IncludeDocker)
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+//#endif
+  </ItemGroup>
+
+</Project>

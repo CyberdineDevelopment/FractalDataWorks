@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+//#if (DatabaseProvider == "SqlServer")
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FractalDataWorksApiHost;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true
+//#endif
+//#if (DatabaseProvider == "PostgreSQL")
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=fractaldataworks_api_host;Username=postgres;Password=password
+//#endif
+    depends_on:
+//#if (DatabaseProvider == "SqlServer")
+      - sqlserver
+//#endif
+//#if (DatabaseProvider == "PostgreSQL")
+      - postgres
+//#endif
+    networks:
+      - fractaldataworks-network
+
+//#if (DatabaseProvider == "SqlServer")
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - fractaldataworks-network
+//#endif
+
+//#if (DatabaseProvider == "PostgreSQL")
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=fractaldataworks_api_host
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - fractaldataworks-network
+//#endif
+
+volumes:
+//#if (DatabaseProvider == "SqlServer")
+  sqlserver-data:
+//#endif
+//#if (DatabaseProvider == "PostgreSQL")
+  postgres-data:
+//#endif
+
+networks:
+  fractaldataworks-network:
+    driver: bridge

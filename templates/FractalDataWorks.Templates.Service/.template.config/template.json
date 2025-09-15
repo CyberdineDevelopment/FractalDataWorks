@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks Team",
+  "classifications": ["Service", "Business Logic", "FractalDataWorks"],
+  "name": "FractalDataWorks Service Implementation",
+  "description": "A template for creating service implementations with command patterns and validation.",
+  "identity": "FractalDataWorks.Templates.Service",
+  "groupIdentity": "FractalDataWorks.Templates.Service",
+  "shortName": "Rec-service",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "FractalDataWorks.Templates.Service",
+  "preferNameDirectory": true,
+  "symbols": {
+    "ProjectName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "MyService",
+      "replaces": "FractalDataWorks.Templates.Service",
+      "fileRename": "FractalDataWorks.Templates.Service"
+    },
+    "ServiceType": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "business",
+          "description": "Business logic service"
+        },
+        {
+          "choice": "data",
+          "description": "Data access service"
+        },
+        {
+          "choice": "integration",
+          "description": "Integration service"
+        }
+      ],
+      "defaultValue": "business",
+      "description": "The type of service to create"
+    },
+    "IncludeTests": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include unit test project"
+    }
+  }
+}

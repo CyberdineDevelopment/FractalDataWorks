@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>FractalDataWorks.Templates</id>
+    <version>1.0.0</version>
+    <description>Complete project and solution templates for FractalDataWorks backend data platform development. Includes API hosts, ETL processors, schedulers, and full-stack solutions with integrated authentication, database providers, and CI/CD pipelines.</description>
+    <authors>FractalDataWorks</authors>
+    <owners>FractalDataWorks</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/FractalDataWorks/samples-implementation</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/FractalDataWorks/samples-implementation/master/templates/package/icon.png</iconUrl>
+    <icon>icon.png</icon>
+    <readme>README.md</readme>
+    <releaseNotes>Initial release of FractalDataWorks project templates with comprehensive solution wizard integration.</releaseNotes>
+    <copyright>Copyright © FractalDataWorks 2025</copyright>
+    <tags>dotnet templates FractalDataWorks api etl scheduler host backend data-platform csharp netcore</tags>
+    <packageTypes>
+      <packageType name="Template" />
+    </packageTypes>
+    <repository type="git" url="https://github.com/FractalDataWorks/samples-implementation.git" />
+  </metadata>
+  <files>
+    <!-- Template content -->
+    <file src="../FractalDataWorks.Templates.ApiHost/**" target="content/FractalDataWorks.Templates.ApiHost" exclude="../FractalDataWorks.Templates.ApiHost/bin/**;../FractalDataWorks.Templates.ApiHost/obj/**" />
+    <file src="../FractalDataWorks.Templates.EtlHost/**" target="content/FractalDataWorks.Templates.EtlHost" exclude="../FractalDataWorks.Templates.EtlHost/bin/**;../FractalDataWorks.Templates.EtlHost/obj/**" />
+    <file src="../FractalDataWorks.Templates.SchedulerHost/**" target="content/FractalDataWorks.Templates.SchedulerHost" exclude="../FractalDataWorks.Templates.SchedulerHost/bin/**;../FractalDataWorks.Templates.SchedulerHost/obj/**" />
+    <file src="../FractalDataWorks.Templates.Service/**" target="content/FractalDataWorks.Templates.Service" exclude="../FractalDataWorks.Templates.Service/bin/**;../FractalDataWorks.Templates.Service/obj/**" />
+    <file src="../FractalDataWorks.Templates.ExternalConnection/**" target="content/FractalDataWorks.Templates.ExternalConnection" exclude="../FractalDataWorks.Templates.ExternalConnection/bin/**;../FractalDataWorks.Templates.ExternalConnection/obj/**" />
+    
+    <!-- Template configuration files -->
+    <file src="template.config/**" target="content" />
+    <file src="../catalog/**" target="content/.template.config" />
+    
+    <!-- Solution templates -->
+    <file src="solutions/**" target="content/solutions" />
+    
+    <!-- Documentation -->
+    <file src="README.md" target="" />
+    <file src="icon.png" target="" />
+    
+    <!-- Installation scripts -->
+    <file src="../install/**" target="tools" />
+  </files>
+</package>

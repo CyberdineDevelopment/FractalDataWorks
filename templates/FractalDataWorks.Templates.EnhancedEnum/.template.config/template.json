@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks Framework",
+  "classifications": ["Enhanced", "Enum", "Collection"],
+  "identity": "FractalDataWorks.Templates.EnhancedEnum",
+  "name": "FractalDataWorks Enhanced Enum",
+  "shortName": "Rec-enum",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "description": "Creates a FractalDataWorks Enhanced Enum with interface, base class, collection base, and concrete options",
+  "sourceName": "EnhancedEnumName",
+  "preferNameDirectory": false,
+  "symbols": {
+    "EnhancedEnumName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "Status",
+      "description": "The name of the Enhanced Enum (e.g., Status, Priority, Category)"
+    },
+    "TemplateNamespace": {
+      "type": "parameter", 
+      "datatype": "string",
+      "defaultValue": "MyProject.Enums",
+      "description": "The namespace for the Enhanced Enum"
+    },
+    "FirstOption": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "Active",
+      "description": "Name of the first concrete option"
+    },
+    "SecondOption": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "Inactive", 
+      "description": "Name of the second concrete option"
+    },
+    "IncludeGlobalCollection": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Generate global collection attribute for automatic discovery"
+    },
+    "IncludeDescription": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include Description property in the Enhanced Enum"
+    },
+    "IncludeSort": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true", 
+      "description": "Include SortOrder property for ordering options"
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "IEnhancedEnumName.cs"
+    },
+    {
+      "path": "EnhancedEnumNameBase.cs"
+    },
+    {
+      "path": "EnhancedEnumNameCollectionBase.cs"
+    },
+    {
+      "path": "ConcreteOptions/FirstOption.cs"
+    },
+    {
+      "path": "ConcreteOptions/SecondOption.cs"
+    }
+  ]
+}

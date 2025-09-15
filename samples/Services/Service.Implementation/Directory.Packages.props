@@ -14,8 +14,11 @@
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0-rc.1.25451.107" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0-rc.1.25451.107" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0-preview.7.25380.108" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0-rc.1.25451.107" />
     <!-- Data access -->
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.0-preview1.25257.1" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.0-rc.1.25451.107" />
     <PackageVersion Include="System.Data.Common" Version="4.3.0" />
   </ItemGroup>
 </Project>

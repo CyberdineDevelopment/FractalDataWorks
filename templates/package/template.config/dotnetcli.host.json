@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json.schemastore.org/template-host",
+  "symbolInfo": {
+    "AuthenticationType": {
+      "isVisible": "true",
+      "longName": "authentication",
+      "shortName": "auth"
+    },
+    "DatabaseProvider": {
+      "isVisible": "true", 
+      "longName": "database",
+      "shortName": "db"
+    },
+    "IncludeDocker": {
+      "isVisible": "true",
+      "longName": "docker",
+      "shortName": "d"
+    },
+    "IncludeHealthChecks": {
+      "isVisible": "true",
+      "longName": "health-checks",
+      "shortName": "hc"
+    },
+    "ProcessingType": {
+      "isVisible": "true",
+      "longName": "processing",
+      "shortName": "pt"
+    },
+    "DataSource": {
+      "isVisible": "true",
+      "longName": "data-source", 
+      "shortName": "ds"
+    },
+    "SchedulerType": {
+      "isVisible": "true",
+      "longName": "scheduler",
+      "shortName": "s"
+    },
+    "ConnectionType": {
+      "isVisible": "true",
+      "longName": "connection-type",
+      "shortName": "ct"
+    }
+  }
+}

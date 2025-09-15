@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json.schemastore.org/template-host",
+  "symbolInfo": {
+    "AuthenticationType": {
+      "isVisible": "true",
+      "displayName": "Authentication Type",
+      "description": "Select the authentication method for the API"
+    },
+    "DatabaseProvider": {
+      "isVisible": "true",
+      "displayName": "Database Provider", 
+      "description": "Select the database provider to use"
+    },
+    "IncludeDocker": {
+      "isVisible": "true",
+      "displayName": "Include Docker Support",
+      "description": "Add Docker containerization support"
+    },
+    "IncludeHealthChecks": {
+      "isVisible": "true",
+      "displayName": "Include Health Checks",
+      "description": "Add health check endpoints"
+    },
+    "ProcessingType": {
+      "isVisible": "true",
+      "displayName": "Processing Type",
+      "description": "Select the data processing approach"
+    },
+    "DataSource": {
+      "isVisible": "true",
+      "displayName": "Data Source Type",
+      "description": "Select the primary data source"
+    },
+    "SchedulerType": {
+      "isVisible": "true",
+      "displayName": "Scheduler Type",
+      "description": "Select the job scheduling implementation"
+    },
+    "ConnectionType": {
+      "isVisible": "true",
+      "displayName": "Connection Type",
+      "description": "Select the external connection type"
+    }
+  }
+}

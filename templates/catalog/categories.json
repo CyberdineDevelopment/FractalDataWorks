@@ -1,0 +1,93 @@
+{
+  "version": "1.0.0",
+  "description": "FractalDataWorks Template Categories",
+  "categories": [
+    {
+      "id": "host",
+      "name": "Host Applications",
+      "description": "Complete host applications for running services",
+      "icon": "host.png",
+      "order": 1,
+      "templates": [
+        "Rec-api-host",
+        "Rec-etl-host",
+        "Rec-scheduler-host"
+      ]
+    },
+    {
+      "id": "service",
+      "name": "Services",
+      "description": "Service libraries and components",
+      "icon": "service.png",
+      "order": 2,
+      "templates": [
+        "Rec-service"
+      ]
+    },
+    {
+      "id": "connection",
+      "name": "External Connections",
+      "description": "External system integration components",
+      "icon": "connection.png",
+      "order": 3,
+      "templates": [
+        "Rec-external-connection"
+      ]
+    },
+    {
+      "id": "solution",
+      "name": "Solution Templates",
+      "description": "Complete solution templates with multiple projects",
+      "icon": "solution.png",
+      "order": 0,
+      "templates": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "api",
+      "description": "REST API functionality",
+      "color": "#0078D4"
+    },
+    {
+      "name": "etl",
+      "description": "Extract, Transform, Load operations",
+      "color": "#107C10"
+    },
+    {
+      "name": "scheduler",
+      "description": "Job scheduling and background tasks",
+      "color": "#FF8C00"
+    },
+    {
+      "name": "host",
+      "description": "Host applications",
+      "color": "#5C2D91"
+    },
+    {
+      "name": "service",
+      "description": "Service components",
+      "color": "#D13438"
+    },
+    {
+      "name": "connection",
+      "description": "External system connections",
+      "color": "#00BCF2"
+    },
+    {
+      "name": "authentication",
+      "description": "Authentication and authorization",
+      "color": "#881798"
+    },
+    {
+      "name": "data",
+      "description": "Data processing and storage",
+      "color": "#498205"
+    },
+    {
+      "name": "transformations",
+      "description": "Data transformation operations",
+      "color": "#00188F"
+    }
+  ]
+}

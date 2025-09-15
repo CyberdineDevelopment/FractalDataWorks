@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.net\FractalDataWorks.net.csproj" />
-  </ItemGroup>
-
-</Project>

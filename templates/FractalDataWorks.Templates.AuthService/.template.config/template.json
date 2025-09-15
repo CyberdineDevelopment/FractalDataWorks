@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks Team",
+  "classifications": ["Authentication", "Security", "Service", "FractalDataWorks"],
+  "name": "FractalDataWorks Authentication Service",
+  "description": "A template for creating custom authentication services with token management.",
+  "identity": "FractalDataWorks.Templates.AuthService",
+  "groupIdentity": "FractalDataWorks.Templates.AuthService",
+  "shortName": "Rec-auth",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "FractalDataWorks.Templates.AuthService",
+  "preferNameDirectory": true,
+  "symbols": {
+    "ProjectName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "MyAuthService",
+      "replaces": "FractalDataWorks.Templates.AuthService",
+      "fileRename": "FractalDataWorks.Templates.AuthService"
+    },
+    "AuthProvider": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "jwt",
+          "description": "JWT token authentication"
+        },
+        {
+          "choice": "oauth",
+          "description": "OAuth 2.0 authentication"
+        },
+        {
+          "choice": "custom",
+          "description": "Custom authentication mechanism"
+        }
+      ],
+      "defaultValue": "jwt",
+      "description": "The authentication provider type"
+    },
+    "IncludeTests": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include unit test project"
+    }
+  }
+}

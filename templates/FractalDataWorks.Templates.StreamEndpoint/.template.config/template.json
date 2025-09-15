@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks Framework",
+  "classifications": ["Web", "API", "Endpoint"],
+  "identity": "FractalDataWorks.Templates.StreamEndpoint",
+  "name": "FractalDataWorks Stream Endpoint",
+  "shortName": "Rec-stream",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "description": "Creates a FractalDataWorks stream endpoint for real-time data streaming using FastEndpoints",
+  "sourceName": "StreamEntityNameEndpoint",
+  "preferNameDirectory": false,
+  "symbols": {
+    "EntityName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "Item",
+      "description": "The name of the entity (e.g., User, Product, Order)"
+    },
+    "TemplateNamespace": {
+      "type": "parameter", 
+      "datatype": "string",
+      "defaultValue": "MyApi.Endpoints",
+      "description": "The namespace for the endpoint"
+    },
+    "RequireAuthentication": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Whether this endpoint requires authentication"
+    },
+    "RequireAdminRole": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether this endpoint requires admin role"
+    },
+    "EnableFilters": {
+      "type": "parameter",
+      "datatype": "bool", 
+      "defaultValue": "true",
+      "description": "Whether to enable filtering parameters"
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "StreamEntityNameEndpoint.cs"
+    },
+    {
+      "path": "StreamEntityNameRequest.cs" 
+    },
+    {
+      "path": "StreamEntityNameResponse.cs"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FractalDataWorks.Results;
+using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Services.Connections.Abstractions;
 
@@ -22,14 +24,14 @@ public interface IFdwConnection : IDisposable
     /// <summary>
     /// Executes a command on this connection.
     /// </summary>
-    Task<IFdwResult> Execute(
+    Task<IFractalResult> Execute(
         IDataCommand command,
         CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a command on this connection and returns a typed result.
     /// </summary>
-    Task<IFdwResult<TResult>> Execute<TResult>(
+    Task<IFractalResult<TResult>> Execute<TResult>(
         IDataCommand command,
         CancellationToken cancellationToken = default);
 }

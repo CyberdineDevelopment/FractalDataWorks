@@ -1,0 +1,57 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using FractalDataWorks.Results;
+using FractalDataWorks.Services.Abstractions;
+
+namespace FractalDataWorks.Services.Connections.Abstractions;
+
+/// <summary>
+/// Interface for connection data services that handle data operations across external systems.
+/// Extends IFractalService with connection-specific data operations.
+/// </summary>
+public interface IConnectionDataService : IFractalService
+{
+    /// <summary>
+    /// Gets the unique identifier for this service instance.
+    /// </summary>
+    string ServiceId { get; }
+
+    /// <summary>
+    /// Creates a new connection with the specified configuration.
+    /// </summary>
+    /// <param name="configuration">The connection configuration.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task containing the connection creation result.</returns>
+    Task<IFdwResult<string>> CreateConnectionAsync(IConnectionConfiguration configuration, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets an existing connection by ID.
+    /// </summary>
+    /// <param name="connectionId">The connection identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task containing the connection retrieval result.</returns>
+    Task<IFdwResult<IFdwConnection>> GetConnectionAsync(string connectionId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Lists all active connections managed by this service.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task containing the list of connection IDs.</returns>
+    Task<IFdwResult<IEnumerable<string>>> ListConnectionsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Removes a connection from the service.
+    /// </summary>
+    /// <param name="connectionId">The connection identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task containing the removal result.</returns>
+    Task<IFdwResult> RemoveConnectionAsync(string connectionId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Tests connectivity for all managed connections.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task containing the health check results.</returns>
+    Task<IFdwResult<IDictionary<string, bool>>> HealthCheckAsync(CancellationToken cancellationToken = default);
+}

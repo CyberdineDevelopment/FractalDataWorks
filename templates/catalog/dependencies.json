@@ -1,0 +1,194 @@
+{
+  "version": "1.0.0",
+  "description": "FractalDataWorks Template Dependencies",
+  "dependencies": {
+    "Rec-api-host": {
+      "packages": [
+        {
+          "id": "FractalDataWorks.Configuration",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.DependencyInjection",
+          "version": "latest", 
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.RestEndpoints",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.Services.Authentication.Abstractions",
+          "version": "latest",
+          "condition": "AuthenticationType != 'None'"
+        },
+        {
+          "id": "FractalDataWorks.Services.Authentication.AzureEntra",
+          "version": "latest",
+          "condition": "AuthenticationType == 'AzureAD'"
+        },
+        {
+          "id": "FractalDataWorks.Services.Connections.MsSql",
+          "version": "latest",
+          "condition": "DatabaseProvider == 'SqlServer'"
+        },
+        {
+          "id": "Microsoft.EntityFrameworkCore.SqlServer",
+          "version": "8.0.0",
+          "condition": "DatabaseProvider == 'SqlServer'"
+        },
+        {
+          "id": "Microsoft.AspNetCore.Authentication.JwtBearer",
+          "version": "8.0.0",
+          "condition": "AuthenticationType == 'JWT'"
+        }
+      ],
+      "frameworks": [
+        "net8.0"
+      ],
+      "projectReferences": [],
+      "tools": [
+        {
+          "id": "dotnet-ef",
+          "version": "8.0.0",
+          "condition": "DatabaseProvider != 'None'"
+        }
+      ]
+    },
+    "Rec-etl-host": {
+      "packages": [
+        {
+          "id": "FractalDataWorks.Configuration",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.DependencyInjection",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.Services.Transformations.Abstractions",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.Data",
+          "version": "latest",
+          "required": true
+        }
+      ],
+      "frameworks": [
+        "net8.0"
+      ]
+    },
+    "Rec-scheduler-host": {
+      "packages": [
+        {
+          "id": "FractalDataWorks.Configuration",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.DependencyInjection",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.Services.Scheduling.Abstractions",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "Quartz",
+          "version": "3.8.0",
+          "condition": "SchedulerType == 'Quartz'"
+        },
+        {
+          "id": "Hangfire.Core",
+          "version": "1.8.6",
+          "condition": "SchedulerType == 'Hangfire'"
+        }
+      ],
+      "frameworks": [
+        "net8.0"
+      ]
+    },
+    "Rec-service": {
+      "packages": [
+        {
+          "id": "FractalDataWorks.Services",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.Services.Abstractions",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.Configuration",
+          "version": "latest",
+          "required": true
+        }
+      ],
+      "frameworks": [
+        "net8.0"
+      ]
+    },
+    "Rec-external-connection": {
+      "packages": [
+        {
+          "id": "FractalDataWorks.Services.Connections.Abstractions",
+          "version": "latest",
+          "required": true
+        },
+        {
+          "id": "FractalDataWorks.Services.Connections.Http",
+          "version": "latest",
+          "condition": "ConnectionType == 'Http'"
+        },
+        {
+          "id": "FractalDataWorks.Services.Connections.MsSql",
+          "version": "latest",
+          "condition": "ConnectionType == 'Database'"
+        }
+      ],
+      "frameworks": [
+        "net8.0"
+      ]
+    }
+  },
+  "globalDependencies": {
+    "testFrameworks": [
+      {
+        "id": "xunit",
+        "version": "2.4.2"
+      },
+      {
+        "id": "xunit.runner.visualstudio",
+        "version": "2.4.5"
+      },
+      {
+        "id": "Shouldly",
+        "version": "4.2.1"
+      },
+      {
+        "id": "Microsoft.NET.Test.Sdk",
+        "version": "17.8.0"
+      }
+    ],
+    "analysisTools": [
+      {
+        "id": "Microsoft.CodeAnalysis.Analyzers",
+        "version": "3.3.4"
+      },
+      {
+        "id": "Microsoft.CodeAnalysis.NetAnalyzers",
+        "version": "8.0.0"
+      }
+    ]
+  }
+}

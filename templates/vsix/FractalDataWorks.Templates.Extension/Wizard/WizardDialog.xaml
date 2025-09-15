@@ -1,0 +1,214 @@
+<Window x:Class="FractalDataWorks.Templates.Extension.Wizard.WizardDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="FractalDataWorks Solution Wizard"
+        Height="600" Width="800"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        Icon="pack://application:,,,/FractalDataWorks.Templates.Extension;component/Resources/icon.ico">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2D2D30" Padding="20,15">
+            <StackPanel>
+                <TextBlock Text="FractalDataWorks Solution Wizard" 
+                           FontSize="20" FontWeight="Bold" Foreground="White"/>
+                <TextBlock Text="Configure your backend data platform solution" 
+                           FontSize="12" Foreground="#CCCCCC" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- Content -->
+        <TabControl Grid.Row="1" Margin="0" Background="White" BorderThickness="0">
+            
+            <!-- Solution Type Tab -->
+            <TabItem Header="Solution Type" FontSize="14">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Select Solution Type" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        
+                        <RadioButton x:Name="ApiSolutionRadio" Content="API Host Solution" 
+                                     GroupName="SolutionType" FontSize="14" Margin="0,0,0,10"/>
+                        <TextBlock Text="RESTful API with authentication, rate limiting, and external connections" 
+                                   Margin="20,0,0,15" Foreground="Gray" TextWrapping="Wrap"/>
+                        
+                        <RadioButton x:Name="EtlSolutionRadio" Content="ETL Host Solution" 
+                                     GroupName="SolutionType" FontSize="14" Margin="0,0,0,10"/>
+                        <TextBlock Text="Data processing pipeline with transformations and batch/stream processing" 
+                                   Margin="20,0,0,15" Foreground="Gray" TextWrapping="Wrap"/>
+                        
+                        <RadioButton x:Name="SchedulerSolutionRadio" Content="Scheduler Host Solution" 
+                                     GroupName="SolutionType" FontSize="14" Margin="0,0,0,10"/>
+                        <TextBlock Text="Background job scheduling with distributed task execution" 
+                                   Margin="20,0,0,15" Foreground="Gray" TextWrapping="Wrap"/>
+                        
+                        <RadioButton x:Name="FullStackSolutionRadio" Content="Full Stack Solution" 
+                                     GroupName="SolutionType" FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                        <TextBlock Text="Complete solution with API, ETL, and Scheduler hosts" 
+                                   Margin="20,0,0,15" Foreground="Gray" TextWrapping="Wrap"/>
+                        
+                        <Separator Margin="0,20"/>
+                        
+                        <TextBlock Text="Include Components" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        
+                        <CheckBox x:Name="IncludeApiCheckBox" Content="API Host Project" FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                        <CheckBox x:Name="IncludeEtlCheckBox" Content="ETL Host Project" FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                        <CheckBox x:Name="IncludeSchedulerCheckBox" Content="Scheduler Host Project" FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                        <CheckBox x:Name="IncludeTestsCheckBox" Content="Test Projects" FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                        <CheckBox x:Name="IncludeDockerCheckBox" Content="Docker Support" FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Authentication Tab -->
+            <TabItem Header="Authentication" FontSize="14">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Authentication Configuration" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        
+                        <ComboBox x:Name="AuthTypeCombo" DisplayMemberPath="Display" SelectedValuePath="Value" 
+                                  FontSize="14" Margin="0,0,0,15" SelectedIndex="0">
+                            <ComboBoxItem Tag="None">None (Development Only)</ComboBoxItem>
+                            <ComboBoxItem Tag="ApiKey">API Key Authentication</ComboBoxItem>
+                            <ComboBoxItem Tag="JWT">JWT Bearer Tokens</ComboBoxItem>
+                            <ComboBoxItem Tag="AzureAD">Azure Active Directory</ComboBoxItem>
+                            <ComboBoxItem Tag="OAuth2">OAuth 2.0</ComboBoxItem>
+                        </ComboBox>
+                        
+                        <StackPanel x:Name="AzureAdPanel" Visibility="Collapsed" Margin="0,10,0,0">
+                            <TextBlock Text="Azure AD Configuration" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="Tenant ID:" Margin="0,0,0,5"/>
+                            <TextBox x:Name="AzureTenantIdText" FontSize="14" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="Client ID:" Margin="0,0,0,5"/>
+                            <TextBox x:Name="AzureClientIdText" FontSize="14" Margin="0,0,0,10"/>
+                        </StackPanel>
+                        
+                        <StackPanel x:Name="JwtPanel" Visibility="Collapsed" Margin="0,10,0,0">
+                            <TextBlock Text="JWT Configuration" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="Issuer:" Margin="0,0,0,5"/>
+                            <TextBox x:Name="JwtIssuerText" FontSize="14" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="Audience:" Margin="0,0,0,5"/>
+                            <TextBox x:Name="JwtAudienceText" FontSize="14" Margin="0,0,0,10"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Database Tab -->
+            <TabItem Header="Database" FontSize="14">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Database Configuration" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        
+                        <TextBlock Text="Database Provider:" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="DatabaseProviderCombo" FontSize="14" Margin="0,0,0,15" SelectedIndex="0">
+                            <ComboBoxItem Tag="None">None</ComboBoxItem>
+                            <ComboBoxItem Tag="SqlServer">SQL Server</ComboBoxItem>
+                            <ComboBoxItem Tag="PostgreSQL">PostgreSQL</ComboBoxItem>
+                            <ComboBoxItem Tag="MySQL">MySQL</ComboBoxItem>
+                            <ComboBoxItem Tag="SQLite">SQLite</ComboBoxItem>
+                            <ComboBoxItem Tag="CosmosDB">Azure Cosmos DB</ComboBoxItem>
+                        </ComboBox>
+                        
+                        <StackPanel x:Name="DatabaseConfigPanel" Visibility="Collapsed">
+                            <TextBlock Text="Connection String:" Margin="0,0,0,5"/>
+                            <TextBox x:Name="ConnectionStringText" FontSize="14" Margin="0,0,0,10" 
+                                     Text="Server=localhost;Database=MyDatabase;Trusted_Connection=true;"/>
+                            
+                            <CheckBox x:Name="UseEntityFrameworkCheckBox" Content="Include Entity Framework Core" 
+                                      FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                            <CheckBox x:Name="IncludeMigrationsCheckBox" Content="Include Database Migrations" 
+                                      FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Security Tab -->
+            <TabItem Header="Security" FontSize="14">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Security Configuration" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        
+                        <TextBlock Text="Secret Management:" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="SecretManagementCombo" FontSize="14" Margin="0,0,0,15" SelectedIndex="0">
+                            <ComboBoxItem Tag="Configuration">Configuration Files</ComboBoxItem>
+                            <ComboBoxItem Tag="UserSecrets">User Secrets (Development)</ComboBoxItem>
+                            <ComboBoxItem Tag="AzureKeyVault">Azure Key Vault</ComboBoxItem>
+                            <ComboBoxItem Tag="HashiCorpVault">HashiCorp Vault</ComboBoxItem>
+                        </ComboBox>
+                        
+                        <StackPanel x:Name="KeyVaultPanel" Visibility="Collapsed" Margin="0,10,0,0">
+                            <TextBlock Text="Key Vault Configuration" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            
+                            <TextBlock Text="Key Vault Name:" Margin="0,0,0,5"/>
+                            <TextBox x:Name="KeyVaultNameText" FontSize="14" Margin="0,0,0,10"/>
+                        </StackPanel>
+                        
+                        <Separator Margin="0,20"/>
+                        
+                        <CheckBox x:Name="IncludeRateLimitingCheckBox" Content="Include Rate Limiting" 
+                                  FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                        <CheckBox x:Name="IncludeCorsCheckBox" Content="Include CORS Support" 
+                                  FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                        <CheckBox x:Name="IncludeHealthChecksCheckBox" Content="Include Health Checks" 
+                                  FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- CI/CD Tab -->
+            <TabItem Header="CI/CD" FontSize="14">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="CI/CD Configuration" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        
+                        <CheckBox x:Name="IncludeCiCdCheckBox" Content="Include CI/CD Pipeline" 
+                                  FontSize="14" Margin="0,0,0,15" IsChecked="False"/>
+                        
+                        <StackPanel x:Name="CiCdConfigPanel" Visibility="Collapsed">
+                            <TextBlock Text="CI/CD Provider:" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="CiCdProviderCombo" FontSize="14" Margin="0,0,0,15" SelectedIndex="0">
+                                <ComboBoxItem Tag="GitHubActions">GitHub Actions</ComboBoxItem>
+                                <ComboBoxItem Tag="AzureDevOps">Azure DevOps</ComboBoxItem>
+                                <ComboBoxItem Tag="Jenkins">Jenkins</ComboBoxItem>
+                                <ComboBoxItem Tag="GitLabCI">GitLab CI/CD</ComboBoxItem>
+                            </ComboBox>
+                            
+                            <CheckBox x:Name="IncludeDockerBuildCheckBox" Content="Include Docker Build Steps" 
+                                      FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                            <CheckBox x:Name="IncludeTestsInPipelineCheckBox" Content="Include Unit Tests in Pipeline" 
+                                      FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                            <CheckBox x:Name="IncludeCodeCoverageCheckBox" Content="Include Code Coverage Reports" 
+                                      FontSize="14" Margin="0,0,0,10" IsChecked="True"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+        </TabControl>
+        
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#F6F6F6" Padding="20,15" BorderBrush="#E5E5E5" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="CancelButton" Content="Cancel" Width="80" Height="30" Margin="0,0,10,0" 
+                        Click="CancelButton_Click"/>
+                <Button x:Name="CreateButton" Content="Create" Width="80" Height="30" 
+                        Click="CreateButton_Click" IsDefault="True"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

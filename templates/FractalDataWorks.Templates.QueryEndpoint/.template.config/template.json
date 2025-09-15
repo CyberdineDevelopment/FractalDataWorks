@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks",
+  "classifications": ["Web", "Endpoint", "Query"],
+  "identity": "FractalDataWorks.Templates.QueryEndpoint",
+  "name": "FractalDataWorks Query Endpoint",
+  "shortName": "Rec-query",
+  "description": "FastEndpoints Query endpoint with pagination and RecEndpoint base class",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "EntityName",
+  "preferNameDirectory": false,
+  "guids": ["66666666-6666-6666-6666-666666666666"],
+  "symbols": {
+    "Name": {
+      "type": "parameter",
+      "description": "Name of the entity/resource (e.g., User, Product)",
+      "datatype": "string",
+      "defaultValue": "User",
+      "replaces": "EntityName"
+    },
+    "EnablePagination": {
+      "type": "parameter",
+      "description": "Include pagination support",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "RequireAuthentication": {
+      "type": "parameter",
+      "description": "Require authentication for this endpoint",
+      "datatype": "bool",
+      "defaultValue": "true"
+    },
+    "Namespace": {
+      "type": "parameter",
+      "description": "Namespace for the endpoint",
+      "datatype": "string",
+      "defaultValue": "MyApp.Endpoints",
+      "replaces": "TemplateNamespace"
+    }
+  },
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "exclude": [
+        ".template.config/**/*"
+      ],
+      "modifiers": [
+        {
+          "condition": "(!EnablePagination)",
+          "exclude": [
+            "**/PagedRequest.cs"
+          ]
+        }
+      ]
+    }
+  ],
+  "primaryOutputs": [
+    {
+      "path": "Get{Name}Endpoint.cs"
+    },
+    {
+      "path": "Get{Name}Request.cs"
+    },
+    {
+      "path": "{Name}Response.cs"
+    }
+  ]
+}
