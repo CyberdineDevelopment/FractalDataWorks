@@ -1,0 +1,12 @@
+global using Xunit;
+global using Shouldly;
+global using Moq;
+global using System.Diagnostics.CodeAnalysis;
+global using FractalDataWorks.MCP.Abstractions;
+global using FractalDataWorks.MCP.EnhancedEnums;
+global using FractalDataWorks.MCP.ServiceTypes;
+global using FractalDataWorks.MCP.ConnectionTypes;
+global using FractalDataWorks.Results;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.Logging;
