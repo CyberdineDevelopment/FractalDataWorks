@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FractalDataWorks.Abstractions;
+using FractalDataWorks.MCP.EnhancedEnums;
 using FractalDataWorks.Results;
 using ModelContextProtocol.Abstractions;
 
@@ -31,7 +32,7 @@ public interface IToolPlugin : IFdwService
     /// <summary>
     /// Gets the category of tools this plugin provides.
     /// </summary>
-    ToolCategory Category { get; }
+    ToolCategoryBase Category { get; }
 
     /// <summary>
     /// Gets the priority for this plugin (higher values load first).
