@@ -7,9 +7,10 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using FractalDataWorks.MCP.Extensions;
+using FractalDataWorks.MCP.Services;
 using RoslynMcpServer.Logging;
 using RoslynMcpServer.Services;
-using RoslynMcpServer.Tools;
 using Serilog;
 using Serilog.Events;
 using System;
@@ -158,6 +159,7 @@ internal sealed partial class Program
                     options.Endpoint = new Uri(builder.Configuration["OpenTelemetry:Endpoint"] ?? "http://localhost:4317");
                 }));
 
+        // Register core services
         builder.Services.AddSingleton<ProjectDependencyService>();
         builder.Services.AddSingleton<CompilationCacheService>();
         builder.Services.AddSingleton<AnalyzerService>();
@@ -165,43 +167,70 @@ internal sealed partial class Program
         builder.Services.AddSingleton<VirtualEditService>();
         builder.Services.AddSingleton<FileSystemWatcherService>();
 
-        // Register existing tool classes
-        builder.Services.AddSingleton<SessionTools>();
-        builder.Services.AddSingleton<DiagnosticTools>();
-        builder.Services.AddSingleton<VirtualEditTools>();
-        builder.Services.AddSingleton<TypeAnalysisTools>();
-        builder.Services.AddSingleton<TypeResolutionTools>();
-        builder.Services.AddSingleton<RefactoringTools>();
-        builder.Services.AddSingleton<SessionLifecycleTools>();
-        
-        // Register server management tools
-        builder.Services.AddSingleton<ServerShutdownTool>();
-        builder.Services.AddSingleton<ServerInfoTool>();
-        builder.Services.AddSingleton<ServerRestartTool>();
-        builder.Services.AddSingleton<ProjectDependencyTools>();
-        builder.Services.AddSingleton<ErrorReportingTool>();
+        // Register plugin system and all services/plugins
+        builder.Services.AddFractalMcpServices(builder.Configuration);
+        builder.Services.AddFractalMcpPlugins();
 
+        // Configure MCP server with plugin-based tools
         builder.Services
             .AddMcpServer()
             .WithStdioServerTransport()
-            .WithToolsFromAssembly();
+            .AddTools(sp =>
+            {
+                var registry = sp.GetRequiredService<IPluginRegistry>();
+                var tools = registry.GetAllTools();
+                return tools.Cast<ITool>().ToList();
+            });
 
         var host = builder.Build();
-        
+
         // Get logger from host for source-generated logging
         var logger = host.Services.GetRequiredService<ILogger<Program>>();
         logger.ServerStarted(Environment.ProcessId, Environment.Version.ToString());
         logger.HostBuiltSuccessfully();
 
-        Console.WriteLine("MCP Server configured with the following tools:");
-        Console.WriteLine("- Session Management: StartSession, GetSessionStatus, RefreshSession, EndSession");
-        Console.WriteLine("- Session Lifecycle: PauseSession, ResumeSession, GetPauseChanges (incremental builds)");
-        Console.WriteLine("- Project Dependencies: GetProjectDependencies, GetImpactAnalysis, GetCompilationOrder");
-        Console.WriteLine("- Diagnostics: GetDiagnosticSummary, GetDiagnostics, GetFileDiagnostics, etc.");
-        Console.WriteLine("- Virtual Editing: ApplyVirtualEdit, CommitChanges, RollbackChanges, etc.");
-        Console.WriteLine("- Type Analysis: FindAmbiguousTypes, FindDuplicateTypes, SearchTypes, etc.");
-        Console.WriteLine("- Refactoring: RenameSymbol, SeparateTypesToFiles, MoveTypeToNewFile, etc.");
-        Console.WriteLine("- Error Reporting: ReportError, GetDiagnosticInfo (troubleshooting and support)");
+        // Initialize plugin system
+        var pluginRegistry = host.Services.GetRequiredService<IPluginRegistry>();
+
+        // Discover and load all plugins
+        var loadResult = await pluginRegistry.DiscoverAndLoadPluginsAsync();
+        if (loadResult.IsSuccess)
+        {
+            Log.Information("Loaded {Count} plugins successfully", loadResult.Value);
+        }
+        else
+        {
+            Log.Warning("Plugin loading completed with warnings: {Message}", loadResult.Message);
+        }
+
+        // Initialize all plugins
+        var initResult = await pluginRegistry.InitializeAllPluginsAsync();
+        if (!initResult.IsSuccess)
+        {
+            Log.Warning("Some plugins failed to initialize: {Message}", initResult.Message);
+        }
+
+        // Display loaded plugins and tools
+        var plugins = pluginRegistry.GetAllPlugins();
+        var tools = pluginRegistry.GetAllTools();
+
+        Console.WriteLine($"MCP Server configured with {plugins.Count} plugins and {tools.Count} tools:");
+        Console.WriteLine();
+
+        foreach (var plugin in plugins.OrderBy(p => p.Category?.DisplayPriority ?? 999))
+        {
+            Console.WriteLine($"Plugin: {plugin.Name} ({plugin.Category?.Name ?? "Unknown"})");
+            var pluginTools = plugin.GetTools();
+            foreach (var tool in pluginTools.Take(5))
+            {
+                Console.WriteLine($"  - {tool.Name}");
+            }
+            if (pluginTools.Count > 5)
+            {
+                Console.WriteLine($"  ... and {pluginTools.Count - 5} more tools");
+            }
+        }
+
         Console.WriteLine();
         Console.WriteLine("IMPORTANT: Sessions persist until explicitly ended - reuse for multiple operations!");
         Console.WriteLine("Server is running. Use Ctrl+C to stop.");
@@ -224,6 +253,17 @@ internal sealed partial class Program
             }
             finally
             {
+                // Gracefully shutdown all plugins
+                try
+                {
+                    await pluginRegistry.ShutdownAllPluginsAsync();
+                    Log.Information("All plugins shut down successfully");
+                }
+                catch (Exception shutdownEx)
+                {
+                    Log.Warning(shutdownEx, "Error during plugin shutdown");
+                }
+
                 sessionManager?.Dispose();
                 Log.Information("Server shutdown complete");
             }
