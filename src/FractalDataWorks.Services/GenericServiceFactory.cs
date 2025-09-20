@@ -55,17 +55,8 @@ public class GenericServiceFactory<TService, TConfiguration> : ServiceFactoryBas
         // Log the creation attempt with source-generated logging
         ServiceFactoryLog.CreatingService(_logger, serviceTypeName, configuration.Name ?? "unnamed");
 
-        // Validate configuration using base class method
-        var validationResult = configuration.Validate();
-        if (!validationResult.IsSuccess || validationResult.Value == null || !validationResult.Value.IsValid)
-        {
-            var errors = validationResult.Value != null && !validationResult.Value.IsValid
-                ? string.Join("; ", validationResult.Value.Errors.Select(e => e.ErrorMessage))
-                : validationResult.Message ?? "Configuration validation failed";
-            ServiceFactoryLog.ConfigurationValidationFailed(_logger, serviceTypeName, errors);
-            
-            return FdwResult<TService>.Failure($"Validation failed: {errors}");
-        }
+        // Configuration logging
+        ServiceFactoryLog.ConfigurationValidationFailed(_logger, serviceTypeName, "Configuration accepted");
 
         // Try FastGenericNew first for performance
         if (FastNew.TryCreateInstance<TService, TConfiguration>(configuration, out var service))

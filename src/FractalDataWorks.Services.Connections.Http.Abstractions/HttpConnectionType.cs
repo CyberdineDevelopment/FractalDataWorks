@@ -19,12 +19,15 @@ public sealed class HttpConnectionType : ConnectionTypeBase<IFdwConnection, ICon
     /// <summary>
     /// Initializes a new instance of the <see cref="HttpConnectionType"/> class.
     /// </summary>
-    private HttpConnectionType() : base(1, "Http", "HTTP Connections")
+    private HttpConnectionType() : base(
+        id: 1,
+        name: "Http",
+        sectionName: "Connections:Http",
+        displayName: "HTTP Connection",
+        description: "HTTP/HTTPS connection for REST APIs and web services",
+        category: "HTTP Connections")
     {
     }
-
-    /// <inheritdoc/>
-    public override Type FactoryType => typeof(IConnectionFactory<IFdwConnection, IConnectionConfiguration>);
 
     /// <inheritdoc/>
     public override void Register(IServiceCollection services)

@@ -5,7 +5,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// <summary>
 /// Non-generic marker interface for scheduling service factories.
 /// </summary>
-public interface IFractalSchedulingServiceFactory : IServiceFactory
+public interface IFdwSchedulingServiceFactory : IServiceFactory
 {
 }
 
@@ -13,8 +13,8 @@ public interface IFractalSchedulingServiceFactory : IServiceFactory
 /// Interface for scheduling service factories that create specific scheduling service implementations.
 /// </summary>
 /// <typeparam name="TSchedulingService">The scheduling service type to create.</typeparam>
-public interface IFractalSchedulingServiceFactory<TSchedulingService> : IFractalSchedulingServiceFactory, IServiceFactory<TSchedulingService>
-    where TSchedulingService : class, IFractalSchedulingService
+public interface IFdwSchedulingServiceFactory<TSchedulingService> : IFdwSchedulingServiceFactory, IServiceFactory<TSchedulingService>
+    where TSchedulingService : class, IFdwSchedulingService
 {
 }
 
@@ -23,8 +23,8 @@ public interface IFractalSchedulingServiceFactory<TSchedulingService> : IFractal
 /// </summary>
 /// <typeparam name="TSchedulingService">The scheduling service type to create.</typeparam>
 /// <typeparam name="TConfiguration">The configuration type for the scheduling service.</typeparam>
-public interface IFractalSchedulingServiceFactory<TSchedulingService, TConfiguration> : IFractalSchedulingServiceFactory<TSchedulingService>, IServiceFactory<TSchedulingService, TConfiguration>
-    where TSchedulingService : class, IFractalSchedulingService
+public interface IFdwSchedulingServiceFactory<TSchedulingService, TConfiguration> : IFdwSchedulingServiceFactory<TSchedulingService>, IServiceFactory<TSchedulingService, TConfiguration>
+    where TSchedulingService : class, IFdwSchedulingService
     where TConfiguration : class, ISchedulingConfiguration
 {
 }

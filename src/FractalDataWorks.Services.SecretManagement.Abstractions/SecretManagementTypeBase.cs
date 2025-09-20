@@ -133,9 +133,18 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
     /// </summary>
     /// <param name="id">The unique identifier for the secret management type.</param>
     /// <param name="name">The name of the secret management type.</param>
+    /// <param name="sectionName">The configuration section name for appsettings.json.</param>
+    /// <param name="displayName">The display name for this service type.</param>
+    /// <param name="description">The description of what this service type provides.</param>
     /// <param name="category">The category for this secret management type (defaults to "Secret Management").</param>
-    protected SecretManagementTypeBase(int id, string name, string? category = null)
-        : base(id, name, category ?? "Secret Management")
+    protected SecretManagementTypeBase(
+        int id,
+        string name,
+        string sectionName,
+        string displayName,
+        string description,
+        string? category = null)
+        : base(id, name, sectionName, displayName, description, category ?? "Secret Management")
     {
     }
 }

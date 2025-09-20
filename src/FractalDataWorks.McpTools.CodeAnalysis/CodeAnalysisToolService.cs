@@ -1,0 +1,40 @@
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using FractalDataWorks.McpTools.Abstractions;
+
+namespace FractalDataWorks.McpTools.CodeAnalysis;
+
+/// <summary>
+/// Service providing code analysis and diagnostic tools for MCP.
+/// </summary>
+public class CodeAnalysisToolService
+{
+    private readonly ILogger<CodeAnalysisToolService> _logger;
+    private readonly List<IMcpTool> _tools;
+
+    public CodeAnalysisToolService(ILogger<CodeAnalysisToolService> logger)
+    {
+        _logger = logger;
+        ServiceName = "Code Analysis Tools";
+        Category = "CodeAnalysis";
+
+        // Initialize tools
+        _tools = new List<IMcpTool>();
+        RegisterTools();
+    }
+
+    /// <inheritdoc />
+    public string ServiceName { get; }
+
+    /// <inheritdoc />
+    public string Category { get; }
+
+    /// <inheritdoc />
+    public IEnumerable<IMcpTool> GetTools() => _tools;
+
+    private void RegisterTools()
+    {
+        // Tools will be registered here as we migrate them
+        _logger.LogInformation("Registered {Count} code analysis tools", _tools.Count);
+    }
+}

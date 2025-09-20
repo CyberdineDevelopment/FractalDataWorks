@@ -270,7 +270,7 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         var enumCollectionBase = _compilation!.GetTypeByMetadataName("FractalDataWorks.Collections.TypeCollectionBase`1");
         if (enumCollectionBase == null)
         {
-            throw new InvalidOperationException("Cannot find EnumCollectionBase<T> in compilation. Ensure FractalDataWorks.Collections is referenced.");
+            throw new InvalidOperationException("Cannot find TypeCollectionBase<T> in compilation. Ensure FractalDataWorks.Collections is referenced.");
         }
         
         // Get the concrete collection type (e.g., ProcessStateCollectionBase)

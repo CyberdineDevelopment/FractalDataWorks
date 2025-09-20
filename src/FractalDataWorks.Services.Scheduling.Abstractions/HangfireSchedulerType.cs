@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FractalDataWorks.Services.Scheduling.Abstractions.Interfaces;
+using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// Provides simple background job processing with web-based monitoring dashboard.
 /// </summary>
 public sealed class HangfireSchedulerType : 
-    SchedulerTypeBase<IFractalSchedulingService, ISchedulingConfiguration, IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>>
+    SchedulerTypeBase<IFdwSchedulingService, ISchedulingConfiguration, IServiceFactory<IFdwSchedulingService, ISchedulingConfiguration>>
 {
     /// <summary>
     /// Gets the singleton instance of the Hangfire scheduler type.
@@ -28,10 +28,10 @@ public sealed class HangfireSchedulerType :
     public override string SchedulingEngine => "Hangfire";
 
     /// <inheritdoc/>
-    public override Type JobExecutorType => typeof(IFractalScheduledExecutionHandler);
+    public override Type JobExecutorType => typeof(IFdwScheduledExecutionHandler);
 
     /// <inheritdoc/>
-    public override Type TriggerType => typeof(IFractalTrigger);
+    public override Type TriggerType => typeof(IFdwTrigger);
 
     /// <inheritdoc/>
     public override bool SupportsRecurring => true;
@@ -57,8 +57,6 @@ public sealed class HangfireSchedulerType :
     /// <inheritdoc/>
     public override int MaxConcurrentJobs => 20; // Default worker count
 
-    /// <inheritdoc/>
-    public override Type FactoryType => typeof(IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>);
 
     /// <inheritdoc/>
     public override void Register(IServiceCollection services)

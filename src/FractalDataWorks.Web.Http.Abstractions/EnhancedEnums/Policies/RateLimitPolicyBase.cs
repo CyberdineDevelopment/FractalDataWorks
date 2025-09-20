@@ -1,4 +1,4 @@
-using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.Collections;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Policies;
 
@@ -6,7 +6,7 @@ namespace FractalDataWorks.Web.Http.Abstractions.Policies;
 /// Enhanced enum defining rate limiting policies for endpoint protection.
 /// Provides various strategies for controlling request frequency and preventing abuse.
 /// </summary>
-public abstract class RateLimitPolicyBase : EnumOptionBase<RateLimitPolicyBase>, IRateLimitPolicy, IEnumOption<RateLimitPolicyBase>
+public abstract class RateLimitPolicyBase : IRateLimitPolicy
 {
     /// <summary>
     /// Gets the maximum number of requests allowed within the time window.
@@ -50,5 +50,15 @@ public abstract class RateLimitPolicyBase : EnumOptionBase<RateLimitPolicyBase>,
     /// </summary>
     /// <param name="id">The unique identifier for this rate limit policy.</param>
     /// <param name="name">The name of the rate limit policy.</param>
-    protected RateLimitPolicyBase(int id, string name) : base(id, name) { }
+    protected RateLimitPolicyBase(int id, string name)
+    {
+        Id = id;
+        Name = name;
+    }
+
+    /// <inheritdoc/>
+    public int Id { get; }
+
+    /// <inheritdoc/>
+    public string Name { get; }
 }

@@ -112,7 +112,7 @@ public sealed class Cron : TriggerTypeBase
     /// var nextExecution = cronTrigger.CalculateNextExecution(trigger, null);
     /// </code>
     /// </example>
-    public override DateTime? CalculateNextExecution(IFractalTrigger trigger, DateTime? lastExecution)
+    public override DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution)
     {
         if (trigger?.Configuration == null)
         {
@@ -222,7 +222,7 @@ public sealed class Cron : TriggerTypeBase
     /// // result.Error == true with timezone validation error
     /// </code>
     /// </example>
-    public override IFdwResult ValidateTrigger(IFractalTrigger trigger)
+    public override IFdwResult ValidateTrigger(IFdwTrigger trigger)
     {
         if (trigger?.Configuration == null)
         {

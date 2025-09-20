@@ -9,7 +9,7 @@ namespace FractalDataWorks.DataContainers.Abstractions;
 /// all discovered container types with high-performance lookup capabilities.
 /// </summary>
 [TypeCollection(CollectionName = "DataContainerTypes")]
-public partial class DataContainerTypesBase : TypeCollectionBase<ITypeOption>
+public abstract partial class DataContainerTypesBase : TypeCollectionBase<DataContainerType>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DataContainerTypesBase"/> class.

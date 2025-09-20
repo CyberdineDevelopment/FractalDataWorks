@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.Services.Authentication.Abstractions.Security;
+using FractalDataWorks.ServiceTypes;
 
 namespace FractalDataWorks.Services.Authentication.Abstractions;
 

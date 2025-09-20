@@ -1,6 +1,6 @@
 using System;
 using FractalDataWorks.ServiceTypes;
-using FractalDataWorks.Services.Scheduling.Abstractions.Interfaces;
+using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
@@ -18,7 +18,7 @@ public abstract partial class SchedulerTypeCollectionBase<TBase, TGeneric, TServ
     ServiceTypeCollectionBase<TBase, TGeneric, TService, TConfiguration, TFactory>
     where TBase : SchedulerTypeBase<TService, TConfiguration, TFactory>
     where TGeneric : SchedulerTypeBase<TService, TConfiguration, TFactory>
-    where TService : class, IFractalSchedulingService
+    where TService : class, IFdwSchedulingService
     where TConfiguration : class, ISchedulingConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
 {

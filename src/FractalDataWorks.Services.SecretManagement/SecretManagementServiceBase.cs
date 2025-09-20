@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Logging;
 using FractalDataWorks.Services;
+using FractalDataWorks.Services.SecretManagement.Abstractions;
+using FractalDataWorks.Services.SecretManagement.Commands;
 
 namespace FractalDataWorks.Services.SecretManagement;
 

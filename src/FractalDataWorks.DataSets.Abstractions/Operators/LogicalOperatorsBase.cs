@@ -1,4 +1,5 @@
 using FractalDataWorks.Collections;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.DataSets.Abstractions.Operators;
 

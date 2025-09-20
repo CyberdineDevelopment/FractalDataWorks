@@ -66,6 +66,11 @@ public class ProcessResult : IProcessResult
     public DateTime? CompletedAt { get; init; }
 
     /// <summary>
+    /// Total duration of the operation.
+    /// </summary>
+    public TimeSpan? Duration => CompletedAt?.Subtract(StartedAt);
+
+    /// <summary>
     /// Create a successful result.
     /// </summary>
     /// <param name="processId">Unique identifier for the process.</param>

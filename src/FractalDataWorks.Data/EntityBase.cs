@@ -98,7 +98,7 @@ public abstract class EntityBase<TKey> where TKey : IEquatable<TKey>
     /// <returns>True if the entity is transient; otherwise, false.</returns>
     public virtual bool IsTransient()
     {
-        return Id.Equals(default(TKey));
+        return EqualityComparer<TKey>.Default.Equals(Id, default(TKey)!);
     }
 
     /// <summary>

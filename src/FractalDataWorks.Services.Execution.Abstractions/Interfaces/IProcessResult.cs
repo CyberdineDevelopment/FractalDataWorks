@@ -67,5 +67,5 @@ public interface IProcessResult
     /// <summary>
     /// Total duration of the operation.
     /// </summary>
-    TimeSpan? Duration => CompletedAt?.Subtract(StartedAt);
+    TimeSpan? Duration { get; }
 }

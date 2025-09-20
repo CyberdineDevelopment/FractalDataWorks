@@ -13,7 +13,7 @@ namespace FractalDataWorks.Configuration;
 /// </summary>
 /// <ExcludeFromTest>Abstract base class for configuration sources with no business logic to test</ExcludeFromTest>
 [ExcludeFromCodeCoverage]
-public abstract class ConfigurationSourceBase : IFractalConfigurationSource
+public abstract class ConfigurationSourceBase : IFdwConfigurationSource
 {
 
     private readonly ILogger _logger;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
+using FractalDataWorks.EnhancedEnums;
 #if NET8_0_OR_GREATER
 using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
@@ -18,7 +19,7 @@ namespace FractalDataWorks.Messages;
 /// The source generator will populate the static collection in the static constructor.
 /// </summary>
 /// <typeparam name="T">The message type that must derive from MessageTemplate</typeparam>
-public abstract class MessageCollectionBase<T> where T : class, IFractalMessage
+public abstract class MessageCollectionBase<T> where T : class, IFdwMessage, IEnumOption
 {
     /// <summary>
     /// Static collection of all message options. Populated by the source generator.

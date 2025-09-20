@@ -1,5 +1,6 @@
 using System;
 using FractalDataWorks.ServiceTypes;
+using FractalDataWorks.Services.Authentication.Abstractions.Security;
 
 namespace FractalDataWorks.Services.Authentication.Abstractions;
 

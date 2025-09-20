@@ -129,7 +129,7 @@ public sealed class Interval : TriggerTypeBase
     /// // Returns 9 AM Eastern + 2 hours (first execution after start time)
     /// </code>
     /// </example>
-    public override DateTime? CalculateNextExecution(IFractalTrigger trigger, DateTime? lastExecution)
+    public override DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution)
     {
         if (trigger?.Configuration == null)
         {
@@ -254,7 +254,7 @@ public sealed class Interval : TriggerTypeBase
     /// // result.Error == true with timezone validation error
     /// </code>
     /// </example>
-    public override IFdwResult ValidateTrigger(IFractalTrigger trigger)
+    public override IFdwResult ValidateTrigger(IFdwTrigger trigger)
     {
         if (trigger?.Configuration == null)
         {

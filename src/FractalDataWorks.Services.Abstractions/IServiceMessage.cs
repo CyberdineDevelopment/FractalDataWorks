@@ -8,7 +8,7 @@ namespace FractalDataWorks.Services.Abstractions;
 /// <summary>
 /// Interface for messages in the service domain.
 /// </summary>
-public interface IServiceMessage : IFractalMessage
+public interface IServiceMessage : IFdwMessage
 {
 
 }

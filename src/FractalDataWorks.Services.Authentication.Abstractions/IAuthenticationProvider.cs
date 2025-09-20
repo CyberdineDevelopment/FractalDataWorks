@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using FractalDataWorks.Results;
 
+using FractalDataWorks.Services.Authentication.Abstractions.Security;
+
 namespace FractalDataWorks.Services.Authentication.Abstractions;
 
 /// <summary>

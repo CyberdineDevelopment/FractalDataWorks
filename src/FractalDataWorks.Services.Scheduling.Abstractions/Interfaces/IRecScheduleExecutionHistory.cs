@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// This interface provides detailed information about individual schedule executions,
 /// including timing, results, and any errors that occurred during execution.
 /// </remarks>
-public interface IFractalScheduleExecutionHistory
+public interface IFdwScheduleExecutionHistory
 {
     /// <summary>
     /// Gets the unique identifier for this execution instance.

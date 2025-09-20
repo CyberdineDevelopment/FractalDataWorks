@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.ServiceTypes;
 using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.SecretManagement.Abstractions;
 
@@ -16,7 +19,7 @@ namespace FractalDataWorks.Services.SecretManagement;
 /// <typeparam name="TConfiguration">The configuration type.</typeparam>
 /// <typeparam name="TFactory">The factory type.</typeparam>
 public abstract class SecretManagementServiceType<TSelf, TService, TConfiguration, TFactory> :
-    ServiceType<TSelf, TService, TConfiguration, TFactory>
+    ServiceTypeBase<TService, TConfiguration, TFactory>
     where TSelf : SecretManagementServiceType<TSelf, TService, TConfiguration, TFactory>, IEnumOption<TSelf>
     where TService : class, IFdwService
     where TConfiguration : class, IFdwConfiguration
@@ -27,11 +30,30 @@ public abstract class SecretManagementServiceType<TSelf, TService, TConfiguratio
     /// </summary>
     /// <param name="id">The unique identifier for this service type.</param>
     /// <param name="name">The name of this service type.</param>
+    /// <param name="sectionName">The configuration section name for appsettings.json.</param>
+    /// <param name="displayName">The display name for this service type.</param>
     /// <param name="description">The description of this service type.</param>
-    protected SecretManagementServiceType(int id, string name, string description )
-        : base(id, name, description,"SecretManagers")
+    protected SecretManagementServiceType(
+        int id,
+        string name,
+        string sectionName,
+        string displayName,
+        string description)
+        : base(id, name, sectionName, displayName, description, "SecretManagers")
     {
     }
+
+    /// <summary>
+    /// Registers the services required by this service type with the dependency injection container.
+    /// </summary>
+    /// <param name="services">The service collection to register services with.</param>
+    public abstract override void Register(IServiceCollection services);
+
+    /// <summary>
+    /// Configures the service type using the provided configuration.
+    /// </summary>
+    /// <param name="configuration">The application configuration.</param>
+    public abstract override void Configure(IConfiguration configuration);
 
     /// <summary>
     /// Gets the list of secret store types supported by this service.

@@ -83,7 +83,7 @@ public interface ITriggerType
     /// </code>
     /// </example>
     // Abstract method - implementation coverage tested in derived classes
-    DateTime? CalculateNextExecution(IFractalTrigger trigger, DateTime? lastExecution);
+    DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution);
 
     /// <summary>
     /// Validates that the trigger configuration is valid for this trigger type.
@@ -128,5 +128,5 @@ public interface ITriggerType
     /// </code>
     /// </example>
     // Abstract method - implementation coverage tested in derived classes
-    IFdwResult ValidateTrigger(IFractalTrigger trigger);
+    IFdwResult ValidateTrigger(IFdwTrigger trigger);
 }

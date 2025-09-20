@@ -124,7 +124,7 @@ public sealed class Manual : TriggerTypeBase
     /// // scheduler.ExecuteManualTrigger(triggerId, userId);
     /// </code>
     /// </example>
-    public override DateTime? CalculateNextExecution(IFractalTrigger trigger, DateTime? lastExecution)
+    public override DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution)
     {
         // Manual triggers never auto-schedule - they execute only when manually triggered
         return null;
@@ -170,7 +170,7 @@ public sealed class Manual : TriggerTypeBase
     /// // result.Success == true
     /// </code>
     /// </example>
-    public override IFdwResult ValidateTrigger(IFractalTrigger trigger)
+    public override IFdwResult ValidateTrigger(IFdwTrigger trigger)
     {
         if (trigger?.Configuration == null)
         {

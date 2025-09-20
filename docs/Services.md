@@ -1,334 +1,186 @@
-# Services Framework
+# FractalDataWorks.Services Documentation
 
 ## Overview
-The FractalDataWorks Services framework provides a ServiceType-based plugin architecture for building scalable, maintainable services with automatic discovery, registration, and type-safe configuration.
 
-## Service Architecture Overview
+The FractalDataWorks.Services library provides the core foundation for building service-oriented architectures within the framework. It implements a sophisticated pattern that combines dependency injection, configuration management, and command execution with comprehensive type safety and Railway-Oriented Programming through the Result pattern.
 
-The framework uses ServiceTypes to define, discover, and manage services automatically:
+## Core Components
 
-1. **ServiceType Implementation**: Define service capabilities as singleton types
-2. **Auto-Discovery**: Source generators discover and register ServiceTypes
-3. **Interface-Based Usage**: Access services through interfaces for polymorphism
-4. **Configuration Management**: Dynamic configuration loading using ServiceType metadata
+### ServiceBase<TCommand, TConfiguration, TService>
 
-## Base Service Implementation
+The abstract base class that all services inherit from. It provides:
 
-Services implement the `IFdwService` interface hierarchy:
+- **Generic Type Parameters:**
+  - `TCommand`: The command type this service executes (must implement `ICommand`)
+  - `TConfiguration`: Configuration type for the service (must implement `IFdwConfiguration`)
+  - `TService`: The concrete service type for logging and identification
+
+- **Key Properties:**
+  - `Id`: Unique identifier for the service instance (GUID)
+  - `ServiceType`: The display name of the service type
+  - `IsAvailable`: Indicates if the service is ready for use
+  - `Name`: Service name from configuration or type name
+  - `Configuration`: Strongly-typed configuration instance
+
+- **Core Methods:**
+  - `Execute(TCommand command)`: Execute commands with result pattern
+  - `Execute<TOut>(TCommand command)`: Execute with generic return type
+  - Overloads with `CancellationToken` support
+
+### ServiceFactoryBase<TService, TConfiguration>
+
+The factory pattern implementation for creating service instances:
+
+- **Features:**
+  - Uses `FastGenericNew` for high-performance instantiation
+  - Automatic configuration validation via FluentValidation
+  - Comprehensive logging with structured logging support
+  - Type-safe service creation with proper error handling
+
+- **Key Method:**
+  - `Create(TConfiguration configuration)`: Creates service instances with validation
+
+### ServiceFactoryProvider
+
+Central provider for managing multiple service factories:
+
+- Implements `IServiceFactoryProvider`
+- Manages factory registration and retrieval
+- Integrates with dependency injection container
+
+## Message System
+
+The library includes a comprehensive messaging system for service operations:
+
+### Message Categories
+
+1. **Factory Messages**
+   - `ServiceCreatedSuccessfullyMessage`
+   - `ServiceCreationFailedMessage`
+   - `FastGenericCreationFailedMessage`
+   - `ServiceTypeCastFailedMessage`
+
+2. **Configuration Messages**
+   - `ConfigurationCannotBeNullMessage`
+   - `ConfigurationNotInitializedMessage`
+
+3. **Registration Messages**
+   - `ServiceRegisteredMessage`
+   - `RegistrationFailedMessage`
+   - `ConfigurationRegistryNotFoundMessage`
+
+4. **Service Messages**
+   - `InvalidCommandMessage`
+   - `NoServiceTypesRegisteredMessage`
+   - `ValidationFailedMessage`
+   - `RecordNotFoundMessage`
+
+All message collections are generated using source generators for type safety and consistency.
+
+## Logging Infrastructure
+
+### Structured Logging Components
+
+- **ServiceBaseLog**: Core service operation logging
+- **ServiceFactoryLog**: Factory creation and instantiation logging
+- **ServiceProviderBaseLog**: Provider-level operation logging
+- **ServiceRegistrationLog**: Registration and DI container logging
+- **PerformanceMetrics**: Performance measurement utilities
+
+All logging uses Microsoft.Extensions.Logging with structured logging patterns for optimal observability.
+
+## Registration and Dependency Injection
+
+### ServiceRegistrationOptions
+
+Configuration class for service registration with the DI container:
 
 ```csharp
-public interface IFdwService
+public class ServiceRegistrationOptions
 {
-    // Base service contract
-}
-
-public interface IFdwService<TCommand> : IFdwService
-{
-    Task<IFdwResult> ExecuteAsync(TCommand command, CancellationToken cancellationToken = default);
-}
-
-public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
-{
-    Task<IFdwResult> ExecuteAsync(TCommand command, TConfiguration configuration, CancellationToken cancellationToken = default);
+    public ServiceLifetime Lifetime { get; set; }
+    public bool RegisterFactory { get; set; }
+    public bool RegisterAsInterface { get; set; }
 }
 ```
 
-## ServiceType Implementation Pattern
+### Extension Methods
 
-### 1. Define ServiceType (Singleton)
-
-```csharp
-public sealed class MyDomainServiceType :
-    ServiceTypeBase<IMyDomainService, MyDomainConfiguration, IMyDomainServiceFactory>
-{
-    public static MyDomainServiceType Instance { get; } = new();
-
-    private MyDomainServiceType() : base(id: 1, name: "MyDomain", category: "Business") { }
-
-    public override string SectionName => "MyDomain";
-    public override string DisplayName => "My Domain Service";
-    public override string Description => "Handles core business logic for My Domain operations.";
-
-    public override void Register(IServiceCollection services)
-    {
-        services.AddScoped<IMyDomainServiceFactory, MyDomainServiceFactory>();
-        services.AddScoped<MyDomainService>();
-        services.AddScoped<MyDomainExecutor>();
-    }
-
-    public override void Configure(IConfiguration configuration)
-    {
-        var config = configuration.GetSection(SectionName).Get<MyDomainConfiguration>();
-        if (config == null)
-            throw new InvalidOperationException($"Configuration section '{SectionName}' not found");
-
-        // Validate configuration
-        var validator = new MyDomainConfigurationValidator();
-        var validationResult = validator.Validate(config);
-        if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Invalid configuration: {string.Join(", ", validationResult.Errors)}");
-    }
-}
-```
-
-### 2. Define Service Interface
+`ServiceFactoryRegistrationExtensions` provides fluent API for registration:
 
 ```csharp
-public interface IMyDomainService : IFdwService<MyDomainCommand, MyDomainConfiguration>
-{
-    // Primary operations
-    Task<IFdwResult<MyDomainResult>> ProcessAsync(MyDomainCommand command, CancellationToken cancellationToken = default);
-
-    // Validation operations
-    Task<IFdwResult<ValidationResult>> ValidateConfigurationAsync(MyDomainConfiguration config, CancellationToken cancellationToken = default);
-
-    // Query operations
-    Task<IFdwResult<MyDomainStatus>> GetStatusAsync(string processId, CancellationToken cancellationToken = default);
-
-    // Management operations
-    Task<IFdwResult> CancelAsync(string processId, CancellationToken cancellationToken = default);
-}
+services.AddServiceFactory<TService, TConfiguration, TFactory>(options => {
+    options.Lifetime = ServiceLifetime.Scoped;
+    options.RegisterFactory = true;
+});
 ```
 
-### 3. Define Configuration Class
+## Configuration Integration
 
-Configuration classes implement appropriate interfaces and support validation:
+Services integrate with Microsoft.Extensions.Configuration:
 
-```csharp
-public class MyDomainConfiguration : IServiceConfiguration
-{
-    public string Source { get; set; } = string.Empty;
-    public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(5);
-    public int MaxRetries { get; set; } = 3;
-    public bool EnableLogging { get; set; } = true;
-}
-
-public class MyDomainConfigurationValidator : AbstractValidator<MyDomainConfiguration>
-{
-    public MyDomainConfigurationValidator()
-    {
-        RuleFor(x => x.Source)
-            .NotEmpty()
-            .WithMessage("Source cannot be empty");
-
-        RuleFor(x => x.Timeout)
-            .GreaterThan(TimeSpan.Zero)
-            .WithMessage("Timeout must be greater than zero");
-
-        RuleFor(x => x.MaxRetries)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("MaxRetries must be non-negative");
-    }
-}
-```
-
-### Configuration Validation
-
-Using FluentValidation for type-safe configuration validation:
-
-```csharp
-public class MyServiceConfigurationValidator : AbstractValidator<MyServiceConfiguration>
-{
-    public MyServiceConfigurationValidator()
-    {
-        RuleFor(x => x.Source)
-            .NotEmpty()
-            .WithMessage("Source cannot be empty");
-            
-        RuleFor(x => x.Timeout)
-            .GreaterThan(TimeSpan.Zero)
-            .WithMessage("Timeout must be greater than zero");
-            
-        RuleFor(x => x.MaxRetries)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("MaxRetries must be non-negative");
-    }
-}
-```
-
-## Service Implementation Example
-
-```csharp
-public class MyDomainService : ServiceBase<MyDomainExecutor, MyDomainConfiguration>, IMyDomainService
-{
-    public MyDomainService(MyDomainExecutor executor, ILogger<MyDomainService> logger) 
-        : base(executor, logger) 
-    {
-    }
-    
-    public async Task<IFdwResult<MyDomainResult>> ProcessAsync(
-        MyDomainConfiguration config, 
-        CancellationToken cancellationToken = default)
-    {
-        using var activity = StartActivity();
-        
-        LogOperationStart(nameof(ProcessAsync), config);
-        var stopwatch = Stopwatch.StartNew();
-        
-        try
-        {
-            var validationResult = await ValidateConfigurationAsync(config, cancellationToken);
-            if (!validationResult.IsSuccess)
-            {
-                return FdwResult<MyDomainResult>.Failure(
-                    MyDomainMessages.InvalidConfiguration(validationResult.Message));
-            }
-            
-            var result = await Executor.ExecuteAsync(config, cancellationToken);
-            
-            LogOperationComplete(nameof(ProcessAsync), stopwatch.Elapsed);
-            return FdwResult<MyDomainResult>.Success(result);
-        }
-        catch (OperationCanceledException)
-        {
-            Logger.LogWarning("Operation was cancelled");
-            return FdwResult<MyDomainResult>.Failure(
-                MyDomainMessages.OperationCancelled());
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error processing request");
-            return FdwResult<MyDomainResult>.Failure(
-                MyDomainMessages.ProcessingFailed(ex.Message));
-        }
-    }
-}
-```
-
-## Factory Pattern
-
-Services use factory classes for creation and lifecycle management:
-
-```csharp
-public interface IMyDomainServiceFactory : IServiceFactory<IMyDomainService, MyDomainConfiguration>
-{
-    Task<IFdwResult<IMyDomainService>> CreateServiceAsync(
-        MyDomainConfiguration configuration, 
-        CancellationToken cancellationToken = default);
-}
-
-public class MyDomainServiceFactory : ServiceFactoryBase<IMyDomainService, MyDomainConfiguration>, IMyDomainServiceFactory
-{
-    private readonly IServiceProvider _serviceProvider;
-    
-    public MyDomainServiceFactory(IServiceProvider serviceProvider, ILogger<MyDomainServiceFactory> logger)
-        : base(logger)
-    {
-        _serviceProvider = serviceProvider;
-    }
-    
-    public async Task<IFdwResult<IMyDomainService>> CreateServiceAsync(
-        MyDomainConfiguration configuration, 
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var executor = _serviceProvider.GetRequiredService<MyDomainExecutor>();
-            var logger = _serviceProvider.GetRequiredService<ILogger<MyDomainService>>();
-            var service = new MyDomainService(executor, logger);
-            
-            return FdwResult<IMyDomainService>.Success(service);
-        }
-        catch (Exception ex)
-        {
-            return FdwResult<IMyDomainService>.Failure(
-                MyDomainMessages.ServiceCreationFailed(ex.Message));
-        }
-    }
-}
-```
+- Configuration validation via FluentValidation
+- Support for appsettings.json binding
+- Environment-specific configuration support
+- Configuration hot-reload capabilities
 
 ## Enhanced Enum Integration
 
-Services integrate with Enhanced Enums for type-safe service type definitions:
+The library uses Enhanced Enums for:
 
-```csharp
-[EnumOption("MyDomainService")]
-public sealed class MyDomainServiceType : ServiceTypeBase<IMyDomainService, MyDomainConfiguration, IMyDomainServiceFactory>
-{
-    public MyDomainServiceType() : base(1, "MyDomainService") { }
-    
-    public override bool SupportsScheduling => true;
-    public override bool RequiresFactory => true;
-    public override TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
-}
-```
+- Service lifetime options (Singleton, Scoped, Transient)
+- Configuration registry types
+- Service states and status codes
 
-## Message Pattern
+This provides intellisense support and compile-time safety for all enumeration values.
 
-Services use Enhanced Enum messages for consistent error reporting:
+## Result Pattern Implementation
 
-```csharp
-[EnumOption]
-public sealed class ProcessingFailed : MyDomainMessageBase
-{
-    public ProcessingFailed() : base(2001, nameof(ProcessingFailed), MessageSeverity.Error, 
-        "Processing failed: {0}", "PROCESSING_FAILED") { }
-}
+All service operations return `IFdwResult` or `IFdwResult<T>`:
 
-[EnumOption] 
-public sealed class InvalidConfiguration : MyDomainMessageBase
-{
-    public InvalidConfiguration() : base(2002, nameof(InvalidConfiguration), MessageSeverity.Error,
-        "Configuration validation failed: {0}", "INVALID_CONFIGURATION") { }
-}
+- Railway-Oriented Programming pattern
+- Success/Failure states with messages
+- Chainable operations
+- No exceptions for control flow
 
-// Usage in service
-return FdwResult<MyResult>.Failure(MyDomainMessages.ProcessingFailed(ex.Message));
-```
+## Key Design Patterns
 
-## Service Registration
+1. **Abstract Factory Pattern**: ServiceFactoryBase for creating services
+2. **Template Method Pattern**: ServiceBase with virtual methods for customization
+3. **Strategy Pattern**: Command execution with different command types
+4. **Repository Pattern**: Service provider for service instance management
+5. **Builder Pattern**: Fluent configuration APIs
 
-Services are registered using extension methods:
+## Thread Safety
 
-```csharp
-public static class ServiceCollectionExtensions
-{
-    public static IServiceCollection AddMyDomainServices(
-        this IServiceCollection services, 
-        IConfiguration configuration)
-    {
-        // Register configuration
-        services.Configure<MyDomainConfiguration>(
-            configuration.GetSection("MyDomain"));
-            
-        // Register executor
-        services.AddScoped<MyDomainExecutor>();
-        
-        // Register service
-        services.AddScoped<IMyDomainService, MyDomainService>();
-        
-        // Register factory
-        services.AddScoped<IMyDomainServiceFactory, MyDomainServiceFactory>();
-        
-        return services;
-    }
-}
-```
+- All base classes are thread-safe for read operations
+- Service instances maintain their own state
+- Factory operations are thread-safe
+- Proper use of CancellationToken throughout
+
+## Performance Optimizations
+
+- FastGenericNew for zero-allocation object creation
+- Cached compiled expressions for high-performance instantiation
+- Structured logging with minimal allocation
+- Lazy initialization where appropriate
 
 ## Best Practices
 
-### 1. Configuration Management
-- Always validate configurations using FluentValidation
-- Use environment-specific configuration sections
-- Provide sensible defaults for optional settings
+1. Always validate configuration in factory Create method
+2. Use structured logging for all operations
+3. Return Result types instead of throwing exceptions
+4. Implement proper disposal patterns
+5. Use CancellationToken for async operations
+6. Register services with appropriate lifetimes
 
-### 2. Error Handling
-- Use Enhanced Enum messages for consistent error reporting
-- Log errors with appropriate severity levels
-- Include correlation IDs for distributed tracing
+## Integration Points
 
-### 3. Resource Management
-- Use `using` statements for activities and disposable resources
-- Implement proper cancellation token handling
-- Monitor and log performance metrics
+The Services library integrates with:
 
-### 4. Testing
-- Mock executors for unit testing services
-- Use configuration builders for test setup
-- Test both success and failure scenarios
-
-### 5. Dependency Injection
-- Register services with appropriate lifetimes (Scoped, Singleton, Transient)
-- Use factory patterns for complex service creation
-- Validate service registration through health checks
+- **Collections**: For type collections and lookups
+- **Configuration**: For settings management
+- **EnhancedEnums**: For type-safe enumerations
+- **Messages**: For structured messaging
+- **Results**: For Railway-Oriented Programming
+- **ServiceTypes**: For service discovery and registration

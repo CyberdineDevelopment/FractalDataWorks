@@ -147,7 +147,7 @@ public abstract class DataSetBase<TDataSet> : TypeOptionBase<TDataSet>, IDataSet
     /// </remarks>
     public DataQueryBuilder<TRecord> CreateQuery<TRecord>()
     {
-        return new DataQueryBuilder<TRecord>(this);
+        return new DataQueryBuilder<TRecord>(Name);
     }
 
     /// <summary>

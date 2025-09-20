@@ -15,7 +15,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// ExecutionHandler when schedules trigger. The scheduler is concerned only with timing and
 /// schedule management, not with the actual execution of processes.
 /// </remarks>
-public interface IFractalScheduler
+public interface IFdwScheduler
 {
     /// <summary>
     /// Gets or sets the execution handler that processes triggered schedules.
@@ -25,7 +25,7 @@ public interface IFractalScheduler
     /// This property provides the bridge between scheduling and execution. When a schedule
     /// triggers, the scheduler calls the ExecutionHandler to perform the actual work.
     /// </remarks>
-    IFractalScheduledExecutionHandler ExecutionHandler { get; set; }
+    IFdwScheduledExecutionHandler ExecutionHandler { get; set; }
 
     /// <summary>
     /// Registers a new schedule with the scheduling engine.
@@ -38,7 +38,7 @@ public interface IFractalScheduler
     /// according to its cron expression. The schedule must have a valid cron expression
     /// and reference a process that the ExecutionHandler can handle.
     /// </remarks>
-    Task<IFdwResult> ScheduleAsync(IFractalSchedule schedule, CancellationToken cancellationToken = default);
+    Task<IFdwResult> ScheduleAsync(IFdwSchedule schedule, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes a schedule from the scheduling engine.
@@ -87,7 +87,7 @@ public interface IFractalScheduler
     /// The results can be filtered to show only active schedules or include all schedules
     /// regardless of their state.
     /// </remarks>
-    Task<IFdwResult<IReadOnlyCollection<IFractalSchedule>>> GetSchedulesAsync(bool includeInactive = true, CancellationToken cancellationToken = default);
+    Task<IFdwResult<IReadOnlyCollection<IFdwSchedule>>> GetSchedulesAsync(bool includeInactive = true, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a specific schedule by its identifier.
@@ -99,7 +99,7 @@ public interface IFractalScheduler
     /// This method allows lookup of individual schedules for inspection or management.
     /// Returns null if no schedule with the specified identifier exists.
     /// </remarks>
-    Task<IFdwResult<IFractalSchedule?>> GetScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IFdwResult<IFdwSchedule?>> GetScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Immediately triggers a scheduled process, bypassing the normal schedule timing.

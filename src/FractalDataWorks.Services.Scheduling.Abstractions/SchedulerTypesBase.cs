@@ -1,6 +1,6 @@
 using FractalDataWorks.ServiceTypes;
 using FractalDataWorks.ServiceTypes.Attributes;
-using FractalDataWorks.Services.Scheduling.Abstractions.Interfaces;
+using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
@@ -12,11 +12,11 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 [ServiceTypeCollection("SchedulerTypeBase", "SchedulerTypes")]
 public partial class SchedulerTypesBase : 
     SchedulerTypeCollectionBase<
-        SchedulerTypeBase<IFractalSchedulingService, ISchedulingConfiguration, IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>>,
-        SchedulerTypeBase<IFractalSchedulingService, ISchedulingConfiguration, IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>>,
-        IFractalSchedulingService,
+        SchedulerTypeBase<IFdwSchedulingService, ISchedulingConfiguration, IServiceFactory<IFdwSchedulingService, ISchedulingConfiguration>>,
+        SchedulerTypeBase<IFdwSchedulingService, ISchedulingConfiguration, IServiceFactory<IFdwSchedulingService, ISchedulingConfiguration>>,
+        IFdwSchedulingService,
         ISchedulingConfiguration,
-        IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>>
+        IServiceFactory<IFdwSchedulingService, ISchedulingConfiguration>>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SchedulerTypesBase"/> class.

@@ -4,7 +4,7 @@ using FluentValidation.Results;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions.Commands;
 
-namespace FractalDataWorks.Services.SecretManagement.Abstractions;
+namespace FractalDataWorks.Services.SecretManagement.Commands;
 
 /// <summary>
 /// Interface for secret management commands in the FractalDataWorks framework.

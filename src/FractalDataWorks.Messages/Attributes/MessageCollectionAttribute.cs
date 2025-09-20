@@ -23,7 +23,7 @@ public sealed class MessageCollectionAttribute : Attribute
             throw new ArgumentException("Name cannot be empty or whitespace.", nameof(name));
         
         Name = name;
-        ReturnType = typeof(IFractalMessage);
+        ReturnType = typeof(IFdwMessage);
     }
 
     /// <summary>

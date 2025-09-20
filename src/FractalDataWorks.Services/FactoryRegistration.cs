@@ -31,7 +31,7 @@ public sealed class FactoryRegistration
     /// - Scoped: One instance per scope/request (balanced approach)
     /// - Singleton: Single instance for application lifetimeBase (most efficient, shared state)
     /// </remarks>
-    public IServiceLifeTime Lifetime { get; set; } = ServiceLifetimes.Scoped;
+    public IServiceLifetime Lifetime { get; set; } = ServiceLifetimes.Scoped;
 
     /// <summary>
     /// Gets or sets the service type name for identification.

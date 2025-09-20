@@ -1824,8 +1824,8 @@ return value != null;");
             return false;
 
         // Get the TypeCollectionBase generic types using typeof
-        var typeCollectionBaseSingle = _compilation.GetTypeByMetadataName(typeof(FractalDataWorks.ServiceTypes.ServiceTypeBase<>).FullName!.Replace("+", "."));
-        var typeCollectionBaseDouble = _compilation.GetTypeByMetadataName(typeof(FractalDataWorks.ServiceTypes.ServiceTypeBase<,>).FullName!.Replace("+", "."));
+        var typeCollectionBaseSingle = _compilation.GetTypeByMetadataName(typeof(FractalDataWorks.ServiceTypes.ServiceTypeBase<,,>).FullName!.Replace("+", "."));
+        var typeCollectionBaseDouble = _compilation.GetTypeByMetadataName(typeof(FractalDataWorks.ServiceTypes.ServiceTypeBase<,,>).FullName!.Replace("+", "."));
 
         if (typeCollectionBaseSingle == null && typeCollectionBaseDouble == null)
             return false;

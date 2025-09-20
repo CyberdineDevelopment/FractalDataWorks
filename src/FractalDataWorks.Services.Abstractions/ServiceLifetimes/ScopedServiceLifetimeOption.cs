@@ -1,4 +1,4 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FractalDataWorks.Services.Abstractions;
 
@@ -10,13 +10,12 @@ namespace FractalDataWorks.Services.Abstractions;
 /// In web applications, this typically means one instance per HTTP request.
 /// Balances performance and isolation - shared within scope, isolated between scopes.
 /// </remarks>
-[EnumOption("Scoped")]
 public sealed class ScopedServiceLifetimeOption : ServiceLifetimeBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ScopedServiceLifetimeOption"/> class.
     /// </summary>
-    public ScopedServiceLifetimeOption() : base(2, "Scoped", "New instance per scope/request")
+    public ScopedServiceLifetimeOption() : base(2, "Scoped", "New instance per scope/request", ServiceLifetime.Scoped)
     {
     }
 }

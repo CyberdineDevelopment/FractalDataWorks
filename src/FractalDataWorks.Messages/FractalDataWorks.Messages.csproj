@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.Abstractions\FractalDataWorks.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

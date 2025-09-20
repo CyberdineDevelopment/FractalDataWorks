@@ -120,7 +120,7 @@ public sealed class Once : TriggerTypeBase
     /// // Returns current time (executes immediately)
     /// </code>
     /// </example>
-    public override DateTime? CalculateNextExecution(IFractalTrigger trigger, DateTime? lastExecution)
+    public override DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution)
     {
         if (trigger?.Configuration == null)
         {
@@ -230,7 +230,7 @@ public sealed class Once : TriggerTypeBase
     /// // result.Error == true with timezone validation error
     /// </code>
     /// </example>
-    public override IFdwResult ValidateTrigger(IFractalTrigger trigger)
+    public override IFdwResult ValidateTrigger(IFdwTrigger trigger)
     {
         if (trigger?.Configuration == null)
         {

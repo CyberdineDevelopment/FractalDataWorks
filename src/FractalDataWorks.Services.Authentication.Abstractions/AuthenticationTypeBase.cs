@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FractalDataWorks.ServiceTypes;
+using FractalDataWorks.Services.Authentication.Abstractions.Security;
 
 namespace FractalDataWorks.Services.Authentication.Abstractions;
 

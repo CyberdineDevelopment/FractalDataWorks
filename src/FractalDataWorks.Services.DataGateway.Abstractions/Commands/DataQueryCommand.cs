@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using FluentValidation.Results;
+using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.DataSets.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions;
+using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.DataGateway.Abstractions.Commands;
 
@@ -29,19 +33,30 @@ public sealed class DataQueryCommand : IConnectionCommand
         Expression = expression ?? throw new ArgumentNullException(nameof(expression));
         DataSet = dataSet ?? throw new ArgumentNullException(nameof(dataSet));
         ResultType = resultType ?? throw new ArgumentNullException(nameof(resultType));
-        CommandId = Guid.NewGuid().ToString("N");
-        CreatedAt = DateTimeOffset.UtcNow;
+        CommandId = Guid.NewGuid();
+        CorrelationId = Guid.NewGuid();
+        Timestamp = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
     /// Gets the unique identifier for this command instance.
     /// </summary>
-    public string CommandId { get; }
+    public Guid CommandId { get; }
+
+    /// <summary>
+    /// Gets the correlation identifier for tracking related operations.
+    /// </summary>
+    public Guid CorrelationId { get; }
 
     /// <summary>
     /// Gets the timestamp when this command was created.
     /// </summary>
-    public DateTimeOffset CreatedAt { get; }
+    public DateTimeOffset Timestamp { get; }
+
+    /// <summary>
+    /// Gets the configuration associated with this command.
+    /// </summary>
+    public IFdwConfiguration? Configuration { get; init; }
 
     /// <summary>
     /// Gets the LINQ expression tree that represents the query logic.
@@ -96,10 +111,36 @@ public sealed class DataQueryCommand : IConnectionCommand
     /// </remarks>
     public QueryExecutionContext Context { get; init; } = QueryExecutionContext.Empty;
 
+    /// <summary>
+    /// Validates this command.
+    /// </summary>
+    /// <returns>A FdwResult containing the validation result.</returns>
+    public IFdwResult<ValidationResult> Validate()
+    {
+        var validationResult = new ValidationResult();
+
+        if (Expression == null)
+        {
+            validationResult.Errors.Add(new ValidationFailure(nameof(Expression), "Expression cannot be null"));
+        }
+
+        if (DataSet == null)
+        {
+            validationResult.Errors.Add(new ValidationFailure(nameof(DataSet), "DataSet cannot be null"));
+        }
+
+        if (ResultType == null)
+        {
+            validationResult.Errors.Add(new ValidationFailure(nameof(ResultType), "ResultType cannot be null"));
+        }
+
+        return FdwResult<ValidationResult>.Success(validationResult);
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {
-        return $"DataQueryCommand[{CommandId}]: {DataSet.Name} query created at {CreatedAt:yyyy-MM-dd HH:mm:ss}";
+        return $"DataQueryCommand[{CommandId}]: {DataSet.Name} query created at {Timestamp:yyyy-MM-dd HH:mm:ss}";
     }
 }
 

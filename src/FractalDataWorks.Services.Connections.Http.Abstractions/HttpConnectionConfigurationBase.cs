@@ -51,5 +51,5 @@ public abstract class HttpConnectionConfigurationBase<TConfiguration> : Configur
     public abstract string ConnectionType { get; set; }
 
     /// <inheritdoc/>
-    public virtual ServiceLifetimeBase LifetimeBase { get; set; } = ServiceLifeTimes.Scoped;
+    public virtual ServiceLifetimeBase LifetimeBase { get; set; } = ServiceLifetimes.Scoped;
 }

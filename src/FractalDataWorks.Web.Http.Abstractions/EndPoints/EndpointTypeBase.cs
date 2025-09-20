@@ -1,4 +1,4 @@
-using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.Collections;
 
 namespace FractalDataWorks.Web.Http.Abstractions.EndPoints;
 
@@ -6,7 +6,7 @@ namespace FractalDataWorks.Web.Http.Abstractions.EndPoints;
 /// Enhanced enum defining different types of endpoints supported by the FractalDataWorks Web Framework.
 /// Each type provides semantic meaning and enables framework-specific behavior customization.
 /// </summary>
-public abstract class EndpointTypeBase : EnumOptionBase<EndpointTypeBase>, IEndpointType, IEnumOption<EndpointTypeBase>
+public abstract class EndpointTypeBase : IEndpointType
 {
     /// <summary>
     /// Gets the description of what this endpoint type represents.
@@ -55,5 +55,15 @@ public abstract class EndpointTypeBase : EnumOptionBase<EndpointTypeBase>, IEndp
     /// </summary>
     /// <param name="id">The unique identifier for this endpoint type.</param>
     /// <param name="name">The name of the endpoint type.</param>
-    protected EndpointTypeBase(int id, string name) : base(id, name) { }
+    protected EndpointTypeBase(int id, string name)
+    {
+        Id = id;
+        Name = name;
+    }
+
+    /// <inheritdoc/>
+    public int Id { get; }
+
+    /// <inheritdoc/>
+    public string Name { get; }
 }

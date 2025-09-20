@@ -8,7 +8,7 @@ using FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.TriggerTyp
 namespace FractalDataWorks.Services.Scheduling.Abstractions.Models;
 
 /// <summary>
-/// Default implementation of <see cref="IFractalTrigger"/> that represents a trigger configuration
+/// Default implementation of <see cref="IFdwTrigger"/> that represents a trigger configuration
 /// defining HOW a schedule determines WHEN to execute.
 /// </summary>
 /// <remarks>
@@ -51,7 +51,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions.Models;
 /// var validationResult = trigger.Validate();
 /// </code>
 /// </example>
-public sealed class Trigger : IFractalTrigger
+public sealed class Trigger : IFdwTrigger
 {
     private readonly Dictionary<string, object> _configuration;
     private readonly Dictionary<string, object> _metadata;

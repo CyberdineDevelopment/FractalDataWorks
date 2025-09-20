@@ -2,7 +2,6 @@ using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.Services.Abstractions;
-using FractalDataWorks.Services.Scheduling.Abstractions.Interfaces;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
@@ -15,7 +14,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// <typeparam name="TConfiguration">The configuration type for the scheduler service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating scheduler service instances.</typeparam>
 public interface ISchedulerType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
-    where TService : class, IFractalSchedulingService
+    where TService : class, IFdwSchedulingService
     where TConfiguration : class, ISchedulingConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
 {

@@ -1,4 +1,4 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FractalDataWorks.Services.Abstractions;
 
@@ -10,13 +10,12 @@ namespace FractalDataWorks.Services.Abstractions;
 /// Most efficient but requires careful thread-safety considerations.
 /// Instance lives for the entire application lifetime and is shared by all consumers.
 /// </remarks>
-[EnumOption("Singleton")]
 public sealed class SingletonServiceLifetimeOption : ServiceLifetimeBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SingletonServiceLifetimeOption"/> class.
     /// </summary>
-    public SingletonServiceLifetimeOption() : base(3, "Singleton", "Single instance for application lifetime")
+    public SingletonServiceLifetimeOption() : base(3, "Singleton", "Single instance for application lifetime", ServiceLifetime.Singleton)
     {
     }
 }

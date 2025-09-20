@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
 
@@ -30,18 +31,18 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
     /// <inheritdoc/>
     public IFdwResult RegisterFactory(string typeName, IServiceFactory factory)
     {
-        // Use default Scoped lifetimeBase for backward compatibility
-        return RegisterFactory(typeName, factory, ServiceLifetimeBase.Scoped);
+        // Use default Scoped lifetime for backward compatibility
+        return RegisterFactory(typeName, factory, ServiceLifetimes.Scoped);
     }
 
     /// <summary>
-    /// Registers a factory for a specific service type with the specified lifetimeBase.
+    /// Registers a factory for a specific service type with the specified lifetime.
     /// </summary>
     /// <param name="typeName">The service type name to register the factory for.</param>
     /// <param name="factory">The factory instance to register.</param>
-    /// <param name="lifetimeBase">The service lifetimeBase for DI container registration.</param>
+    /// <param name="lifetime">The service lifetime for DI container registration.</param>
     /// <returns>A result indicating success or failure.</returns>
-    public IFdwResult RegisterFactory(string typeName, IServiceFactory factory, ServiceLifetimeBase lifetimeBase)
+    public IFdwResult RegisterFactory(string typeName, IServiceFactory factory, IServiceLifetime lifetime)
     {
         if (string.IsNullOrWhiteSpace(typeName))
             return FdwResult.Failure("Service type name cannot be null or empty");
@@ -49,7 +50,7 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
         if (factory == null)
             return FdwResult.Failure("Factory cannot be null");
 
-        if (lifetimeBase == null)
+        if (lifetime == null)
             return FdwResult.Failure("Lifetime cannot be null");
 
         lock (_lock)
@@ -62,7 +63,7 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
             _registrations[typeName] = new FactoryRegistration
             {
                 Factory = factory,
-                Lifetime = lifetimeBase,
+                Lifetime = lifetime,
                 TypeName = typeName
             };
         }
@@ -92,12 +93,12 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
     /// <inheritdoc/>
     public IFdwResult<IServiceFactory<TService, TConfiguration>> GetFactory<TService, TConfiguration>(string typeName)
         where TService : class
-        where TConfiguration : class
+        where TConfiguration : IFdwConfiguration
     {
         var factoryResult = GetFactory(typeName);
         if (factoryResult.IsFailure)
         {
-            return FdwResult<IServiceFactory<TService, TConfiguration>>.Failure(factoryResult.Error);
+            return FdwResult<IServiceFactory<TService, TConfiguration>>.Failure(factoryResult.Message ?? "Failed to get factory");
         }
 
         if (factoryResult.Value is IServiceFactory<TService, TConfiguration> typedFactory)
@@ -137,7 +138,7 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
     /// <returns>A result containing the factory registration or an error.</returns>
     /// <remarks>
     /// This method provides access to the complete registration information including
-    /// factory, lifetimeBase, and metadata. Useful for DI container configuration.
+    /// factory, lifetime, and metadata. Useful for DI container configuration.
     /// </remarks>
     public IFdwResult<FactoryRegistration> GetRegistration(string typeName)
     {

@@ -32,7 +32,7 @@ namespace FractalDataWorks.Services.DataGateway.Services;
 /// - Connection health monitoring and metadata retrieval
 /// - Consistent error handling and logging across all operations
 /// </remarks>
-public sealed class DataGatewayService : ServiceBase<DataCommandBase, DataStoreConfiguration, DataGatewayService>, IDataGateway
+public sealed class DataGatewayService : IDataGateway
 {
     private readonly IExternalDataConnectionProvider _connectionProvider;
 

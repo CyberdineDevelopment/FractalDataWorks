@@ -1,11 +1,15 @@
 <Project>
   <!-- Completely override parent Directory.Build.props for samples -->
   <PropertyGroup>
+    <!-- Exclude samples from solution build -->
+    <IsPackable>false</IsPackable>
+    <ExcludeFromBuild>true</ExcludeFromBuild>
+
     <!-- Basic settings -->
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    
+
     <!-- Disable central package management -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     

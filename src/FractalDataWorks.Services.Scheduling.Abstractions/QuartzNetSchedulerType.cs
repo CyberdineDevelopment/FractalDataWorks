@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FractalDataWorks.Services.Scheduling.Abstractions.Interfaces;
+using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// Provides robust enterprise-grade scheduling with persistence and clustering support.
 /// </summary>
 public sealed class QuartzNetSchedulerType : 
-    SchedulerTypeBase<IFractalSchedulingService, ISchedulingConfiguration, IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>>
+    SchedulerTypeBase<IFdwSchedulingService, ISchedulingConfiguration, IServiceFactory<IFdwSchedulingService, ISchedulingConfiguration>>
 {
     /// <summary>
     /// Gets the singleton instance of the Quartz.NET scheduler type.
@@ -28,10 +28,10 @@ public sealed class QuartzNetSchedulerType :
     public override string SchedulingEngine => "Quartz.NET";
 
     /// <inheritdoc/>
-    public override Type JobExecutorType => typeof(IFractalScheduledExecutionHandler);
+    public override Type JobExecutorType => typeof(IFdwScheduledExecutionHandler);
 
     /// <inheritdoc/>
-    public override Type TriggerType => typeof(IFractalTrigger);
+    public override Type TriggerType => typeof(IFdwTrigger);
 
     /// <inheritdoc/>
     public override bool SupportsRecurring => true;
@@ -57,8 +57,6 @@ public sealed class QuartzNetSchedulerType :
     /// <inheritdoc/>
     public override int MaxConcurrentJobs => 100; // Configurable
 
-    /// <inheritdoc/>
-    public override Type FactoryType => typeof(IServiceFactory<IFractalSchedulingService, ISchedulingConfiguration>);
 
     /// <inheritdoc/>
     public override void Register(IServiceCollection services)

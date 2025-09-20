@@ -6,7 +6,7 @@ using FractalDataWorks.Results;
 namespace FractalDataWorks.Services.Scheduling.Abstractions.Models;
 
 /// <summary>
-/// Default implementation of <see cref="IFractalSchedule"/> that represents a schedule definition 
+/// Default implementation of <see cref="IFdwSchedule"/> that represents a schedule definition 
 /// defining WHEN and HOW a process should be executed.
 /// </summary>
 /// <remarks>
@@ -52,7 +52,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions.Models;
 /// );
 /// </code>
 /// </example>
-public sealed class Schedule : IFractalSchedule
+public sealed class Schedule : IFdwSchedule
 {
     private readonly Dictionary<string, object> _metadata;
 
@@ -88,7 +88,7 @@ public sealed class Schedule : IFractalSchedule
         string name,
         string processType,
         object processConfiguration,
-        IFractalTrigger trigger,
+        IFdwTrigger trigger,
         DateTime createdAt,
         DateTime updatedAt,
         string? description)
@@ -182,7 +182,7 @@ public sealed class Schedule : IFractalSchedule
     /// Gets the trigger that defines when this schedule should execute.
     /// </summary>
     /// <value>The trigger configuration that determines execution timing.</value>
-    public IFractalTrigger Trigger { get; }
+    public IFdwTrigger Trigger { get; }
 
     /// <summary>
     /// Gets the time when this schedule was created.
@@ -246,7 +246,7 @@ public sealed class Schedule : IFractalSchedule
         string name,
         string processType,
         object processConfiguration,
-        IFractalTrigger trigger,
+        IFdwTrigger trigger,
         string? description = null,
         bool isActive = true,
         IReadOnlyDictionary<string, object>? metadata = null)
@@ -331,7 +331,7 @@ public sealed class Schedule : IFractalSchedule
         string name,
         string processType,
         object processConfiguration,
-        IFractalTrigger trigger,
+        IFdwTrigger trigger,
         DateTime createdAt,
         DateTime updatedAt,
         string? description = null,
@@ -522,7 +522,7 @@ public sealed class Schedule : IFractalSchedule
     /// <param name="trigger">The trigger to extract from.</param>
     /// <returns>The cron expression or a default if not found.</returns>
     [ExcludeFromCodeCoverage] // Helper method - tested through factory methods
-    private static string ExtractCronExpression(IFractalTrigger trigger)
+    private static string ExtractCronExpression(IFdwTrigger trigger)
     {
         if (trigger?.Configuration?.TryGetValue("CronExpression", out var cronObj) == true &&
             cronObj is string cronExpression &&
@@ -541,7 +541,7 @@ public sealed class Schedule : IFractalSchedule
     /// <param name="trigger">The trigger to extract from.</param>
     /// <returns>The timezone ID or UTC as default.</returns>
     [ExcludeFromCodeCoverage] // Helper method - tested through factory methods
-    private static string ExtractTimeZoneId(IFractalTrigger trigger)
+    private static string ExtractTimeZoneId(IFdwTrigger trigger)
     {
         if (trigger?.Configuration?.TryGetValue("TimeZoneId", out var timezoneObj) == true &&
             timezoneObj is string timeZoneId &&

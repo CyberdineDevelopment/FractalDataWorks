@@ -561,7 +561,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             var director = new EnumCollectionDirector(builder);
 
             // Generate the collection with all enhanced features
-            var generatedCode = director.ConstructSimplifiedCollection(def, values.ToList(), effectiveReturnType, compilation);
+            var generatedCode = director.ConstructFullCollection(def, values.ToList(), effectiveReturnType, compilation);
 
             var fileName = $"{def.CollectionName}.g.cs";
             context.AddSource(fileName, generatedCode);

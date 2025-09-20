@@ -1,5 +1,3 @@
-using FractalDataWorks.Data;
-using FractalDataWorks.Services;
 using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Services.DataGateway.Abstractions;

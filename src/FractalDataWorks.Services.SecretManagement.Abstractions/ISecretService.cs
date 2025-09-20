@@ -1,6 +1,6 @@
 using FractalDataWorks.Services;
-
 using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.Services.SecretManagement.Commands;
 
 namespace FractalDataWorks.Services.SecretManagement.Abstractions;
 

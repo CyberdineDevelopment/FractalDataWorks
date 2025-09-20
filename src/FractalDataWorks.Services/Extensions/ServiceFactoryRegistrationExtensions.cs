@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Abstractions;
+using static FractalDataWorks.Services.Abstractions.ServiceLifetimes;
 
 namespace FractalDataWorks.Services.Extensions;
 
@@ -128,7 +129,7 @@ public static class ServiceFactoryRegistrationExtensions
                 }
 
                 // Register the factory type with appropriate lifetime
-                var lifetime = ServiceLifetime.Name(lifetimeName) ?? ServiceLifetime.Scoped;
+                var lifetime = ByName(lifetimeName) ?? Scoped;
                 
                 RegisterFactoryWithLifetime(services, factoryType, lifetime);
 
@@ -152,23 +153,10 @@ public static class ServiceFactoryRegistrationExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="factoryType">The factory type to register.</param>
     /// <param name="lifetime">The service lifetime.</param>
-    private static void RegisterFactoryWithLifetime(IServiceCollection services, Type factoryType, ServiceLifetime lifetime)
+    internal static void RegisterFactoryWithLifetime(IServiceCollection services, Type factoryType, IServiceLifetime lifetime)
     {
-        switch (lifetime.Id)
-        {
-            case 1: // Transient
-                services.AddTransient(factoryType);
-                break;
-            case 2: // Scoped  
-                services.AddScoped(factoryType);
-                break;
-            case 3: // Singleton
-                services.AddSingleton(factoryType);
-                break;
-            default:
-                services.AddScoped(factoryType); // Default fallback
-                break;
-        }
+        // Use the Microsoft ServiceLifetime enum directly from our lifetime object
+        services.Add(new ServiceDescriptor(factoryType, factoryType, lifetime.EnumValue));
     }
 }
 
@@ -185,8 +173,8 @@ public interface IConnectionFactoryRegistrationBuilder
     /// <param name="lifetime">The service lifetime for the factory (default: Scoped).</param>
     /// <returns>The builder for chaining.</returns>
     IConnectionFactoryRegistrationBuilder RegisterFactory<TFactory>(
-        string typeName, 
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        string typeName,
+        IServiceLifetime? lifetime = null)
         where TFactory : class, IServiceFactory;
 
     /// <summary>
@@ -211,23 +199,26 @@ internal sealed class ConnectionFactoryRegistrationBuilder : IConnectionFactoryR
     }
 
     public IConnectionFactoryRegistrationBuilder RegisterFactory<TFactory>(
-        string typeName, 
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+        string typeName,
+        IServiceLifetime? lifetime = null)
         where TFactory : class, IServiceFactory
     {
         if (string.IsNullOrWhiteSpace(typeName))
             throw new ArgumentException("Type name cannot be null or empty", nameof(typeName));
 
+        // Use default Scoped lifetime if none provided
+        var effectiveLifetime = lifetime ?? Scoped;
+
         // Register the factory type with DI container using the new helper
-        ServiceFactoryRegistrationExtensions.RegisterFactoryWithLifetime(_services, typeof(TFactory), lifetime);
+        ServiceFactoryRegistrationExtensions.RegisterFactoryWithLifetime(_services, typeof(TFactory), effectiveLifetime);
 
         // Register with factory provider using lifetime-aware method
         _services.AddSingleton<IServiceProvider>(provider =>
         {
             var factoryProvider = provider.GetRequiredService<IServiceFactoryProvider>();
             var factory = provider.GetRequiredService<TFactory>();
-            
-            factoryProvider.RegisterFactory(typeName, factory, lifetime);
+
+            factoryProvider.RegisterFactory(typeName, factory, effectiveLifetime);
             
             return provider;
         });

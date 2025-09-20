@@ -1,5 +1,4 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Abstractions;
 
@@ -10,7 +9,6 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// Connection states help track the lifecycle of external connections and enable
 /// proper connection management, pooling, and error handling throughout the framework.
 /// </remarks>
-[EnumCollection(CollectionName = "ConnectionStates")]
 public abstract class ConnectionStateBase : EnumOptionBase<ConnectionStateBase>, IConnectionState
 {
     /// <summary>

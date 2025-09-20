@@ -50,7 +50,7 @@
     <ItemGroup>
       <!-- Main assembly first -->
       <InputAssemblies Include="$(OriginalAssemblyPath)" />
-      
+
       <!-- Custom dependencies to internalize -->
       <InputAssemblies Include="$(OutputPath)FractalDataWorks.CodeBuilder.Abstractions.dll" />
       <InputAssemblies Include="$(OutputPath)FractalDataWorks.CodeBuilder.CSharp.dll" />

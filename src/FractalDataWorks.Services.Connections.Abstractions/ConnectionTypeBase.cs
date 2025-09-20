@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FractalDataWorks.Results;
 using FractalDataWorks.ServiceTypes;
 
 namespace FractalDataWorks.Services.Connections.Abstractions;
@@ -25,14 +26,27 @@ public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> :
     /// </summary>
     /// <param name="id">The unique identifier for this connection service type.</param>
     /// <param name="name">The name of this connection service type.</param>
+    /// <param name="sectionName">The configuration section name for appsettings.json.</param>
+    /// <param name="displayName">The display name for this service type.</param>
+    /// <param name="description">The description of what this service type provides.</param>
     /// <param name="category">The category for this connection type (defaults to "Connection").</param>
     protected ConnectionTypeBase(
-        int id, 
-        string name, 
+        int id,
+        string name,
+        string sectionName,
+        string displayName,
+        string description,
         string? category = null)
-        : base(id, name, category ?? "Connection")
+        : base(id, name, sectionName, displayName, description, category ?? "Connection")
     {
     }
+
+
+    /// <summary>
+    /// Gets the factory type for creating connection service instances.
+    /// </summary>
+    /// <returns>The factory type.</returns>
+    public IFdwResult<Type> Factory() => FdwResult<Type>.Success(typeof(TFactory));
 
     // TODO: Add container type and translator support when those abstractions are ready
 }

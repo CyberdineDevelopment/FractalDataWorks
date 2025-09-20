@@ -12,7 +12,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// It is separate from the execution logic itself, following the separation of concerns between
 /// scheduling (WHEN) and execution (HOW).
 /// </remarks>
-public interface IFractalSchedule
+public interface IFdwSchedule
 {
     /// <summary>
     /// Gets the unique identifier for this schedule.

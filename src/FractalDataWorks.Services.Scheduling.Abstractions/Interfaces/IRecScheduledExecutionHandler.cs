@@ -16,7 +16,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// and any relevant context. The handler is responsible for locating and executing the
 /// appropriate process implementation.
 /// </remarks>
-public interface IFractalScheduledExecutionHandler
+public interface IFdwScheduledExecutionHandler
 {
     /// <summary>
     /// Executes a process that was triggered by a schedule.

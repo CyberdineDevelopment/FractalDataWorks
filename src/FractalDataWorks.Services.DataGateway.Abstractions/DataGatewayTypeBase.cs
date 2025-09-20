@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.ServiceTypes;
+using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Services.DataGateway.Abstractions;
 
@@ -165,9 +167,18 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// </summary>
     /// <param name="id">The unique identifier for the data provider type.</param>
     /// <param name="name">The name of the data provider type.</param>
+    /// <param name="sectionName">The configuration section name for appsettings.json.</param>
+    /// <param name="displayName">The display name for this service type.</param>
+    /// <param name="description">The description of what this service type provides.</param>
     /// <param name="category">The category for this data provider type (defaults to "Data Provider").</param>
-    protected DataGatewayTypeBase(int id, string name, string? category = null)
-        : base(id, name, category ?? "Data Provider")
+    protected DataGatewayTypeBase(
+        int id,
+        string name,
+        string sectionName,
+        string displayName,
+        string description,
+        string? category = null)
+        : base(id, name, sectionName, displayName, description, category ?? "Data Provider")
     {
     }
 }

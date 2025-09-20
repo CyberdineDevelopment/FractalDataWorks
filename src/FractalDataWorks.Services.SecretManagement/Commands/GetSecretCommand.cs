@@ -1,3 +1,4 @@
+using FractalDataWorks.Services.SecretManagement.Abstractions;
 using System;
 using System.Collections.Generic;
 

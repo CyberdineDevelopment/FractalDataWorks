@@ -133,7 +133,7 @@ public abstract class TriggerTypeBase : EnumOptionBase<TriggerTypeBase>, IEnumOp
     /// </code>
     /// </example>
     [ExcludeFromCodeCoverage] // Abstract method - implementation coverage tested in derived classes
-    public abstract DateTime? CalculateNextExecution(IFractalTrigger trigger, DateTime? lastExecution);
+    public abstract DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution);
 
     /// <summary>
     /// Validates that the trigger configuration is valid for this trigger type.
@@ -178,5 +178,5 @@ public abstract class TriggerTypeBase : EnumOptionBase<TriggerTypeBase>, IEnumOp
     /// </code>
     /// </example>
     [ExcludeFromCodeCoverage] // Abstract method - implementation coverage tested in derived classes
-    public abstract IFdwResult ValidateTrigger(IFractalTrigger trigger);
+    public abstract IFdwResult ValidateTrigger(IFdwTrigger trigger);
 }

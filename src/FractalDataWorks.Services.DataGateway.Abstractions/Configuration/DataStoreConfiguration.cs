@@ -45,8 +45,11 @@ public sealed class DataStoreConfiguration : ConfigurationBase<DataStoreConfigur
     /// Gets the provider type Enhanced Enum by name.
     /// Following Enhanced Enum pattern: retrieve object via ByName().
     /// </summary>
-    public EnhancedEnums.DataStoreTypes.IDataStoreType ProviderTypeEnum => 
-        EnhancedEnums.DataStoreTypes.DataStoreTypes.ByName(ProviderType);
+    /// <remarks>
+    /// TODO: Re-enable when DataStoreTypes source generator is working
+    /// </remarks>
+    // public EnhancedEnums.DataStoreTypes.IDataStoreType ProviderTypeEnum =>
+    //     EnhancedEnums.DataStoreTypes.DataStoreTypes.ByName(ProviderType);
 
     /// <summary>
     /// Gets or sets the connection properties specific to the provider type.

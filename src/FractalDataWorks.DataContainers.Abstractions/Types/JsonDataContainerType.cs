@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FractalDataWorks.DataStores.Abstractions;
 using FractalDataWorks.Results;
 
@@ -15,28 +16,19 @@ public sealed class JsonDataContainerType : DataContainerTypeBase<JsonDataContai
     /// <summary>
     /// Initializes a new instance of the <see cref="JsonDataContainerType"/> class.
     /// </summary>
-    public JsonDataContainerType() : base(2, "JSON", "File") { }
-
-    /// <inheritdoc/>
-    public override string? FileExtension => ".json";
-
-    /// <inheritdoc/>
-    public override string? MimeType => "application/json";
-
-    /// <inheritdoc/>
-    public override bool SupportsRead => true;
-
-    /// <inheritdoc/>
-    public override bool SupportsWrite => true;
-
-    /// <inheritdoc/>
-    public override bool SupportsSchemaInference => true;
-
-    /// <inheritdoc/>
-    public override bool SupportsStreaming => false; // JSON requires complete parsing for validation
-
-    /// <inheritdoc/>
-    public override IEnumerable<string> CompatibleConnectionTypes => new[] { "File", "Http", "S3", "REST" };
+    public JsonDataContainerType() : base(
+        id: 2,
+        name: "JSON",
+        fileExtension: ".json",
+        mimeType: "application/json",
+        supportsRead: true,
+        supportsWrite: true,
+        supportsSchemaInference: true,
+        supportsStreaming: false, // JSON requires complete parsing for validation
+        compatibleConnectionTypes: new[] { "File", "Http", "S3", "REST" },
+        category: "File")
+    {
+    }
 
     /// <inheritdoc/>
     public override IContainerConfiguration CreateDefaultConfiguration()
@@ -79,6 +71,14 @@ public sealed class JsonDataContainerType : DataContainerTypeBase<JsonDataContai
             "No built-in compression support"
         };
     }
+
+    /// <inheritdoc/>
+    public override Task<IFdwResult<IDataSchema>> DiscoverSchemaAsync(DataLocation location, int sampleSize = 1000) =>
+        Task.FromResult(FdwResult<IDataSchema>.Failure("Not implemented"));
+
+    /// <inheritdoc/>
+    public override IFdwResult<ContainerMetadata> GetMetadata(DataLocation location) =>
+        FdwResult<ContainerMetadata>.Failure("Not implemented");
 }
 
 /// <summary>
@@ -105,6 +105,33 @@ public sealed class JsonContainerConfiguration : IContainerConfiguration
     /// Gets or sets a value indicating whether strict type validation should be enforced.
     /// </summary>
     public bool StrictTypeValidation { get; set; } = true;
+
+    /// <inheritdoc/>
+    public string ContainerType => "JSON";
+
+    /// <inheritdoc/>
+    public IReadOnlyDictionary<string, object> Settings =>
+        new Dictionary<string, object>(StringComparer.Ordinal)
+        {
+            { nameof(Indented), Indented },
+            { nameof(CamelCaseProperties), CamelCaseProperties },
+            { nameof(IgnoreNullValues), IgnoreNullValues },
+            { nameof(StrictTypeValidation), StrictTypeValidation }
+        };
+
+    /// <inheritdoc/>
+    public IFdwResult Validate()
+    {
+        return FdwResult.Success();
+    }
+
+    /// <inheritdoc/>
+    public T GetValue<T>(string key, T defaultValue = default!)
+    {
+        if (Settings.TryGetValue(key, out var value) && value is T typedValue)
+            return typedValue;
+        return defaultValue;
+    }
 }
 
 /// <summary>
@@ -116,9 +143,36 @@ internal sealed class JsonDataContainer : IDataContainer
     {
         Location = location ?? throw new ArgumentNullException(nameof(location));
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        Id = Guid.NewGuid().ToString();
+        Name = $"JSON Container ({location})";
+        Schema = null!; // TODO: Implement proper schema - should come from source generator
+        Metadata = new Dictionary<string, object>(StringComparer.Ordinal);
     }
 
+    public string Id { get; }
+    public string Name { get; }
+    public string ContainerType => "JSON";
+    public IDataSchema Schema { get; }
+    public IReadOnlyDictionary<string, object> Metadata { get; }
     public DataLocation Location { get; }
     public IContainerConfiguration Configuration { get; }
-    public string ContainerType => "JSON";
+
+    public Task<IFdwResult> ValidateReadAccessAsync(DataLocation location) =>
+        Task.FromResult<IFdwResult>(FdwResult.Success());
+
+    public Task<IFdwResult> ValidateWriteAccessAsync(DataLocation location) =>
+        Task.FromResult<IFdwResult>(FdwResult.Success());
+
+    public Task<IFdwResult<ContainerMetrics>> GetReadMetricsAsync(DataLocation location) =>
+        Task.FromResult(FdwResult<ContainerMetrics>.Failure("Not implemented"));
+
+    public Task<IFdwResult<IDataReader>> CreateReaderAsync(DataLocation location) =>
+        Task.FromResult(FdwResult<IDataReader>.Failure("Not implemented"));
+
+    public Task<IFdwResult<IDataWriter>> CreateWriterAsync(DataLocation location, ContainerWriteMode writeMode = ContainerWriteMode.Overwrite) =>
+        Task.FromResult(FdwResult<IDataWriter>.Failure("Not implemented"));
+
+    public Task<IFdwResult<IDataSchema>> DiscoverSchemaAsync(DataLocation location, int sampleSize = 1000) =>
+        Task.FromResult(FdwResult<IDataSchema>.Failure("Not implemented"));
 }
+

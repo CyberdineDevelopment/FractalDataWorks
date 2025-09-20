@@ -109,7 +109,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             // Extract base type name from TypeCollectionAttribute instead of inheritance scanning
             var baseTypeName = ExtractBaseTypeNameFromAttribute(attribute);
             if (string.IsNullOrEmpty(baseTypeName)) continue;
-            
+
             var baseType = compilation.GetTypeByMetadataName(baseTypeName);
             if (baseType == null) continue;
                 

@@ -1,6 +1,5 @@
 using System;
 using FluentValidation.Results;
-using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.Abstractions.Commands;
@@ -25,10 +24,8 @@ public interface ICommand
     /// </summary>
     DateTimeOffset Timestamp { get; }
 
-    /// <summary>
-    /// Gets the configuration associated with this command.
-    /// </summary>
-    IFdwConfiguration? Configuration { get; }
+    // NOTE: Configuration property disabled due to circular dependency issues
+    // IFdwConfiguration? Configuration { get; }
 
     /// <summary>
     /// Validates this command.

@@ -18,7 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.MCP\RoslynMcpServer.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.Services.MCP\FractalDataWorks.Services.MCP.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.McpTools.Abstractions\FractalDataWorks.McpTools.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

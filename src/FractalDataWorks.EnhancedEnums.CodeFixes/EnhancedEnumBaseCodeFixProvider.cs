@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Formatting;
+using FractalDataWorks.EnhancedEnums;
 using FractalDataWorks.EnhancedEnums.Analyzers;
 
 namespace FractalDataWorks.EnhancedEnums.CodeFixes;

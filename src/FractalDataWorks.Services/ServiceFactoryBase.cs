@@ -62,19 +62,8 @@ public abstract class ServiceFactoryBase<TService, TConfiguration> :
             return FdwResult<TService>.Failure(ServiceMessages.ConfigurationCannotBeNull());
         }
 
-        // Log configuration validation with structured logging
+        // Log configuration
         Logging.ServiceBaseLog.ValidatingServiceConfiguration(_logger, serviceTypeName, configuration);
-
-        // Validate configuration first
-        var validationResult = configuration.Validate();
-        if (!validationResult.IsSuccess || validationResult.Value == null || !validationResult.Value.IsValid)
-        {
-            var errorMsg = validationResult.Value != null && !validationResult.Value.IsValid
-                ? string.Join("\n", validationResult.Value.Errors)
-                : validationResult.Message ?? "Configuration validation failed";
-            Logging.ServiceBaseLog.InvalidConfigurationWarning(_logger, errorMsg);
-            return FdwResult<TService>.Failure($"Validation failed: {errorMsg}");
-        }
 
         if (FastNew.TryCreateInstance<TService, TConfiguration>(configuration, out var service))
         {
@@ -116,12 +105,8 @@ public abstract class ServiceFactoryBase<TService, TConfiguration> :
 
         if (configuration is TConfiguration config)
         {
-            var validationResult = config.Validate();
-            if (validationResult.IsSuccess && validationResult.Value != null && validationResult.Value.IsValid)
-            {
-                validConfiguration = config;
-                return FdwResult<TConfiguration>.Success(config);
-            }
+            validConfiguration = config;
+            return FdwResult<TConfiguration>.Success(config);
         }
 
         Logging.ServiceBaseLog.InvalidConfigurationWarning(_logger,

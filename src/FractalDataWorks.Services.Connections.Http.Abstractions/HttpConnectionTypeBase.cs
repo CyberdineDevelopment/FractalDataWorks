@@ -21,12 +21,18 @@ public abstract class HttpConnectionTypeBase<TService, TConfiguration, TFactory>
     /// </summary>
     /// <param name="id">The unique identifier for the HTTP connection type.</param>
     /// <param name="name">The name of the HTTP connection type.</param>
+    /// <param name="sectionName">The configuration section name for appsettings.json.</param>
+    /// <param name="displayName">The display name for this service type.</param>
+    /// <param name="description">The description of what this service type provides.</param>
     /// <param name="category">The category for this HTTP connection type (defaults to "HTTP Connection").</param>
     protected HttpConnectionTypeBase(
-        int id, 
-        string name, 
-        string? category = null) 
-        : base(id, name, category ?? "HTTP Connection")
+        int id,
+        string name,
+        string sectionName,
+        string displayName,
+        string description,
+        string? category = null)
+        : base(id, name, sectionName, displayName, description, category ?? "HTTP Connection")
     {
     }
 }

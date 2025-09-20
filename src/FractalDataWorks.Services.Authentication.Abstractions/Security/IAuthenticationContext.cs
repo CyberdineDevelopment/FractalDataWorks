@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using FractalDataWorks.Services.Authentication.Abstractions.EnhancedEnums.SecurityMethods;
+using FractalDataWorks.Web.Http.Abstractions.Security;
 
 namespace FractalDataWorks.Services.Authentication.Abstractions.Security;
 

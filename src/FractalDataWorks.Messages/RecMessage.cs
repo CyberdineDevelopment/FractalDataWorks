@@ -7,9 +7,8 @@ namespace FractalDataWorks.Messages;
 /// <summary>
 /// Implementation of IFractalMessage for framework messages.
 /// </summary>
-public class FractalMessage : IFractalMessage
+public class FractalMessage : IFdwMessage, IEnumOption
 {
-    private int _id = 1;
 
     /// <inheritdoc/>
     public MessageSeverity Severity { get; set; }
@@ -26,7 +25,7 @@ public class FractalMessage : IFractalMessage
     /// <summary>
     /// Gets or sets the unique identifier for this message.
     /// </summary>
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public int Id { get; set; } = 1;
 
     /// <summary>
     /// Gets or sets the display name or string representation of this enum value.
@@ -80,12 +79,4 @@ public class FractalMessage : IFractalMessage
         Source = source;
     }
 
-    #region Implementation of IEnumOption
-
-    /// <summary>
-    /// Gets the unique identifier for this enum value.
-    /// </summary>
-    int IEnumOption.Id => _id;
-
-    #endregion
 }

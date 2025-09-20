@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Services.DataGateway.Abstractions;

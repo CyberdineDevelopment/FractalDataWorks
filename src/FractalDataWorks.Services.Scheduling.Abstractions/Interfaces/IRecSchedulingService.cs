@@ -61,7 +61,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// }
 /// </code>
 /// </example>
-public interface IFractalSchedulingService : IFdwService
+public interface IFdwSchedulingService : IFdwService
 {
     /// <summary>
     /// Gets the underlying scheduler instance used by this service.
@@ -72,7 +72,7 @@ public interface IFractalSchedulingService : IFdwService
     /// scheduler interaction is needed. Most applications should use the service methods instead
     /// of accessing the scheduler directly.
     /// </remarks>
-    IFractalScheduler Scheduler { get; }
+    IFdwScheduler Scheduler { get; }
 
     /// <summary>
     /// Creates a new schedule and registers it with the scheduling system.
@@ -92,7 +92,7 @@ public interface IFractalSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="schedule"/> is null.</exception>
-    Task<IFdwResult> CreateScheduleAsync(IFractalSchedule schedule, CancellationToken cancellationToken = default);
+    Task<IFdwResult> CreateScheduleAsync(IFdwSchedule schedule, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates an existing schedule with new configuration.
@@ -112,7 +112,7 @@ public interface IFractalSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="schedule"/> is null.</exception>
-    Task<IFdwResult> UpdateScheduleAsync(IFractalSchedule schedule, CancellationToken cancellationToken = default);
+    Task<IFdwResult> UpdateScheduleAsync(IFdwSchedule schedule, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a schedule and removes it from the scheduling system.
@@ -210,7 +210,7 @@ public interface IFractalSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentException">Thrown when <paramref name="scheduleId"/> is null or empty.</exception>
-    Task<IFdwResult<IFractalSchedule?>> GetScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IFdwResult<IFdwSchedule?>> GetScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all schedules currently managed by the scheduling system.
@@ -229,7 +229,7 @@ public interface IFractalSchedulingService : IFdwService
     /// at the time of the query.
     /// </para>
     /// </remarks>
-    Task<IFdwResult<IReadOnlyCollection<IFractalSchedule>>> GetSchedulesAsync(bool includeInactive = true, CancellationToken cancellationToken = default);
+    Task<IFdwResult<IReadOnlyCollection<IFdwSchedule>>> GetSchedulesAsync(bool includeInactive = true, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves the execution history for a specific schedule.
@@ -252,7 +252,7 @@ public interface IFractalSchedulingService : IFdwService
     /// </remarks>
     /// <exception cref="ArgumentException">Thrown when <paramref name="scheduleId"/> is null or empty.</exception>
     /// <exception cref="ArgumentException">Thrown when <paramref name="startDate"/> is greater than <paramref name="endDate"/>.</exception>
-    Task<IFdwResult<IReadOnlyCollection<IFractalScheduleExecutionHistory>>> GetScheduleHistoryAsync(
+    Task<IFdwResult<IReadOnlyCollection<IFdwScheduleExecutionHistory>>> GetScheduleHistoryAsync(
         string scheduleId,
         DateTime? startDate = null,
         DateTime? endDate = null,

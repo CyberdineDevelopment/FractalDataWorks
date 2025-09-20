@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FractalDataWorks.DataStores.Abstractions;
 using FractalDataWorks.Results;
 
@@ -15,28 +16,19 @@ public sealed class CsvDataContainerType : DataContainerTypeBase<CsvDataContaine
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvDataContainerType"/> class.
     /// </summary>
-    public CsvDataContainerType() : base(1, "CSV", "File") { }
-
-    /// <inheritdoc/>
-    public override string? FileExtension => ".csv";
-
-    /// <inheritdoc/>
-    public override string? MimeType => "text/csv";
-
-    /// <inheritdoc/>
-    public override bool SupportsRead => true;
-
-    /// <inheritdoc/>
-    public override bool SupportsWrite => true;
-
-    /// <inheritdoc/>
-    public override bool SupportsSchemaInference => true;
-
-    /// <inheritdoc/>
-    public override bool SupportsStreaming => true;
-
-    /// <inheritdoc/>
-    public override IEnumerable<string> CompatibleConnectionTypes => new[] { "File", "Http", "S3" };
+    public CsvDataContainerType() : base(
+        id: 1,
+        name: "CSV",
+        fileExtension: ".csv",
+        mimeType: "text/csv",
+        supportsRead: true,
+        supportsWrite: true,
+        supportsSchemaInference: true,
+        supportsStreaming: true,
+        compatibleConnectionTypes: new[] { "File", "Http", "S3" },
+        category: "File")
+    {
+    }
 
     /// <inheritdoc/>
     public override IContainerConfiguration CreateDefaultConfiguration()
@@ -86,6 +78,14 @@ public sealed class CsvDataContainerType : DataContainerTypeBase<CsvDataContaine
             "Requires consistent column structure across all rows"
         };
     }
+
+    /// <inheritdoc/>
+    public override Task<IFdwResult<IDataSchema>> DiscoverSchemaAsync(DataLocation location, int sampleSize = 1000) =>
+        Task.FromResult(FdwResult<IDataSchema>.Failure("Not implemented"));
+
+    /// <inheritdoc/>
+    public override IFdwResult<ContainerMetadata> GetMetadata(DataLocation location) =>
+        FdwResult<ContainerMetadata>.Failure("Not implemented");
 }
 
 /// <summary>
@@ -122,6 +122,41 @@ public sealed class CsvContainerConfiguration : IContainerConfiguration
     /// Gets or sets a value indicating whether to trim whitespace from field values.
     /// </summary>
     public bool TrimWhitespace { get; set; } = true;
+
+    /// <inheritdoc/>
+    public string ContainerType => "CSV";
+
+    /// <inheritdoc/>
+    public IReadOnlyDictionary<string, object> Settings =>
+        new Dictionary<string, object>(StringComparer.Ordinal)
+        {
+            { nameof(Delimiter), Delimiter },
+            { nameof(HasHeaderRow), HasHeaderRow },
+            { nameof(Encoding), Encoding },
+            { nameof(QuoteCharacter), QuoteCharacter },
+            { nameof(EscapeCharacter), EscapeCharacter },
+            { nameof(TrimWhitespace), TrimWhitespace }
+        };
+
+    /// <inheritdoc/>
+    public IFdwResult Validate()
+    {
+        if (Delimiter == QuoteCharacter)
+            return FdwResult.Failure("Delimiter and quote character cannot be the same");
+
+        if (string.IsNullOrEmpty(Encoding))
+            return FdwResult.Failure("Encoding cannot be null or empty");
+
+        return FdwResult.Success();
+    }
+
+    /// <inheritdoc/>
+    public T GetValue<T>(string key, T defaultValue = default!)
+    {
+        if (Settings.TryGetValue(key, out var value) && value is T typedValue)
+            return typedValue;
+        return defaultValue;
+    }
 }
 
 /// <summary>
@@ -133,38 +168,52 @@ internal sealed class CsvDataContainer : IDataContainer
     {
         Location = location ?? throw new ArgumentNullException(nameof(location));
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        Id = Guid.NewGuid().ToString();
+        Name = $"CSV Container ({location})";
+        Schema = null!; // TODO: Implement proper schema - should come from source generator
+        Metadata = new Dictionary<string, object>(StringComparer.Ordinal);
     }
 
+    public string Id { get; }
+    public string Name { get; }
+    public string ContainerType => "CSV";
+    public IDataSchema Schema { get; }
+    public IReadOnlyDictionary<string, object> Metadata { get; }
     public DataLocation Location { get; }
     public IContainerConfiguration Configuration { get; }
-    public string ContainerType => "CSV";
+
+    public Task<IFdwResult> ValidateReadAccessAsync(DataLocation location) =>
+        Task.FromResult<IFdwResult>(FdwResult.Success());
+
+    public Task<IFdwResult> ValidateWriteAccessAsync(DataLocation location) =>
+        Task.FromResult<IFdwResult>(FdwResult.Success());
+
+    public Task<IFdwResult<ContainerMetrics>> GetReadMetricsAsync(DataLocation location) =>
+        Task.FromResult(FdwResult<ContainerMetrics>.Failure("Not implemented"));
+
+    public Task<IFdwResult<IDataReader>> CreateReaderAsync(DataLocation location) =>
+        Task.FromResult(FdwResult<IDataReader>.Failure("Not implemented"));
+
+    public Task<IFdwResult<IDataWriter>> CreateWriterAsync(DataLocation location, ContainerWriteMode writeMode = ContainerWriteMode.Overwrite) =>
+        Task.FromResult(FdwResult<IDataWriter>.Failure("Not implemented"));
+
+    public Task<IFdwResult<IDataSchema>> DiscoverSchemaAsync(DataLocation location, int sampleSize = 1000) =>
+        Task.FromResult(FdwResult<IDataSchema>.Failure("Not implemented"));
 }
 
 /// <summary>
-/// Marker interface for container configurations.
+/// Placeholder enum for SchemaCompatibilityMode
 /// </summary>
-public interface IContainerConfiguration
-{
-    // Marker interface - specific implementations will add their properties
-}
-
-/// <summary>
-/// Marker interface for data containers.
-/// </summary>
-public interface IDataContainer
+public enum SchemaCompatibilityMode
 {
     /// <summary>
-    /// Gets the data location for this container.
+    /// Basic compatibility check
     /// </summary>
-    DataLocation Location { get; }
+    Basic,
 
     /// <summary>
-    /// Gets the configuration for this container.
+    /// Strict compatibility check
     /// </summary>
-    IContainerConfiguration Configuration { get; }
-
-    /// <summary>
-    /// Gets the container type identifier.
-    /// </summary>
-    string ContainerType { get; }
+    Strict
 }
+

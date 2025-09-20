@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
 
@@ -28,6 +29,15 @@ public interface IServiceFactoryProvider
     IFdwResult RegisterFactory(string typeName, IServiceFactory factory);
 
     /// <summary>
+    /// Registers a factory for a specific service type with the specified lifetime.
+    /// </summary>
+    /// <param name="typeName">The service type name to register the factory for.</param>
+    /// <param name="factory">The factory instance to register.</param>
+    /// <param name="lifetime">The service lifetime for DI container registration.</param>
+    /// <returns>A result indicating success or failure.</returns>
+    IFdwResult RegisterFactory(string typeName, IServiceFactory factory, IServiceLifetime lifetime);
+
+    /// <summary>
     /// Gets the service factory for the specified service type name.
     /// </summary>
     /// <param name="typeName">The service type name to get the factory for.</param>
@@ -47,7 +57,7 @@ public interface IServiceFactoryProvider
     /// <returns>A result containing the strongly-typed factory, or a failure if not found.</returns>
     IFdwResult<IServiceFactory<TService, TConfiguration>> GetFactory<TService, TConfiguration>(string typeName)
         where TService : class
-        where TConfiguration : class;
+        where TConfiguration : IFdwConfiguration;
 
     /// <summary>
     /// Checks whether a factory is registered for the specified service type name.
