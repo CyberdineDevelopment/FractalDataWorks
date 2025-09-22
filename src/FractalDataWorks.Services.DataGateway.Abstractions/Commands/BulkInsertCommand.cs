@@ -64,10 +64,10 @@ public sealed class BulkInsertCommand<TEntity> : DataCommandBase<int>
     /// <returns>A new BulkInsertCommand instance configured to ignore duplicates.</returns>
     public BulkInsertCommand<TEntity> IgnoreDuplicates()
     {
-        var newMetadata = new Dictionary<string, object>(Metadata, StringComparer.Ordinal)
-        {
-            [nameof(IgnoreDuplicates)] = true
-        };
+        var newMetadata = new Dictionary<string, object>(StringComparer.Ordinal);
+        foreach (var kvp in Metadata)
+            newMetadata.Add(kvp.Key, kvp.Value);
+        newMetadata[nameof(IgnoreDuplicates)] = true;
         
         return new BulkInsertCommand<TEntity>(
             ConnectionName ?? string.Empty, 

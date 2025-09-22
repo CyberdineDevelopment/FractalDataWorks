@@ -48,6 +48,6 @@ public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> :
     /// <returns>The factory type.</returns>
     public IFdwResult<Type> Factory() => FdwResult<Type>.Success(typeof(TFactory));
 
-    // TODO: Add container type and translator support when those abstractions are ready
+    // NOTE: Container type and translator support will be added when those abstractions are ready
 }
 

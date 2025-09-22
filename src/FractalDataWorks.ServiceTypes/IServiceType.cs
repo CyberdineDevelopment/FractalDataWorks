@@ -33,7 +33,6 @@ public interface IServiceType<TService, TConfiguration, TFactory> : IServiceType
     /// Creates a factory instance for this service type.
     /// Follows Railway-Oriented Programming - returns Result instead of throwing.
     /// </summary>
-    /// <param name="serviceProvider">The service provider for dependency resolution.</param>
     /// <returns>A result containing the factory instance or failure information.</returns>
     IFdwResult<Type> Factory();
 

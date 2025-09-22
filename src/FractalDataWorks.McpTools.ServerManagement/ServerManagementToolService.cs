@@ -12,6 +12,10 @@ public class ServerManagementToolService
     private readonly ILogger<ServerManagementToolService> _logger;
     private readonly List<IMcpTool> _tools;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ServerManagementToolService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
     public ServerManagementToolService(ILogger<ServerManagementToolService> logger)
     {
         _logger = logger;

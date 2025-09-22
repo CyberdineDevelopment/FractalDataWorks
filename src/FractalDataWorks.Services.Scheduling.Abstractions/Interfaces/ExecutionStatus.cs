@@ -31,6 +31,9 @@ public abstract class ExecutionStatus : EnumOptionBase<ExecutionStatus>, IExecut
 [EnumOption("Pending")]
 public sealed class PendingExecutionStatus : ExecutionStatus
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PendingExecutionStatus"/> class.
+    /// </summary>
     public PendingExecutionStatus() : base(0, "Pending") { }
 }
 
@@ -40,6 +43,9 @@ public sealed class PendingExecutionStatus : ExecutionStatus
 [EnumOption("Running")]
 public sealed class RunningExecutionStatus : ExecutionStatus
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RunningExecutionStatus"/> class.
+    /// </summary>
     public RunningExecutionStatus() : base(1, "Running") { }
 }
 
@@ -49,6 +55,9 @@ public sealed class RunningExecutionStatus : ExecutionStatus
 [EnumOption("Completed")]
 public sealed class CompletedExecutionStatus : ExecutionStatus
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CompletedExecutionStatus"/> class.
+    /// </summary>
     public CompletedExecutionStatus() : base(2, "Completed") { }
 }
 
@@ -58,6 +67,9 @@ public sealed class CompletedExecutionStatus : ExecutionStatus
 [EnumOption("Failed")]
 public sealed class FailedExecutionStatus : ExecutionStatus
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FailedExecutionStatus"/> class.
+    /// </summary>
     public FailedExecutionStatus() : base(3, "Failed") { }
 }
 
@@ -67,6 +79,9 @@ public sealed class FailedExecutionStatus : ExecutionStatus
 [EnumOption("Cancelled")]
 public sealed class CancelledExecutionStatus : ExecutionStatus
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CancelledExecutionStatus"/> class.
+    /// </summary>
     public CancelledExecutionStatus() : base(4, "Cancelled") { }
 }
 
@@ -76,6 +91,9 @@ public sealed class CancelledExecutionStatus : ExecutionStatus
 [EnumOption("TimedOut")]
 public sealed class TimedOutExecutionStatus : ExecutionStatus
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TimedOutExecutionStatus"/> class.
+    /// </summary>
     public TimedOutExecutionStatus() : base(5, "TimedOut") { }
 }
 

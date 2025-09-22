@@ -22,7 +22,7 @@ namespace FractalDataWorks.Services.Connections.MsSql.Mappers;
 /// type mapping between SQL Server types and .NET types, with proper null handling
 /// and conversion logic.
 /// </remarks>
-internal sealed class SqlServerResultMapper : IResultMapper
+internal sealed class SqlServerResultMapper
 {
     private const int DefaultMaxResultSize = 100000;
 
@@ -153,36 +153,6 @@ internal sealed class SqlServerResultMapper : IResultMapper
         }
     }
 
-    /// <inheritdoc/>
-    public MapperCapabilities GetCapabilities()
-    {
-        return new MapperCapabilities(
-            supportedSourceTypes: SupportedResultTypes,
-            supportedTargetTypes: new[]
-            {
-                "System.Object",
-                "System.String",
-                "System.Int32",
-                "System.Int64",
-                "System.Double",
-                "System.Decimal",
-                "System.DateTime",
-                "System.Boolean",
-                "System.Guid",
-                "Custom Types"
-            },
-            supportsNullValues: true,
-            supportsTypeConversion: true,
-            maxResultSize: DefaultMaxResultSize,
-            limitations: new[]
-            {
-                "Target types must have parameterless constructors",
-                "Complex nested objects require custom mapping logic",
-                "Large result sets may impact memory usage",
-                "Binary data requires special handling"
-            }
-        );
-    }
 
     private static async Task<IEnumerable<TResult>> MapFromDataReaderAsync<TResult>(
         SqlDataReader reader,

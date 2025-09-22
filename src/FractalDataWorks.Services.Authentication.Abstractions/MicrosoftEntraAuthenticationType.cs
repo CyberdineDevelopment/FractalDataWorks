@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FractalDataWorks.Services.Authentication.Abstractions.Security;
 
 namespace FractalDataWorks.Services.Authentication.Abstractions;
 

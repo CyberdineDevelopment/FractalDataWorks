@@ -50,13 +50,13 @@ public sealed class AzureEntraAuthenticationService :
             
             // For now, return a placeholder failure
             return FdwResult<IAuthenticationContext>.Failure(
-                AuthenticationMessages.AuthenticationFailed("Azure Entra authentication not yet implemented"));
+                "Azure Entra authentication not yet implemented");
         }
         catch (Exception ex)
         {
             Logging.AzureEntraAuthenticationServiceLog.AuthenticationFailed(Logger, ex);
             return FdwResult<IAuthenticationContext>.Failure(
-                AuthenticationMessages.AuthenticationFailed(ex.Message));
+                ex.Message);
         }
     }
 
@@ -66,7 +66,7 @@ public sealed class AzureEntraAuthenticationService :
         if (string.IsNullOrWhiteSpace(token))
         {
             return FdwResult<bool>.Failure(
-                AuthenticationMessages.InvalidToken("Token cannot be null or empty"));
+                "Token cannot be null or empty");
         }
 
         try
@@ -81,7 +81,7 @@ public sealed class AzureEntraAuthenticationService :
         {
             Logging.AzureEntraAuthenticationServiceLog.TokenValidationFailed(Logger, ex);
             return FdwResult<bool>.Failure(
-                AuthenticationMessages.InvalidToken(ex.Message));
+                ex.Message);
         }
     }
 
@@ -91,7 +91,7 @@ public sealed class AzureEntraAuthenticationService :
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
             return FdwResult<string>.Failure(
-                AuthenticationMessages.RefreshTokenInvalid());
+                "Refresh token is invalid");
         }
 
         try
@@ -100,13 +100,13 @@ public sealed class AzureEntraAuthenticationService :
             
             // For now, return a placeholder failure
             return FdwResult<string>.Failure(
-                AuthenticationMessages.RefreshTokenInvalid());
+                "Refresh token is invalid");
         }
         catch (Exception ex)
         {
             Logging.AzureEntraAuthenticationServiceLog.TokenRefreshFailed(Logger, ex);
             return FdwResult<string>.Failure(
-                AuthenticationMessages.RefreshTokenInvalid());
+                "Refresh token is invalid");
         }
     }
 
@@ -116,7 +116,7 @@ public sealed class AzureEntraAuthenticationService :
         if (string.IsNullOrWhiteSpace(token))
         {
             return FdwResult.Failure(
-                AuthenticationMessages.InvalidToken("Token cannot be null or empty"));
+                "Token cannot be null or empty");
         }
 
         try
@@ -132,7 +132,7 @@ public sealed class AzureEntraAuthenticationService :
         {
             Logging.AzureEntraAuthenticationServiceLog.TokenRevocationFailed(Logger, ex);
             return FdwResult.Failure(
-                AuthenticationMessages.AuthenticationFailed($"Failed to revoke token: {ex.Message}"));
+                $"Failed to revoke token: {ex.Message}");
         }
     }
 

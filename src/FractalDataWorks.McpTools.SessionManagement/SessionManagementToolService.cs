@@ -12,6 +12,10 @@ public class SessionManagementToolService
     private readonly ILogger<SessionManagementToolService> _logger;
     private readonly List<IMcpTool> _tools;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SessionManagementToolService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
     public SessionManagementToolService(ILogger<SessionManagementToolService> logger)
     {
         _logger = logger;

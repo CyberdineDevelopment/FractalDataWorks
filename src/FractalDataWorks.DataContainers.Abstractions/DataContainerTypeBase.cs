@@ -13,6 +13,19 @@ namespace FractalDataWorks.DataContainers.Abstractions;
 /// </summary>
 public abstract class DataContainerType : TypeOptionBase<DataContainerType>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataContainerType"/> class.
+    /// </summary>
+    /// <param name="id">The unique identifier for this container type.</param>
+    /// <param name="name">The name of the container type.</param>
+    /// <param name="fileExtension">The file extension associated with this container type.</param>
+    /// <param name="mimeType">The MIME type for this container type.</param>
+    /// <param name="supportsRead">Whether this container type supports read operations.</param>
+    /// <param name="supportsWrite">Whether this container type supports write operations.</param>
+    /// <param name="supportsSchemaInference">Whether this container type supports schema inference.</param>
+    /// <param name="supportsStreaming">Whether this container type supports streaming operations.</param>
+    /// <param name="compatibleConnectionTypes">The connection types compatible with this container.</param>
+    /// <param name="category">The category for organizing container types.</param>
     protected DataContainerType(
         int id,
         string name,
@@ -173,6 +186,14 @@ public abstract class DataContainerTypeBase<T> : DataContainerType, IDataContain
 /// </summary>
 public sealed class ContainerMetadata
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ContainerMetadata"/> class.
+    /// </summary>
+    /// <param name="name">The name of the container.</param>
+    /// <param name="sizeBytes">The size of the container in bytes.</param>
+    /// <param name="createdDate">The creation date of the container.</param>
+    /// <param name="modifiedDate">The last modification date of the container.</param>
+    /// <param name="additionalMetadata">Additional metadata properties.</param>
     public ContainerMetadata(
         string name,
         long? sizeBytes = null,
@@ -187,10 +208,29 @@ public sealed class ContainerMetadata
         AdditionalMetadata = (IReadOnlyDictionary<string, object>)(additionalMetadata ?? new Dictionary<string, object>(StringComparer.Ordinal));
     }
 
+    /// <summary>
+    /// Gets the name of the container.
+    /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Gets the size of the container in bytes.
+    /// </summary>
     public long? SizeBytes { get; }
+
+    /// <summary>
+    /// Gets the creation date of the container.
+    /// </summary>
     public DateTime? CreatedDate { get; }
+
+    /// <summary>
+    /// Gets the last modification date of the container.
+    /// </summary>
     public DateTime? ModifiedDate { get; }
+
+    /// <summary>
+    /// Gets additional metadata associated with the container.
+    /// </summary>
     public IReadOnlyDictionary<string, object> AdditionalMetadata { get; }
 }
 

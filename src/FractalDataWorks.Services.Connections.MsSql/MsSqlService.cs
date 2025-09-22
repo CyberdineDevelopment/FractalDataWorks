@@ -15,6 +15,7 @@ using FractalDataWorks.Services.Connections.MsSql.Commands;
 using FractalDataWorks.Services.Connections.MsSql.Logging;
 using FractalDataWorks.Services.Connections.MsSql.Mappers;
 using FractalDataWorks.Services.Connections.MsSql.Translators;
+using FractalDataWorks.Services.DataGateway.Abstractions.Models;
 
 namespace FractalDataWorks.Services.Connections.MsSql;
 

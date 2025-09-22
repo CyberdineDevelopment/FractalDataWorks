@@ -21,7 +21,6 @@ namespace FractalDataWorks.ServiceTypes.SourceGenerators.Services.Builders;
 #pragma warning restore MA0026
 public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
 {
-    private CollectionGenerationMode _mode;
     private EnumTypeInfoModel? _definition;
     private IList<EnumValueInfoModel>? _values;
     private string? _returnType;
@@ -33,20 +32,8 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     /// </summary>
     public EnumCollectionBuilder()
     {
-        _mode = CollectionGenerationMode.StaticCollection;
     }
 
-    /// <inheritdoc/>
-    public IEnumCollectionBuilder Configure(CollectionGenerationMode mode)
-    {
-        if (!Enum.IsDefined(typeof(CollectionGenerationMode), mode))
-        {
-            throw new ArgumentException($"Invalid generation mode: {mode}", nameof(mode));
-        }
-
-        _mode = mode;
-        return this;
-    }
 
     /// <inheritdoc/>
     public IEnumCollectionBuilder WithDefinition(EnumTypeInfoModel definition)
@@ -111,14 +98,8 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         BuildClass();
         AddCommonElements();
         
-        return _mode switch
-        {
-            CollectionGenerationMode.StaticCollection => BuildDefaultCollection(),
-            CollectionGenerationMode.InstanceCollection => BuildInstanceCollection(),
-            CollectionGenerationMode.FactoryCollection => BuildFactoryCollection(),
-            CollectionGenerationMode.ServiceCollection => BuildServiceCollection(),
-            _ => throw new InvalidOperationException($"Unsupported generation mode: {_mode}")
-        };
+        // Always build standard static collection with all features
+        return BuildDefaultCollection();
     }
 
     /// <summary>
@@ -266,11 +247,11 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     /// </summary>
     private void ReconstructMembersFromBase()
     {
-        // Get the EnumCollectionBase<T> type
-        var enumCollectionBase = _compilation!.GetTypeByMetadataName("FractalDataWorks.ServiceTypes.TypeCollectionBase`1");
+        // Get the ServiceTypeCollectionBase<T> type
+        var enumCollectionBase = _compilation!.GetTypeByMetadataName("FractalDataWorks.ServiceTypes.ServiceTypeCollectionBase`5");
         if (enumCollectionBase == null)
         {
-            throw new InvalidOperationException("Cannot find EnumCollectionBase<T> in compilation. Ensure FractalDataWorks.ServiceTypes is referenced.");
+            throw new InvalidOperationException("Cannot find ServiceTypeCollectionBase<T> in compilation. Ensure FractalDataWorks.ServiceTypes is referenced.");
         }
         
         // Get the concrete collection type (e.g., ProcessStateCollectionBase)
@@ -1916,12 +1897,12 @@ return value != null;");
             // Extract summary from XML doc using manual string processing to avoid regex DoS
             var startTag = "<summary>";
             var endTag = "</summary>";
-            var startIndex = xmlDoc.IndexOf(startTag, StringComparison.Ordinal);
-            var endIndex = xmlDoc.IndexOf(endTag, StringComparison.Ordinal);
+            var startIndex = xmlDoc!.IndexOf(startTag, StringComparison.Ordinal);
+            var endIndex = xmlDoc!.IndexOf(endTag, StringComparison.Ordinal);
             
             if (startIndex >= 0 && endIndex > startIndex)
             {
-                var summaryContent = xmlDoc.Substring(startIndex + startTag.Length, endIndex - startIndex - startTag.Length).Trim();
+                var summaryContent = xmlDoc!.Substring(startIndex + startTag.Length, endIndex - startIndex - startTag.Length).Trim();
                 if (!string.IsNullOrEmpty(summaryContent))
                 {
                     methodBuilder.WithXmlDoc(summaryContent);
@@ -1957,12 +1938,12 @@ return value != null;");
             // Extract summary from XML doc using manual string processing to avoid regex DoS
             var startTag = "<summary>";
             var endTag = "</summary>";
-            var startIndex = xmlDoc.IndexOf(startTag, StringComparison.Ordinal);
-            var endIndex = xmlDoc.IndexOf(endTag, StringComparison.Ordinal);
+            var startIndex = xmlDoc!.IndexOf(startTag, StringComparison.Ordinal);
+            var endIndex = xmlDoc!.IndexOf(endTag, StringComparison.Ordinal);
             
             if (startIndex >= 0 && endIndex > startIndex)
             {
-                var summaryContent = xmlDoc.Substring(startIndex + startTag.Length, endIndex - startIndex - startTag.Length).Trim();
+                var summaryContent = xmlDoc!.Substring(startIndex + startTag.Length, endIndex - startIndex - startTag.Length).Trim();
                 if (!string.IsNullOrEmpty(summaryContent))
                 {
                     propertyBuilder.WithXmlDoc(summaryContent);
@@ -1971,7 +1952,7 @@ return value != null;");
         }
         
         // Delegate to base class
-        propertyBuilder.WithExpressionBody($"{_definition.CollectionName}.{property.Name}");
+        propertyBuilder.WithExpressionBody($"{_definition!.CollectionName}.{property.Name}");
         
         classBuilder.WithProperty(propertyBuilder);
     }
@@ -2002,12 +1983,12 @@ return value != null;");
             // Extract summary from XML doc using manual string processing to avoid regex DoS
             var startTag = "<summary>";
             var endTag = "</summary>";
-            var startIndex = xmlDoc.IndexOf(startTag, StringComparison.Ordinal);
-            var endIndex = xmlDoc.IndexOf(endTag, StringComparison.Ordinal);
+            var startIndex = xmlDoc!.IndexOf(startTag, StringComparison.Ordinal);
+            var endIndex = xmlDoc!.IndexOf(endTag, StringComparison.Ordinal);
             
             if (startIndex >= 0 && endIndex > startIndex)
             {
-                var summaryContent = xmlDoc.Substring(startIndex + startTag.Length, endIndex - startIndex - startTag.Length).Trim();
+                var summaryContent = xmlDoc!.Substring(startIndex + startTag.Length, endIndex - startIndex - startTag.Length).Trim();
                 if (!string.IsNullOrEmpty(summaryContent))
                 {
                     fieldBuilder.WithXmlDoc(summaryContent);

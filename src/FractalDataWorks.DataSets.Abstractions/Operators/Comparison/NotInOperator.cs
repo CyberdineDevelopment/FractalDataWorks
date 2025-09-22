@@ -5,6 +5,9 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// </summary>
 public sealed class NotInOperator : ComparisonOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NotInOperator"/> class.
+    /// </summary>
     public NotInOperator() : base(11, "NotIn", "Not in list of values operator") { }
 
     /// <inheritdoc/>

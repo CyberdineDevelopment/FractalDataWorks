@@ -3,16 +3,6 @@ using FractalDataWorks.Collections;
 namespace FractalDataWorks.DataSets.Abstractions.Operators;
 
 /// <summary>
-/// Interface for comparison operators.
-/// </summary>
-public interface IComparisonOperator : ITypeOption<ComparisonOperatorBase>
-{
-    string Description { get; }
-    string SqlOperator { get; }
-    bool IsSingleValue { get; }
-}
-
-/// <summary>
 /// Comparison operators for WHERE conditions in dataset queries.
 /// Provides extensible operators that can be translated to different backend implementations.
 /// </summary>

@@ -13,7 +13,7 @@ namespace FractalDataWorks.Services.Connections.MsSql.Commands;
 /// <summary>
 /// Command for discovering SQL Server connection schemas and metadata.
 /// </summary>
-public sealed class MsSqlFdwConnectionDiscoveryCommand : IFdwConnectionCommand, IFdwConnectionDiscoveryCommand
+public sealed class MsSqlFdwConnectionDiscoveryCommand : IConnectionCommand, IConnectionDiscoveryCommand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="MsSqlFdwConnectionDiscoveryCommand"/> class.

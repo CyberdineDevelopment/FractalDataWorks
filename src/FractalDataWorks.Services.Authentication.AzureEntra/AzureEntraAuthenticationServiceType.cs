@@ -1,6 +1,6 @@
 using System;
+using System.Collections.Generic;
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
 using FractalDataWorks.Services;
 using FractalDataWorks.Services.Authentication.Abstractions;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;
@@ -11,29 +11,44 @@ namespace FractalDataWorks.Services.Authentication.AzureEntra;
 /// <summary>
 /// Service type definition for Azure Entra (Azure Active Directory) authentication.
 /// </summary>
-[EnumOption("AzureEntra")]
-public sealed class AzureEntraAuthenticationServiceType : 
-    AuthenticationServiceType<AzureEntraAuthenticationServiceType, IAuthenticationService, IAuthenticationConfiguration, IAzureEntraAuthenticationServiceFactory>,
+public sealed class AzureEntraAuthenticationServiceType :
+    AuthenticationTypeBase<IAuthenticationService, IAuthenticationConfiguration, IAzureEntraAuthenticationServiceFactory>,
     IEnumOption<AzureEntraAuthenticationServiceType>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureEntraAuthenticationServiceType"/> class.
     /// </summary>
-    public AzureEntraAuthenticationServiceType() 
-        : base(
-            id: 1, 
-            name: "AzureEntra", 
-            description: "Azure Entra ID (Azure Active Directory) authentication service",
-            providerName: "Microsoft.Identity.Client",
-            supportedProtocols: ["OAuth2", "OpenIDConnect", "SAML2"],
-            supportedFlows: ["AuthorizationCode", "ClientCredentials", "DeviceCode", "Interactive", "Silent", "OnBehalfOf"
-            ],
-            supportedTokenTypes: ["AccessToken", "IdToken", "RefreshToken"],
-            priority: 90,
-            supportsMultiTenant: true,
-            supportsTokenCaching: true)
+    public AzureEntraAuthenticationServiceType()
+        : base(id: 1, name: "AzureEntra")
     {
     }
+
+    /// <inheritdoc/>
+    public override string ProviderName => "Microsoft.Identity.Client";
+
+    /// <inheritdoc/>
+    public override AuthenticationMethod Method => AuthenticationMethod.OAuth2;
+
+    /// <inheritdoc/>
+    public override IReadOnlyList<string> SupportedProtocols => ["OAuth2", "OpenIDConnect", "SAML2"];
+
+    /// <inheritdoc/>
+    public override IReadOnlyList<string> SupportedFlows => ["AuthorizationCode", "ClientCredentials", "DeviceCode", "Interactive", "Silent", "OnBehalfOf"];
+
+    /// <inheritdoc/>
+    public override IReadOnlyList<string> SupportedTokenTypes => ["AccessToken", "IdToken", "RefreshToken"];
+
+    /// <inheritdoc/>
+    public override bool SupportsMultiTenant => true;
+
+    /// <inheritdoc/>
+    public override bool SupportsTokenCaching => true;
+
+    /// <inheritdoc/>
+    public override bool SupportsTokenRefresh => true;
+
+    /// <inheritdoc/>
+    public override int Priority => 90;
 
     /// <inheritdoc/>
     public override Type GetFactoryImplementationType()

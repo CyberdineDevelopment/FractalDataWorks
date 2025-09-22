@@ -13,7 +13,7 @@ namespace FractalDataWorks.Services.Connections.MsSql.Commands;
 /// <summary>
 /// Command for creating new SQL Server connections.
 /// </summary>
-public sealed class MsSqlFdwConnectionCreateCommand : IFdwConnectionCommand, IFdwConnectionCreateCommand
+public sealed class MsSqlFdwConnectionCreateCommand : IConnectionCommand, IConnectionCreateCommand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="MsSqlFdwConnectionCreateCommand"/> class.
@@ -33,7 +33,7 @@ public sealed class MsSqlFdwConnectionCreateCommand : IFdwConnectionCommand, IFd
     public string ProviderType => nameof(MsSql);
 
     /// <inheritdoc/>
-    public IFdwConnectionConfiguration ConnectionConfiguration { get; }
+    public IConnectionConfiguration ConnectionConfiguration { get; }
 
 
     /// <summary>

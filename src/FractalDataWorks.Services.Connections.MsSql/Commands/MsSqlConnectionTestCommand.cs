@@ -14,7 +14,7 @@ namespace FractalDataWorks.Services.Connections.MsSql.Commands;
 /// <summary>
 /// Command for testing SQL Server connection availability.
 /// </summary>
-public sealed class MsSqlConnectionTestCommand : IFdwConnectionCommand
+public sealed class MsSqlConnectionTestCommand : IConnectionCommand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="MsSqlConnectionTestCommand"/> class.

@@ -7,6 +7,9 @@ namespace FractalDataWorks.McpTools.SessionManagement;
 /// </summary>
 public sealed class SessionManagementToolType : McpToolType
 {
+    /// <summary>
+    /// Gets the singleton instance of the <see cref="SessionManagementToolType"/>.
+    /// </summary>
     public static SessionManagementToolType Instance { get; } = new();
 
     private SessionManagementToolType()

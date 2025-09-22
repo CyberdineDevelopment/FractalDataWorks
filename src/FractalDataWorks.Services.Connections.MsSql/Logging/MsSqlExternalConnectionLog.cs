@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Logging;
 
 namespace FractalDataWorks.Services.Connections.MsSql.Logging;

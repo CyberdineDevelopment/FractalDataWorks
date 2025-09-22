@@ -6,6 +6,9 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// </summary>
 public sealed class AndOperator : LogicalOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AndOperator"/> class.
+    /// </summary>
     public AndOperator() : base(1, "And", "Logical AND - both conditions must be true", 2) { }
 
     /// <inheritdoc/>

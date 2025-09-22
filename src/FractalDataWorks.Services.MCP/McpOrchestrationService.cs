@@ -15,6 +15,10 @@ public class McpOrchestrationService
     // private readonly IEnumerable<IMcpToolService> _toolServices;
     private readonly Dictionary<string, IMcpTool> _toolRegistry;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="McpOrchestrationService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
     public McpOrchestrationService(
         // IEnumerable<IMcpToolService> toolServices,
         ILogger<McpOrchestrationService> logger)

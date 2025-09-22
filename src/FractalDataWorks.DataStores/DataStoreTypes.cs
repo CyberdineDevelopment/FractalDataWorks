@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.ServiceTypes;
@@ -51,23 +52,3 @@ public static partial class DataStoreTypes
     }
 }
 
-/// <summary>
-/// Configuration options for data store registration.
-/// </summary>
-public class DataStoreRegistrationOptions
-{
-    /// <summary>
-    /// Custom configurations for specific data store types.
-    /// </summary>
-    public Dictionary<string, Action<IServiceCollection, IDataStoreType>> CustomConfigurations { get; } = new();
-
-    /// <summary>
-    /// Configure a specific data store type.
-    /// </summary>
-    /// <param name="dataStoreTypeName">The name of the data store type (e.g., "SqlServer", "File").</param>
-    /// <param name="configure">Custom configuration action.</param>
-    public void Configure(string dataStoreTypeName, Action<IServiceCollection, IDataStoreType> configure)
-    {
-        CustomConfigurations[dataStoreTypeName] = configure;
-    }
-}

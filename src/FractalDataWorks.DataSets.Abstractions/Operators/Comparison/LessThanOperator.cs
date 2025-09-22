@@ -5,6 +5,9 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// </summary>
 public sealed class LessThanOperator : ComparisonOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LessThanOperator"/> class.
+    /// </summary>
     public LessThanOperator() : base(5, "LessThan", "Less than operator") { }
 
     /// <inheritdoc/>

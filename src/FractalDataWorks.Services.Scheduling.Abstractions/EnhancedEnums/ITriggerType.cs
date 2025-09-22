@@ -2,6 +2,9 @@ using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums;
 
+/// <summary>
+/// Interface defining the contract for trigger type enum options in the scheduling system.
+/// </summary>
 public interface ITriggerType
 {
     /// <summary>

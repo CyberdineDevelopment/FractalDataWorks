@@ -6,6 +6,9 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// </summary>
 public sealed class OrOperator : LogicalOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OrOperator"/> class.
+    /// </summary>
     public OrOperator() : base(2, "Or", "Logical OR - either condition can be true", 1) { }
 
     /// <inheritdoc/>

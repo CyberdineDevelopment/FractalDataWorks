@@ -7,6 +7,9 @@ namespace FractalDataWorks.Web.RestEndpoints.Configuration;
 /// </summary>
 public sealed class WebConfigurationValidator : AbstractValidator<WebConfiguration>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WebConfigurationValidator"/> class.
+    /// </summary>
     public WebConfigurationValidator()
     {
         // // Base URL validation

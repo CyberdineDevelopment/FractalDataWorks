@@ -12,6 +12,10 @@ public class TypeAnalysisToolService
     private readonly ILogger<TypeAnalysisToolService> _logger;
     private readonly List<IMcpTool> _tools;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TypeAnalysisToolService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
     public TypeAnalysisToolService(ILogger<TypeAnalysisToolService> logger)
     {
         _logger = logger;

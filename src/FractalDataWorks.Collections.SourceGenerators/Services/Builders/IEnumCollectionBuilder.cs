@@ -9,17 +9,10 @@ namespace FractalDataWorks.Collections.SourceGenerators.Services.Builders;
 /// Defines the contract for building enhanced enum collections using the Gang of Four Builder pattern.
 /// This interface provides a fluent API for configuring and constructing collection classes
 /// from enum type definitions and values during source generation.
+/// Maintains compatibility with existing implementations.
 /// </summary>
 public interface IEnumCollectionBuilder
 {
-    /// <summary>
-    /// Configures the generation mode for the enum collection.
-    /// This determines the architectural pattern and instantiation strategy for the generated class.
-    /// </summary>
-    /// <param name="mode">The collection generation mode to use.</param>
-    /// <returns>The current builder instance for method chaining.</returns>
-    /// <exception cref="ArgumentException">Thrown when an invalid generation mode is specified.</exception>
-    IEnumCollectionBuilder Configure(CollectionGenerationMode mode);
 
     /// <summary>
     /// Sets the enum type definition that contains metadata about the enum type to be processed.

@@ -16,17 +16,17 @@ public class ProcessMetrics : IProcessMetrics
     /// <summary>
     /// Peak memory usage during execution.
     /// </summary>
-    public long PeakMemoryBytes { get; init; } = 0;
+    public long PeakMemoryBytes { get; init; }
 
     /// <summary>
     /// Number of items processed (if applicable).
     /// </summary>
-    public long ItemsProcessed { get; init; } = 0;
+    public long ItemsProcessed { get; init; }
 
     /// <summary>
     /// Number of retry attempts made.
     /// </summary>
-    public int RetryAttempts { get; init; } = 0;
+    public int RetryAttempts { get; init; }
 
     /// <summary>
     /// Custom performance counters.

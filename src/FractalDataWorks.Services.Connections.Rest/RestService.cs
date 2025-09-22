@@ -275,7 +275,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
     {
         // Use a named client specific to this REST service instance
         var clientName = $"RestService_{_configuration.BaseUrl?.GetHashCode(StringComparison.Ordinal) ?? 0}";
-        var httpClient = CreateHttpClient(clientName);
+        var httpClient = _httpClient;
         
         // Configure the client
         if (!string.IsNullOrEmpty(_configuration.BaseUrl))

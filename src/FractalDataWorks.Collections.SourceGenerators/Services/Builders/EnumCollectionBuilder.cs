@@ -21,7 +21,6 @@ namespace FractalDataWorks.Collections.SourceGenerators.Services.Builders;
 #pragma warning restore MA0026
 public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
 {
-    private CollectionGenerationMode _mode;
     private EnumTypeInfoModel? _definition;
     private IList<EnumValueInfoModel>? _values;
     private string? _returnType;
@@ -33,20 +32,8 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     /// </summary>
     public EnumCollectionBuilder()
     {
-        _mode = CollectionGenerationMode.StaticCollection;
     }
 
-    /// <inheritdoc/>
-    public IEnumCollectionBuilder Configure(CollectionGenerationMode mode)
-    {
-        if (!Enum.IsDefined(typeof(CollectionGenerationMode), mode))
-        {
-            throw new ArgumentException($"Invalid generation mode: {mode}", nameof(mode));
-        }
-
-        _mode = mode;
-        return this;
-    }
 
     /// <inheritdoc/>
     public IEnumCollectionBuilder WithDefinition(EnumTypeInfoModel definition)
@@ -111,14 +98,8 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         BuildClass();
         AddCommonElements();
         
-        return _mode switch
-        {
-            CollectionGenerationMode.StaticCollection => BuildDefaultCollection(),
-            CollectionGenerationMode.InstanceCollection => BuildInstanceCollection(),
-            CollectionGenerationMode.FactoryCollection => BuildFactoryCollection(),
-            CollectionGenerationMode.ServiceCollection => BuildServiceCollection(),
-            _ => throw new InvalidOperationException($"Unsupported generation mode: {_mode}")
-        };
+        // Always build standard static collection with all features
+        return BuildDefaultCollection();
     }
 
     /// <summary>
@@ -1936,7 +1917,7 @@ return value != null;");
     private void CopyStaticMembersFromBaseClass(ClassBuilder classBuilder, string generatedClassName)
     {
         // Get the original base class (e.g., DataStoreTypesBase)
-        if (_definition?.Namespace == null || _definition?.CollectionName == null) return;
+        if (_definition?.Namespace == null || _definition?.CollectionName == null || _compilation == null) return;
         var baseClassType = _compilation.GetTypeByMetadataName(_definition.Namespace + "." + _definition.CollectionName);
         if (baseClassType == null) return;
 

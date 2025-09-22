@@ -35,6 +35,9 @@ public abstract class CacheStrategy : EnumOptionBase<CacheStrategy>, ICacheStrat
 [EnumOption("None")]
 public sealed class NoneCacheStrategy : CacheStrategy
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NoneCacheStrategy"/> class.
+    /// </summary>
     public NoneCacheStrategy() : base(1, "None") { }
 }
 
@@ -48,6 +51,9 @@ public sealed class NoneCacheStrategy : CacheStrategy
 [EnumOption("Memory")]
 public sealed class MemoryCacheStrategy : CacheStrategy
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MemoryCacheStrategy"/> class.
+    /// </summary>
     public MemoryCacheStrategy() : base(2, "Memory") { }
 }
 
@@ -61,6 +67,9 @@ public sealed class MemoryCacheStrategy : CacheStrategy
 [EnumOption("Persistent")]
 public sealed class PersistentCacheStrategy : CacheStrategy
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PersistentCacheStrategy"/> class.
+    /// </summary>
     public PersistentCacheStrategy() : base(3, "Persistent") { }
 }
 
@@ -74,6 +83,9 @@ public sealed class PersistentCacheStrategy : CacheStrategy
 [EnumOption("Hybrid")]
 public sealed class HybridCacheStrategy : CacheStrategy
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HybridCacheStrategy"/> class.
+    /// </summary>
     public HybridCacheStrategy() : base(4, "Hybrid") { }
 }
 

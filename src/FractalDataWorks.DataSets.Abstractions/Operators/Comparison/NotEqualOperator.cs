@@ -5,6 +5,9 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// </summary>
 public sealed class NotEqualOperator : ComparisonOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NotEqualOperator"/> class.
+    /// </summary>
     public NotEqualOperator() : base(2, "NotEqual", "Not equal to operator") { }
 
     /// <inheritdoc/>

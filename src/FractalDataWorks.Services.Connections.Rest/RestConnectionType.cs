@@ -20,10 +20,25 @@ public sealed class RestConnectionType :
     {
     }
 
+    /// <summary>
+    /// Gets the configuration section name for REST connections.
+    /// </summary>
     public override string SectionName => "Connections:REST";
+
+    /// <summary>
+    /// Gets the display name for REST connections.
+    /// </summary>
     public override string DisplayName => "REST API Connection";
+
+    /// <summary>
+    /// Gets the description of REST connections.
+    /// </summary>
     public override string Description => "REST API connection for HTTP-based REST endpoints";
 
+    /// <summary>
+    /// Registers REST connection services with the dependency injection container.
+    /// </summary>
+    /// <param name="services">The service collection to register services with.</param>
     public override void Register(IServiceCollection services)
     {
         services.AddHttpClient<RestService>();
@@ -31,10 +46,14 @@ public sealed class RestConnectionType :
         services.AddSingleton<RestConnectionFactory>();
     }
 
+    /// <summary>
+    /// Configures the REST connection type with the provided configuration.
+    /// </summary>
+    /// <param name="configuration">The configuration to use for REST connections.</param>
     public override void Configure(IConfiguration configuration)
     {
         var restConfig = configuration.GetSection(SectionName).Get<RestConnectionConfiguration>();
-        
+
         // Validate configuration or store it for later use
         if (restConfig != null)
         {

@@ -13,6 +13,7 @@ using FractalDataWorks.Services.DataGateway.Abstractions.Models;
 using FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
 using FractalDataWorks.Services.DataGateway.Logging;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using Serilog.Context;
 
 namespace FractalDataWorks.Services.DataGateway.Services;

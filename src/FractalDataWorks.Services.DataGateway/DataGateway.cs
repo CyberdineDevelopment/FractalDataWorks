@@ -26,7 +26,7 @@ namespace FractalDataWorks.Services.DataGateway;
 public sealed class DataGateway : IDataGateway
 {
     private readonly IServiceFactoryProvider _factoryProvider;
-    private readonly IDataSetProvider _dataSetProvider;
+    private readonly IDataSetCollection _dataSetProvider;
     private readonly IConfiguration _configuration;
     private readonly ILogger<DataGateway> _logger;
 
@@ -39,7 +39,7 @@ public sealed class DataGateway : IDataGateway
     /// <param name="logger">The logger for this service.</param>
     public DataGateway(
         IServiceFactoryProvider factoryProvider,
-        IDataSetProvider dataSetProvider,
+        IDataSetCollection dataSetProvider,
         IConfiguration configuration,
         ILogger<DataGateway> logger)
     {
@@ -150,7 +150,7 @@ public sealed class DataGateway : IDataGateway
             _logger.LogDebug("Getting available connections for dataset: {DataSetName}", dataSetName);
 
             // Step 13: Find connections that support the specified dataset
-            var dataSet = _dataSetProvider.GetDataSet(dataSetName);
+            var dataSet = _dataSetProvider.GetByName(dataSetName);
             if (dataSet == null)
             {
                 return FdwResult<string[]>.Failure($"Dataset '{dataSetName}' not found");
@@ -367,7 +367,7 @@ public sealed class DataGateway : IDataGateway
         _logger.LogDebug("Creating DataQueryCommand for dataset: {DataSetName}", query.DataSetName);
         
         // Get the dataset from the provider
-        var dataSet = _dataSetProvider.GetDataSet(query.DataSetName);
+        var dataSet = _dataSetProvider.GetByName(query.DataSetName);
         if (dataSet == null)
         {
             throw new InvalidOperationException($"Dataset '{query.DataSetName}' not found");

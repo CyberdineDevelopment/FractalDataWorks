@@ -5,6 +5,9 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// </summary>
 public sealed class EndsWithOperator : ComparisonOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EndsWithOperator"/> class.
+    /// </summary>
     public EndsWithOperator() : base(9, "EndsWith", "Ends with text operator") { }
 
     /// <inheritdoc/>

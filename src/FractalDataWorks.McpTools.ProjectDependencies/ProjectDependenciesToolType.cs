@@ -7,6 +7,9 @@ namespace FractalDataWorks.McpTools.ProjectDependencies;
 /// </summary>
 public sealed class ProjectDependenciesToolType : McpToolType
 {
+    /// <summary>
+    /// Gets the singleton instance of the <see cref="ProjectDependenciesToolType"/>.
+    /// </summary>
     public static ProjectDependenciesToolType Instance { get; } = new();
 
     private ProjectDependenciesToolType()

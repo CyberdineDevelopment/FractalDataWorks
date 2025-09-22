@@ -7,6 +7,9 @@ namespace FractalDataWorks.McpTools.CodeAnalysis;
 /// </summary>
 public sealed class CodeAnalysisToolType : McpToolType
 {
+    /// <summary>
+    /// Gets the singleton instance of the <see cref="CodeAnalysisToolType"/>.
+    /// </summary>
     public static CodeAnalysisToolType Instance { get; } = new();
 
     private CodeAnalysisToolType()

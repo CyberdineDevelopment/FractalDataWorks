@@ -12,6 +12,10 @@ public class RefactoringToolService
     private readonly ILogger<RefactoringToolService> _logger;
     private readonly List<IMcpTool> _tools;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RefactoringToolService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
     public RefactoringToolService(ILogger<RefactoringToolService> logger)
     {
         _logger = logger;

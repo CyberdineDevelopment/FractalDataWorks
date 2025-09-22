@@ -7,6 +7,9 @@ namespace FractalDataWorks.McpTools.ServerManagement;
 /// </summary>
 public sealed class ServerManagementToolType : McpToolType
 {
+    /// <summary>
+    /// Gets the singleton instance of the <see cref="ServerManagementToolType"/>.
+    /// </summary>
     public static ServerManagementToolType Instance { get; } = new();
 
     private ServerManagementToolType()

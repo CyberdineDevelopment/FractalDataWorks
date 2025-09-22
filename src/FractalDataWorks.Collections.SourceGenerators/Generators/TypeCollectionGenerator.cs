@@ -110,7 +110,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             var baseTypeName = ExtractBaseTypeNameFromAttribute(attribute);
             if (string.IsNullOrEmpty(baseTypeName)) continue;
 
-            var baseType = compilation.GetTypeByMetadataName(baseTypeName);
+            var baseType = compilation.GetTypeByMetadataName(baseTypeName!);
             if (baseType == null) continue;
                 
             var optionTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
@@ -610,10 +610,14 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
 
             // Use the enhanced EnumCollectionBuilder with FrozenDictionary support
             var builder = new EnumCollectionBuilder();
-            var director = new EnumCollectionDirector(builder);
 
             // Generate the collection with all enhanced features
-            var generatedCode = director.ConstructSimplifiedCollection(def, values.ToList(), effectiveReturnType, compilation);
+            var generatedCode = builder
+                .WithDefinition(def)
+                .WithValues(values.ToList())
+                .WithReturnType(effectiveReturnType)
+                .WithCompilation(compilation)
+                .Build();
 
             var fileName = $"{def.CollectionName}.g.cs";
             

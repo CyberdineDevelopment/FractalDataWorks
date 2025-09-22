@@ -1,16 +1,15 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
-using FractalDataWorks.Services;
-using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.ServiceTypes;
+using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.Services.DataGateway.Abstractions;
 
 namespace FractalDataWorks.Services.DataGateway;
 
 /// <summary>
-/// Concrete collection of data provider service types available in the system.
+/// ServiceType collection for all data gateway types.
+/// The source generator will discover all DataGatewayTypeBase implementations.
 /// </summary>
-[StaticEnumCollection(CollectionName = "DataGatewayServiceTypes", DefaultGenericReturnType = typeof(IServiceType))]
-public sealed class DataGatewayServiceTypesCollection : 
-    DataGatewayServiceTypes<SqlDataGatewayServiceType, IServiceFactory<IDataService, IDataGatewaysConfiguration>>
+[ServiceTypeCollection("IDataGatewayServiceType", "DataGatewayServiceTypes")]
+public partial abstract class DataGatewayServiceTypesCollection
 {
     // DO NOT IMPLEMENT BY HAND!
     // Source generator automatically creates static DataGatewayServiceTypes class with:

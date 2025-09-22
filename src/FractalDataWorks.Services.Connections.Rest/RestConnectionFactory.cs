@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Connections.Abstractions;
+using FractalDataWorks.Configuration.Abstractions;
 
 namespace FractalDataWorks.Services.Connections.Rest;
 

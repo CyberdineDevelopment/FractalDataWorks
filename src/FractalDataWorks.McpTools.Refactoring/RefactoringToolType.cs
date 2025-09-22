@@ -7,6 +7,9 @@ namespace FractalDataWorks.McpTools.Refactoring;
 /// </summary>
 public sealed class RefactoringToolType : McpToolType
 {
+    /// <summary>
+    /// Gets the singleton instance of the <see cref="RefactoringToolType"/>.
+    /// </summary>
     public static RefactoringToolType Instance { get; } = new();
 
     private RefactoringToolType()

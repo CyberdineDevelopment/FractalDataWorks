@@ -213,7 +213,7 @@ public interface IAuthenticationContext
     /// assurance level of the authentication mechanism.
     /// </para>
     /// </remarks>
-    AuthenticationMethodBase AuthenticationMethod { get; }
+    SecurityMethodBase AuthenticationMethod { get; }
 
     /// <summary>
     /// Gets the expiration time for the authentication context or associated token.

@@ -350,7 +350,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                 }
 
                 // Try to cast to the expected interface
-                if (connectionObj is not IExternalDataConnection<IFdwConnectionConfiguration> connection)
+                if (connectionObj is not IExternalDataConnection<IConnectionConfiguration> connection)
                 {
                     var errorMessage = string.Format(
                         CultureInfo.InvariantCulture,
@@ -465,7 +465,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                 }
 
                 // Try to cast to the expected interface
-                if (connectionObj is not IExternalDataConnection<IFdwConnectionConfiguration> connection)
+                if (connectionObj is not IExternalDataConnection<IConnectionConfiguration> connection)
                 {
                     var errorMessage = string.Format(
                         CultureInfo.InvariantCulture,
@@ -541,7 +541,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                         try
                         {
                             // Try to cast to the expected interface
-                            if (connection is IExternalDataConnection<IFdwConnectionConfiguration> dataConnection)
+                            if (connection is IExternalDataConnection<IConnectionConfiguration> dataConnection)
                             {
                                 var connectionInfo = await dataConnection.GetConnectionInfo(cancellationToken).ConfigureAwait(false);
                                 if (connectionInfo.IsSuccess)
@@ -646,7 +646,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                 }
 
                 // Try to cast to the expected interface
-                if (connectionObj is not IExternalDataConnection<IFdwConnectionConfiguration> connection)
+                if (connectionObj is not IExternalDataConnection<IConnectionConfiguration> connection)
                 {
                     LogConnectionInterfaceNotImplemented(_logger,
                         connectionName,
@@ -691,7 +691,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
     /// <returns>True if the connection was registered successfully; false if a connection with the same name already exists.</returns>
     /// <exception cref="ArgumentException">Thrown when name is null or empty.</exception>
     public bool RegisterConnection<TConfiguration>(string name, IExternalDataConnection<TConfiguration> connection)
-        where TConfiguration : IFdwConnectionConfiguration
+        where TConfiguration : IConnectionConfiguration
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Connection name cannot be null or empty.", nameof(name));

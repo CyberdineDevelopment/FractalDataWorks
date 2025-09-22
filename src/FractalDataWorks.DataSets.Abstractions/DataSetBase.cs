@@ -15,7 +15,7 @@ public abstract class DataSetBase<TDataSet> : TypeOptionBase<TDataSet>, IDataSet
     where TDataSet : DataSetBase<TDataSet>, IDataSet<TDataSet>
 {
     private readonly IReadOnlyCollection<IDataField> _fields;
-    private readonly IReadOnlyCollection<string> _keyFields;
+    private readonly System.Collections.ObjectModel.ReadOnlyCollection<string> _keyFields;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataSetBase{TDataSet}"/> class.

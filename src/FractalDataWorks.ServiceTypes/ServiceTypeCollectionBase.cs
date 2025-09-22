@@ -30,7 +30,7 @@ public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConf
     /// Gets an empty/default service type instance for fallback scenarios.
     /// This property will be populated by the source generator.
     /// </summary>
-    public virtual TBase Empty => throw new NotImplementedException("Empty property must be implemented by source generator");
+    public virtual TBase Empty => throw new NotSupportedException("Empty property must be implemented by source generator");
 
     /// <summary>
     /// Gets a service type by its unique identifier.

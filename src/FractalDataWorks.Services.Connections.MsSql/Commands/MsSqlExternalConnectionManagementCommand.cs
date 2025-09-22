@@ -13,7 +13,7 @@ namespace FractalDataWorks.Services.Connections.MsSql.Commands;
 /// <summary>
 /// Command for managing SQL Server connections (list, remove, etc.).
 /// </summary>
-public sealed class MsSqlFdwConnectionManagementCommand : IFdwConnectionCommand, IFdwConnectionManagementCommand
+public sealed class MsSqlFdwConnectionManagementCommand : IConnectionCommand, IConnectionManagementCommand
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="MsSqlFdwConnectionManagementCommand"/> class.

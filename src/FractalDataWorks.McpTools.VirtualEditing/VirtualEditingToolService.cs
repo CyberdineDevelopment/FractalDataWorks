@@ -12,6 +12,10 @@ public class VirtualEditingToolService
     private readonly ILogger<VirtualEditingToolService> _logger;
     private readonly List<IMcpTool> _tools;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VirtualEditingToolService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
     public VirtualEditingToolService(ILogger<VirtualEditingToolService> logger)
     {
         _logger = logger;

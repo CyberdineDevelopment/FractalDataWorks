@@ -102,7 +102,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
             {
                 // Update the internal paths collection
                 _paths.Clear();
-                foreach (var path in discoveredPaths.Value)
+                foreach (var path in discoveredPaths.Value!)
                 {
                     _paths[path.Name] = path;
                 }

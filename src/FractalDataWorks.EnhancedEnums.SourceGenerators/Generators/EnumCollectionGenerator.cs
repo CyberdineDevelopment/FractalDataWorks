@@ -485,13 +485,15 @@ public class EnumCollectionGenerator : IIncrementalGenerator
         var baseTypeSymbol = GetBaseTypeSymbol(def, compilation);
         var effectiveReturnType = DetermineEffectiveReturnType(def, baseTypeSymbol, compilation);
 
-        // Use the new builder pattern with director
+        // Use the enhanced EnumCollectionBuilder directly
         var builder = new EnumCollectionBuilder();
-        var director = new EnumCollectionDirector(builder);
-        
-        var generatedCode = def.InheritsFromCollectionBase 
-            ? director.ConstructSimplifiedCollection(def, values.ToList(), effectiveReturnType!, compilation)
-            : director.ConstructFullCollection(def, values.ToList(), effectiveReturnType!, compilation);
+
+        var generatedCode = builder
+            .WithDefinition(def)
+            .WithValues(values.ToList())
+            .WithReturnType(effectiveReturnType!)
+            .WithCompilation(compilation)
+            .Build();
         
         var fileName = $"{def.CollectionName}.g.cs";
         context.AddSource(fileName, generatedCode);

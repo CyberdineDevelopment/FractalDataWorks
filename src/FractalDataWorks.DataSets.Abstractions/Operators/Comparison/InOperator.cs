@@ -5,6 +5,9 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// </summary>
 public sealed class InOperator : ComparisonOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InOperator"/> class.
+    /// </summary>
     public InOperator() : base(10, "In", "In list of values operator") { }
 
     /// <inheritdoc/>

@@ -5,6 +5,9 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// </summary>
 public sealed class ContainsOperator : ComparisonOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ContainsOperator"/> class.
+    /// </summary>
     public ContainsOperator() : base(7, "Contains", "Contains text operator") { }
 
     /// <inheritdoc/>

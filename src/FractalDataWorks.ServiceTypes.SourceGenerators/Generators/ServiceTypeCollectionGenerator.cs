@@ -9,26 +9,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using FractalDataWorks.ServiceTypes.SourceGenerators.Models;
 using FractalDataWorks.ServiceTypes.SourceGenerators.Services.Builders;
 using FractalDataWorks.SourceGenerators.Models;
+using FractalDataWorks.SourceGenerators.Services;
 
 namespace FractalDataWorks.ServiceTypes.SourceGenerators.Generators;
-
-/// <summary>
-/// Data structure for efficient ServiceType collection information without ISymbol references.
-/// </summary>
-internal readonly record struct ServiceTypeCollectionInfo(
-    string CollectionClassName,
-    string CollectionNamespace,
-    string BaseTypeName,
-    string GeneratedCollectionName);
-
-/// <summary>
-/// Result structure for batched service type discovery.
-/// </summary>
-internal readonly record struct ServiceTypeCollectionResult(
-    EnumTypeInfoModel Definition,
-    Compilation Compilation,
-    IList<INamedTypeSymbol> ServiceTypes,
-    INamedTypeSymbol CollectionClass);
 
 /// <summary>
 /// ServiceTypeCollectionGenerator - Specialized generator for ServiceType collections.
@@ -150,7 +133,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
                         ? attributeData.ConstructorArguments[1].Value?.ToString()
                         : DeriveName(type.Name);
                     
-                    results.Add((type, baseTypeName, collectionName ?? DeriveName(type.Name)));
+                    results.Add((type, baseTypeName!, collectionName ?? DeriveName(type.Name)));
                 }
             }
         }
@@ -558,10 +541,14 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
 
             // Use the enhanced EnumCollectionBuilder with FrozenDictionary support
             var builder = new EnumCollectionBuilder();
-            var director = new EnumCollectionDirector(builder);
 
             // Generate the collection with all enhanced features
-            var generatedCode = director.ConstructFullCollection(def, values.ToList(), effectiveReturnType, compilation);
+            var generatedCode = builder
+                .WithDefinition(def)
+                .WithValues(values.ToList())
+                .WithReturnType(effectiveReturnType)
+                .WithCompilation(compilation)
+                .Build();
 
             var fileName = $"{def.CollectionName}.g.cs";
             context.AddSource(fileName, generatedCode);
@@ -583,32 +570,5 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
 
             context.ReportDiagnostic(diagnostic);
         }
-    }
-}
-
-/// <summary>
-/// Helper class to carry ServiceType info with compilation context.
-/// </summary>
-internal sealed class ServiceTypeInfoWithCompilation
-{
-    public EnumTypeInfoModel ServiceTypeInfoModel { get; }
-    public Compilation Compilation { get; }
-    public List<INamedTypeSymbol> DiscoveredServiceTypes { get; }
-    public INamedTypeSymbol CollectionClass { get; }
-
-    public ServiceTypeInfoWithCompilation(EnumTypeInfoModel serviceTypeInfoModel, Compilation compilation, List<INamedTypeSymbol> discoveredServiceTypes, INamedTypeSymbol collectionClass)
-    {
-        ServiceTypeInfoModel = serviceTypeInfoModel;
-        Compilation = compilation;
-        DiscoveredServiceTypes = discoveredServiceTypes;
-        CollectionClass = collectionClass;
-    }
-
-    public void Deconstruct(out EnumTypeInfoModel serviceTypeInfoModel, out Compilation compilation, out List<INamedTypeSymbol> discoveredServiceTypes, out INamedTypeSymbol collectionClass)
-    {
-        serviceTypeInfoModel = ServiceTypeInfoModel;
-        compilation = Compilation;
-        discoveredServiceTypes = DiscoveredServiceTypes;
-        collectionClass = CollectionClass;
     }
 }

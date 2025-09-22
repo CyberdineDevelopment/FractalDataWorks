@@ -3,16 +3,6 @@ using FractalDataWorks.Collections;
 namespace FractalDataWorks.DataSets.Abstractions.Operators;
 
 /// <summary>
-/// Interface for sort directions.
-/// </summary>
-public interface ISortDirection : ITypeOption<SortDirectionBase>
-{
-    string Description { get; }
-    string SqlKeyword { get; }
-    bool IsAscending { get; }
-}
-
-/// <summary>
 /// Sort directions for ORDER BY clauses in dataset queries.
 /// Provides extensible sort directions that can be translated to different backend implementations.
 /// </summary>

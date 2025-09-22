@@ -5,6 +5,7 @@ using FractalDataWorks.EnhancedEnums;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.SecretManagement.Abstractions;
 using FractalDataWorks.Services.SecretManagement;
+using FractalDataWorks.Services.SecretManagement.Commands;
 
 namespace FractalDataWorks.Services.SecretManagement.AzureKeyVault.EnhancedEnums;
 

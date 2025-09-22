@@ -5,6 +5,9 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// </summary>
 public sealed class StartsWithOperator : ComparisonOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StartsWithOperator"/> class.
+    /// </summary>
     public StartsWithOperator() : base(8, "StartsWith", "Starts with text operator") { }
 
     /// <inheritdoc/>

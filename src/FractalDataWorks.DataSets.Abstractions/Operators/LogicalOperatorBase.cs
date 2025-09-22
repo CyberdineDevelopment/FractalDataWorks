@@ -3,16 +3,6 @@ using FractalDataWorks.Collections;
 namespace FractalDataWorks.DataSets.Abstractions.Operators;
 
 /// <summary>
-/// Interface for logical operators.
-/// </summary>
-public interface ILogicalOperator : ITypeOption<LogicalOperatorBase>
-{
-    string Description { get; }
-    string SqlOperator { get; }
-    int Precedence { get; }
-}
-
-/// <summary>
 /// Logical operators for combining WHERE conditions in dataset queries.
 /// Provides extensible operators that can be translated to different backend implementations.
 /// </summary>

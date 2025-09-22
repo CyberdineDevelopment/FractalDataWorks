@@ -362,14 +362,14 @@ public class StaticEnumCollectionGenerator : IIncrementalGenerator
         {
             // Always use method reconstruction since InheritsFromCollectionBase is always true
             var builder = new EnumCollectionBuilder();
-            var director = new EnumCollectionDirector(builder);
-            
-            // Use ConstructSimplifiedCollection since InheritsFromCollectionBase is true
-            var generatedCode = director.ConstructSimplifiedCollection(
-                enumTypeInfo, 
-                enumTypeInfo.ConcreteTypes.Cast<EnumValueInfoModel>().ToList(), 
-                enumTypeInfo.DefaultGenericReturnType ?? enumTypeInfo.FullTypeName, 
-                compilation);
+
+            // Generate the collection with all enhanced features
+            var generatedCode = builder
+                .WithDefinition(enumTypeInfo)
+                .WithValues(enumTypeInfo.ConcreteTypes.Cast<EnumValueInfoModel>().ToList())
+                .WithReturnType(enumTypeInfo.DefaultGenericReturnType ?? enumTypeInfo.FullTypeName)
+                .WithCompilation(compilation)
+                .Build();
 
             if (!string.IsNullOrWhiteSpace(generatedCode))
             {
