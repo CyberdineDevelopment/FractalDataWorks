@@ -1239,16 +1239,17 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         var baseTypeName = _definition!.ClassName;
         var emptyClassName = $"Empty{baseTypeName.Replace("Base", "")}";
         
-        // Add _all FrozenDictionary<int,TBase> field
+        // Add _all FrozenDictionary<int, TBase> field - primary storage with ID-based lookup and alternate key support
         var allField = new FieldBuilder()
             .WithName("_all")
             .WithType($"FrozenDictionary<int, {_returnType}>")
             .WithAccessModifier("private")
             .AsStatic()
             .AsReadOnly()
-            .WithXmlDoc("Static collection of all type options indexed by Id.");
-        
+            .WithXmlDoc("Static collection of all type options with ID-based primary key and alternate key lookup support.");
+
         _classBuilder!.WithField(allField);
+
         
         // Add _empty field using the Empty class
         var emptyField = new FieldBuilder()
@@ -1262,17 +1263,20 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         
         _classBuilder!.WithField(emptyField);
         
-        // Add All() method
+        // Add All() method - returns FrozenDictionary values as readonly collection
         var allMethod = new MethodBuilder()
             .WithName("All")
-            .WithReturnType($"IReadOnlyList<{_returnType}>")
+            .WithReturnType($"IReadOnlyCollection<{_returnType}>")
             .WithAccessModifier("public")
             .AsStatic()
             .WithXmlDoc("Gets all type options in the collection.")
-            .WithReturnDoc("A read-only list containing all type options.")
-            .WithExpressionBody("_all.Values.ToList()");
-        
+            .WithReturnDoc("A read-only collection containing all type options.")
+            .WithExpressionBody("_all.Values");
+
         _classBuilder!.WithMethod(allMethod);
+
+        // Add dynamic lookup methods based on [TypeLookup] attributes
+        AddDynamicLookupMethods();
         
         // Add Empty() method
         var emptyMethod = new MethodBuilder()
@@ -1286,85 +1290,80 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         
         _classBuilder!.WithMethod(emptyMethod);
         
-        // Add Name(string name) method
-        var nameMethod = new MethodBuilder()
-            .WithName("Name")
-            .WithReturnType(_returnType!)
-            .WithAccessModifier("public")
-            .AsStatic()
-            .WithParameter("string", "name")
-            .WithXmlDoc("Gets a type option by its name.")
-            .WithParamDoc("name", "The name of the type option to find.")
-            .WithReturnDoc("The type option with the specified name, or empty instance if not found.")
-            .WithBody(@"if (string.IsNullOrWhiteSpace(name)) return _empty;
-            return _all.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase)) ?? _empty;");
+        // Add dynamic lookup methods based on [TypeLookup] attributes
+        AddDynamicLookupMethods();
         
-        _classBuilder!.WithMethod(nameMethod);
-        
-        // Add Id(int id) method  
-        var idMethod = new MethodBuilder()
-            .WithName("Id")
-            .WithReturnType(_returnType!)
-            .WithAccessModifier("public")
-            .AsStatic()
-            .WithParameter("int", "id")
-            .WithXmlDoc("Gets a type option by its ID.")
-            .WithParamDoc("id", "The ID of the type option to find.")
-            .WithReturnDoc("The type option with the specified ID, or empty instance if not found.")
-            .WithExpressionBody("_all.TryGetValue(id, out var result) ? result : _empty");
-        
-        _classBuilder!.WithMethod(idMethod);
-        
-        // First, generate static readonly fields to store the Ids for each type
+        // Generate static properties for each discovered type using ID lookup
         foreach (var value in _values!.Where(v => v.Include))
         {
-            var idFieldBuilder = new FieldBuilder()
-                .WithName($"_{value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture)}Id")
-                .WithType("int")
-                .WithAccessModifier("private")
-                .AsStatic()
-                .AsReadOnly();
-            
-            _classBuilder!.WithField(idFieldBuilder);
-        }
-        
-        // Generate static properties for each discovered type that pull from dictionary
-        foreach (var value in _values!.Where(v => v.Include))
-        {            
-            // Generate static property for this type that pulls from dictionary via Id lookup
+            string expressionBody;
+            string xmlDoc;
+
+            if (value.IsAbstract || value.IsStatic)
+            {
+                // Abstract or static type - return empty instance
+                expressionBody = "_empty";
+                xmlDoc = $"Gets the {value.Name} type option. Returns empty instance since type is {(value.IsAbstract ? "abstract" : "static")}.";
+            }
+            else
+            {
+                // Concrete type - extract ID from constructor parameters and lookup in dictionary
+                var idValue = "0"; // Default fallback
+                if (value.Constructors.Count > 0)
+                {
+                    var paramConstructor = value.Constructors.FirstOrDefault(c => c.Parameters.Count > 0);
+                    if (paramConstructor?.Parameters.Count > 0)
+                    {
+                        // First parameter should be the ID passed to base constructor
+                        idValue = paramConstructor.Parameters[0].DefaultValue ?? "0";
+                    }
+                }
+
+                expressionBody = $"_all.TryGetValue({idValue}, out var result) ? result : _empty";
+                xmlDoc = $"Gets the {value.Name} type option from the collection using ID lookup.";
+            }
+
             var typeProperty = new PropertyBuilder()
                 .WithName(value.Name)
                 .WithType(_returnType!)
                 .WithAccessModifier("public")
                 .AsStatic()
-                .WithXmlDoc($"Gets the {value.Name} type option from the collection.")
-                .WithExpressionBody($"_all.TryGetValue(_{value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture)}Id, out var result) ? result : _empty");
-            
+                .WithXmlDoc(xmlDoc)
+                .WithExpressionBody(expressionBody);
+
             _classBuilder!.WithProperty(typeProperty);
         }
         
-        // Add static constructor to initialize the FrozenDictionary directly
+        // Add static constructor to initialize the FrozenDictionary with ID-based primary key
         var constructorBody = new StringBuilder();
-        
+
         constructorBody.AppendLine("        var dictionary = new Dictionary<int, " + _returnType + ">();");
         constructorBody.AppendLine();
-        
-        // Create instances and add to dictionary directly
+
+        // Create instances and add to dictionary using ID as key (only for concrete types)
         foreach (var value in _values.Where(v => v.Include))
         {
-            var initializer = GenerateValueInitializer(value);
-            constructorBody.AppendLine($"        var {value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture)} = {initializer};");
-            constructorBody.AppendLine($"        _{value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture)}Id = {value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture)}.Id;");
-            constructorBody.AppendLine($"        dictionary.Add({value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture)}.Id, {value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture)});");
-            constructorBody.AppendLine();
+            if (!value.IsAbstract && !value.IsStatic)
+            {
+                // Concrete type - create instance and add to dictionary
+                var initializer = GenerateValueInitializer(value);
+                var varName = value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture);
+                constructorBody.AppendLine($"        var {varName} = {initializer};");
+                constructorBody.AppendLine($"        dictionary.Add({varName}.Id, {varName});");
+                constructorBody.AppendLine();
+            }
+            else
+            {
+                // Abstract or static type - include in collection but don't instantiate
+                constructorBody.AppendLine($"        // {value.Name} is {(value.IsAbstract ? "abstract" : "static")} - included in collection but not instantiated");
+            }
         }
-        
+
+        // Initialize primary FrozenDictionary with ID-based key and alternate key lookup support
         constructorBody.AppendLine("        _all = dictionary.ToFrozenDictionary();");
-        
-        // Use the generated class name (without "Base") for the constructor
-        var generatedClassName = _definition!.InheritsFromCollectionBase && _definition.CollectionName.EndsWith("Base", StringComparison.Ordinal) 
-            ? _definition.CollectionName.Substring(0, _definition.CollectionName.Length - 4)
-            : _definition.CollectionName;
+
+        // Use the collection name directly for the constructor
+        var generatedClassName = _definition!.CollectionName;
             
         var constructor = new ConstructorBuilder()
             .WithClassName(generatedClassName)
@@ -2083,5 +2082,79 @@ return value != null;");
             Accessibility.ProtectedAndInternal => "private protected",
             _ => "public"
         };
+    }
+
+    /// <summary>
+    /// Adds dynamic lookup cache fields for all properties marked with [TypeLookup] attributes.
+    /// </summary>
+    private void AddDynamicLookupFields()
+    {
+        if (_definition?.LookupProperties == null) return;
+
+        foreach (var lookup in _definition.LookupProperties)
+        {
+            var fieldName = $"_by{lookup.PropertyName}";
+            var fieldType = $"FrozenDictionary<{lookup.PropertyType}, {_returnType}>";
+
+            var field = new FieldBuilder()
+                .WithName(fieldName)
+                .WithType(fieldType)
+                .WithAccessModifier("private")
+                .AsStatic()
+                .AsReadOnly()
+                .WithXmlDoc($"Static lookup cache for {lookup.PropertyName}-based access.");
+
+            _classBuilder!.WithField(field);
+        }
+    }
+
+    /// <summary>
+    /// Adds dynamic lookup methods for all properties marked with [TypeLookup] attributes.
+    /// Uses clean method names like Id(int id) instead of GetById(int id).
+    /// Uses FrozenDictionary.GetAlternateLookup for efficient alternate key lookups.
+    /// </summary>
+    private void AddDynamicLookupMethods()
+    {
+        if (_definition?.LookupProperties == null) return;
+
+        foreach (var lookup in _definition.LookupProperties)
+        {
+            var methodName = lookup.PropertyName; // Clean name: Id, Name, Category
+            var parameterName = lookup.PropertyName.ToLower(System.Globalization.CultureInfo.InvariantCulture); // id, name, category
+
+            string methodBody;
+            if (lookup.PropertyType == "int" && lookup.PropertyName == "Id")
+            {
+                // For ID lookups, use the primary key directly
+                methodBody = $"_all.TryGetValue({parameterName}, out var result) ? result : _empty";
+            }
+            else
+            {
+                // For alternate key lookups, use GetAlternateLookup<T>()
+                methodBody = $@"var alternateLookup = _all.GetAlternateLookup<{lookup.PropertyType}>();
+        return alternateLookup.TryGetValue({parameterName}, out var result) ? result : _empty";
+            }
+
+            var method = new MethodBuilder()
+                .WithName(methodName)
+                .WithReturnType(_returnType!)
+                .WithAccessModifier("public")
+                .AsStatic()
+                .WithParameter(lookup.PropertyType, parameterName)
+                .WithXmlDoc($"Gets a type option by its {lookup.PropertyName} using {(lookup.PropertyName == "Id" ? "primary key lookup" : "alternate key lookup")}.")
+                .WithParamDoc(parameterName, $"The {lookup.PropertyName} value to search for.")
+                .WithReturnDoc($"The type option with the specified {lookup.PropertyName}, or empty instance if not found.");
+
+            if (lookup.PropertyType == "int" && lookup.PropertyName == "Id")
+            {
+                method.WithExpressionBody(methodBody);
+            }
+            else
+            {
+                method.WithBody(methodBody);
+            }
+
+            _classBuilder!.WithMethod(method);
+        }
     }
 }

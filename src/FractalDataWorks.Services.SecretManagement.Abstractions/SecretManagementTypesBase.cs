@@ -8,14 +8,8 @@ namespace FractalDataWorks.Services.SecretManagement.Abstractions;
 /// This partial class will be extended by the source generator to include
 /// all discovered secret management types with high-performance lookup capabilities.
 /// </summary>
-[ServiceTypeCollection("SecretManagementTypeBase", "SecretManagementTypes")]
-public partial class SecretManagementTypesBase : 
-    SecretManagementTypeCollectionBase<
-        SecretManagementTypeBase<ISecretService, ISecretManagementConfiguration, ISecretServiceFactory<ISecretService, ISecretManagementConfiguration>>,
-        SecretManagementTypeBase<ISecretService, ISecretManagementConfiguration, ISecretServiceFactory<ISecretService, ISecretManagementConfiguration>>,
-        ISecretService,
-        ISecretManagementConfiguration,
-        ISecretServiceFactory<ISecretService, ISecretManagementConfiguration>>
+[ServiceTypeCollection(typeof(SecretManagementTypeBase<,,>), typeof(ISecretManagementType), typeof(SecretManagementTypesBase))]
+public partial class SecretManagementTypesBase
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SecretManagementTypesBase"/> class.

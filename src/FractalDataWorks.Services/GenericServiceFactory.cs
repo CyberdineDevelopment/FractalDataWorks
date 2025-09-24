@@ -17,7 +17,7 @@ namespace FractalDataWorks.Services;
 /// </summary>
 /// <typeparam name="TService">The service type to create.</typeparam>
 /// <typeparam name="TConfiguration">The configuration type for the service.</typeparam>
-public class GenericServiceFactory<TService, TConfiguration> : ServiceFactoryBase<TService, TConfiguration>
+public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TService, TConfiguration>
     where TService : class, IFdwService
     where TConfiguration : class, IFdwConfiguration
 {

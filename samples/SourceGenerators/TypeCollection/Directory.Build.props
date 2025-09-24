@@ -6,11 +6,14 @@
     <!-- Sample-specific settings -->
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <!-- Override parent multi-targeting for samples -->
+    <TargetFrameworks></TargetFrameworks>
   </PropertyGroup>
   
-  <!-- Remove IsExternalInit package since samples don't need it -->
+  <!-- Remove packages that samples don't need -->
   <ItemGroup>
     <PackageReference Remove="IsExternalInit" />
+    <PackageReference Remove="PolySharp" />
   </ItemGroup>
   
 </Project>

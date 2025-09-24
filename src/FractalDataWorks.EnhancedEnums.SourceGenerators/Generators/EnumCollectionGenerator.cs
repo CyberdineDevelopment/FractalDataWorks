@@ -120,7 +120,7 @@ public class EnumCollectionGenerator : IIncrementalGenerator
                 var enumDefinition = BuildEnumDefinitionFromCollection(collectionClass, baseType, optionTypes.ToList(), compilation);
                 if (enumDefinition != null)
                 {
-                    results.Add(new EnumTypeInfoWithCompilation(enumDefinition, compilation, optionTypes.ToList(), collectionClass));
+                    results.Add(new EnumTypeInfoWithCompilation(enumDefinition, compilation, optionTypes.ToImmutableArray()));
                 }
             }
         }
@@ -422,10 +422,10 @@ public class EnumCollectionGenerator : IIncrementalGenerator
     }
 
     private static void Execute(
-        SourceProductionContext context, 
-        EnumTypeInfoModel def, 
+        SourceProductionContext context,
+        EnumTypeInfoModel def,
         Compilation compilation,
-        List<INamedTypeSymbol> discoveredOptionTypes)
+        ImmutableArray<INamedTypeSymbol> discoveredOptionTypes)
     {
         if (def == null)
             throw new ArgumentNullException(nameof(def));

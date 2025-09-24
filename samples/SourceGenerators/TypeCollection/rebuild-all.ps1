@@ -7,20 +7,20 @@ Write-Host "========================================" -ForegroundColor Green
 $rootDir = Join-Path $PSScriptRoot "..\..\..\"
 $rootLocalPackages = Join-Path $rootDir "localpackages"
 
-# First, run the root pack-local.ps1 to build framework packages
+# First, run the root localpack.ps1 to build framework packages
 Write-Host ""
 Write-Host "Step 1: Building framework packages..." -ForegroundColor Cyan
-$packLocalScript = Join-Path $rootDir "pack-local.ps1"
+$packLocalScript = Join-Path $rootDir "scripts\localpack.ps1"
 
 if (Test-Path $packLocalScript) {
-    Write-Host "Running root pack-local.ps1 script..." -ForegroundColor Yellow
+    Write-Host "Running root localpack.ps1 script..." -ForegroundColor Yellow
     & $packLocalScript -SkipPrompt
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Framework package build failed!" -ForegroundColor Red
         exit 1
     }
 } else {
-    Write-Host "Warning: pack-local.ps1 not found at $packLocalScript" -ForegroundColor Yellow
+    Write-Host "Warning: localpack.ps1 not found at $packLocalScript" -ForegroundColor Yellow
     Write-Host "Please ensure framework packages are built first." -ForegroundColor Yellow
 }
 
@@ -62,8 +62,26 @@ Write-Host ""
 Write-Host "Step 4: Building TestApp..." -ForegroundColor Cyan
 
 # Clear NuGet cache for our packages to ensure latest versions are used
-Write-Host "  Clearing NuGet cache for DataStore packages..." -ForegroundColor Yellow
-dotnet nuget locals all --clear | Out-Null
+Write-Host "  Clearing NuGet cache for FractalDataWorks and DataStore packages..." -ForegroundColor Yellow
+
+# Clean all projects in this sample first
+Get-ChildItem -Path $PSScriptRoot -Name "*.csproj" -Recurse | ForEach-Object {
+    $projectPath = Join-Path $PSScriptRoot $_
+    dotnet clean $projectPath --verbosity quiet
+}
+
+# Clear specific package caches
+@("FractalDataWorks*", "DataStores*", "DataStoreTypes*") | ForEach-Object {
+    $packagePattern = $_
+    $nugetGlobalPackages = dotnet nuget locals global-packages --list | ForEach-Object { $_.Split(' ', 2)[1] }
+    if (Test-Path $nugetGlobalPackages) {
+        Get-ChildItem -Path $nugetGlobalPackages -Directory -Name $packagePattern -ErrorAction SilentlyContinue | ForEach-Object {
+            $packageDir = Join-Path $nugetGlobalPackages $_
+            Write-Host "    Removing cached package: $_" -ForegroundColor DarkYellow
+            Remove-Item -Path $packageDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
 
 # Restore and build TestApp
 Write-Host "  Restoring TestApp dependencies..." -ForegroundColor Yellow

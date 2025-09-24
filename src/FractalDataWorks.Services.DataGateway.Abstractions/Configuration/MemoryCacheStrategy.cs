@@ -1,0 +1,20 @@
+using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.EnhancedEnums.Attributes;
+
+namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
+
+/// <summary>
+/// Cache schema information in memory for the application lifetime.
+/// </summary>
+/// <remarks>
+/// Fast access to cached information but lost on application restart.
+/// Good balance of performance and freshness for most scenarios.
+/// </remarks>
+[EnumOption("Memory")]
+public sealed class MemoryCacheStrategy : CacheStrategy
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MemoryCacheStrategy"/> class.
+    /// </summary>
+    public MemoryCacheStrategy() : base(2, "Memory") { }
+}

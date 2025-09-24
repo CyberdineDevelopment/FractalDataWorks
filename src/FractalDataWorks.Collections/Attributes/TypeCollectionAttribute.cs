@@ -3,30 +3,39 @@ using System;
 namespace FractalDataWorks.Collections.Attributes;
 
 /// <summary>
-/// Marks a class as a type collection base that should have a collection generated.
-/// The source generator will create a static collection class for all types that inherit from this base.
+/// Marks a class as a type collection for source generation.
+/// Applied to classes to enable efficient discovery and generation of high-performance collections.
 /// </summary>
+/// <param name="baseType">The base type to collect (e.g., typeof(MyBaseType)).</param>
+/// <param name="defaultReturnType">The default return type for generated methods (e.g., typeof(IMyInterface)).</param>
+/// <param name="collectionType">The partial class type being generated (e.g., typeof(MyTypes)).</param>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public sealed class TypeCollectionAttribute : Attribute
+public sealed class TypeCollectionAttribute(Type baseType, Type defaultReturnType, Type collectionType) : Attribute
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="TypeCollectionAttribute"/> class.
+    /// Gets the base type to collect.
     /// </summary>
-    public TypeCollectionAttribute()
-    {
-    }
+    public Type BaseType { get; } = baseType ?? throw new ArgumentNullException(nameof(baseType));
 
     /// <summary>
-    /// Gets or sets the name of the generated collection class.
-    /// If null or empty, uses the base class name with "s" suffix.
+    /// Gets the default return type for generated methods.
     /// </summary>
-    public string? CollectionName { get; set; }
+    public Type DefaultReturnType { get; } = defaultReturnType ?? throw new ArgumentNullException(nameof(defaultReturnType));
 
     /// <summary>
-    /// Gets or sets the default generic return type for generated methods.
-    /// If null, uses the base type.
+    /// Gets the partial class type being generated.
     /// </summary>
-    public Type? DefaultGenericReturnType { get; set; }
+    public Type CollectionType { get; } = collectionType ?? throw new ArgumentNullException(nameof(collectionType));
+
+    /// <summary>
+    /// Gets the fully qualified name of the base type (for generator compatibility).
+    /// </summary>
+    public string BaseTypeName => BaseType.FullName ?? BaseType.Name;
+
+    /// <summary>
+    /// Gets the collection name (for generator compatibility).
+    /// </summary>
+    public string CollectionName => CollectionType.Name;
 
     /// <summary>
     /// Gets or sets a value indicating whether singleton instances should be used instead of factory methods.

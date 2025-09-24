@@ -9,10 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DataStores.Abstractions" Version="1.1.0" />
-    <PackageReference Include="DataStoreTypes.Database" Version="1.1.0" />
-    <PackageReference Include="DataStoreTypes.File" Version="1.1.0" />
-    <PackageReference Include="DataStoreTypes.Web" Version="1.1.0" />
+    <ProjectReference Include="..\DataStores.Abstractions\DataStores.Abstractions.csproj" />
+    <ProjectReference Include="..\DataStoreTypes.Database\DataStoreTypes.Database.csproj" />
+    <ProjectReference Include="..\DataStoreTypes.File\DataStoreTypes.File.csproj" />
+    <ProjectReference Include="..\DataStoreTypes.Web\DataStoreTypes.Web.csproj" />
   </ItemGroup>
 
 

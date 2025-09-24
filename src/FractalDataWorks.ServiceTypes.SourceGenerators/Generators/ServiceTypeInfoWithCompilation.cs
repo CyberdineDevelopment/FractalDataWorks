@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using FractalDataWorks.ServiceTypes.SourceGenerators.Models;
 
@@ -11,10 +12,10 @@ internal sealed class ServiceTypeInfoWithCompilation
 {
     public EnumTypeInfoModel ServiceTypeInfoModel { get; }
     public Compilation Compilation { get; }
-    public List<INamedTypeSymbol> DiscoveredServiceTypes { get; }
+    public ImmutableArray<INamedTypeSymbol> DiscoveredServiceTypes { get; }
     public INamedTypeSymbol CollectionClass { get; }
 
-    public ServiceTypeInfoWithCompilation(EnumTypeInfoModel serviceTypeInfoModel, Compilation compilation, List<INamedTypeSymbol> discoveredServiceTypes, INamedTypeSymbol collectionClass)
+    public ServiceTypeInfoWithCompilation(EnumTypeInfoModel serviceTypeInfoModel, Compilation compilation, ImmutableArray<INamedTypeSymbol> discoveredServiceTypes, INamedTypeSymbol collectionClass)
     {
         ServiceTypeInfoModel = serviceTypeInfoModel;
         Compilation = compilation;
@@ -22,7 +23,7 @@ internal sealed class ServiceTypeInfoWithCompilation
         CollectionClass = collectionClass;
     }
 
-    public void Deconstruct(out EnumTypeInfoModel serviceTypeInfoModel, out Compilation compilation, out List<INamedTypeSymbol> discoveredServiceTypes, out INamedTypeSymbol collectionClass)
+    public void Deconstruct(out EnumTypeInfoModel serviceTypeInfoModel, out Compilation compilation, out ImmutableArray<INamedTypeSymbol> discoveredServiceTypes, out INamedTypeSymbol collectionClass)
     {
         serviceTypeInfoModel = ServiceTypeInfoModel;
         compilation = Compilation;

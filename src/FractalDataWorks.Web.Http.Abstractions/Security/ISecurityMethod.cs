@@ -1,5 +1,4 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Security;
 

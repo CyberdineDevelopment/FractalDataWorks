@@ -12,7 +12,7 @@ namespace FractalDataWorks.DataStores;
 /// ServiceType collection for all data store types.
 /// The source generator will discover all DataStoreTypeBase implementations.
 /// </summary>
-[ServiceTypeCollection("IDataStoreType", "DataStoreTypes")]
+[ServiceTypeCollection(typeof(DataStoreTypeBase<,,>), typeof(IDataStoreType), typeof(DataStoreTypes))]
 public static partial class DataStoreTypes
 {
     /// <summary>
@@ -22,7 +22,7 @@ public static partial class DataStoreTypes
     public static void Register(IServiceCollection services)
     {
         // Register each discovered data store type
-        foreach (var dataStoreType in All)
+        foreach (var dataStoreType in All())
         {
             dataStoreType.Register(services);
         }
@@ -39,7 +39,7 @@ public static partial class DataStoreTypes
         configure(options);
 
         // Register each discovered data store type with custom options
-        foreach (var dataStoreType in All)
+        foreach (var dataStoreType in All())
         {
             dataStoreType.Register(services);
 

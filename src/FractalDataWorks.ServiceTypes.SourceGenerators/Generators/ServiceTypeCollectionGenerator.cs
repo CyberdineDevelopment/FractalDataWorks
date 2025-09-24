@@ -60,34 +60,47 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
     }
 
     /// <summary>
-    /// Optimized discovery that searches for ServiceTypeCollectionAttribute-annotated classes first,
-    /// then performs targeted service type discovery instead of expensive global scanning.
+    /// PHASE 1-6: Complete discovery and model building (ULTRA-OPTIMIZED)
+    /// Discovers all collection definitions using ServiceTypeOption-first discovery for maximum performance.
     /// </summary>
     private static ImmutableArray<ServiceTypeInfoWithCompilation> DiscoverServiceTypeCollectionsOptimized(Compilation compilation)
     {
         var results = new List<ServiceTypeInfoWithCompilation>();
 
-        // STEP 1: Find classes with ServiceTypeCollectionAttribute - O(n) where n = classes in current compilation only
-        var attributedCollections = FindAttributedCollectionClasses(compilation);
+        // STEP 1: ULTRA-OPTIMIZED ServiceTypeOption Discovery First
+        // O(types_with_servicetypeoption) instead of O(collections × assemblies × all_types)
+        var serviceOptionsByBaseType = FindAndGroupAllServiceTypeOptions(compilation);
 
-        // STEP 2: For each attributed collection, perform targeted service type discovery
-        foreach (var (collectionClass, baseTypeName, collectionName) in attributedCollections)
+        // STEP 2: OPTIMIZED Collection Class Discovery using ServiceTypeCollectionAttribute
+        // O(k) attribute filtering for collection classes
+        var attributedCollectionClasses = FindAttributedCollectionClasses(compilation);
+
+        // STEP 3-6: For each attributed collection class, lookup pre-discovered service type options
+        foreach (var (collectionClass, attribute) in attributedCollectionClasses)
         {
-            var baseType = GetBaseTypeFromName(baseTypeName, compilation);
+            // STEP 3: Base Type Resolution from Attribute
+            var baseTypeName = ExtractBaseTypeNameFromAttribute(attribute);
+            if (string.IsNullOrEmpty(baseTypeName)) continue;
+
+            var baseType = compilation.GetTypeByMetadataName(baseTypeName!);
             if (baseType == null) continue;
 
-            // STEP 3: Targeted service type discovery with limited scope
-            var serviceTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            DiscoverServiceTypesTargeted(baseType, compilation, serviceTypes);
+            // STEP 4: ULTRA-FAST Option Type Lookup (O(1) dictionary lookup)
+            // No more scanning - just lookup pre-discovered options by base type
+            var serviceTypesList = serviceOptionsByBaseType.TryGetValue(baseType, out var foundTypes) ? foundTypes : new List<INamedTypeSymbol>();
+            var serviceTypes = serviceTypesList.ToImmutableArray();
 
-            // STEP 4: Build definition and add to results
-            var definition = BuildServiceTypeCollectionDefinition(
-                collectionClass, baseType, serviceTypes.ToList(), compilation);
-            
-            if (definition != null)
+            // STEP 5: Model Building and Validation
+            // Create ServiceTypeInfoModel with discovered types (always generate for Empty() support)
+            if (serviceTypes.Length > 0 || true)
             {
-                results.Add(new ServiceTypeInfoWithCompilation(
-                    definition, compilation, serviceTypes.ToList(), collectionClass));
+                // STEP 6: Definition Construction with Attribute Data
+                var typeDefinition = BuildServiceTypeCollectionDefinitionFromAttributedCollection(collectionClass, baseType, serviceTypesList, compilation, attribute);
+                if (typeDefinition != null)
+                {
+                    // STEP 7: Final Assembly
+                    results.Add(new ServiceTypeInfoWithCompilation(typeDefinition, compilation, serviceTypes, collectionClass));
+                }
             }
         }
 
@@ -95,18 +108,150 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
     }
 
     /// <summary>
-    /// Finds classes decorated with ServiceTypeCollectionAttribute - much faster than inheritance scanning.
+    /// STEP 1.1: ULTRA-OPTIMIZED ServiceTypeOption Discovery and Grouping
+    /// Single pass through all assemblies to find [ServiceTypeOption] attributes and group by base type.
+    /// O(types_with_servicetypeoption) instead of O(collections × assemblies × all_types).
     /// </summary>
-    private static List<(INamedTypeSymbol CollectionClass, string BaseTypeName, string CollectionName)> FindAttributedCollectionClasses(Compilation compilation)
+    private static Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> FindAndGroupAllServiceTypeOptions(Compilation compilation)
     {
-        var results = new List<(INamedTypeSymbol, string, string)>();
+        var serviceOptionsByBaseType = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+        var serviceTypeOptionAttributeType = compilation.GetTypeByMetadataName(typeof(FractalDataWorks.ServiceTypes.Attributes.ServiceTypeOptionAttribute).FullName!);
+
+        if (serviceTypeOptionAttributeType == null) return serviceOptionsByBaseType;
+
+        // Single pass: scan all assemblies for [ServiceTypeOption] attributes
+        var allServiceOptionsWithTypes = new List<INamedTypeSymbol>();
+
+        // Scan current compilation
+        ScanNamespaceForServiceTypeOptions(compilation.GlobalNamespace, serviceTypeOptionAttributeType, allServiceOptionsWithTypes);
+
+        // Scan all referenced assemblies
+        foreach (var reference in compilation.References)
+        {
+            if (compilation.GetAssemblyOrModuleSymbol(reference) is IAssemblySymbol assemblySymbol)
+            {
+                ScanNamespaceForServiceTypeOptions(assemblySymbol.GlobalNamespace, serviceTypeOptionAttributeType, allServiceOptionsWithTypes);
+            }
+        }
+
+        // Group discovered ServiceTypeOption types by their base type (only check inheritance for discovered types)
+        foreach (var serviceOptionType in allServiceOptionsWithTypes)
+        {
+            var baseType = FindImmediateCollectionBaseType(serviceOptionType);
+            if (baseType != null)
+            {
+                if (!serviceOptionsByBaseType.TryGetValue(baseType, out var list))
+                {
+                    list = new List<INamedTypeSymbol>();
+                    serviceOptionsByBaseType[baseType] = list;
+                }
+                list.Add(serviceOptionType);
+            }
+        }
+
+        return serviceOptionsByBaseType;
+    }
+
+    /// <summary>
+    /// Helper method to recursively scan namespaces for ServiceTypeOption attributes.
+    /// </summary>
+    private static void ScanNamespaceForServiceTypeOptions(INamespaceSymbol namespaceSymbol, INamedTypeSymbol serviceTypeOptionAttributeType, List<INamedTypeSymbol> results)
+    {
+        // Scan types in current namespace
+        foreach (var type in namespaceSymbol.GetTypeMembers())
+        {
+            if (HasServiceTypeOptionAttribute(type, serviceTypeOptionAttributeType))
+            {
+                results.Add(type);
+            }
+
+            // Recursively scan nested types
+            ScanNestedTypesForServiceTypeOption(type, serviceTypeOptionAttributeType, results);
+        }
+
+        // Recursively scan child namespaces
+        foreach (var childNamespace in namespaceSymbol.GetNamespaceMembers())
+        {
+            ScanNamespaceForServiceTypeOptions(childNamespace, serviceTypeOptionAttributeType, results);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to scan nested types for ServiceTypeOption attributes.
+    /// </summary>
+    private static void ScanNestedTypesForServiceTypeOption(INamedTypeSymbol parentType, INamedTypeSymbol serviceTypeOptionAttributeType, List<INamedTypeSymbol> results)
+    {
+        foreach (var nestedType in parentType.GetTypeMembers())
+        {
+            if (HasServiceTypeOptionAttribute(nestedType, serviceTypeOptionAttributeType))
+            {
+                results.Add(nestedType);
+            }
+
+            // Recursively scan deeper nested types
+            ScanNestedTypesForServiceTypeOption(nestedType, serviceTypeOptionAttributeType, results);
+        }
+    }
+
+    /// <summary>
+    /// Checks if a type has the ServiceTypeOption attribute.
+    /// Now includes abstract and static types in the collection.
+    /// </summary>
+    private static bool HasServiceTypeOptionAttribute(INamedTypeSymbol type, INamedTypeSymbol serviceTypeOptionAttributeType)
+    {
+        return type.GetAttributes()
+            .Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, serviceTypeOptionAttributeType));
+    }
+
+    /// <summary>
+    /// Finds the immediate base type that this ServiceTypeOption type inherits from (used for grouping).
+    /// Only looks for concrete base types that could be collection targets.
+    /// </summary>
+    private static INamedTypeSymbol? FindImmediateCollectionBaseType(INamedTypeSymbol serviceOptionType)
+    {
+        var currentType = serviceOptionType.BaseType;
+
+        // Walk up inheritance chain to find the first non-object, non-abstract base type
+        // This should be the collection base type (e.g., ConnectionTypeBase, ProcessStateBase, etc.)
+        while (currentType != null)
+        {
+            // Stop at object
+            if (currentType.SpecialType == SpecialType.System_Object)
+                break;
+
+            // If we find a concrete base type, that's likely our collection base
+            if (!currentType.IsAbstract)
+            {
+                return currentType;
+            }
+
+            // If we find an abstract base that ends with "Base" or "Type", that's probably our target
+            if (currentType.Name.EndsWith("Base", StringComparison.Ordinal) ||
+                currentType.Name.EndsWith("Type", StringComparison.Ordinal))
+            {
+                return currentType;
+            }
+
+            currentType = currentType.BaseType;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// STEP 1.2: OPTIMIZED Collection Class Discovery using ServiceTypeCollectionAttribute
+    /// O(k) attribute filtering instead of O(n×m) inheritance scanning.
+    /// </summary>
+    private static List<(INamedTypeSymbol CollectionClass, AttributeData Attribute)> FindAttributedCollectionClasses(Compilation compilation)
+    {
+        var results = new List<(INamedTypeSymbol CollectionClass, AttributeData Attribute)>();
         var attributeType = compilation.GetTypeByMetadataName("FractalDataWorks.ServiceTypes.Attributes.ServiceTypeCollectionAttribute");
-        
+
         if (attributeType == null) return results;
 
         // Only scan current compilation namespace - not all references
         ScanNamespaceForAttributedClasses(compilation.GlobalNamespace, attributeType, results);
-        
+
         return results;
     }
 
@@ -114,9 +259,9 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
     /// Recursively scans namespace hierarchy for classes with ServiceTypeCollectionAttribute.
     /// </summary>
     private static void ScanNamespaceForAttributedClasses(
-        INamespaceSymbol namespaceSymbol, 
+        INamespaceSymbol namespaceSymbol,
         INamedTypeSymbol attributeType,
-        List<(INamedTypeSymbol CollectionClass, string BaseTypeName, string CollectionName)> results)
+        List<(INamedTypeSymbol CollectionClass, AttributeData Attribute)> results)
     {
         // Check types in current namespace
         foreach (var type in namespaceSymbol.GetTypeMembers())
@@ -124,17 +269,9 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             var attributeData = type.GetAttributes()
                 .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeType));
             
-            if (attributeData?.ConstructorArguments.Length > 0)
+            if (attributeData != null)
             {
-                var baseTypeName = attributeData.ConstructorArguments[0].Value?.ToString();
-                if (!string.IsNullOrEmpty(baseTypeName))
-                {
-                    var collectionName = attributeData.ConstructorArguments.Length > 1
-                        ? attributeData.ConstructorArguments[1].Value?.ToString()
-                        : DeriveName(type.Name);
-                    
-                    results.Add((type, baseTypeName!, collectionName ?? DeriveName(type.Name)));
-                }
+                results.Add((type, attributeData));
             }
         }
 
@@ -282,6 +419,56 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
 
 
     /// <summary>
+    /// Extracts the base type name from the ServiceTypeCollectionAttribute.
+    /// </summary>
+    private static string? ExtractBaseTypeNameFromAttribute(AttributeData attribute)
+    {
+        // ServiceTypeCollectionAttribute now uses Type parameters, extract from BaseType property
+        if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is INamedTypeSymbol baseTypeSymbol)
+        {
+            return baseTypeSymbol.ToDisplayString();
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Builds a ServiceType collection definition from an attributed collection class.
+    /// </summary>
+    private static EnumTypeInfoModel? BuildServiceTypeCollectionDefinitionFromAttributedCollection(
+        INamedTypeSymbol collectionClass,
+        INamedTypeSymbol baseType,
+        List<INamedTypeSymbol> serviceTypes,
+        Compilation compilation,
+        AttributeData attribute)
+    {
+        // Extract collection name from Type parameter (collectionType.Name)
+        var collectionName = attribute.ConstructorArguments.Length > 2 && attribute.ConstructorArguments[2].Value is INamedTypeSymbol collectionTypeSymbol
+            ? collectionTypeSymbol.Name
+            : DeriveName(collectionClass.Name);
+
+        // Extract default return type from Type parameter (defaultReturnType.FullName)
+        var defaultReturnType = attribute.ConstructorArguments.Length > 1 && attribute.ConstructorArguments[1].Value is INamedTypeSymbol returnTypeSymbol
+            ? returnTypeSymbol.ToDisplayString()
+            : baseType.ToDisplayString();
+
+        var containingNamespace = collectionClass.ContainingNamespace?.ToDisplayString() ?? string.Empty;
+
+        return new EnumTypeInfoModel
+        {
+            Namespace = containingNamespace,
+            ClassName = baseType.Name,
+            FullTypeName = baseType.ToDisplayString(),
+            CollectionName = collectionName ?? DeriveName(collectionClass.Name),
+            CollectionBaseType = baseType.ToDisplayString(),
+            ReturnType = defaultReturnType ?? baseType.ToDisplayString(),
+            InheritsFromCollectionBase = true,
+            UseSingletonInstances = true,
+            GenerateFactoryMethods = true,
+            LookupProperties = ExtractServiceTypeLookupProperties(baseType, compilation)
+        };
+    }
+
+    /// <summary>
     /// STEP 5: Definition Construction
     /// Builds collection definition for ServiceType collections.
     /// </summary>
@@ -393,7 +580,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
         SourceProductionContext context,
         EnumTypeInfoModel def,
         Compilation compilation,
-        List<INamedTypeSymbol> discoveredServiceTypes,
+        ImmutableArray<INamedTypeSymbol> discoveredServiceTypes,
         INamedTypeSymbol collectionClass)
     {
         if (def == null) throw new ArgumentNullException(nameof(def));

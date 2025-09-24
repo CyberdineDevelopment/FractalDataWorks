@@ -4,20 +4,41 @@ namespace FractalDataWorks.ServiceTypes.Attributes;
 
 /// <summary>
 /// Marks a class as a ServiceType collection for source generation.
-/// Applied to classes that inherit from ServiceTypeCollectionBase to enable efficient discovery.
+/// Applied to classes to enable efficient discovery and generation of high-performance collections.
 /// </summary>
-/// <param name="baseTypeName">The fully qualified name of the base service type (e.g., "ConnectionTypeBase").</param>
-/// <param name="collectionName">Optional override for the generated collection name. If null, removes "Base" suffix from class name.</param>
+/// <param name="baseType">The base service type to collect (e.g., typeof(ConnectionTypeBase)).</param>
+/// <param name="defaultReturnType">The default return type for generated methods (e.g., typeof(IConnectionType)).</param>
+/// <param name="collectionType">The partial class type being generated (e.g., typeof(ConnectionTypes)).</param>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public sealed class ServiceTypeCollectionAttribute(string baseTypeName, string? collectionName = null) : Attribute
+public sealed class ServiceTypeCollectionAttribute(Type baseType, Type defaultReturnType, Type collectionType) : Attribute
 {
     /// <summary>
-    /// Gets the fully qualified name of the base service type.
+    /// Gets the base service type to collect.
     /// </summary>
-    public string BaseTypeName { get; } = baseTypeName ?? throw new ArgumentNullException(nameof(baseTypeName));
+    public Type BaseType { get; } = baseType ?? throw new ArgumentNullException(nameof(baseType));
 
     /// <summary>
-    /// Gets the optional override for the generated collection name.
+    /// Gets the default return type for generated methods.
     /// </summary>
-    public string? CollectionName { get; } = collectionName;
+    public Type DefaultReturnType { get; } = defaultReturnType ?? throw new ArgumentNullException(nameof(defaultReturnType));
+
+    /// <summary>
+    /// Gets the partial class type being generated.
+    /// </summary>
+    public Type CollectionType { get; } = collectionType ?? throw new ArgumentNullException(nameof(collectionType));
+
+    /// <summary>
+    /// Gets the fully qualified name of the base type (for generator compatibility).
+    /// </summary>
+    public string BaseTypeName => BaseType.FullName ?? BaseType.Name;
+
+    /// <summary>
+    /// Gets the collection name (for generator compatibility).
+    /// </summary>
+    public string CollectionName => CollectionType.Name;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether singleton instances should be used instead of factory methods.
+    /// </summary>
+    public bool UseSingletonInstances { get; set; }
 }

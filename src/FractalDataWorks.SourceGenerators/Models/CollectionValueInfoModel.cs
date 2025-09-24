@@ -47,6 +47,16 @@ public class CollectionValueInfoModel : IInputInfoModel, IEquatable<CollectionVa
     public string? Description { get; set; }
 
     /// <summary>
+    /// Gets or sets whether this type is abstract.
+    /// </summary>
+    public bool IsAbstract { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether this type is static.
+    /// </summary>
+    public bool IsStatic { get; set; }
+
+    /// <summary>
     /// Gets a dictionary of additional properties for this value.
     /// </summary>
     public IDictionary<string, string> Properties => _properties;

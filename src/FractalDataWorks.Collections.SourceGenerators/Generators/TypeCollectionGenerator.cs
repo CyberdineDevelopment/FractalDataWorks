@@ -91,53 +91,45 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
     }
 
     /// <summary>
-    /// PHASE 1-6: Complete discovery and model building (OPTIMIZED)
-    /// Discovers all collection definitions using attribute-based discovery for O(k) performance.
+    /// PHASE 1-6: Complete discovery and model building (ULTRA-OPTIMIZED)
+    /// Discovers all collection definitions using TypeOption-first discovery for maximum performance.
     /// </summary>
-    private static ImmutableArray<EnumTypeInfoWithCompilation> DiscoverAllCollectionDefinitions(Compilation compilation, AnalyzerConfigOptions globalOptions) 
+    private static ImmutableArray<EnumTypeInfoWithCompilation> DiscoverAllCollectionDefinitions(Compilation compilation, AnalyzerConfigOptions globalOptions)
     {
         var results = new List<EnumTypeInfoWithCompilation>();
 
-        // STEP 1: OPTIMIZED Collection Class Discovery using TypeCollectionAttribute
-        // O(k) attribute filtering instead of O(n×m) inheritance scanning
+        // STEP 1: ULTRA-OPTIMIZED TypeOption Discovery First
+        // O(types_with_typeoption) instead of O(collections × assemblies × all_types)
+        var typeOptionsByBaseType = FindAndGroupAllTypeOptions(compilation);
+
+        // STEP 2: OPTIMIZED Collection Class Discovery using TypeCollectionAttribute
+        // O(k) attribute filtering for collection classes
         var attributedCollectionClasses = FindAttributedCollectionClasses(compilation);
-        
-        // STEP 2-6: For each attributed collection class, perform complete type discovery and generation
+
+        // STEP 3-6: For each attributed collection class, lookup pre-discovered type options
         foreach (var (collectionClass, attribute) in attributedCollectionClasses)
         {
-            // STEP 2: Base Type Resolution from Attribute
-            // Extract base type name from TypeCollectionAttribute instead of inheritance scanning
+            // STEP 3: Base Type Resolution from Attribute
             var baseTypeName = ExtractBaseTypeNameFromAttribute(attribute);
             if (string.IsNullOrEmpty(baseTypeName)) continue;
 
             var baseType = compilation.GetTypeByMetadataName(baseTypeName!);
             if (baseType == null) continue;
-                
-            var optionTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            
-            // STEP 3: Global Type Option Discovery (kept same - still needed for thoroughness)
-            // Always scan ALL referenced assemblies for types that inherit from the base type
-            foreach (var reference in compilation.References)
-            {
-                if (compilation.GetAssemblyOrModuleSymbol(reference) is IAssemblySymbol assemblySymbol)
-                {
-                    ScanForOptionTypesOfBase(assemblySymbol.GlobalNamespace, baseType, optionTypes);
-                }
-            }
-            
-            // Also scan current compilation for local type options
-            ScanForOptionTypesOfBase(compilation.GlobalNamespace, baseType, optionTypes);
-            
-            // STEP 4: Model Building and Validation
+
+            // STEP 4: ULTRA-FAST Option Type Lookup (O(1) dictionary lookup)
+            // No more scanning - just lookup pre-discovered options by base type
+            var optionTypes = typeOptionsByBaseType.TryGetValue(baseType, out var foundTypes) ? foundTypes : new List<INamedTypeSymbol>();
+
+            // STEP 5: Model Building and Validation
             // Create EnumTypeInfoModel with discovered types (always generate for Empty() support)
-            if (optionTypes.Count > 0 || true) 
+            if (optionTypes.Count > 0 || true)
             {
-                // STEP 5: Definition Construction with Attribute Data
-                var typeDefinition = BuildEnumDefinitionFromAttributedCollection(collectionClass, baseType, optionTypes.ToList(), compilation, globalOptions, attribute);
+                // STEP 6: Definition Construction with Attribute Data
+                var typeDefinition = BuildEnumDefinitionFromAttributedCollection(collectionClass, baseType, optionTypes, compilation, globalOptions, attribute);
                 if (typeDefinition != null)
                 {
-                    // STEP 6: Final Assembly
-                    results.Add(new EnumTypeInfoWithCompilation(typeDefinition, compilation, optionTypes.ToList(), collectionClass));
+                    // STEP 7: Final Assembly
+                    results.Add(new EnumTypeInfoWithCompilation(typeDefinition, compilation, optionTypes, collectionClass));
                 }
             }
         }
@@ -146,7 +138,138 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
     }
 
     /// <summary>
-    /// STEP 1.1: OPTIMIZED Collection Class Discovery using TypeCollectionAttribute
+    /// STEP 1.1: ULTRA-OPTIMIZED TypeOption Discovery and Grouping
+    /// Single pass through all assemblies to find [TypeOption] attributes and group by base type.
+    /// O(types_with_typeoption) instead of O(collections × assemblies × all_types).
+    /// </summary>
+    private static Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> FindAndGroupAllTypeOptions(Compilation compilation)
+    {
+        var typeOptionsByBaseType = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+        var typeOptionAttributeType = compilation.GetTypeByMetadataName(typeof(FractalDataWorks.Collections.Attributes.TypeOptionAttribute).FullName!);
+
+        if (typeOptionAttributeType == null) return typeOptionsByBaseType;
+
+        // Single pass: scan all assemblies for [TypeOption] attributes
+        var allTypeOptionsWithTypes = new List<INamedTypeSymbol>();
+
+        // Scan current compilation
+        ScanNamespaceForTypeOptions(compilation.GlobalNamespace, typeOptionAttributeType, allTypeOptionsWithTypes);
+
+        // Scan all referenced assemblies
+        foreach (var reference in compilation.References)
+        {
+            if (compilation.GetAssemblyOrModuleSymbol(reference) is IAssemblySymbol assemblySymbol)
+            {
+                ScanNamespaceForTypeOptions(assemblySymbol.GlobalNamespace, typeOptionAttributeType, allTypeOptionsWithTypes);
+            }
+        }
+
+        // Group discovered TypeOption types by their base type (only check inheritance for discovered types)
+        foreach (var typeOptionType in allTypeOptionsWithTypes)
+        {
+            var baseType = FindImmediateCollectionBaseType(typeOptionType);
+            if (baseType != null)
+            {
+                if (!typeOptionsByBaseType.TryGetValue(baseType, out var list))
+                {
+                    list = new List<INamedTypeSymbol>();
+                    typeOptionsByBaseType[baseType] = list;
+                }
+                list.Add(typeOptionType);
+            }
+        }
+
+        return typeOptionsByBaseType;
+    }
+
+    /// <summary>
+    /// Helper method to recursively scan namespaces for TypeOption attributes.
+    /// </summary>
+    private static void ScanNamespaceForTypeOptions(INamespaceSymbol namespaceSymbol, INamedTypeSymbol typeOptionAttributeType, List<INamedTypeSymbol> results)
+    {
+        // Scan types in current namespace
+        foreach (var type in namespaceSymbol.GetTypeMembers())
+        {
+            if (HasTypeOptionAttribute(type, typeOptionAttributeType))
+            {
+                results.Add(type);
+            }
+
+            // Recursively scan nested types
+            ScanNestedTypesForTypeOption(type, typeOptionAttributeType, results);
+        }
+
+        // Recursively scan child namespaces
+        foreach (var childNamespace in namespaceSymbol.GetNamespaceMembers())
+        {
+            ScanNamespaceForTypeOptions(childNamespace, typeOptionAttributeType, results);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to scan nested types for TypeOption attributes.
+    /// </summary>
+    private static void ScanNestedTypesForTypeOption(INamedTypeSymbol parentType, INamedTypeSymbol typeOptionAttributeType, List<INamedTypeSymbol> results)
+    {
+        foreach (var nestedType in parentType.GetTypeMembers())
+        {
+            if (HasTypeOptionAttribute(nestedType, typeOptionAttributeType))
+            {
+                results.Add(nestedType);
+            }
+
+            // Recursively scan deeper nested types
+            ScanNestedTypesForTypeOption(nestedType, typeOptionAttributeType, results);
+        }
+    }
+
+    /// <summary>
+    /// Checks if a type has the TypeOption attribute.
+    /// Now includes abstract and static types in the collection.
+    /// </summary>
+    private static bool HasTypeOptionAttribute(INamedTypeSymbol type, INamedTypeSymbol typeOptionAttributeType)
+    {
+        return type.GetAttributes()
+            .Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, typeOptionAttributeType));
+    }
+
+    /// <summary>
+    /// Finds the immediate base type that this TypeOption type inherits from (used for grouping).
+    /// Only looks for concrete base types that could be collection targets.
+    /// </summary>
+    private static INamedTypeSymbol? FindImmediateCollectionBaseType(INamedTypeSymbol typeOptionType)
+    {
+        var currentType = typeOptionType.BaseType;
+
+        // Walk up inheritance chain to find the first non-object, non-abstract base type
+        // This should be the collection base type (e.g., DataContainerType, ProcessStateBase, etc.)
+        while (currentType != null)
+        {
+            // Stop at object
+            if (currentType.SpecialType == SpecialType.System_Object)
+                break;
+
+            // If we find a concrete base type, that's likely our collection base
+            if (!currentType.IsAbstract)
+            {
+                return currentType;
+            }
+
+            // If we find an abstract base that ends with "Base" or "Type", that's probably our target
+            if (currentType.Name.EndsWith("Base", StringComparison.Ordinal) ||
+                currentType.Name.EndsWith("Type", StringComparison.Ordinal))
+            {
+                return currentType;
+            }
+
+            currentType = currentType.BaseType;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// STEP 1.2: OPTIMIZED Collection Class Discovery using TypeCollectionAttribute
     /// O(k) attribute filtering instead of O(n×m) inheritance scanning.
     /// </summary>
     private static List<(INamedTypeSymbol CollectionClass, AttributeData Attribute)> FindAttributedCollectionClasses(Compilation compilation)
@@ -211,84 +334,20 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
 
     /// <summary>
     /// STEP 1.2: Base Type Name Extraction from TypeCollectionAttribute
-    /// Extracts the base type name from the TypeCollectionAttribute.
+    /// Extracts the base type name from the TypeCollectionAttribute using ITypeSymbol.
     /// </summary>
     private static string? ExtractBaseTypeNameFromAttribute(AttributeData attribute)
     {
-        // TypeCollectionAttribute constructor: TypeCollectionAttribute(string baseTypeName, string? collectionName = null)
-        if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is string baseTypeName)
+        // TypeCollectionAttribute constructor: TypeCollectionAttribute(Type baseType, Type defaultReturnType, Type collectionType)
+        if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is ITypeSymbol baseTypeSymbol)
         {
-            return baseTypeName;
+            return baseTypeSymbol.ToDisplayString();
         }
-        
+
         return null;
     }
 
 
-    /// <summary>
-    /// STEP 3.1: Option type discovery by inheritance
-    /// Scans namespace hierarchy to find all types that inherit from the base type.
-    /// </summary>
-    private static void ScanForOptionTypesOfBase(INamespaceSymbol namespaceSymbol, INamedTypeSymbol baseType, HashSet<INamedTypeSymbol> optionTypes)
-    {
-        // Scan types in current namespace
-        foreach (var type in namespaceSymbol.GetTypeMembers())
-        {
-            if (DerivesFromBaseType(type, baseType))
-            {
-                optionTypes.Add(type);
-            }
-
-            // Recursively scan nested types
-            ScanNestedTypesForBase(type, baseType, optionTypes);
-        }
-
-        // Recursively scan child namespaces
-        foreach (var childNamespace in namespaceSymbol.GetNamespaceMembers())
-        {
-            ScanForOptionTypesOfBase(childNamespace, baseType, optionTypes);
-        }
-    }
-
-    /// <summary>
-    /// Helper method to scan nested types for base type inheritance.
-    /// </summary>
-    private static void ScanNestedTypesForBase(INamedTypeSymbol parentType, INamedTypeSymbol baseType, HashSet<INamedTypeSymbol> optionTypes)
-    {
-        foreach (var nestedType in parentType.GetTypeMembers())
-        {
-            if (DerivesFromBaseType(nestedType, baseType))
-            {
-                optionTypes.Add(nestedType);
-            }
-
-            // Recursively scan deeper nested types
-            ScanNestedTypesForBase(nestedType, baseType, optionTypes);
-        }
-    }
-
-    /// <summary>
-    /// STEP 3.2: Base type inheritance checking
-    /// Determines if a type derives from the specified base type.
-    /// </summary>
-    private static bool DerivesFromBaseType(INamedTypeSymbol type, INamedTypeSymbol baseType)
-    {
-        // Skip abstract types and interfaces
-        if (type.IsAbstract || type.TypeKind == TypeKind.Interface)
-            return false;
-
-        // Check inheritance chain
-        var currentType = type.BaseType;
-        while (currentType != null)
-        {
-            if (SymbolEqualityComparer.Default.Equals(currentType, baseType))
-                return true;
-
-            currentType = currentType.BaseType;
-        }
-
-        return false;
-    }
 
     /// <summary>
     /// STEP 4.1: Property analysis and extraction
@@ -474,7 +533,9 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                 FullTypeName = optionType.ToDisplayString(),
                 Name = name,
                 ReturnTypeNamespace = optionType.ContainingNamespace?.ToDisplayString() ?? string.Empty,
-                Constructors = ExtractConstructorInfo(optionType) // For Create method overloads
+                Constructors = ExtractConstructorInfo(optionType), // For Create method overloads
+                IsAbstract = optionType.IsAbstract,
+                IsStatic = optionType.IsStatic
             };
             values.Add(typeValueInfo);
         }
