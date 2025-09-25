@@ -37,6 +37,14 @@ namespace FractalDataWorks.ServiceTypes.SourceGenerators.Generators;
 [Generator]
 public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
 {
+    private static readonly DiagnosticDescriptor AbstractPropertyInBaseTypeRule = new(
+        id: "ST006",
+        title: "Abstract properties not allowed in ServiceType base types",
+        messageFormat: "The base type '{0}' contains abstract property '{1}'. ServiceType base types must not have abstract properties - use constructor parameters to pass property values instead.",
+        category: "ServiceTypes",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "ServiceType base types should only have abstract methods, not abstract properties. All properties should be set via constructor parameters.");
     /// <summary>
     /// Initializes the incremental generator for ServiceType collections with optimized attribute-based discovery.
     /// </summary>
@@ -86,8 +94,11 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             if (baseType == null) continue;
 
             // STEP 4: ULTRA-FAST Option Type Lookup (O(1) dictionary lookup)
-            // Lookup pre-discovered options by explicit collection type
-            var serviceTypesList = serviceOptionsByCollectionType.TryGetValue(collectionClass, out var foundTypes) ? foundTypes : new List<INamedTypeSymbol>();
+            // FIX: Lookup pre-discovered options by collection class, not base type
+            if (!serviceOptionsByCollectionType.TryGetValue(collectionClass, out var serviceTypesList))
+            {
+                serviceTypesList = new List<INamedTypeSymbol>();
+            }
             var serviceTypes = serviceTypesList.ToImmutableArray();
 
             // STEP 5: Model Building and Validation
@@ -620,13 +631,17 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
         {
             var name = serviceType.Name;
 
+            // Extract base constructor ID if available
+            var baseConstructorId = ExtractBaseConstructorId(serviceType, compilation);
+
             var serviceTypeValueInfo = new EnumValueInfoModel
             {
                 ShortTypeName = serviceType.Name,
                 FullTypeName = serviceType.ToDisplayString(),
                 Name = name,
                 ReturnTypeNamespace = serviceType.ContainingNamespace?.ToDisplayString() ?? string.Empty,
-                Constructors = ExtractConstructorInfo(serviceType)
+                Constructors = ExtractConstructorInfo(serviceType),
+                BaseConstructorId = baseConstructorId
             };
             values.Add(serviceTypeValueInfo);
         }
@@ -721,6 +736,80 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             currentType = currentType.BaseType;
         }
         
+        return null;
+    }
+
+    /// <summary>
+    /// Extracts the ID value from a base constructor invocation if it exists.
+    /// This method parses the syntax tree to find base constructor calls like:
+    /// public sealed class OpenState() : ConnectionStateBase(3, "Open")
+    /// and extracts the first integer argument (3 in this example).
+    /// </summary>
+    private static int? ExtractBaseConstructorId(INamedTypeSymbol typeSymbol, Compilation compilation)
+    {
+        // Get all syntax references for this type
+        var syntaxRefs = typeSymbol.DeclaringSyntaxReferences;
+
+        foreach (var syntaxRef in syntaxRefs)
+        {
+            // Get the syntax node
+            var syntaxNode = syntaxRef.GetSyntax();
+
+            // Look for ClassDeclarationSyntax
+            if (syntaxNode is ClassDeclarationSyntax classDeclaration)
+            {
+                // Check for primary constructor syntax
+                if (classDeclaration.ParameterList != null && classDeclaration.BaseList != null)
+                {
+                    // Look for the base class with arguments
+                    foreach (var baseType in classDeclaration.BaseList.Types)
+                    {
+                        if (baseType.Type is SimpleNameSyntax || baseType.Type is IdentifierNameSyntax)
+                        {
+                            // Primary constructor pattern with base arguments
+                            // Find the PrimaryConstructorBaseTypeSyntax
+                            if (baseType is PrimaryConstructorBaseTypeSyntax primaryBase &&
+                                primaryBase.ArgumentList != null &&
+                                primaryBase.ArgumentList.Arguments.Count > 0)
+                            {
+                                // Get the first argument
+                                var firstArg = primaryBase.ArgumentList.Arguments[0];
+
+                                // Check if it's a literal integer
+                                if (firstArg.Expression is LiteralExpressionSyntax literal &&
+                                    literal.Token.Value is int idValue)
+                                {
+                                    return idValue;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Check for traditional constructor with base call
+                var constructors = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>();
+
+                foreach (var constructor in constructors)
+                {
+                    // Look for base constructor initializer
+                    if (constructor.Initializer != null &&
+                        constructor.Initializer.Kind() == SyntaxKind.BaseConstructorInitializer &&
+                        constructor.Initializer.ArgumentList.Arguments.Count > 0)
+                    {
+                        // Get the first argument
+                        var firstArg = constructor.Initializer.ArgumentList.Arguments[0];
+
+                        // Check if it's a literal integer
+                        if (firstArg.Expression is LiteralExpressionSyntax literal &&
+                            literal.Token.Value is int idValue)
+                        {
+                            return idValue;
+                        }
+                    }
+                }
+            }
+        }
+
         return null;
     }
 

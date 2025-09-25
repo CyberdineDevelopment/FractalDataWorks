@@ -10,6 +10,8 @@ using FractalDataWorks.Collections.Models;
 using FractalDataWorks.Collections.SourceGenerators.Models;
 using FractalDataWorks.SourceGenerators.Models;
 using FractalDataWorks.Collections.SourceGenerators.Services.Builders;
+using FractalDataWorks.Collections.Attributes;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FractalDataWorks.Collections.SourceGenerators.Generators;
 
@@ -40,6 +42,18 @@ namespace FractalDataWorks.Collections.SourceGenerators.Generators;
 public sealed class TypeCollectionGenerator : IIncrementalGenerator
 {
     /// <summary>
+    /// Diagnostic descriptor for abstract properties in base types.
+    /// </summary>
+    private static readonly DiagnosticDescriptor AbstractPropertyInBaseTypeRule = new(
+        id: "TC006",
+        title: "Abstract properties not allowed in TypeCollection base types",
+        messageFormat: "The base type '{0}' contains abstract property '{1}'. TypeCollection base types must not have abstract properties - use constructor parameters to pass property values instead.",
+        category: "TypeCollections",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "TypeCollection base types should only have abstract methods, not abstract properties. All properties should be set via constructor parameters.");
+
+    /// <summary>
     /// Initializes the incremental generator for TypeCollection discovery and generation.
     /// </summary>
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -57,9 +71,9 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         // PHASE 1-6: COMPLETE DISCOVERY AND MODEL BUILDING
         var compilationAndOptions = context.CompilationProvider
             .Combine(context.AnalyzerConfigOptionsProvider);
-        
+
         var collectionDefinitions = compilationAndOptions
-            .Select(static (compilationAndOptions, token) => 
+            .SelectMany(static (compilationAndOptions, token) =>
             {
                 token.ThrowIfCancellationRequested();
                 var (compilation, options) = compilationAndOptions;
@@ -67,23 +81,16 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             });
 
         // PHASE 7: CODE GENERATION AND OUTPUT
-        context.RegisterSourceOutput(collectionDefinitions, static (context, collections) =>
+        context.RegisterSourceOutput(collectionDefinitions, static (context, info) =>
         {
-#if DEBUG
-            // DEBUG: Always create a debug file to show the generator is running
-            context.AddSource("TypeCollectionGenerator.Debug.g.cs", $@"// DEBUG: TypeCollectionGenerator executed at {System.DateTime.Now}
-// Found {collections.Count()} collection definitions
-/*
-{string.Join("\n", collections.Select((c, i) => $@"Collection {i}: {c.EnumTypeInfoModel?.CollectionName ?? "null"} 
-  - Namespace: {c.EnumTypeInfoModel?.Namespace ?? "null"}
-  - ClassName: {c.EnumTypeInfoModel?.ClassName ?? "null"}
-  - FullTypeName: {c.EnumTypeInfoModel?.FullTypeName ?? "null"}
-  - Discovered {c.DiscoveredOptionTypes?.Count ?? 0} option types"))}
-*/
-");
-#endif
+            // Report any diagnostics first
+            foreach (var diagnostic in info.Diagnostics)
+            {
+                context.ReportDiagnostic(diagnostic);
+            }
 
-            foreach (var info in collections)
+            // Only generate code if there are no error diagnostics
+            if (!info.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error))
             {
                 Execute(context, info.EnumTypeInfoModel, info.Compilation, info.DiscoveredOptionTypes, info.CollectionClass);
             }
@@ -100,7 +107,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
 
         // STEP 1: ULTRA-OPTIMIZED TypeOption Discovery First
         // O(types_with_typeoption) instead of O(collections × assemblies × all_types)
-        var typeOptionsByBaseType = FindAndGroupAllTypeOptions(compilation);
+        var typeOptionsByCollectionType = FindAndGroupAllTypeOptions(compilation);
 
         // STEP 2: OPTIMIZED Collection Class Discovery using TypeCollectionAttribute
         // O(k) attribute filtering for collection classes
@@ -116,9 +123,15 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             var baseType = compilation.GetTypeByMetadataName(baseTypeName!);
             if (baseType == null) continue;
 
+            // STEP 3.1: Validate base type doesn't have abstract properties
+            var diagnostics = ValidateNoAbstractProperties(baseType, collectionClass);
+
             // STEP 4: ULTRA-FAST Option Type Lookup (O(1) dictionary lookup)
-            // No more scanning - just lookup pre-discovered options by base type
-            var optionTypes = typeOptionsByBaseType.TryGetValue(baseType, out var foundTypes) ? foundTypes : new List<INamedTypeSymbol>();
+            // Look up pre-discovered options by collection class type
+            if (!typeOptionsByCollectionType.TryGetValue(collectionClass, out var optionTypes))
+            {
+                optionTypes = new List<INamedTypeSymbol>();
+            }
 
             // STEP 5: Model Building and Validation
             // Create EnumTypeInfoModel with discovered types (always generate for Empty() support)
@@ -128,13 +141,52 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                 var typeDefinition = BuildEnumDefinitionFromAttributedCollection(collectionClass, baseType, optionTypes, compilation, globalOptions, attribute);
                 if (typeDefinition != null)
                 {
-                    // STEP 7: Final Assembly
-                    results.Add(new EnumTypeInfoWithCompilation(typeDefinition, compilation, optionTypes, collectionClass));
+                    // STEP 7: Final Assembly (include diagnostics)
+                    results.Add(new EnumTypeInfoWithCompilation(typeDefinition, compilation, optionTypes, collectionClass, diagnostics));
                 }
             }
         }
 
         return [..results];
+    }
+
+    /// <summary>
+    /// Validates that the base type doesn't contain abstract properties.
+    /// Returns diagnostics for any abstract properties found.
+    /// </summary>
+    private static List<Diagnostic> ValidateNoAbstractProperties(INamedTypeSymbol baseType, INamedTypeSymbol collectionClass)
+    {
+        var diagnostics = new List<Diagnostic>();
+        var current = baseType;
+
+        // Walk up the inheritance chain looking for abstract properties
+        while (current != null)
+        {
+            foreach (var member in current.GetMembers())
+            {
+                if (member is IPropertySymbol property && property.IsAbstract)
+                {
+                    // Get the location of the TypeCollection attribute on the collection class
+                    var attributeLocation = collectionClass.GetAttributes()
+                        .FirstOrDefault(a => a.AttributeClass?.Name == nameof(TypeCollectionAttribute))
+                        ?.ApplicationSyntaxReference?.GetSyntax().GetLocation();
+
+                    if (attributeLocation != null)
+                    {
+                        var diagnostic = Diagnostic.Create(
+                            AbstractPropertyInBaseTypeRule,
+                            attributeLocation,
+                            baseType.ToDisplayString(),
+                            property.Name);
+
+                        diagnostics.Add(diagnostic);
+                    }
+                }
+            }
+            current = current.BaseType;
+        }
+
+        return diagnostics;
     }
 
     /// <summary>
@@ -347,6 +399,20 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         return null;
     }
 
+    /// <summary>
+    /// Extracts the return type from the TypeCollectionAttribute (second parameter).
+    /// </summary>
+    private static string? ExtractReturnTypeFromAttribute(AttributeData attribute)
+    {
+        // TypeCollectionAttribute constructor: TypeCollectionAttribute(Type baseType, Type defaultReturnType, Type collectionType)
+        if (attribute.ConstructorArguments.Length > 1 && attribute.ConstructorArguments[1].Value is ITypeSymbol returnTypeSymbol)
+        {
+            return returnTypeSymbol.ToDisplayString();
+        }
+
+        return null;
+    }
+
 
 
     /// <summary>
@@ -526,7 +592,10 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                 ? ExtractTypeOptionName(typeOptionAttr, optionType)
                 : optionType.Name;
 
-            // STEP 7.3.2: Build value model with constructor information for method generation
+            // STEP 7.3.2: Extract base constructor ID if available
+            var baseConstructorId = ExtractBaseConstructorId(optionType, compilation);
+
+            // STEP 7.3.3: Build value model with constructor information for method generation
             var typeValueInfo = new EnumValueInfoModel
             {
                 ShortTypeName = optionType.Name,
@@ -535,7 +604,8 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                 ReturnTypeNamespace = optionType.ContainingNamespace?.ToDisplayString() ?? string.Empty,
                 Constructors = ExtractConstructorInfo(optionType), // For Create method overloads
                 IsAbstract = optionType.IsAbstract,
-                IsStatic = optionType.IsStatic
+                IsStatic = optionType.IsStatic,
+                BaseConstructorId = baseConstructorId
             };
             values.Add(typeValueInfo);
         }
@@ -545,6 +615,98 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         GenerateCollection(context, def, new EquatableArray<EnumValueInfoModel>(values), compilation, collectionClass);
     }
     
+    /// <summary>
+    /// Extracts the ID value from the base constructor invocation.
+    /// For primary constructors like: public sealed class OpenState() : Base(3, "Open")
+    /// This extracts the "3" value.
+    /// </summary>
+    private static int? ExtractBaseConstructorId(INamedTypeSymbol typeSymbol, Compilation compilation)
+    {
+        // Get all syntax references for this type
+        foreach (var syntaxRef in typeSymbol.DeclaringSyntaxReferences)
+        {
+            var syntax = syntaxRef.GetSyntax();
+
+            // Handle primary constructor syntax (C# 12+)
+            if (syntax is Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax classDecl)
+            {
+                // Check for primary constructor base type initialization
+                if (classDecl.BaseList != null)
+                {
+                    foreach (var baseType in classDecl.BaseList.Types)
+                    {
+                        if (baseType is Microsoft.CodeAnalysis.CSharp.Syntax.PrimaryConstructorBaseTypeSyntax primaryBase)
+                        {
+                            // Extract first argument from the base constructor call
+                            if (primaryBase.ArgumentList?.Arguments.Count > 0)
+                            {
+                                var firstArg = primaryBase.ArgumentList.Arguments[0];
+                                var semanticModel = compilation.GetSemanticModel(firstArg.SyntaxTree);
+                                var constantValue = semanticModel.GetConstantValue(firstArg.Expression);
+
+                                if (constantValue.HasValue && constantValue.Value is int id)
+                                {
+                                    return id;
+                                }
+                            }
+                        }
+                        // Also handle regular base constructor syntax
+                        else if (baseType.Type != null)
+                        {
+                            // Look for constructor initializer in the type's constructors
+                            foreach (var member in classDecl.Members)
+                            {
+                                if (member is Microsoft.CodeAnalysis.CSharp.Syntax.ConstructorDeclarationSyntax ctor)
+                                {
+                                    if (ctor.Initializer?.Kind() == Microsoft.CodeAnalysis.CSharp.SyntaxKind.BaseConstructorInitializer)
+                                    {
+                                        if (ctor.Initializer.ArgumentList?.Arguments.Count > 0)
+                                        {
+                                            var firstArg = ctor.Initializer.ArgumentList.Arguments[0];
+                                            var semanticModel = compilation.GetSemanticModel(firstArg.SyntaxTree);
+                                            var constantValue = semanticModel.GetConstantValue(firstArg.Expression);
+
+                                            if (constantValue.HasValue && constantValue.Value is int id)
+                                            {
+                                                return id;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Handle record syntax with primary constructor
+            else if (syntax is Microsoft.CodeAnalysis.CSharp.Syntax.RecordDeclarationSyntax recordDecl)
+            {
+                if (recordDecl.BaseList != null)
+                {
+                    foreach (var baseType in recordDecl.BaseList.Types)
+                    {
+                        if (baseType is Microsoft.CodeAnalysis.CSharp.Syntax.PrimaryConstructorBaseTypeSyntax primaryBase)
+                        {
+                            if (primaryBase.ArgumentList?.Arguments.Count > 0)
+                            {
+                                var firstArg = primaryBase.ArgumentList.Arguments[0];
+                                var semanticModel = compilation.GetSemanticModel(firstArg.SyntaxTree);
+                                var constantValue = semanticModel.GetConstantValue(firstArg.Expression);
+
+                                if (constantValue.HasValue && constantValue.Value is int id)
+                                {
+                                    return id;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>
     /// STEP 7.3.3: Constructor Information Extraction
     /// Extracts constructor information from a type option for Create method overload generation.
@@ -631,15 +793,15 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                 // Check for TypeCollectionBase<TBase, TGeneric> (double generic)
                 if (string.Equals(genericDefinition.Name, "TypeCollectionBase", StringComparison.Ordinal) && currentType.TypeArguments.Length == 2)
                 {
-                    // Return TGeneric (second type parameter)
-                    return currentType.TypeArguments[1].Name;
+                    // Return TGeneric (second type parameter) - use ToDisplayString to get full name
+                    return currentType.TypeArguments[1].ToDisplayString();
                 }
-                
+
                 // Check for TypeCollectionBase<TBase> (single generic)
                 if (string.Equals(genericDefinition.Name, "TypeCollectionBase", StringComparison.Ordinal) && currentType.TypeArguments.Length == 1)
                 {
-                    // Return TBase (first type parameter)
-                    return currentType.TypeArguments[0].Name;
+                    // Return TBase (first type parameter) - use ToDisplayString to get full name
+                    return currentType.TypeArguments[0].ToDisplayString();
                 }
             }
             
@@ -662,13 +824,12 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
     {
         try
         {
-            // Determine the effective return type based on collection inheritance
-            var effectiveReturnType = DetermineReturnType(collectionClass);
-            if (effectiveReturnType == null)
-            {
-                // Fallback to base type name
-                effectiveReturnType = def.ClassName;
-            }
+            // Get return type from the TypeCollection attribute (second parameter)
+            // The attribute must be present since that's how this class was selected for generation
+            var typeCollectionAttribute = collectionClass.GetAttributes()
+                .First(a => a.AttributeClass?.Name == nameof(TypeCollectionAttribute));
+
+            var effectiveReturnType = ExtractReturnTypeFromAttribute(typeCollectionAttribute)!;
 
             // Determine if the user's declared class is static or abstract
             var isUserClassStatic = collectionClass.IsStatic;

@@ -86,6 +86,12 @@ public class CollectionValueInfoModel : IInputInfoModel, IEquatable<CollectionVa
     /// </summary>
     public IList<ConstructorInfo> Constructors { get; set; } = new List<ConstructorInfo>();
 
+    /// <summary>
+    /// Gets or sets the ID value extracted from the base constructor call.
+    /// Used for dictionary key in generated collections.
+    /// </summary>
+    public int? BaseConstructorId { get; set; }
+
     // Note: ISymbol removed per Roslyn cookbook - symbols are never equatable
     // Extract needed information to other properties instead
 

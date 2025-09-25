@@ -24,6 +24,8 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     private EnumTypeInfoModel? _definition;
     private IList<EnumValueInfoModel>? _values;
     private string? _returnType;
+    private string? _fullReturnType;
+    private string? _returnTypeNamespace;
     private Compilation? _compilation;
     private ClassBuilder? _classBuilder;
     private bool _isUserClassStatic;
@@ -59,7 +61,18 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
             throw new ArgumentException("Return type cannot be null or empty.", nameof(returnType));
         }
 
-        _returnType = returnType;
+        _fullReturnType = returnType;
+
+        // Extract short name (everything after the last dot)
+        var lastDot = returnType.LastIndexOf('.');
+        _returnType = lastDot >= 0 ? returnType.Substring(lastDot + 1) : returnType;
+
+        // Extract namespace if present
+        if (lastDot >= 0)
+        {
+            _returnTypeNamespace = returnType.Substring(0, lastDot);
+        }
+
         return this;
     }
 
@@ -175,8 +188,15 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
             }
         }
 
+        // Add the return type's namespace if it's different from the current namespace
+        if (!string.IsNullOrEmpty(_returnTypeNamespace) &&
+            !string.Equals(_returnTypeNamespace, _definition!.Namespace, StringComparison.Ordinal))
+        {
+            usings.Add(_returnTypeNamespace!);
+        }
+
         // Add additional namespaces based on return type and requirements
-        if (!string.IsNullOrEmpty(_definition!.ReturnTypeNamespace) && 
+        if (!string.IsNullOrEmpty(_definition!.ReturnTypeNamespace) &&
             !string.Equals(_definition.ReturnTypeNamespace, _definition.Namespace, StringComparison.Ordinal))
         {
             usings.Add(_definition.ReturnTypeNamespace!);
@@ -1353,19 +1373,45 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
             _classBuilder!.WithField(idFieldBuilder);
         }
         
-        // Generate static properties for each discovered type that pull from dictionary
+        // Generate static properties or methods for each discovered type based on constructor patterns
         foreach (var value in _values!.Where(v => v.Include))
-        {            
-            // Generate static property for this type that pulls from dictionary via Id lookup
-            var typeProperty = new PropertyBuilder()
-                .WithName(value.Name)
-                .WithType(_returnType!)
-                .WithAccessModifier("public")
-                .AsStatic()
-                .WithXmlDoc($"Gets the {value.Name} type option from the collection.")
-                .WithExpressionBody($"_all.TryGetValue(_{value.Name.ToLower(CultureInfo.InvariantCulture)}Id, out var result) ? result : _empty");
-            
-            _classBuilder!.WithProperty(typeProperty);
+        {
+            bool hasParameterlessConstructor = value.Constructors.Any(c => c.Parameters.Count == 0);
+            bool hasParameterizedConstructors = value.Constructors.Any(c => c.Parameters.Count > 0);
+
+            bool shouldGenerateProperty = false;
+            bool shouldGenerateMethods = false;
+
+            if (value.IsAbstract || value.IsStatic)
+            {
+                // Abstract/static types always get a property returning _empty
+                shouldGenerateProperty = true;
+            }
+            else if (hasParameterizedConstructors)
+            {
+                // If there are ANY parameterized constructors, use methods only
+                shouldGenerateMethods = true;
+            }
+            else if (hasParameterlessConstructor)
+            {
+                // Only parameterless constructor exists - use property
+                shouldGenerateProperty = true;
+            }
+            else if (!value.Constructors.Any())
+            {
+                // No constructors defined (using default) - use property
+                shouldGenerateProperty = true;
+            }
+
+            if (shouldGenerateProperty)
+            {
+                GenerateTypeProperty(value);
+            }
+
+            if (shouldGenerateMethods)
+            {
+                GenerateTypeStaticMethods(value);
+            }
         }
         
         // Add static constructor to initialize the FrozenDictionary directly
@@ -1377,10 +1423,23 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         // Create instances and add to dictionary directly
         foreach (var value in _values.Where(v => v.Include))
         {
+            var varName = value.Name.ToLower(CultureInfo.InvariantCulture);
             var initializer = GenerateValueInitializer(value);
-            constructorBody.AppendLine($"        var {value.Name.ToLower(CultureInfo.InvariantCulture)} = {initializer};");
-            constructorBody.AppendLine($"        _{value.Name.ToLower(CultureInfo.InvariantCulture)}Id = {value.Name.ToLower(CultureInfo.InvariantCulture)}.Id;");
-            constructorBody.AppendLine($"        dictionary.Add({value.Name.ToLower(CultureInfo.InvariantCulture)}.Id, {value.Name.ToLower(CultureInfo.InvariantCulture)});");
+
+            // Use BaseConstructorId if available, otherwise get from instance
+            if (value.BaseConstructorId.HasValue)
+            {
+                constructorBody.AppendLine($"        var {varName} = {initializer};");
+                constructorBody.AppendLine($"        _{varName}Id = {value.BaseConstructorId.Value};");
+                constructorBody.AppendLine($"        dictionary.Add({value.BaseConstructorId.Value}, {varName});");
+            }
+            else
+            {
+                // Fallback: get ID from instance property
+                constructorBody.AppendLine($"        var {varName} = {initializer};");
+                constructorBody.AppendLine($"        _{varName}Id = {varName}.Id;");
+                constructorBody.AppendLine($"        dictionary.Add({varName}.Id, {varName});");
+            }
             constructorBody.AppendLine();
         }
         
@@ -1401,18 +1460,77 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     }
     
     /// <summary>
+    /// Generates a static property for a type that has no parameterized constructors.
+    /// </summary>
+    private void GenerateTypeProperty(EnumValueInfoModel value)
+    {
+        string expressionBody;
+        string xmlDoc;
+
+        if (value.IsAbstract || value.IsStatic)
+        {
+            expressionBody = "_empty";
+            xmlDoc = $"Gets the {value.Name} type option. Returns empty instance since type is {(value.IsAbstract ? "abstract" : "static")}.";
+        }
+        else if (value.BaseConstructorId.HasValue)
+        {
+            expressionBody = $"_all.TryGetValue({value.BaseConstructorId.Value}, out var result) ? result : _empty";
+            xmlDoc = $"Gets the {value.Name} type option from the collection using ID lookup.";
+        }
+        else
+        {
+            // Use the stored ID field
+            expressionBody = $"_all.TryGetValue(_{value.Name.ToLower(CultureInfo.InvariantCulture)}Id, out var result) ? result : _empty";
+            xmlDoc = $"Gets the {value.Name} type option from the collection using ID lookup.";
+        }
+
+        var typeProperty = new PropertyBuilder()
+            .WithName(value.Name)
+            .WithType(_returnType!)
+            .WithAccessModifier("public")
+            .AsStatic()
+            .WithXmlDoc(xmlDoc)
+            .WithExpressionBody(expressionBody);
+
+        _classBuilder!.WithProperty(typeProperty);
+    }
+
+    /// <summary>
     /// Generates static methods for a discovered type, creating overloads for each constructor.
     /// </summary>
     private void GenerateTypeStaticMethods(EnumValueInfoModel value)
     {
-        // Only generate methods for constructors with parameters
-        // The parameterless version is handled by the main dictionary lookup method
+        // Get all constructors
+        var hasParameterlessConstructor = value.Constructors.Any(c => c.Parameters.Count == 0);
         var constructorsWithParams = value.Constructors.Where(c => c.Parameters.Count > 0).ToList();
-        
-        if (constructorsWithParams.Count == 0)
+
+        // If only parameterless constructor exists, it's handled by property generation
+        if (constructorsWithParams.Count == 0 && hasParameterlessConstructor)
         {
-            // No constructors with parameters, nothing to generate here
             return;
+        }
+
+        // Generate a method for the parameterless constructor if it exists alongside parameterized ones
+        if (hasParameterlessConstructor && constructorsWithParams.Count > 0)
+        {
+            var methodBuilder = new MethodBuilder()
+                .WithName(value.Name)
+                .WithReturnType(_returnType!)
+                .WithAccessModifier("public")
+                .AsStatic()
+                .WithXmlDoc($"Gets the {value.Name} type option from the collection.");
+
+            // Use the extracted ID for lookup if available
+            if (value.BaseConstructorId.HasValue)
+            {
+                methodBuilder.WithExpressionBody($"_all.TryGetValue({value.BaseConstructorId.Value}, out var result) ? result : _empty");
+            }
+            else
+            {
+                methodBuilder.WithExpressionBody($"_all.TryGetValue(_{value.Name.ToLower(CultureInfo.InvariantCulture)}Id, out var result) ? result : _empty");
+            }
+
+            _classBuilder!.WithMethod(methodBuilder);
         }
 
         // Generate a method for each constructor that has parameters
@@ -1486,16 +1604,46 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
             .WithBaseClass(baseTypeName)
             .WithXmlDoc($"Empty implementation of {baseTypeName} with default values for all properties.");
         
-        // For TypeCollections, we need to call the base class constructor with proper parameters
-        // The discovered types inherit from the base class, so we need to look at the base class constructor
-        // For DataStoreTypeBase, this would be: DataStoreTypeBase(int id, string name, string? category = null)
+        // Determine base constructor parameters by looking at the base type
         var constructorBuilder = new ConstructorBuilder()
             .WithClassName(emptyClassName)
             .WithAccessModifier("internal")
             .WithXmlDoc("Initializes a new instance of the Empty class with default values.");
-        
-        // Use standard defaults for TypeOptionBase constructor: (int id, string name, string? category = null)
-        constructorBuilder.WithBaseCall("0", "string.Empty", "null");
+
+        // Dynamically determine base constructor parameters by examining the base type
+        var baseTypeFullName = $"{_definition.Namespace}.{baseTypeName}";
+        var baseTypeSymbol = _compilation?.GetTypeByMetadataName(baseTypeFullName);
+
+        if (baseTypeSymbol != null)
+        {
+            // Find the base constructor with minimum parameters
+            var baseConstructor = baseTypeSymbol.Constructors
+                .Where(c => c.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Protected ||
+                            c.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public)
+                .OrderBy(c => c.Parameters.Length)
+                .FirstOrDefault();
+
+            if (baseConstructor != null)
+            {
+                var baseCallArgs = new List<string>();
+                foreach (var param in baseConstructor.Parameters)
+                {
+                    var defaultValue = GetDefaultValueForTypeSymbol(param.Type);
+                    baseCallArgs.Add(defaultValue);
+                }
+                constructorBuilder.WithBaseCall(baseCallArgs.ToArray());
+            }
+            else
+            {
+                // Fallback to standard defaults if no constructor found
+                constructorBuilder.WithBaseCall("0", "string.Empty", "null");
+            }
+        }
+        else
+        {
+            // Fallback to standard defaults
+            constructorBuilder.WithBaseCall("0", "string.Empty", "null");
+        }
             
         emptyClassBuilder.WithConstructor(constructorBuilder);
         
@@ -1507,6 +1655,39 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         _classBuilder!.WithNestedClass(emptyClassBuilder);
     }
     
+    /// <summary>
+    /// Gets the default value for a type symbol.
+    /// </summary>
+    private static string GetDefaultValueForTypeSymbol(ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_String)
+            return "string.Empty";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Int32)
+            return "0";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Boolean)
+            return "false";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Int64)
+            return "0L";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Single)
+            return "0f";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Double)
+            return "0d";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Decimal)
+            return "0m";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Byte)
+            return "0";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Int16)
+            return "0";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Char)
+            return "'\\0'";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_DateTime)
+            return "DateTime.MinValue";
+        if (typeSymbol.NullableAnnotation == Microsoft.CodeAnalysis.NullableAnnotation.Annotated ||
+            typeSymbol.IsReferenceType)
+            return "null";
+        return "default";
+    }
+
     /// <summary>
     /// Gets the default value for a given type name.
     /// </summary>

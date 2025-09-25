@@ -14,13 +14,20 @@ internal sealed class ServiceTypeInfoWithCompilation
     public Compilation Compilation { get; }
     public ImmutableArray<INamedTypeSymbol> DiscoveredServiceTypes { get; }
     public INamedTypeSymbol CollectionClass { get; }
+    public List<Diagnostic> Diagnostics { get; }
 
-    public ServiceTypeInfoWithCompilation(EnumTypeInfoModel serviceTypeInfoModel, Compilation compilation, ImmutableArray<INamedTypeSymbol> discoveredServiceTypes, INamedTypeSymbol collectionClass)
+    public ServiceTypeInfoWithCompilation(
+        EnumTypeInfoModel serviceTypeInfoModel,
+        Compilation compilation,
+        ImmutableArray<INamedTypeSymbol> discoveredServiceTypes,
+        INamedTypeSymbol collectionClass,
+        List<Diagnostic>? diagnostics = null)
     {
         ServiceTypeInfoModel = serviceTypeInfoModel;
         Compilation = compilation;
         DiscoveredServiceTypes = discoveredServiceTypes;
         CollectionClass = collectionClass;
+        Diagnostics = diagnostics ?? new List<Diagnostic>();
     }
 
     public void Deconstruct(out EnumTypeInfoModel serviceTypeInfoModel, out Compilation compilation, out ImmutableArray<INamedTypeSymbol> discoveredServiceTypes, out INamedTypeSymbol collectionClass)

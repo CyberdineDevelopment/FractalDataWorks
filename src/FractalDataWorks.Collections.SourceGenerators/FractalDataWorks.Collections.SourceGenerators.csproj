@@ -75,38 +75,33 @@
     <Message Text="ILRepack: Merging assemblies directly to $(OutputPath)$(AssemblyName).dll" Importance="high" />
     <Message Text="ILRepack: Input assemblies: @(InputAssemblies)" Importance="normal" />
     
-    <!-- Create exclude pattern file for ILRepack -->
-    <WriteLinesToFile
-      File="$(OutputPath)ilrepack.exclude"
-      Lines="^FractalDataWorks\.Collections\."
-      Overwrite="true" />
-
+    <!-- ILRepack assemblies - internalize all for simplicity -->
     <ILRepack
       OutputFile="$(OutputPath)$(AssemblyName).dll"
       InputAssemblies="@(InputAssemblies)"
       LibraryPath="@(LibraryPath)"
-      Internalize="true"
-      InternalizeExcludeFile="$(OutputPath)ilrepack.exclude" />
+      Internalize="true" />
     
     <!-- Clean up internalized dependency DLLs that are no longer needed -->
+    <!-- Keep Collections.dll as we're packaging it separately -->
     <ItemGroup>
       <DependencyDllsToDelete Include="$(OutputPath)FractalDataWorks.CodeBuilder.Abstractions.dll" />
       <DependencyDllsToDelete Include="$(OutputPath)FractalDataWorks.CodeBuilder.CSharp.dll" />
-      <DependencyDllsToDelete Include="$(OutputPath)FractalDataWorks.Collections.dll" />
       <DependencyDllsToDelete Include="$(OutputPath)FractalDataWorks.Collections.Analyzers.dll" />
     </ItemGroup>
     <Delete Files="@(DependencyDllsToDelete)" />
     
     <!-- Cleanup temporary files -->
     <Delete Files="$(OriginalAssemblyPath)" />
-    <Delete Files="$(OutputPath)ilrepack.exclude" />
     
     <Message Text="ILRepack: Successfully merged source generator dependencies" Importance="high" />
   </Target>
 
   <ItemGroup>
-    <!-- Only include the merged analyzer DLL in the package -->
+    <!-- Include the merged analyzer DLL in the package -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <!-- Include Collections.dll as a reference assembly so consumers get the base types -->
+    <None Include="$(OutputPath)\FractalDataWorks.Collections.dll" Pack="true" PackagePath="lib/netstandard2.0" Visible="false" />
     <!-- Include build props in the package -->
     <None Include="build\FractalDataWorks.Collections.SourceGenerators.props" Pack="true" PackagePath="build\" />
   </ItemGroup>
