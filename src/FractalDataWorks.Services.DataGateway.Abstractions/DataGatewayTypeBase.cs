@@ -33,7 +33,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// ["MongoDB", "CosmosDB"] for document providers,
     /// ["Redis", "InMemory"] for cache providers.
     /// </remarks>
-    public abstract string[] SupportedDataStores { get; }
+    public string[] SupportedDataStores { get; }
 
     /// <summary>
     /// Gets the priority for provider selection when multiple providers are available.
@@ -43,7 +43,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// can handle the same data store type, the system uses this to determine
     /// the preferred provider.
     /// </remarks>
-    public abstract int Priority { get; }
+    public int Priority { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports database transactions.
@@ -52,7 +52,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// Transaction support enables ACID properties for data operations,
     /// ensuring data consistency across multiple operations.
     /// </remarks>
-    public abstract bool SupportsTransactions { get; }
+    public bool SupportsTransactions { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports bulk operations.
@@ -61,7 +61,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// Bulk operations allow inserting, updating, or deleting multiple records
     /// in a single operation, improving performance for large datasets.
     /// </remarks>
-    public abstract bool SupportsBulkOperations { get; }
+    public bool SupportsBulkOperations { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports streaming results.
@@ -70,7 +70,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// Streaming enables processing large result sets without loading
     /// all data into memory at once, essential for big data scenarios.
     /// </remarks>
-    public abstract bool SupportsStreaming { get; }
+    public bool SupportsStreaming { get; }
 
     /// <summary>
     /// Gets the maximum batch size for bulk operations.
@@ -79,7 +79,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// Defines the maximum number of records that can be processed
     /// in a single batch operation. -1 indicates no limit.
     /// </remarks>
-    public abstract int MaxBatchSize { get; }
+    public int MaxBatchSize { get; }
 
     /// <summary>
     /// Gets the provider name for this data provider type.
@@ -88,7 +88,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// Technical name of the underlying data provider technology
     /// (e.g., "Entity Framework", "Dapper", "ADO.NET", "MongoDB Driver").
     /// </remarks>
-    public abstract string ProviderName { get; }
+    public string ProviderName { get; }
 
     /// <summary>
     /// Gets the connection string template for this provider.
@@ -97,7 +97,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// Template showing the expected connection string format with placeholders
     /// (e.g., "Server={server};Database={database};Trusted_Connection=true").
     /// </remarks>
-    public abstract string ConnectionString { get; }
+    public string ConnectionString { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports schema discovery.
@@ -106,7 +106,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// Schema discovery automatically detects table structures, relationships,
     /// and metadata from the data store without manual configuration.
     /// </remarks>
-    public abstract bool SupportsSchemaDiscovery { get; }
+    public bool SupportsSchemaDiscovery { get; }
 
     /// <summary>
     /// Gets the supported data commands for this provider.
@@ -115,7 +115,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// List of supported operation types such as:
     /// ["Select", "Insert", "Update", "Delete", "BulkInsert", "Upsert", "Count", "Exists"]
     /// </remarks>
-    public abstract IReadOnlyList<string> SupportedCommands { get; }
+    public IReadOnlyList<string> SupportedCommands { get; }
 
     /// <summary>
     /// Gets the maximum connection pool size for this provider.
@@ -124,7 +124,7 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// Maximum number of concurrent connections this provider can maintain.
     /// Important for performance tuning and resource management.
     /// </remarks>
-    public abstract int MaxConnectionPoolSize { get; }
+    public int MaxConnectionPoolSize { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports connection pooling.
@@ -170,6 +170,17 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
     /// <param name="sectionName">The configuration section name for appsettings.json.</param>
     /// <param name="displayName">The display name for this service type.</param>
     /// <param name="description">The description of what this service type provides.</param>
+    /// <param name="supportedDataStores">The data store types supported by this provider.</param>
+    /// <param name="priority">The priority for provider selection when multiple providers are available.</param>
+    /// <param name="supportsTransactions">Indicates whether this provider supports database transactions.</param>
+    /// <param name="supportsBulkOperations">Indicates whether this provider supports bulk operations.</param>
+    /// <param name="supportsStreaming">Indicates whether this provider supports streaming results.</param>
+    /// <param name="maxBatchSize">The maximum batch size for bulk operations.</param>
+    /// <param name="providerName">The provider name for this data provider type.</param>
+    /// <param name="connectionString">The connection string template for this provider.</param>
+    /// <param name="supportsSchemaDiscovery">Indicates whether this provider supports schema discovery.</param>
+    /// <param name="supportedCommands">The supported data commands for this provider.</param>
+    /// <param name="maxConnectionPoolSize">The maximum connection pool size for this provider.</param>
     /// <param name="category">The category for this data provider type (defaults to "Data Provider").</param>
     protected DataGatewayTypeBase(
         int id,
@@ -177,8 +188,30 @@ public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> :
         string sectionName,
         string displayName,
         string description,
+        string[] supportedDataStores,
+        int priority,
+        bool supportsTransactions,
+        bool supportsBulkOperations,
+        bool supportsStreaming,
+        int maxBatchSize,
+        string providerName,
+        string connectionString,
+        bool supportsSchemaDiscovery,
+        IReadOnlyList<string> supportedCommands,
+        int maxConnectionPoolSize,
         string? category = null)
         : base(id, name, sectionName, displayName, description, category ?? "Data Provider")
     {
+        SupportedDataStores = supportedDataStores ?? throw new ArgumentNullException(nameof(supportedDataStores));
+        Priority = priority;
+        SupportsTransactions = supportsTransactions;
+        SupportsBulkOperations = supportsBulkOperations;
+        SupportsStreaming = supportsStreaming;
+        MaxBatchSize = maxBatchSize;
+        ProviderName = providerName ?? throw new ArgumentNullException(nameof(providerName));
+        ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+        SupportsSchemaDiscovery = supportsSchemaDiscovery;
+        SupportedCommands = supportedCommands ?? throw new ArgumentNullException(nameof(supportedCommands));
+        MaxConnectionPoolSize = maxConnectionPoolSize;
     }
 }

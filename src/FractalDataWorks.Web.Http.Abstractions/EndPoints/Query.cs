@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.EndPoints;
 
 /// <summary>
 /// Read-only data retrieval operations endpoint type.
 /// </summary>
-[EnumOption("Query")]
+[TypeOption(typeof(EndpointTypes), "Query")]
 public sealed class Query : EndpointTypeBase
 {
     /// <summary>

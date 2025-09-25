@@ -6,7 +6,7 @@ namespace DataStore.Web;
 /// <summary>
 /// REST API DataStore type implementation
 /// </summary>
-[TypeOption("RestApi")]
+[TypeOption(typeof(DataStoreTypes), "RestApi")]
 public sealed class RestApiDataStoreType : DataStoreTypeBase
 {
     /// <summary>

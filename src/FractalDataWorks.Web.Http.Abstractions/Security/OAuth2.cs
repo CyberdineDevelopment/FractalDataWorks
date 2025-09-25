@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Security;
 
 /// <summary>
 /// OAuth 2.0 authentication.
 /// </summary>
-[EnumOption("OAuth2")]
+[TypeOption(typeof(SecurityMethods), "OAuth2")]
 public sealed class OAuth2 : SecurityMethodBase
 {
     /// <summary>

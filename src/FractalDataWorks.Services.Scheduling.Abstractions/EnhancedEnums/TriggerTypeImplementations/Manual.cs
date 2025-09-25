@@ -1,5 +1,5 @@
 using System;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.TriggerTypeImplementations;
@@ -46,7 +46,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.Trigge
 /// // nextExecution is always null for manual triggers
 /// </code>
 /// </example>
-[EnumOption("Manual")]
+[TypeOption(typeof(TriggerTypes), "Manual")]
 public sealed class Manual : TriggerTypeBase
 {
     /// <summary>

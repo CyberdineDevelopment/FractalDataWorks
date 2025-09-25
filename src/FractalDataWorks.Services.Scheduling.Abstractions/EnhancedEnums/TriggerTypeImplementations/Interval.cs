@@ -1,6 +1,6 @@
 using System;
 using System.Globalization;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.TriggerTypeImplementations;
@@ -46,7 +46,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.Trigge
 /// var nextExecution = intervalTrigger.CalculateNextExecution(trigger, DateTime.UtcNow);
 /// </code>
 /// </example>
-[EnumOption("Interval")]
+[TypeOption(typeof(TriggerTypes), "Interval")]
 public sealed class Interval : TriggerTypeBase
 {
     /// <summary>

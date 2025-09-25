@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpMethods;
 
 /// <summary>
 /// HTTP POST method - submits data to be processed by the server.
 /// </summary>
-[EnumOption("Post")]
+[TypeOption(typeof(HttpMethods), "Post")]
 public sealed class PostMethod : HttpMethodBase
 {
     /// <summary>

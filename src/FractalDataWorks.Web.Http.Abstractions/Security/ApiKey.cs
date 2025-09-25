@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Security;
 
 /// <summary>
 /// API key-based authentication.
 /// </summary>
-[EnumOption("ApiKey")]
+[TypeOption(typeof(SecurityMethods), "ApiKey")]
 public sealed class ApiKey : SecurityMethodBase
 {
     /// <summary>

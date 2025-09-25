@@ -1,7 +1,8 @@
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
+using FractalDataWorks.Services.Abstractions;
 
-namespace FractalDataWorks.Services.Abstractions;
+namespace FractalDataWorks.Services;
 
 /// <summary>
 /// Generic factory interface for creating Service instances
@@ -21,7 +22,7 @@ public interface IServiceFactory
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    public IFdwResult<IFdwService> Create(IFdwConfiguration configuration);
+    IFdwResult<IFdwService> Create(IFdwConfiguration configuration);
 }
 /// <summary>
 /// Generic factory interface for creating Service instances of a specific type

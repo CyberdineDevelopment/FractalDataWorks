@@ -1,12 +1,12 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
 /// <summary>
 /// The execution was triggered but has not yet started.
 /// </summary>
-[EnumOption("Pending")]
+[TypeOption(typeof(ExecutionStatuses), "Pending")]
 public sealed class PendingExecutionStatus : ExecutionStatus
 {
     /// <summary>

@@ -12,7 +12,7 @@ namespace FractalDataWorks.DataContainers.Abstractions.Types;
 /// CSV (Comma-Separated Values) data container type.
 /// Supports structured data in delimited text format with configurable separators.
 /// </summary>
-[TypeOption("Csv")]
+[TypeOption(typeof(DataContainerTypes),"Csv")]
 public sealed class CsvDataContainerType : DataContainerTypeBase<CsvDataContainerType>
 {
     /// <summary>

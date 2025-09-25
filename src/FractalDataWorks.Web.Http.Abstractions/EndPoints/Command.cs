@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.EndPoints;
 
 /// <summary>
 /// State-changing business operations endpoint type.
 /// </summary>
-[EnumOption("Command")]
+[TypeOption(typeof(EndpointTypes), "Command")]
 public sealed class Command : EndpointTypeBase
 {
     /// <summary>

@@ -6,7 +6,7 @@ namespace DataStore.Database;
 /// <summary>
 /// PostgreSQL DataStore type implementation
 /// </summary>
-[TypeOption("PostgreSql")]
+[TypeOption(typeof(DataStoreTypes), "PostgreSql")]
 public sealed class PostgreSqlDataStoreType : DataStoreTypeBase
 {
     /// <summary>

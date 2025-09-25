@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.EndPoints;
 
 /// <summary>
 /// FileConfigurationSource upload, download, and manipulation operations endpoint type.
 /// </summary>
-[EnumOption("FileConfigurationSource")]
+[TypeOption(typeof(EndpointTypes), "File")]
 public sealed class File : EndpointTypeBase
 {
     /// <summary>

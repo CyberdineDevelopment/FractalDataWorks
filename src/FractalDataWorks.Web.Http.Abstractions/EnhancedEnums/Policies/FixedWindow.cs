@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Policies;
 
 /// <summary>
 /// Fixed time window rate limiting.
 /// </summary>
-[EnumOption("FixedWindow")]
+[TypeOption(typeof(RateLimitPolicies), "FixedWindow")]
 public sealed class FixedWindow : RateLimitPolicyBase
 {
     /// <summary>

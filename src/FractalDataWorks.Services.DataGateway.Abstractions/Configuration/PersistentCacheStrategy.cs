@@ -1,5 +1,5 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
 
@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
 /// Preserves cache across application restarts. Requires additional storage
 /// but provides the best performance for static schemas.
 /// </remarks>
-[EnumOption("Persistent")]
+[TypeOption(typeof(CacheStrategies), "Persistent")]
 public sealed class PersistentCacheStrategy : CacheStrategy
 {
     /// <summary>

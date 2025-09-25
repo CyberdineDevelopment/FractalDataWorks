@@ -1,5 +1,6 @@
 using System;
 using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.ServiceTypes;
 
 namespace FractalDataWorks.Services.Transformations.Abstractions;
 

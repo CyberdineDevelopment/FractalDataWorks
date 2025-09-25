@@ -1,7 +1,7 @@
-using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums;
+namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
 /// <summary>
 /// Collection of all available trigger types in the scheduling system.
@@ -63,7 +63,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums;
 /// }
 /// </code>
 /// </example>
-[StaticEnumCollection(CollectionName = "TriggerTypes", DefaultGenericReturnType = typeof(ITriggerType))]
-public abstract class TriggerTypeCollectionBase : EnumCollectionBase<TriggerTypeBase>
+[TypeCollection(typeof(TriggerTypeBase), typeof(ITriggerType), typeof(TriggerTypes))]
+public partial class TriggerTypes : TypeCollectionBase<TriggerTypeBase, ITriggerType>
 {
 }

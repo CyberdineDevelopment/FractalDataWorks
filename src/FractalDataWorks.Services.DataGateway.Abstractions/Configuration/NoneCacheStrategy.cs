@@ -1,5 +1,5 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
 
@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
 /// Provides the most up-to-date information but has the highest performance cost.
 /// Suitable for development environments or schemas that change frequently.
 /// </remarks>
-[EnumOption("None")]
+[TypeOption(typeof(CacheStrategies), "None")]
 public sealed class NoneCacheStrategy : CacheStrategy
 {
     /// <summary>

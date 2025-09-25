@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FractalDataWorks.EnhancedEnums;
 using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.ServiceTypes;
 
 namespace FractalDataWorks.Services.Authentication.Abstractions;
 

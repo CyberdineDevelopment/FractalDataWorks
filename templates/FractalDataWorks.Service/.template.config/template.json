@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks",
+  "classifications": ["FractalDataWorks", "Service", "Library"],
+  "identity": "FractalDataWorks.Service.Template",
+  "name": "FractalDataWorks Service",
+  "shortName": "fdwservice",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "FractalDataWorks.Services.Template",
+  "preferNameDirectory": true,
+  "symbols": {
+    "DomainName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The domain name for the service (e.g., Authentication, DataGateway)",
+      "replaces": "{DomainName}",
+      "defaultValue": "MyDomain"
+    },
+    "ServiceName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The specific service name (e.g., MsSql, OAuth2)",
+      "replaces": "{ServiceName}",
+      "defaultValue": "MyService"
+    },
+    "IncludeFactory": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include a factory implementation",
+      "defaultValue": "true"
+    },
+    "IncludeProvider": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include a provider implementation",
+      "defaultValue": "true"
+    },
+    "IncludeConfiguration": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include configuration classes",
+      "defaultValue": "true"
+    },
+    "IncludeMessages": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include message definitions",
+      "defaultValue": "true"
+    },
+    "UseEnhancedEnums": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Use Enhanced Enums for states and options",
+      "defaultValue": "true"
+    },
+    "Framework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "net8.0",
+          "description": ".NET 8.0"
+        },
+        {
+          "choice": "net9.0",
+          "description": ".NET 9.0"
+        }
+      ],
+      "defaultValue": "net8.0",
+      "replaces": "{TargetFramework}"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!IncludeFactory)",
+          "exclude": [
+            "**/*Factory.cs"
+          ]
+        },
+        {
+          "condition": "(!IncludeProvider)",
+          "exclude": [
+            "**/*Provider.cs"
+          ]
+        },
+        {
+          "condition": "(!IncludeConfiguration)",
+          "exclude": [
+            "**/Configuration/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeMessages)",
+          "exclude": [
+            "**/Messages/**"
+          ]
+        },
+        {
+          "condition": "(!UseEnhancedEnums)",
+          "exclude": [
+            "**/EnhancedEnums/**"
+          ]
+        }
+      ]
+    }
+  ],
+  "postActions": [
+    {
+      "description": "Restore NuGet packages",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

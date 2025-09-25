@@ -6,5 +6,10 @@
 
   <ItemGroup Condition="'$(EnableFractalDataWorksCollectionsSourceGenerators)' == 'true'">
     <Analyzer Include="$(MSBuildThisFileDirectory)../analyzers/dotnet/cs/FractalDataWorks.Collections.SourceGenerators.dll" />
+    <!-- Add reference to the merged assembly which now contains public Collections types -->
+    <Reference Include="FractalDataWorks.Collections.SourceGenerators">
+      <HintPath>$(MSBuildThisFileDirectory)../analyzers/dotnet/cs/FractalDataWorks.Collections.SourceGenerators.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 </Project>

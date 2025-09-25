@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.Services.Connections.Abstractions;
 
 namespace FractalDataWorks.Services.Connections.Rest;
@@ -9,6 +10,7 @@ namespace FractalDataWorks.Services.Connections.Rest;
 /// REST connection type for HTTP-based REST API connections.
 /// Inherits from ServiceTypeBase for discovery by ServiceTypeCollectionGenerator.
 /// </summary>
+[ServiceTypeOption(typeof(ConnectionTypes), "Rest")]
 public sealed class RestConnectionType : 
     ConnectionTypeBase<RestService, RestConnectionConfiguration, RestConnectionFactory>
 {

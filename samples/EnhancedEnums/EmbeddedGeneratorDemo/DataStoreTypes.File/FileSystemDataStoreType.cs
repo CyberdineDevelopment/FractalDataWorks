@@ -6,7 +6,7 @@ namespace DataStore.File;
 /// <summary>
 /// File System DataStore type implementation
 /// </summary>
-[TypeOption("FileSystem")]
+[TypeOption(typeof(DataStoreTypes), "FileSystem")]
 public sealed class FileSystemDataStoreType : DataStoreTypeBase
 {
     /// <summary>

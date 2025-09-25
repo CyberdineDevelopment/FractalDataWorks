@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Policies;
 
 /// <summary>
 /// Concurrent request limiting.
 /// </summary>
-[EnumOption("Concurrency")]
+[TypeOption(typeof(RateLimitPolicies), "Concurrency")]
 public sealed class Concurrency : RateLimitPolicyBase
 {
     /// <summary>

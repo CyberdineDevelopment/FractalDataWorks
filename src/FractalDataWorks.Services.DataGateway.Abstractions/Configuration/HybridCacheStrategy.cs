@@ -1,5 +1,5 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
 
@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
 /// Combines the speed of memory cache with the durability of persistent cache.
 /// Memory cache is populated from persistent cache on startup if available.
 /// </remarks>
-[EnumOption("Hybrid")]
+[TypeOption(typeof(CacheStrategies), "Hybrid")]
 public sealed class HybridCacheStrategy : CacheStrategy
 {
     /// <summary>

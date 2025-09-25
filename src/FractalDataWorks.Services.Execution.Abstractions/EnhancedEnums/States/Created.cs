@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums.States;
 
 /// <summary>
 /// Initial state when a process is first created but not yet started.
 /// </summary>
-[EnumOption("Created")]
+[TypeOption(typeof(ProcessStates), "Created")]
 public sealed class Created : ProcessStateBase
 {
     /// <summary>

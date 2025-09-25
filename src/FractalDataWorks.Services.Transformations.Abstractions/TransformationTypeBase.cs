@@ -31,7 +31,7 @@ public abstract class TransformationTypeBase<TService, TConfiguration, TFactory>
     /// The .NET type that this transformation accepts as input.
     /// Examples: typeof(string), typeof(Stream), typeof(DataTable), etc.
     /// </remarks>
-    public abstract Type InputType { get; }
+    public Type InputType { get; }
 
     /// <summary>
     /// Gets the output type for this transformation.
@@ -41,7 +41,7 @@ public abstract class TransformationTypeBase<TService, TConfiguration, TFactory>
     /// Should be compatible with downstream transformation inputs
     /// to enable pipeline composition.
     /// </remarks>
-    public abstract Type OutputType { get; }
+    public Type OutputType { get; }
 
     /// <summary>
     /// Gets a value indicating whether this transformation supports streaming.
@@ -51,7 +51,7 @@ public abstract class TransformationTypeBase<TService, TConfiguration, TFactory>
     /// without loading the entire dataset into memory. This is
     /// essential for large data processing scenarios.
     /// </remarks>
-    public abstract bool SupportsStreaming { get; }
+    public bool SupportsStreaming { get; }
 
     /// <summary>
     /// Gets the data container types supported by this transformation.
@@ -61,7 +61,7 @@ public abstract class TransformationTypeBase<TService, TConfiguration, TFactory>
     /// This enables the data access layer to select appropriate transformations
     /// based on the source data format (CSV, JSON, Parquet, etc.).
     /// </remarks>
-    public abstract IDataContainerType[] SupportedContainers { get; }
+    public IDataContainerType[] SupportedContainers { get; }
 
     /// <summary>
     /// Gets the supported input data types for this transformation.
@@ -162,10 +162,25 @@ public abstract class TransformationTypeBase<TService, TConfiguration, TFactory>
     /// </summary>
     /// <param name="id">The unique identifier for the transformation type.</param>
     /// <param name="name">The name of the transformation type.</param>
+    /// <param name="inputType">The .NET type that this transformation accepts as input.</param>
+    /// <param name="outputType">The .NET type that this transformation produces as output.</param>
+    /// <param name="supportsStreaming">Indicates whether this transformation supports streaming.</param>
+    /// <param name="supportedContainers">The data container types supported by this transformation.</param>
     /// <param name="category">The category for this transformation type (defaults to "Transformation").</param>
-    protected TransformationTypeBase(int id, string name, string? category = null)
+    protected TransformationTypeBase(
+        int id,
+        string name,
+        Type inputType,
+        Type outputType,
+        bool supportsStreaming,
+        IDataContainerType[] supportedContainers,
+        string? category = null)
         : base(id, name, category ?? "Transformation")
     {
+        InputType = inputType ?? throw new ArgumentNullException(nameof(inputType));
+        OutputType = outputType ?? throw new ArgumentNullException(nameof(outputType));
+        SupportsStreaming = supportsStreaming;
+        SupportedContainers = supportedContainers ?? throw new ArgumentNullException(nameof(supportedContainers));
     }
 }
 

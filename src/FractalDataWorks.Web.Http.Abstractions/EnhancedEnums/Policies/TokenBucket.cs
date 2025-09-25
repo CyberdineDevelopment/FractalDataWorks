@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Policies;
 
 /// <summary>
 /// Token bucket algorithm rate limiting.
 /// </summary>
-[EnumOption("TokenBucket")]
+[TypeOption(typeof(RateLimitPolicies), "TokenBucket")]
 public sealed class TokenBucket : RateLimitPolicyBase
 {
     /// <summary>

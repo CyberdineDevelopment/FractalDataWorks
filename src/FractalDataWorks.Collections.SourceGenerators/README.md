@@ -2,12 +2,32 @@
 
 Source generator for FractalDataWorks.Collections that creates ultra-high-performance type collections with revolutionary compile-time discovery and O(1) lookup performance using .NET 8+ FrozenDictionary with alternate key lookup.
 
+## Architecture Pattern
+
+**TypeCollections** enable cross-project extensible type discovery where:
+- **Collections** are placed in **abstractions projects** for maximum discoverability
+- **Base Types** are in **concrete projects** for implementation inheritance
+- **Type Options** can be added by downstream developers in **any project**
+
+### Project Structure
+```
+FractalDataWorks.Web.Http.Abstractions/
+├── Security/
+│   ├── SecurityMethods.cs              <- Collection (abstractions for discoverability)
+│   └── ISecurityMethod.cs              <- Interface
+FractalDataWorks.Web.Http/
+├── Security/
+│   └── SecurityMethodBase.cs           <- Base Type (concrete project)
+Any.Implementation.Project/
+├── CustomSecurityMethod.cs             <- Options (can be added anywhere)
+```
+
 ## Overview
 
 This source generator analyzes your code at compile time to:
 1. **Ultra-Fast Discovery**: TypeOption-first discovery with O(types_with_typeoption) complexity
 2. **Universal Type Support**: Include concrete, abstract, static, and interface types in collections
-3. **Dynamic Lookup Generation**: Create lookup methods based on `[TypeLookup]` attributes automatically
+3. **Cross-Project Extensibility**: Collections in abstractions enable downstream option discovery
 4. **Smart Instantiation**: Only instantiate concrete types, safely handle abstract/static types
 5. **Alternate Key Lookup**: O(1) property-based lookups using `FrozenDictionary.GetAlternateLookup<T>()`
 
@@ -31,33 +51,36 @@ For `.Abstractions` projects, use analyzer-only packaging:
 
 1. **TypeOption-First Discovery (Revolutionary Performance)**
    ```csharp
-   [TypeOption("CSV")]
+   [TypeOption(typeof(DataContainerTypes), "CSV")]
    public class CsvDataContainerType : DataContainerType { }
 
-   [TypeOption] // Uses class name if no parameter provided
+   [TypeOption(typeof(DataContainerTypes), "JSON")]
    public class JsonDataContainerType : DataContainerType { }
 
-   [TypeOption("BaseContainer")] // Abstract types included in collection
+   [TypeOption(typeof(DataContainerTypes), "BaseContainer")] // Abstract types included in collection
    public abstract class BaseDataContainerType : DataContainerType { }
 
-   [TypeOption("UtilityContainer")] // Static types included in collection
+   [TypeOption(typeof(DataContainerTypes), "UtilityContainer")] // Static types included in collection
    public static class UtilityDataContainerType : DataContainerType { }
    ```
-   - **STEP 1**: Single pass through all assemblies to find `[TypeOption]` attributes
-   - **STEP 2**: Group discovered types by their base type (inheritance check only on TypeOption types)
+   - **STEP 1**: Single pass through all assemblies to find `[TypeOption]` attributes with explicit collection targeting
+   - **STEP 2**: Group discovered types by their target collection type (from TypeOption parameter)
    - **Includes ALL types**: concrete, abstract, static, and interface types with `[TypeOption]`
    - **Smart Instantiation**: Only instantiates concrete types that can be created with `new`
+   - **Explicit Targeting**: Each type explicitly declares which collection it belongs to via `[TypeOption(typeof(CollectionType), "Name")]`
+   - **No Inheritance Scanning**: No need to scan inheritance hierarchies for collection discovery
    - **Complexity**: O(types_with_typeoption) instead of O(collections × assemblies × all_types)
    - **Performance**: Dramatically faster on large codebases (exponential improvement)
 
 2. **Collection Discovery (Attribute-Based - O(k) Performance)**
    ```csharp
-   [TypeCollection(typeof(DataContainerType), typeof(IDataContainer), typeof(DataContainerTypes))]
+   // In Abstractions Project - for cross-project discoverability
+   [TypeCollection(typeof(DataContainerType), "DataContainerTypes")]
    public partial class DataContainerTypes : TypeCollectionBase<DataContainerType, IDataContainer> { }
    ```
-   - **STEP 3**: Find `[TypeCollection]` attributes and extract base type
+   - **STEP 3**: Find `[TypeCollection]` attributes in abstractions projects
    - **STEP 4**: O(1) lookup of pre-discovered TypeOption types by base type
-   - **No more scanning**: All type discovery already completed in step 1
+   - **Cross-Project Discovery**: Collections in abstractions can discover options from any referenced assembly
    - **Result**: Near-instant collection generation regardless of codebase size
 
 3. **Code Generation with .NET 8+ Optimizations**
@@ -69,8 +92,17 @@ For `.Abstractions` projects, use analyzer-only packaging:
 
 ### Generated Code Structure
 
-For a base type with TypeLookup attributes:
+### Complete Architecture Example
+
 ```csharp
+// 1. Abstractions Project - Collection for discoverability
+[TypeCollection(typeof(DataContainerType), "DataContainerTypes")]
+public partial class DataContainerTypes : TypeCollectionBase<DataContainerType, IDataContainer>
+{
+    // Empty - source generator populates all functionality
+}
+
+// 2. Concrete Project - Base type with TypeLookup attributes
 public abstract class DataContainerType : TypeOptionBase
 {
     [TypeLookup] // Generates Id(int id) method
@@ -81,18 +113,33 @@ public abstract class DataContainerType : TypeOptionBase
 
     [TypeLookup] // Generates Category(string category) method
     public string? Category { get; }
+
+    protected DataContainerType(int id, string name, string? category = null)
+    {
+        Id = id;
+        Name = name;
+        Category = category;
+    }
 }
 
-[TypeCollection(typeof(DataContainerType), typeof(IDataContainer), typeof(DataContainerTypes))]
-public partial class DataContainerTypes : TypeCollectionBase<DataContainerType, IDataContainer>
+// 3. Any Project - Options can be added anywhere
+[TypeOption(typeof(DataContainerTypes), "CSV")]
+public sealed class CsvDataContainerType : DataContainerType, IDataContainer
 {
+    public CsvDataContainerType() : base(1, "CSV", "File") { }
+}
+
+[TypeOption(typeof(DataContainerTypes), "JSON")]
+public sealed class JsonDataContainerType : DataContainerType, IDataContainer
+{
+    public JsonDataContainerType() : base(2, "JSON", "File") { }
 }
 ```
 
 The generator creates:
 
 ```csharp
-public static partial class DataContainerTypes
+public partial class DataContainerTypes
 {
     // Primary FrozenDictionary storage with ID-based primary key
     private static readonly FrozenDictionary<int, IDataContainer> _all = /* initialized in static constructor */;
@@ -179,9 +226,11 @@ public static partial class DataContainerTypes
 - **All() Method**: Direct access to FrozenDictionary.Values for optimal enumeration performance
 
 ### Compilation Performance (ULTRA-OPTIMIZED)
+- **Explicit Collection Targeting**: Each type explicitly declares its target collection, eliminating inheritance scanning
 - **TypeOption-First Discovery**: O(types_with_typeoption) vs O(collections × assemblies × all_types) - revolutionary performance improvement
-- **Single-Pass Assembly Scanning**: One scan to find all [TypeOption] attributes, then O(1) lookup by base type
+- **Single-Pass Assembly Scanning**: One scan to find all [TypeOption] attributes, then direct collection assignment
 - **Attribute-Based Collection Discovery**: O(k) vs O(n×m) inheritance scanning for collection classes
+- **No Dynamic Discovery**: Collections are populated based on explicit [TypeOption] declarations, not runtime inheritance
 - **Incremental Generation**: Only regenerates when source changes
 - **Efficient Symbol Resolution**: Caches type symbols and avoids repeated inheritance checks
 
@@ -193,15 +242,15 @@ The source generator package includes analyzers that warn about:
 #### TC001: Missing TypeOption Attribute
 ```csharp
 // Warning: Type inherits from collection base but missing [TypeOption]
-public class SqlDataContainer : DataContainerType // Missing [TypeOption]
+public class SqlDataContainer : DataContainerType // Missing [TypeOption(typeof(DataContainerTypes), "SqlServer")]
 {
 }
 ```
 
 #### TC002: Generic Type Mismatch
 ```csharp
-// Error: TGeneric doesn't match defaultReturnType
-[TypeCollection(typeof(DataContainerType), typeof(IDataContainer), typeof(DataContainerTypes))]
+// Error: TGeneric doesn't match interface type
+[TypeCollection(typeof(DataContainerType), "DataContainerTypes")]
 public partial class DataContainerTypes : TypeCollectionBase<DataContainerType, IWrongInterface> // Mismatch
 {
 }
@@ -209,8 +258,8 @@ public partial class DataContainerTypes : TypeCollectionBase<DataContainerType, 
 
 #### TC003: Base Type Mismatch
 ```csharp
-// Error: TBase doesn't match baseType
-[TypeCollection(typeof(DataContainerType), typeof(IDataContainer), typeof(DataContainerTypes))]
+// Error: TBase doesn't match TypeCollection baseType
+[TypeCollection(typeof(DataContainerType), "DataContainerTypes")]
 public partial class DataContainerTypes : TypeCollectionBase<WrongBaseType, IDataContainer> // Mismatch
 {
 }
@@ -220,9 +269,9 @@ public partial class DataContainerTypes : TypeCollectionBase<WrongBaseType, IDat
 
 ### TypeCollectionAttribute Constructor
 ```csharp
-// Required parameters only - no additional configuration options
-[TypeCollection(typeof(BaseType), typeof(ReturnType), typeof(CollectionType))]
-public partial class MyTypes : TypeCollectionBase<BaseType, ReturnType>
+// Required parameters: baseType, collectionName
+[TypeCollection(typeof(BaseType), "MyTypes")]
+public partial class MyTypes : TypeCollectionBase<BaseType, IReturnType>
 {
 }
 ```
@@ -275,7 +324,7 @@ public static MyBaseType Category(string category)
 ### Common Issues
 
 1. **Types Not Discovered**
-   - Ensure types have `[TypeOption]` attribute
+   - Ensure types have `[TypeOption(typeof(CollectionType), "Name")]` attribute with both parameters
    - Check that types inherit from the correct base type
    - Verify base type name matches `[TypeCollection]` parameter
 
@@ -308,7 +357,7 @@ For runtime libraries:
 <PackageReference Include="FractalDataWorks.Collections.SourceGenerators" Version="*" />
 ```
 
-For analyzer-only (abstractions):
+For analyzer-only (abstractions projects where collections are defined):
 ```xml
 <PackageReference Include="FractalDataWorks.Collections.SourceGenerators" Version="*">
   <PrivateAssets>all</PrivateAssets>
@@ -316,24 +365,50 @@ For analyzer-only (abstractions):
 </PackageReference>
 ```
 
-## Advanced Scenarios
+## Cross-Project Extensibility
 
-### Custom Empty Implementations
+The key benefit of TypeCollections is that **any project** can add new options to collections defined in abstractions:
+
+```csharp
+// In MyCustom.DataExtensions project
+[TypeOption(typeof(DataContainerTypes), "Parquet")]
+public class ParquetDataContainerType : DataContainerType, IDataContainer
+{
+    public ParquetDataContainerType() : base(100, "Parquet", "BigData") { }
+}
+
+// Automatically discovered and available
+var parquet = DataContainerTypes.Parquet;  // Works immediately
+```
+
+### Cross-Assembly Discovery Benefits
+- **Plugin Architecture**: Core defines contracts, implementations provided by any assembly
+- **Extensible Frameworks**: Downstream developers can extend without modifying core
+- **Modular Development**: Teams can add options independently
+- **Compile-Time Safety**: All options discovered and validated at compile-time
+
+### Advanced Scenarios
+
+#### Custom Empty Implementations
 ```csharp
 // The generator creates intelligent empty implementations
-// based on the base type's constructor requirements
+// based on the base type's constructor requirements and abstract members
+internal sealed class EmptyDataContainer : DataContainerType
+{
+    internal EmptyDataContainer() : base(0, string.Empty, null) { }
+
+    // Override abstract properties with appropriate defaults
+    public override string FileExtension => string.Empty;
+    public override bool SupportsStreaming => false;
+}
 ```
 
-### Cross-Assembly Discovery
+#### Factory Method Generation
 ```csharp
-// Generator discovers types across all referenced assemblies
-// enabling modular type option definitions
-```
-
-### Factory Method Generation
-```csharp
-// All public constructors automatically get factory methods
-// with proper parameter handling and default values
+// Generated factory methods for each discovered type
+public static IDataContainer CreateCsv() => new CsvDataContainerType();
+public static IDataContainer CreateJson() => new JsonDataContainerType();
+public static IDataContainer CreateParquet() => new ParquetDataContainerType();
 ```
 
 ## Version Compatibility

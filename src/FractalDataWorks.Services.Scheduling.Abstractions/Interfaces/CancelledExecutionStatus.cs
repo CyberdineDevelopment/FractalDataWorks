@@ -1,12 +1,12 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
 /// <summary>
 /// The execution was cancelled before completion.
 /// </summary>
-[EnumOption("Cancelled")]
+[TypeOption(typeof(ExecutionStatuses), "Cancelled")]
 public sealed class CancelledExecutionStatus : ExecutionStatus
 {
     /// <summary>

@@ -1,5 +1,4 @@
-using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpProtocols;
 
@@ -7,8 +6,8 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.
 /// Collection of HTTP protocols for enhanced enum functionality.
 /// Source generator creates static HttpProtocols class automatically.
 /// </summary>
-[StaticEnumCollection(CollectionName = "HttpProtocols", DefaultGenericReturnType = typeof(IHttpProtocol))]
-public abstract class HttpProtocolsCollection : EnumCollectionBase<HttpProtocolBase>
+[TypeCollection(typeof(HttpProtocolBase), typeof(IHttpProtocol), typeof(HttpProtocols))]
+public abstract class HttpProtocols
 {
     // DO NOT IMPLEMENT BY HAND!
     // Source generator automatically creates static HttpProtocols class with:

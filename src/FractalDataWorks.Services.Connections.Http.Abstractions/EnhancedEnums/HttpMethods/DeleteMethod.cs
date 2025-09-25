@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpMethods;
 
 /// <summary>
 /// HTTP DELETE method - deletes a resource from the server.
 /// </summary>
-[EnumOption("Delete")]
+[TypeOption(typeof(HttpMethods), "Delete")]
 public sealed class DeleteMethod : HttpMethodBase
 {
     /// <summary>

@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.EndPoints;
 
 /// <summary>
 /// System health and monitoring endpoints endpoint type.
 /// </summary>
-[EnumOption("Health")]
+[TypeOption(typeof(EndpointTypes), "Health")]
 public sealed class Health : EndpointTypeBase
 {
     /// <summary>

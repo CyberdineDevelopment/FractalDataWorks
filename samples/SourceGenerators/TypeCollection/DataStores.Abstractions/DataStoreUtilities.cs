@@ -6,7 +6,7 @@ namespace DataStore.Abstractions;
 /// Static utility class for data store operations.
 /// Demonstrates static type inclusion in collections.
 /// </summary>
-[TypeOption("Utilities")]
+[TypeOption(typeof(DataStoreTypes), "Utilities")]
 public static class DataStoreUtilities
 {
     /// <summary>

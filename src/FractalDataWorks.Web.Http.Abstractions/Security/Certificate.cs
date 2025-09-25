@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Security;
 
 /// <summary>
 /// Client certificate authentication.
 /// </summary>
-[EnumOption("Certificate")]
+[TypeOption(typeof(SecurityMethods), "Certificate")]
 public sealed class Certificate : SecurityMethodBase
 {
     /// <summary>

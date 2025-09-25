@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpMethods;
 
 /// <summary>
 /// HTTP GET method - retrieves data from the server.
 /// </summary>
-[EnumOption("Get")]
+[TypeOption(typeof(HttpMethods), "Get")]
 public sealed class GetMethod : HttpMethodBase
 {
     /// <summary>

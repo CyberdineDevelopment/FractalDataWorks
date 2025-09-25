@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Policies;
 
 /// <summary>
 /// No rate limiting applied.
 /// </summary>
-[EnumOption("None")]
+[TypeOption(typeof(RateLimitPolicies), "None")]
 public sealed class None : RateLimitPolicyBase
 {
     /// <summary>

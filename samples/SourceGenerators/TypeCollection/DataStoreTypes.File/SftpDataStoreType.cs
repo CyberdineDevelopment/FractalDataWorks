@@ -6,7 +6,7 @@ namespace DataStore.File;
 /// <summary>
 /// SFTP DataStore type implementation
 /// </summary>
-[TypeOption("Sftp")]
+[TypeOption(typeof(DataStoreTypes), "Sftp")]
 public sealed class SftpDataStoreType : DataStoreTypeBase
 {
     /// <summary>

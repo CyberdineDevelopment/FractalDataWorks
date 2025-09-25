@@ -135,14 +135,14 @@ public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> :
 ```
 
 ### Rule 5: ServiceTypeCollection Attribute
-**Collections MUST use ServiceTypeCollection attribute**
+**Collections MUST use ServiceTypeCollection attribute with explicit targeting**
 
 ```csharp
-// ✅ CORRECT - Attribute with base type and collection name
-[ServiceTypeCollection("ConnectionTypeBase", "ConnectionTypes")]
-public partial class ConnectionTypesBase : ConnectionTypeCollectionBase<...>
+// ✅ CORRECT - Attribute with base type, interface type, and collection type
+[ServiceTypeCollection(typeof(ConnectionTypeBase<,,>), typeof(IConnectionType), typeof(ConnectionTypes))]
+public partial class ConnectionTypesBase : ServiceTypeCollectionBase<...>
 {
-    // Source generator populates this class
+    // Source generator populates this class using explicit collection targeting
 }
 ```
 
@@ -193,6 +193,33 @@ public sealed class MsSqlConnectionType : ConnectionTypeBase<...>
 }
 ```
 
+### Rule 8: ServiceTypeOption Attribute for Explicit Collection Targeting
+**Service type options MUST use ServiceTypeOption attribute with explicit collection targeting**
+
+```csharp
+// ✅ CORRECT - Attribute with explicit collection type and name
+[ServiceTypeOption(typeof(ConnectionTypes), "MsSql")]
+public sealed class MsSqlConnectionType :
+    ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,
+    IConnectionType<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
+{
+    public static MsSqlConnectionType Instance { get; } = new();
+    private MsSqlConnectionType() : base(id: 2, name: "MsSql", category: "Database") { }
+    // ... implementation
+}
+
+// ❌ WRONG - Missing ServiceTypeOption attribute
+public sealed class BadConnectionType : ConnectionTypeBase<...>
+{
+    // Missing: [ServiceTypeOption(typeof(ConnectionTypes), "BadConnection")]
+}
+```
+
+**Performance Benefits:**
+- O(types_with_attribute) vs O(collections × assemblies × all_types) discovery
+- Eliminates expensive inheritance scanning across all assemblies
+- Direct collection type targeting for faster source generation
+
 ## Complete Example: SQL Server Connection Service
 
 ### Project Structure
@@ -242,7 +269,7 @@ using FractalDataWorks.ServiceTypes.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Abstractions;
 
-[ServiceTypeCollection("ConnectionTypeBase", "ConnectionTypes")]  // Rule 5: Collection attribute
+[ServiceTypeCollection(typeof(ConnectionTypeBase<,,>), typeof(IConnectionType), typeof(ConnectionTypes))]  // Rule 5: Collection attribute
 public partial class ConnectionTypesBase : 
     ConnectionTypeCollectionBase<
         ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>,
@@ -258,18 +285,20 @@ public partial class ConnectionTypesBase :
 ### 3. Concrete Implementation (in MsSql project)
 
 ```csharp
-// MsSqlConnectionType.cs - Rules 1-7: Complete implementation
+// MsSqlConnectionType.cs - Rules 1-8: Complete implementation
 using FractalDataWorks.Services.Connections.Abstractions;
+using FractalDataWorks.ServiceTypes.Attributes;
 
 namespace FractalDataWorks.Services.Connections.MsSql;
 
-public sealed class MsSqlConnectionType : 
+[ServiceTypeOption(typeof(ConnectionTypes), "MsSql")]                                   // Rule 8: ServiceTypeOption with collection targeting
+public sealed class MsSqlConnectionType :
     ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>, // Rule 1: Base class
     IConnectionType<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,    // Rule 1: Generic interface
     IConnectionType                                                                      // Rule 1: Non-generic interface
 {
     public static MsSqlConnectionType Instance { get; } = new();                        // Rule 2: Singleton
-    
+
     private MsSqlConnectionType() : base(id: 2, name: "MsSql", category: "Database")   // Rule 2 & 3: Private constructor with unique ID
     {
     }
@@ -437,7 +466,13 @@ public sealed class BadType : ServiceTypeBase<...>
 // WRONG - Missing ServiceTypeCollection attribute
 public partial class BadCollection : ServiceTypeCollectionBase<...>
 {
-    // Missing: [ServiceTypeCollection("SomeTypeBase", "SomeTypes")]
+    // Missing: [ServiceTypeCollection(typeof(SomeTypeBase<,,>), typeof(ISomeType), typeof(SomeTypes))]
+}
+
+// WRONG - Missing ServiceTypeOption attribute
+public sealed class BadServiceType : ServiceTypeBase<...>
+{
+    // Missing: [ServiceTypeOption(typeof(SomeTypes), "BadService")]
 }
 ```
 

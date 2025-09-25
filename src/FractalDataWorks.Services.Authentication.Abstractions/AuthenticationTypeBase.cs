@@ -32,7 +32,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// The provider name identifies the underlying authentication system
     /// (e.g., "Microsoft Entra", "Auth0", "Okta", "Local").
     /// </remarks>
-    public abstract string ProviderName { get; }
+    public string ProviderName { get; }
 
     /// <summary>
     /// Gets the authentication method used by this provider.
@@ -41,7 +41,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// Defines the primary authentication mechanism such as OAuth2, SAML, JWT, etc.
     /// This helps consumers understand the authentication flow they can expect.
     /// </remarks>
-    public abstract AuthenticationMethod Method { get; }
+    public AuthenticationMethod Method { get; }
 
     /// <summary>
     /// Gets the supported authentication protocols.
@@ -50,7 +50,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// Lists the specific protocols this authentication type supports
     /// (e.g., "OAuth 2.0", "OpenID Connect", "SAML 2.0").
     /// </remarks>
-    public abstract IReadOnlyList<string> SupportedProtocols { get; }
+    public IReadOnlyList<string> SupportedProtocols { get; }
 
     /// <summary>
     /// Gets the supported authentication flows.
@@ -59,7 +59,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// Defines which OAuth2/OpenID Connect flows are supported
     /// (e.g., "authorization_code", "client_credentials", "implicit").
     /// </remarks>
-    public abstract IReadOnlyList<string> SupportedFlows { get; }
+    public IReadOnlyList<string> SupportedFlows { get; }
 
     /// <summary>
     /// Gets the supported token types.
@@ -68,7 +68,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// Specifies which token formats this provider can handle
     /// (e.g., "JWT", "Reference Token", "SAML Assertion").
     /// </remarks>
-    public abstract IReadOnlyList<string> SupportedTokenTypes { get; }
+    public IReadOnlyList<string> SupportedTokenTypes { get; }
 
     /// <summary>
     /// Gets whether this provider supports multi-tenant scenarios.
@@ -77,7 +77,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// Multi-tenant support allows a single authentication configuration
     /// to handle users from multiple organizations or directories.
     /// </remarks>
-    public abstract bool SupportsMultiTenant { get; }
+    public bool SupportsMultiTenant { get; }
 
     /// <summary>
     /// Gets whether this provider supports token caching.
@@ -86,7 +86,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// Token caching improves performance by storing valid tokens
     /// and reusing them until expiration, reducing authentication calls.
     /// </remarks>
-    public abstract bool SupportsTokenCaching { get; }
+    public bool SupportsTokenCaching { get; }
 
     /// <summary>
     /// Gets whether this provider supports token refresh.
@@ -95,7 +95,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// Token refresh allows obtaining new access tokens using refresh tokens
     /// without requiring user re-authentication.
     /// </remarks>
-    public abstract bool SupportsTokenRefresh { get; }
+    public bool SupportsTokenRefresh { get; }
 
     /// <summary>
     /// Gets the priority for provider selection when multiple providers are available.
@@ -112,9 +112,36 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// </summary>
     /// <param name="id">The unique identifier for the authentication type.</param>
     /// <param name="name">The name of the authentication type.</param>
+    /// <param name="providerName">The authentication provider name.</param>
+    /// <param name="method">The authentication method used by this provider.</param>
+    /// <param name="supportedProtocols">The supported authentication protocols.</param>
+    /// <param name="supportedFlows">The supported authentication flows.</param>
+    /// <param name="supportedTokenTypes">The supported token types.</param>
+    /// <param name="supportsMultiTenant">Whether this provider supports multi-tenant scenarios.</param>
+    /// <param name="supportsTokenCaching">Whether this provider supports token caching.</param>
+    /// <param name="supportsTokenRefresh">Whether this provider supports token refresh.</param>
     /// <param name="category">The category for this authentication type (defaults to "Authentication").</param>
-    protected AuthenticationTypeBase(int id, string name, string? category = null)
+    protected AuthenticationTypeBase(
+        int id,
+        string name,
+        string providerName,
+        AuthenticationMethod method,
+        IReadOnlyList<string> supportedProtocols,
+        IReadOnlyList<string> supportedFlows,
+        IReadOnlyList<string> supportedTokenTypes,
+        bool supportsMultiTenant,
+        bool supportsTokenCaching,
+        bool supportsTokenRefresh,
+        string? category = null)
         : base(id, name, category ?? "Authentication")
     {
+        ProviderName = providerName ?? throw new ArgumentNullException(nameof(providerName));
+        Method = method ?? throw new ArgumentNullException(nameof(method));
+        SupportedProtocols = supportedProtocols ?? throw new ArgumentNullException(nameof(supportedProtocols));
+        SupportedFlows = supportedFlows ?? throw new ArgumentNullException(nameof(supportedFlows));
+        SupportedTokenTypes = supportedTokenTypes ?? throw new ArgumentNullException(nameof(supportedTokenTypes));
+        SupportsMultiTenant = supportsMultiTenant;
+        SupportsTokenCaching = supportsTokenCaching;
+        SupportsTokenRefresh = supportsTokenRefresh;
     }
 }

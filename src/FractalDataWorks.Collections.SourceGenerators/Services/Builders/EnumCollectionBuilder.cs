@@ -26,6 +26,8 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     private string? _returnType;
     private Compilation? _compilation;
     private ClassBuilder? _classBuilder;
+    private bool _isUserClassStatic;
+    private bool _isUserClassAbstract;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EnumCollectionBuilder"/> class.
@@ -65,6 +67,19 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     public IEnumCollectionBuilder WithCompilation(Compilation compilation)
     {
         _compilation = compilation ?? throw new ArgumentNullException(nameof(compilation));
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the modifiers from the user's declared partial class.
+    /// </summary>
+    /// <param name="isStatic">Whether the user's class is static.</param>
+    /// <param name="isAbstract">Whether the user's class is abstract.</param>
+    /// <returns>The builder instance for method chaining.</returns>
+    public IEnumCollectionBuilder WithUserClassModifiers(bool isStatic, bool isAbstract)
+    {
+        _isUserClassStatic = isStatic;
+        _isUserClassAbstract = isAbstract;
         return this;
     }
 
@@ -192,22 +207,32 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     private void BuildClass()
     {
         // For TypeCollectionBase, generate a class without "Base" suffix
-        var generatedClassName = _definition!.InheritsFromCollectionBase && _definition.CollectionName.EndsWith("Base", StringComparison.Ordinal) 
+        var generatedClassName = _definition!.InheritsFromCollectionBase && _definition.CollectionName.EndsWith("Base", StringComparison.Ordinal)
             ? _definition.CollectionName.Substring(0, _definition.CollectionName.Length - 4)
             : _definition.CollectionName;
-            
+
         var classBuilder = _classBuilder!.WithName(generatedClassName)
                       .WithXmlDoc($"Provides a collection of {_definition.ClassName} enum values.")
-                      .WithAccessModifier("public")
-                      .AsStatic()
-                      .AsPartial();
-        
+                      .WithAccessModifier("public");
+
+        // Apply the correct modifiers based on the user's declared partial class
+        // Rule: If user's class is static, generate as static
+        //       If user's class is abstract, the generated partial should just be partial (not abstract)
+        //       Always add partial since we're generating a partial class
+        if (_isUserClassStatic)
+        {
+            classBuilder.AsStatic();
+        }
+        // Note: We don't add abstract to the generated partial even if user's class is abstract
+        // because you can't have two partial classes where one is abstract and one isn't
+        classBuilder.AsPartial();
+
         // For TypeCollectionBase inheritance, copy static members from base class
         if (_definition.InheritsFromCollectionBase)
         {
             CopyStaticMembersFromBaseClass((ClassBuilder)classBuilder, generatedClassName);
         }
-        
+
         // No inheritance in generated partial - user's partial already has it
         // We'll generate all the collection members
     }
@@ -2123,7 +2148,7 @@ return value != null;");
             var parameterName = lookup.PropertyName.ToLower(System.Globalization.CultureInfo.InvariantCulture); // id, name, category
 
             string methodBody;
-            if (lookup.PropertyType == "int" && lookup.PropertyName == "Id")
+            if (string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal) && string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal))
             {
                 // For ID lookups, use the primary key directly
                 methodBody = $"_all.TryGetValue({parameterName}, out var result) ? result : _empty";
@@ -2141,11 +2166,11 @@ return value != null;");
                 .WithAccessModifier("public")
                 .AsStatic()
                 .WithParameter(lookup.PropertyType, parameterName)
-                .WithXmlDoc($"Gets a type option by its {lookup.PropertyName} using {(lookup.PropertyName == "Id" ? "primary key lookup" : "alternate key lookup")}.")
+                .WithXmlDoc($"Gets a type option by its {lookup.PropertyName} using {(string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal) ? "primary key lookup" : "alternate key lookup")}.")
                 .WithParamDoc(parameterName, $"The {lookup.PropertyName} value to search for.")
                 .WithReturnDoc($"The type option with the specified {lookup.PropertyName}, or empty instance if not found.");
 
-            if (lookup.PropertyType == "int" && lookup.PropertyName == "Id")
+            if (string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal) && string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal))
             {
                 method.WithExpressionBody(methodBody);
             }

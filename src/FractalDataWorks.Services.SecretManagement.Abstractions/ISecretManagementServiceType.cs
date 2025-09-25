@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.ServiceTypes;
 
 namespace FractalDataWorks.Services.SecretManagement.Abstractions;
 

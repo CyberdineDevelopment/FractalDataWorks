@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.Services.Authentication.Abstractions;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;
 
@@ -14,58 +15,28 @@ namespace FractalDataWorks.Services.Authentication.AzureEntra;
 /// capabilities and requirements. It will be discovered by the generator and included
 /// in the static AuthenticationTypes collection as AuthenticationTypes.AzureEntra.
 /// </remarks>
+[ServiceTypeOption(typeof(AuthenticationTypes), "AzureEntra")]
 public sealed class AzureEntraAuthenticationType : 
     AuthenticationTypeBase<IAuthenticationService, IAuthenticationConfiguration, IAzureEntraAuthenticationServiceFactory>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureEntraAuthenticationType"/> class.
     /// </summary>
-    public AzureEntraAuthenticationType() 
-        : base(1, "AzureEntra", "Authentication")
+    public AzureEntraAuthenticationType()
+        : base(
+            id: 1,
+            name: "AzureEntra",
+            providerName: "Microsoft Entra ID",
+            method: AuthenticationMethod.OAuth2,
+            supportedProtocols: new[] { "OAuth 2.0", "OpenID Connect", "SAML 2.0" },
+            supportedFlows: new[] { "authorization_code", "client_credentials", "device_code", "interactive", "silent", "on_behalf_of" },
+            supportedTokenTypes: new[] { "access_token", "id_token", "refresh_token" },
+            supportsMultiTenant: true,
+            supportsTokenCaching: true,
+            supportsTokenRefresh: true,
+            category: "Authentication")
     {
     }
-
-    /// <inheritdoc/>
-    public override string ProviderName => "Microsoft Entra ID";
-
-    /// <inheritdoc/>
-    public override AuthenticationMethod Method => AuthenticationMethod.OAuth2;
-
-    /// <inheritdoc/>
-    public override IReadOnlyList<string> SupportedProtocols => new[]
-    {
-        "OAuth 2.0",
-        "OpenID Connect", 
-        "SAML 2.0"
-    };
-
-    /// <inheritdoc/>
-    public override IReadOnlyList<string> SupportedFlows => new[]
-    {
-        "authorization_code",
-        "client_credentials", 
-        "device_code",
-        "interactive",
-        "silent",
-        "on_behalf_of"
-    };
-
-    /// <inheritdoc/>
-    public override IReadOnlyList<string> SupportedTokenTypes => new[]
-    {
-        "access_token",
-        "id_token", 
-        "refresh_token"
-    };
-
-    /// <inheritdoc/>
-    public override bool SupportsMultiTenant => true;
-
-    /// <inheritdoc/>
-    public override bool SupportsTokenCaching => true;
-
-    /// <inheritdoc/>
-    public override bool SupportsTokenRefresh => true;
 
     /// <inheritdoc/>
     public override int Priority => 90;

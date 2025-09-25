@@ -1,30 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.ServiceTypes.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.DataContainers.Abstractions\FractalDataWorks.DataContainers.Abstractions.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.EnhancedEnums.SourceGenerators\FractalDataWorks.EnhancedEnums.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    
-    <!-- Build dependency on the ServiceTypes source generator -->
-    <ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj" 
-                      ReferenceOutputAssembly="false" 
-                      PrivateAssets="all" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <!-- Explicitly embed the ServiceTypes generator DLL -->
-    <None Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.ServiceTypes.SourceGenerators.dll" 
-          Pack="true" 
-          PackagePath="analyzers/dotnet/cs" 
-          Visible="false" 
-          Condition="Exists('..\FractalDataWorks.ServiceTypes.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.ServiceTypes.SourceGenerators.dll')" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.ServiceTypes.csproj" />
+		<ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.Collections.csproj" />
+		<ProjectReference Include="..\FractalDataWorks.DataContainers.Abstractions\FractalDataWorks.DataContainers.Abstractions.csproj" />
+		<ProjectReference Include="..\FractalDataWorks.EnhancedEnums.SourceGenerators\FractalDataWorks.EnhancedEnums.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+
+	</ItemGroup>
+	
 
 </Project>

@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.EndPoints;
 
 /// <summary>
 /// Event publishing and subscription operations endpoint type.
 /// </summary>
-[EnumOption("Event")]
+[TypeOption(typeof(EndpointTypes), "Event")]
 public sealed class Event : EndpointTypeBase
 {
     /// <summary>

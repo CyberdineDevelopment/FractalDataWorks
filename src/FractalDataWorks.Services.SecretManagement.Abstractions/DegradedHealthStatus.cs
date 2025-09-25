@@ -11,5 +11,5 @@ public sealed class DegradedHealthStatus : HealthStatus
     /// <summary>
     /// Initializes a new instance of the <see cref="DegradedHealthStatus"/> class.
     /// </summary>
-    public DegradedHealthStatus() : base(3, "Degraded") { }
+    public DegradedHealthStatus() : base(4, "Degraded") { }
 }

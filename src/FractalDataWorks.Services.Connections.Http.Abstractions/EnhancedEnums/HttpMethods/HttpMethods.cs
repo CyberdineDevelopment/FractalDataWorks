@@ -1,5 +1,4 @@
-using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpMethods;
 
@@ -7,8 +6,8 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.
 /// Collection of HTTP methods for enhanced enum functionality.
 /// Source generator creates static HttpMethods class automatically.
 /// </summary>
-[StaticEnumCollection(CollectionName = "HttpMethods", DefaultGenericReturnType = typeof(IHttpMethod))]
-public abstract class HttpMethodsCollection : EnumCollectionBase<HttpMethodBase>
+[TypeCollection(typeof(HttpMethodBase), typeof(IHttpMethod), typeof(HttpMethods))]
+public abstract class HttpMethods : HttpMethodBase
 {
     // DO NOT IMPLEMENT BY HAND!
     // Source generator automatically creates static HttpMethods class with:

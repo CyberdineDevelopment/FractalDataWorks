@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>{TargetFramework}</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <RootNamespace>FractalDataWorks.Services.{DomainName}</RootNamespace>
+    <AssemblyName>FractalDataWorks.Services.{DomainName}</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FractalDataWorks.Services" Version="1.0.*" />
+    <PackageReference Include="FractalDataWorks.Services.Abstractions" Version="1.0.*" />
+    <PackageReference Include="FractalDataWorks.EnhancedEnums" Version="1.0.*" Condition="'$(UseEnhancedEnums)' == 'true'" />
+    <PackageReference Include="FractalDataWorks.EnhancedEnums.SourceGenerators" Version="1.0.*" Condition="'$(UseEnhancedEnums)' == 'true'" />
+    <PackageReference Include="FractalDataWorks.Collections.SourceGenerators" Version="1.0.*" />
+    <PackageReference Include="FractalDataWorks.Configuration.Abstractions" Version="1.0.*" />
+    <PackageReference Include="FractalDataWorks.Results" Version="1.0.*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.*" />
+    <PackageReference Include="FluentValidation" Version="11.*" />
+    <PackageReference Include="FastGenericNew" Version="3.*" />
+  </ItemGroup>
+
+</Project>

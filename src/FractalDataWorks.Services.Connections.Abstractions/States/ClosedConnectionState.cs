@@ -1,9 +1,9 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Abstractions;
 
 /// <summary>
 /// The connection is closed.
 /// </summary>
-[EnumOption("Closed")]
+[TypeOption(typeof(ConnectionStates), "Closed")]
 public sealed class ClosedConnectionState() : ConnectionStateBase(6, "Closed");

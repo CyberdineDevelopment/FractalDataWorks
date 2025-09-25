@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums.States;
 
 /// <summary>
 /// State when a process is actively executing.
 /// </summary>
-[EnumOption("Running")]
+[TypeOption(typeof(ProcessStates), "Running")]
 public sealed class Running : ProcessStateBase
 {
     /// <summary>

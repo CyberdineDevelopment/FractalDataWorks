@@ -7,7 +7,7 @@ namespace DataStore.Database;
 /// MySQL DataStore type implementation.
 /// Demonstrates concrete type with constructor ID extraction.
 /// </summary>
-[TypeOption("MySql")]
+[TypeOption(typeof(DataStoreTypes), "MySql")]
 public sealed class MySqlDataStoreType : DatabaseDataStoreTypeBase
 {
     /// <summary>

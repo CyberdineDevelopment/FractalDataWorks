@@ -26,6 +26,8 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     private string? _returnType;
     private Compilation? _compilation;
     private ClassBuilder? _classBuilder;
+    private bool _isUserClassStatic;
+    private bool _isUserClassAbstract;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EnumCollectionBuilder"/> class.
@@ -65,6 +67,19 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     public IEnumCollectionBuilder WithCompilation(Compilation compilation)
     {
         _compilation = compilation ?? throw new ArgumentNullException(nameof(compilation));
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the modifiers from the user's declared partial class.
+    /// </summary>
+    /// <param name="isStatic">Whether the user's class is static.</param>
+    /// <param name="isAbstract">Whether the user's class is abstract.</param>
+    /// <returns>The builder instance for method chaining.</returns>
+    public IEnumCollectionBuilder WithUserClassModifiers(bool isStatic, bool isAbstract)
+    {
+        _isUserClassStatic = isStatic;
+        _isUserClassAbstract = isAbstract;
         return this;
     }
 
@@ -198,9 +213,19 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
             
         var classBuilder = _classBuilder!.WithName(generatedClassName)
                       .WithXmlDoc($"Provides a collection of {_definition.ClassName} enum values.")
-                      .WithAccessModifier("public")
-                      .AsStatic()
-                      .AsPartial();
+                      .WithAccessModifier("public");
+
+        // Apply the correct modifiers based on the user's declared partial class
+        // Rule: If user's class is static, generate as static
+        //       If user's class is abstract, the generated partial should just be partial (not abstract)
+        //       Always add partial since we're generating a partial class
+        if (_isUserClassStatic)
+        {
+            classBuilder.AsStatic();
+        }
+        // Note: We don't add abstract to the generated partial even if user's class is abstract
+        // because you can't have two partial classes where one is abstract and one isn't
+        classBuilder.AsPartial();
         
         // For TypeCollectionBase inheritance, copy static members from base class
         if (_definition.InheritsFromCollectionBase)

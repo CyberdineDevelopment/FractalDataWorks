@@ -3,4 +3,13 @@
   <PropertyGroup>
     <GenerateServiceTypeCollection Condition="'$(GenerateServiceTypeCollection)' == ''">true</GenerateServiceTypeCollection>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(GenerateServiceTypeCollection)' == 'true'">
+    <Analyzer Include="$(MSBuildThisFileDirectory)../analyzers/dotnet/cs/FractalDataWorks.ServiceTypes.SourceGenerators.dll" />
+    <!-- Add reference to the merged assembly which now contains public ServiceTypes types -->
+    <Reference Include="FractalDataWorks.ServiceTypes.SourceGenerators">
+      <HintPath>$(MSBuildThisFileDirectory)../analyzers/dotnet/cs/FractalDataWorks.ServiceTypes.SourceGenerators.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
 </Project>

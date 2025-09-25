@@ -31,7 +31,7 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
     /// ["HashiCorpVault"] for HashiCorp Vault,
     /// ["AWSSecretsManager", "AWSParameterStore"] for AWS providers.
     /// </remarks>
-    public abstract string[] SupportedSecretStores { get; }
+    public string[] SupportedSecretStores { get; }
 
     /// <summary>
     /// Gets the secret types supported by this provider.
@@ -44,7 +44,7 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
     /// - "ConnectionString": Database or service connection strings
     /// - "ApiKey": API keys and tokens
     /// </remarks>
-    public abstract IReadOnlyList<string> SupportedSecretTypes { get; }
+    public IReadOnlyList<string> SupportedSecretTypes { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports secret rotation.
@@ -53,7 +53,7 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
     /// Secret rotation automatically updates secrets periodically or on-demand
     /// to maintain security. This is critical for compliance and security best practices.
     /// </remarks>
-    public abstract bool SupportsRotation { get; }
+    public bool SupportsRotation { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports secret versioning.
@@ -62,7 +62,7 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
     /// Versioning allows maintaining multiple versions of a secret,
     /// enabling rollback and gradual migration scenarios.
     /// </remarks>
-    public abstract bool SupportsVersioning { get; }
+    public bool SupportsVersioning { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports soft delete.
@@ -71,7 +71,7 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
     /// Soft delete allows recovery of deleted secrets within a retention period,
     /// preventing accidental permanent data loss.
     /// </remarks>
-    public abstract bool SupportsSoftDelete { get; }
+    public bool SupportsSoftDelete { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports access policies.
@@ -80,7 +80,7 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
     /// Access policies enable fine-grained control over who can read, write,
     /// or manage specific secrets.
     /// </remarks>
-    public abstract bool SupportsAccessPolicies { get; }
+    public bool SupportsAccessPolicies { get; }
 
     /// <summary>
     /// Gets the maximum secret size in bytes supported by this provider.
@@ -89,7 +89,7 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
     /// Different secret stores have different size limitations.
     /// 0 indicates no limit, -1 indicates unknown limit.
     /// </remarks>
-    public abstract int MaxSecretSizeBytes { get; }
+    public int MaxSecretSizeBytes { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports batch operations.
@@ -136,6 +136,13 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
     /// <param name="sectionName">The configuration section name for appsettings.json.</param>
     /// <param name="displayName">The display name for this service type.</param>
     /// <param name="description">The description of what this service type provides.</param>
+    /// <param name="supportedSecretStores">The secret store types supported by this provider.</param>
+    /// <param name="supportedSecretTypes">The secret types supported by this provider.</param>
+    /// <param name="supportsRotation">Indicates whether this provider supports secret rotation.</param>
+    /// <param name="supportsVersioning">Indicates whether this provider supports secret versioning.</param>
+    /// <param name="supportsSoftDelete">Indicates whether this provider supports soft delete.</param>
+    /// <param name="supportsAccessPolicies">Indicates whether this provider supports access policies.</param>
+    /// <param name="maxSecretSizeBytes">The maximum secret size in bytes supported by this provider.</param>
     /// <param name="category">The category for this secret management type (defaults to "Secret Management").</param>
     protected SecretManagementTypeBase(
         int id,
@@ -143,8 +150,22 @@ public abstract class SecretManagementTypeBase<TService, TConfiguration, TFactor
         string sectionName,
         string displayName,
         string description,
+        string[] supportedSecretStores,
+        IReadOnlyList<string> supportedSecretTypes,
+        bool supportsRotation,
+        bool supportsVersioning,
+        bool supportsSoftDelete,
+        bool supportsAccessPolicies,
+        int maxSecretSizeBytes,
         string? category = null)
         : base(id, name, sectionName, displayName, description, category ?? "Secret Management")
     {
+        SupportedSecretStores = supportedSecretStores ?? throw new ArgumentNullException(nameof(supportedSecretStores));
+        SupportedSecretTypes = supportedSecretTypes ?? throw new ArgumentNullException(nameof(supportedSecretTypes));
+        SupportsRotation = supportsRotation;
+        SupportsVersioning = supportsVersioning;
+        SupportsSoftDelete = supportsSoftDelete;
+        SupportsAccessPolicies = supportsAccessPolicies;
+        MaxSecretSizeBytes = maxSecretSizeBytes;
     }
 }

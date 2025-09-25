@@ -29,7 +29,7 @@ public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> :
     /// Identifies the underlying scheduling framework or implementation
     /// (e.g., "Quartz.NET", "Hangfire", "FluentScheduler", "TaskScheduler").
     /// </remarks>
-    public abstract string SchedulingEngine { get; }
+    public string SchedulingEngine { get; }
 
     /// <summary>
     /// Gets the job executor type for this scheduler.
@@ -38,7 +38,7 @@ public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> :
     /// The type responsible for executing scheduled jobs. This typically
     /// implements job-specific logic and integrates with the scheduling engine.
     /// </remarks>
-    public abstract Type JobExecutorType { get; }
+    public Type JobExecutorType { get; }
 
     /// <summary>
     /// Gets the trigger type used by this scheduler.
@@ -48,7 +48,7 @@ public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> :
     /// Different schedulers may use different trigger implementations
     /// (e.g., CronTrigger, SimpleTrigger, custom triggers).
     /// </remarks>
-    public abstract Type TriggerType { get; }
+    public Type TriggerType { get; }
 
     /// <summary>
     /// Gets a value indicating whether this scheduler supports recurring jobs.
@@ -58,7 +58,7 @@ public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> :
     /// This is the most common scheduling pattern for maintenance tasks,
     /// data processing, and periodic operations.
     /// </remarks>
-    public abstract bool SupportsRecurring { get; }
+    public bool SupportsRecurring { get; }
 
     /// <summary>
     /// Gets a value indicating whether this scheduler supports delayed jobs.
@@ -67,7 +67,7 @@ public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> :
     /// Delayed jobs execute once at a specific future time.
     /// Common for notifications, cleanup tasks, and workflow orchestration.
     /// </remarks>
-    public abstract bool SupportsDelayed { get; }
+    public bool SupportsDelayed { get; }
 
     /// <summary>
     /// Gets a value indicating whether this scheduler supports cron expressions.
@@ -130,9 +130,27 @@ public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> :
     /// </summary>
     /// <param name="id">The unique identifier for the scheduler type.</param>
     /// <param name="name">The name of the scheduler type.</param>
+    /// <param name="schedulingEngine">The scheduling engine used by this service type.</param>
+    /// <param name="jobExecutorType">The job executor type for this scheduler.</param>
+    /// <param name="triggerType">The trigger type used by this scheduler.</param>
+    /// <param name="supportsRecurring">Indicates whether this scheduler supports recurring jobs.</param>
+    /// <param name="supportsDelayed">Indicates whether this scheduler supports delayed jobs.</param>
     /// <param name="category">The category for this scheduler type (defaults to "Scheduling").</param>
-    protected SchedulerTypeBase(int id, string name, string? category = null)
+    protected SchedulerTypeBase(
+        int id,
+        string name,
+        string schedulingEngine,
+        Type jobExecutorType,
+        Type triggerType,
+        bool supportsRecurring,
+        bool supportsDelayed,
+        string? category = null)
         : base(id, name, category ?? "Scheduling")
     {
+        SchedulingEngine = schedulingEngine ?? throw new ArgumentNullException(nameof(schedulingEngine));
+        JobExecutorType = jobExecutorType ?? throw new ArgumentNullException(nameof(jobExecutorType));
+        TriggerType = triggerType ?? throw new ArgumentNullException(nameof(triggerType));
+        SupportsRecurring = supportsRecurring;
+        SupportsDelayed = supportsDelayed;
     }
 }

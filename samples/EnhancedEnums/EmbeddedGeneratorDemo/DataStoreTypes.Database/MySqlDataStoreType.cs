@@ -6,7 +6,7 @@ namespace DataStore.Database;
 /// <summary>
 /// MySQL DataStore type implementation
 /// </summary>
-[TypeOption("MySql")]
+[TypeOption(typeof(DataStoreTypes), "MySql")]
 public sealed class MySqlDataStoreType : DataStoreTypeBase
 {
     /// <summary>

@@ -1,20 +1,18 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.SecretManagement.Abstractions;
 using FractalDataWorks.Services.SecretManagement;
 using FractalDataWorks.Services.SecretManagement.Commands;
-using FractalDataWorks.Services.SecretManagement.Abstractions;
-using FractalDataWorks.Services.SecretManagement;
 
 namespace FractalDataWorks.Services.SecretManagement.AzureKeyVault.EnhancedEnums;
 
 /// <summary>
 /// Delete secret command type for removing secrets from Azure Key Vault.
 /// </summary>
-[EnumOption]
+[TypeOption(typeof(SecretCommandTypes), "Delete")]
 public class DeleteSecret : SecretCommandTypeBase
 {
     /// <summary>

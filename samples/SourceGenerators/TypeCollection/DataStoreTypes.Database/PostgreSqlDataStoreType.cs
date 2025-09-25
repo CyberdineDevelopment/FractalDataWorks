@@ -7,7 +7,7 @@ namespace DataStore.Database;
 /// PostgreSQL DataStore type implementation.
 /// Demonstrates concrete type with ID=2 for static property lookup.
 /// </summary>
-[TypeOption("PostgreSql")]
+[TypeOption(typeof(DataStoreTypes), "PostgreSql")]
 public sealed class PostgreSqlDataStoreType : DatabaseDataStoreTypeBase
 {
     /// <summary>

@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.SecretManagement.Abstractions;
 using FractalDataWorks.Services.SecretManagement;
@@ -14,7 +14,7 @@ namespace FractalDataWorks.Services.SecretManagement.AzureKeyVault.EnhancedEnums
 /// <summary>
 /// Set secret command type for storing secret values in Azure Key Vault.
 /// </summary>
-[EnumOption]
+[TypeOption(typeof(SecretCommandTypes), "Set")]
 public class SetSecret : SecretCommandTypeBase
 {
     /// <summary>

@@ -1,12 +1,12 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
 /// <summary>
 /// The execution failed with an error.
 /// </summary>
-[EnumOption("Failed")]
+[TypeOption(typeof(ExecutionStatuses), "Failed")]
 public sealed class FailedExecutionStatus : ExecutionStatus
 {
     /// <summary>

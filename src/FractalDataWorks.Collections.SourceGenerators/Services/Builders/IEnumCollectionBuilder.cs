@@ -52,6 +52,15 @@ public interface IEnumCollectionBuilder
     IEnumCollectionBuilder WithCompilation(Compilation compilation);
 
     /// <summary>
+    /// Sets the modifiers from the user's declared partial class.
+    /// This ensures the generated partial class has compatible modifiers.
+    /// </summary>
+    /// <param name="isStatic">Whether the user's class is static.</param>
+    /// <param name="isAbstract">Whether the user's class is abstract.</param>
+    /// <returns>The builder instance for method chaining.</returns>
+    IEnumCollectionBuilder WithUserClassModifiers(bool isStatic, bool isAbstract);
+
+    /// <summary>
     /// Builds and returns the complete source code for the enum collection.
     /// The returned string contains all the necessary methods, properties, and fields
     /// for the enhanced enum collection based on the specified configuration.

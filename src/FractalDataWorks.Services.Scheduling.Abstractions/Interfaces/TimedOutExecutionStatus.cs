@@ -1,12 +1,12 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
 /// <summary>
 /// The execution exceeded its timeout limit.
 /// </summary>
-[EnumOption("TimedOut")]
+[TypeOption(typeof(ExecutionStatuses), "TimedOut")]
 public sealed class TimedOutExecutionStatus : ExecutionStatus
 {
     /// <summary>

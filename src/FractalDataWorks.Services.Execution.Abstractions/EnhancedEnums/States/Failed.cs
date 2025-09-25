@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums.States;
 
 /// <summary>
 /// Final state when a process has failed due to an error.
 /// </summary>
-[EnumOption("Failed")]
+[TypeOption(typeof(ProcessStates), "Failed")]
 public sealed class Failed : ProcessStateBase
 {
     /// <summary>

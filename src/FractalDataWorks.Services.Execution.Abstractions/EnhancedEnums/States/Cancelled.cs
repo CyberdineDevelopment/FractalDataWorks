@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums.States;
 
 /// <summary>
 /// Final state when a process has been cancelled before completion.
 /// </summary>
-[EnumOption("Cancelled")]
+[TypeOption(typeof(ProcessStates), "Cancelled")]
 public sealed class Cancelled : ProcessStateBase
 {
     /// <summary>

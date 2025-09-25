@@ -12,7 +12,7 @@ namespace FractalDataWorks.DataContainers.Abstractions.Types;
 /// JSON (JavaScript Object Notation) data container type.
 /// Supports hierarchical structured data with nested objects and arrays.
 /// </summary>
-[TypeOption("Json")]
+[TypeOption(typeof(DataContainerTypes), "Json")]
 public sealed class JsonDataContainerType : DataContainerTypeBase<JsonDataContainerType>
 {
     /// <summary>

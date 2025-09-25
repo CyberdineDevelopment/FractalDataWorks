@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Policies;
 
 /// <summary>
 /// Sliding time window rate limiting.
 /// </summary>
-[EnumOption("SlidingWindow")]
+[TypeOption(typeof(RateLimitPolicies), "SlidingWindow")]
 public sealed class SlidingWindow : RateLimitPolicyBase
 {
     /// <summary>

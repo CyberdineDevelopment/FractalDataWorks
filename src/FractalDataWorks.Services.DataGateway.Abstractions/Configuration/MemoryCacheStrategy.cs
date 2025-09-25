@@ -1,5 +1,5 @@
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
 
@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
 /// Fast access to cached information but lost on application restart.
 /// Good balance of performance and freshness for most scenarios.
 /// </remarks>
-[EnumOption("Memory")]
+[TypeOption(typeof(CacheStrategies), "Memory")]
 public sealed class MemoryCacheStrategy : CacheStrategy
 {
     /// <summary>

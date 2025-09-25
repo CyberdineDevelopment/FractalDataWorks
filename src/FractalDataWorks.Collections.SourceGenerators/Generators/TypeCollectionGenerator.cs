@@ -144,42 +144,42 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
     /// </summary>
     private static Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> FindAndGroupAllTypeOptions(Compilation compilation)
     {
-        var typeOptionsByBaseType = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+        var typeOptionsByCollectionType = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
         var typeOptionAttributeType = compilation.GetTypeByMetadataName(typeof(FractalDataWorks.Collections.Attributes.TypeOptionAttribute).FullName!);
 
-        if (typeOptionAttributeType == null) return typeOptionsByBaseType;
+        if (typeOptionAttributeType == null) return typeOptionsByCollectionType;
 
         // Single pass: scan all assemblies for [TypeOption] attributes
-        var allTypeOptionsWithTypes = new List<INamedTypeSymbol>();
+        var allTypeOptionsWithAttributes = new List<(INamedTypeSymbol Type, AttributeData Attribute)>();
 
         // Scan current compilation
-        ScanNamespaceForTypeOptions(compilation.GlobalNamespace, typeOptionAttributeType, allTypeOptionsWithTypes);
+        ScanNamespaceForTypeOptionsWithAttributes(compilation.GlobalNamespace, typeOptionAttributeType, allTypeOptionsWithAttributes);
 
         // Scan all referenced assemblies
         foreach (var reference in compilation.References)
         {
             if (compilation.GetAssemblyOrModuleSymbol(reference) is IAssemblySymbol assemblySymbol)
             {
-                ScanNamespaceForTypeOptions(assemblySymbol.GlobalNamespace, typeOptionAttributeType, allTypeOptionsWithTypes);
+                ScanNamespaceForTypeOptionsWithAttributes(assemblySymbol.GlobalNamespace, typeOptionAttributeType, allTypeOptionsWithAttributes);
             }
         }
 
-        // Group discovered TypeOption types by their base type (only check inheritance for discovered types)
-        foreach (var typeOptionType in allTypeOptionsWithTypes)
+        // Group discovered TypeOption types by their explicit collection type
+        foreach (var (typeOptionType, attribute) in allTypeOptionsWithAttributes)
         {
-            var baseType = FindImmediateCollectionBaseType(typeOptionType);
-            if (baseType != null)
+            var collectionType = ExtractCollectionTypeFromTypeOptionAttribute(attribute, compilation);
+            if (collectionType != null)
             {
-                if (!typeOptionsByBaseType.TryGetValue(baseType, out var list))
+                if (!typeOptionsByCollectionType.TryGetValue(collectionType, out var list))
                 {
                     list = new List<INamedTypeSymbol>();
-                    typeOptionsByBaseType[baseType] = list;
+                    typeOptionsByCollectionType[collectionType] = list;
                 }
                 list.Add(typeOptionType);
             }
         }
 
-        return typeOptionsByBaseType;
+        return typeOptionsByCollectionType;
     }
 
     /// <summary>
@@ -602,13 +602,14 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
 
     private static string ExtractTypeOptionName(AttributeData typeOptionAttr, INamedTypeSymbol optionType) // PHASE 7.3.1: Extract name from TypeOption attribute
     {
-        // Get the first constructor argument which should be the name
+        // TypeOption now has two parameters: (Type collectionType, string name)
+        // Get the second constructor argument which should be the name
         var constructorArgs = typeOptionAttr.ConstructorArguments;
-        if (constructorArgs.Length > 0 && constructorArgs[0].Value is string name)
+        if (constructorArgs.Length > 1 && constructorArgs[1].Value is string name)
         {
             return name;
         }
-        
+
         // Fallback to class name if attribute doesn't have a name argument
         return optionType.Name;
     }
@@ -669,6 +670,10 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                 effectiveReturnType = def.ClassName;
             }
 
+            // Determine if the user's declared class is static or abstract
+            var isUserClassStatic = collectionClass.IsStatic;
+            var isUserClassAbstract = collectionClass.IsAbstract;
+
             // Use the enhanced EnumCollectionBuilder with FrozenDictionary support
             var builder = new EnumCollectionBuilder();
 
@@ -678,6 +683,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                 .WithValues(values.ToList())
                 .WithReturnType(effectiveReturnType)
                 .WithCompilation(compilation)
+                .WithUserClassModifiers(isUserClassStatic, isUserClassAbstract)
                 .Build();
 
             var fileName = $"{def.CollectionName}.g.cs";
@@ -717,5 +723,73 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
 
             context.ReportDiagnostic(diagnostic);
         }
+    }
+
+    /// <summary>
+    /// Helper method to recursively scan namespaces for TypeOption attributes with their attribute data.
+    /// </summary>
+    private static void ScanNamespaceForTypeOptionsWithAttributes(INamespaceSymbol namespaceSymbol, INamedTypeSymbol typeOptionAttributeType, List<(INamedTypeSymbol Type, AttributeData Attribute)> results)
+    {
+        // Scan types in current namespace
+        foreach (var type in namespaceSymbol.GetTypeMembers())
+        {
+            var attribute = GetTypeOptionAttribute(type, typeOptionAttributeType);
+            if (attribute != null)
+            {
+                results.Add((type, attribute));
+            }
+
+            // Recursively scan nested types
+            ScanNestedTypesForTypeOptionWithAttributes(type, typeOptionAttributeType, results);
+        }
+
+        // Recursively scan child namespaces
+        foreach (var childNamespace in namespaceSymbol.GetNamespaceMembers())
+        {
+            ScanNamespaceForTypeOptionsWithAttributes(childNamespace, typeOptionAttributeType, results);
+        }
+    }
+
+    /// <summary>
+    /// Helper method to scan nested types for TypeOption attributes with their attribute data.
+    /// </summary>
+    private static void ScanNestedTypesForTypeOptionWithAttributes(INamedTypeSymbol parentType, INamedTypeSymbol typeOptionAttributeType, List<(INamedTypeSymbol Type, AttributeData Attribute)> results)
+    {
+        foreach (var nestedType in parentType.GetTypeMembers())
+        {
+            var attribute = GetTypeOptionAttribute(nestedType, typeOptionAttributeType);
+            if (attribute != null)
+            {
+                results.Add((nestedType, attribute));
+            }
+
+            // Recursively scan deeper nested types
+            ScanNestedTypesForTypeOptionWithAttributes(nestedType, typeOptionAttributeType, results);
+        }
+    }
+
+    /// <summary>
+    /// Gets the TypeOption attribute from a type, if it exists.
+    /// </summary>
+    private static AttributeData? GetTypeOptionAttribute(INamedTypeSymbol type, INamedTypeSymbol typeOptionAttributeType)
+    {
+        return type.GetAttributes()
+            .FirstOrDefault(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, typeOptionAttributeType));
+    }
+
+    /// <summary>
+    /// Extracts the collection type from a TypeOption attribute.
+    /// </summary>
+    private static INamedTypeSymbol? ExtractCollectionTypeFromTypeOptionAttribute(AttributeData attribute, Compilation compilation)
+    {
+        if (attribute.ConstructorArguments.Length > 0)
+        {
+            var collectionTypeArg = attribute.ConstructorArguments[0];
+            if (collectionTypeArg.Kind == TypedConstantKind.Type && collectionTypeArg.Value is INamedTypeSymbol collectionType)
+            {
+                return collectionType;
+            }
+        }
+        return null;
     }
 }

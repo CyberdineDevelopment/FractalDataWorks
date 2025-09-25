@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.Services;
 using FractalDataWorks.Services.Authentication.Abstractions;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;
@@ -11,6 +12,7 @@ namespace FractalDataWorks.Services.Authentication.AzureEntra;
 /// <summary>
 /// Service type definition for Azure Entra (Azure Active Directory) authentication.
 /// </summary>
+[ServiceTypeOption(typeof(AuthenticationTypes), "AzureEntraService")]
 public sealed class AzureEntraAuthenticationServiceType :
     AuthenticationTypeBase<IAuthenticationService, IAuthenticationConfiguration, IAzureEntraAuthenticationServiceFactory>,
     IEnumOption<AzureEntraAuthenticationServiceType>

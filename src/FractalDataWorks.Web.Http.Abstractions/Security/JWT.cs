@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Security;
 
 /// <summary>
 /// JSON Web Token authentication.
 /// </summary>
-[EnumOption("JWT")]
+[TypeOption(typeof(SecurityMethods), "JWT")]
 public sealed class JWT : SecurityMethodBase
 {
     /// <summary>

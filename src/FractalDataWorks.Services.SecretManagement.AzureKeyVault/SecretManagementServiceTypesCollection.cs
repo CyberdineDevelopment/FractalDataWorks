@@ -3,6 +3,7 @@ using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.SecretManagement.Abstractions;
 using FractalDataWorks.Services.SecretManagement;
 using FractalDataWorks.Services.SecretManagement.AzureKeyVault.EnhancedEnums;
+using FractalDataWorks.ServiceTypes;
 
 namespace FractalDataWorks.Services.SecretManagement.AzureKeyVault;
 

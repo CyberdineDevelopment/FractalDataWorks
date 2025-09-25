@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Security;
 
 /// <summary>
 /// No authentication required.
 /// </summary>
-[EnumOption("None")]
+[TypeOption(typeof(SecurityMethods), "None")]
 public sealed class None : SecurityMethodBase
 {
     /// <summary>

@@ -1,11 +1,11 @@
-using Microsoft.Extensions.DependencyInjection;
-using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.Results;
 using System;
 using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.Results;
+using FractalDataWorks.Services;
 using FractalDataWorks.Services.Abstractions;
 
-namespace FractalDataWorks.Services;
+namespace FractalDataWorks.ServiceTypes;
 
 /// <summary>
 /// Represents a strongly-typed service type definition with generic type parameters for service, configuration, and factory.

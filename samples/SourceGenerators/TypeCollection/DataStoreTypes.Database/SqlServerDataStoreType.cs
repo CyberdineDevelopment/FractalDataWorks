@@ -6,7 +6,7 @@ namespace DataStore.Database;
 /// <summary>
 /// SQL Server DataStore type implementation
 /// </summary>
-[TypeOption("SqlServer")]
+[TypeOption(typeof(DataStoreTypes), "SqlServer")]
 public sealed class SqlServerDataStoreType : DataStoreTypeBase
 {
     /// <summary>

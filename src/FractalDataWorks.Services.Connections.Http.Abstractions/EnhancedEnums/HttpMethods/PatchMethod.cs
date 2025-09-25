@@ -1,11 +1,11 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpMethods;
 
 /// <summary>
 /// HTTP PATCH method - applies partial modifications to a resource.
 /// </summary>
-[EnumOption("Patch")]
+[TypeOption(typeof(HttpMethods), "Patch")]
 public sealed class PatchMethod : HttpMethodBase
 {
     /// <summary>

@@ -6,7 +6,7 @@ namespace DataStore.Abstractions;
 /// Abstract base class for database data store types.
 /// Demonstrates abstract type inclusion in collections.
 /// </summary>
-[TypeOption("DatabaseBase")]
+[TypeOption(typeof(DataStoreTypes), "DatabaseBase")]
 public abstract class DatabaseDataStoreTypeBase : DataStoreTypeBase
 {
     protected DatabaseDataStoreTypeBase(int id, string name)

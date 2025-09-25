@@ -73,7 +73,18 @@
     <Message Text="ILRepack: Merging assemblies directly to $(OutputPath)$(AssemblyName).dll" Importance="high" />
     <Message Text="ILRepack: Input assemblies: @(InputAssemblies)" Importance="normal" />
     
-    <ILRepack OutputFile="$(OutputPath)$(AssemblyName).dll" InputAssemblies="@(InputAssemblies)" LibraryPath="@(LibraryPath)" Internalize="true" />
+    <!-- Create exclude pattern file for ILRepack -->
+    <WriteLinesToFile
+      File="$(OutputPath)ilrepack.exclude"
+      Lines="^FractalDataWorks\.ServiceTypes\."
+      Overwrite="true" />
+
+    <ILRepack
+      OutputFile="$(OutputPath)$(AssemblyName).dll"
+      InputAssemblies="@(InputAssemblies)"
+      LibraryPath="@(LibraryPath)"
+      Internalize="true"
+      InternalizeExcludeFile="$(OutputPath)ilrepack.exclude" />
     
     <!-- Clean up internalized dependency DLLs that are no longer needed -->
     <ItemGroup>
@@ -86,6 +97,7 @@
     
     <!-- Cleanup temporary files -->
     <Delete Files="$(OriginalAssemblyPath)" />
+    <Delete Files="$(OutputPath)ilrepack.exclude" />
     
     <Message Text="ILRepack: Successfully merged source generator dependencies" Importance="high" />
   </Target>

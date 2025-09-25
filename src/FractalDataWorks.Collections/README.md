@@ -1,47 +1,51 @@
 # FractalDataWorks.Collections
 
-High-performance, source-generated type collections for the FractalDataWorks ecosystem. Provides compile-time type safety and O(1) lookup performance for type option collections.
+High-performance, source-generated type collections for cross-project extensible type discovery in the FractalDataWorks ecosystem. Provides compile-time type safety and O(1) lookup performance for type collections where downstream developers can add their own options.
 
 ## Overview
 
-The Collections system provides three main components:
-1. **Base Classes**: Optional convenience classes with built-in collections
-2. **Attributes**: Type-safe attributes for defining collections and options
-3. **Source Generator**: Generates high-performance collection implementations
+The Collections system provides cross-project type discovery for extensible type systems where:
+- **Collections** are placed in abstractions projects for discoverability
+- **Base Types** are in concrete projects
+- **Type Options** can be added by downstream developers in concrete or implementation projects
 
-## Installation
+## Architecture
 
-```bash
-dotnet add package FractalDataWorks.Collections
+### TypeCollection Pattern
+```
+FractalDataWorks.Web.Http.Abstractions/
+├── Security/
+│   ├── SecurityMethods.cs              <- Collection (abstractions for discoverability)
+│   └── ISecurityMethod.cs              <- Interface
+FractalDataWorks.Web.Http/
+├── Security/
+│   └── SecurityMethodBase.cs           <- Base Type (concrete project)
+Any.Implementation.Project/
+├── CustomSecurityMethod.cs             <- Options (can be added anywhere)
 ```
 
-For source generation support, also add:
-```bash
-dotnet add package FractalDataWorks.Collections.SourceGenerators
-```
+## Core Components
 
-## Core Concepts
-
-### Type Collections
-Collections that discover and provide access to all types inheriting from a base type.
-
-### Type Options
-Individual types that inherit from a base type and are discovered by collections.
+1. **Collection Classes**: Placed in abstractions projects for cross-project discoverability
+2. **Base Types**: Abstract classes in concrete projects that options inherit from
+3. **Type Options**: Concrete implementations that can be added by any downstream project
+4. **Source Generator**: Generates high-performance collection implementations with O(1) lookups
 
 ## Collection Base Classes
 
 ### Single Generic Collection
-Use when base type and return type are the same. Provides ReadOnlyCollection for performance:
+Use when base type and return type are the same:
 
 ```csharp
 public abstract class TypeCollectionBase<TBase> where TBase : class
 {
-    // Provides ReadOnlyCollection<TBase> for All() method
+    // Generator populates with ReadOnlyCollection<TBase> for All() method
+    // Optimized for single type scenarios
 }
 ```
 
 ### Dual Generic Collection
-Use when you want collections to return interface types. Uses FrozenSet primary storage with FrozenDictionary lookup caches for O(1) performance:
+Use when you want collections to return interface types for polymorphism:
 
 ```csharp
 public abstract class TypeCollectionBase<TBase, TGeneric>
@@ -55,210 +59,226 @@ public abstract class TypeCollectionBase<TBase, TGeneric>
 }
 ```
 
-**Example**: Collection works with `SqlServerDataContainer` (TBase) but returns `IDataContainer` (TGeneric).
+**Use Case**: Collection works with `CsvDataContainer` (TBase) but returns `IDataContainer` (TGeneric) for polymorphism.
 
 ## Attributes
 
 ### TypeCollectionAttribute
-Marks a partial class for collection generation:
+Marks a partial class in an abstractions project for collection generation:
 
 ```csharp
-[TypeCollection(typeof(BaseType), typeof(ReturnType), typeof(CollectionClass))]
-public partial class MyTypes : TypeCollectionBase<BaseType, ReturnType>
+// In Abstractions Project - for discoverability
+[TypeCollection(typeof(SecurityMethodBase), typeof(ISecurityMethod), typeof(SecurityMethods))]
+public partial class SecurityMethods : TypeCollectionBase<SecurityMethodBase, ISecurityMethod>
 {
+    // Empty - generator populates all functionality
 }
 ```
 
 **Parameters:**
-- `baseType`: Type to discover inheritors from (e.g., `typeof(DataContainerType)`)
-- `defaultReturnType`: Return type for generated methods (e.g., `typeof(IDataContainer)`)
-- `collectionType`: The collection class being generated (e.g., `typeof(DataContainerTypes)`)
+- `baseType`: Type to discover inheritors from (in concrete project)
+- `defaultReturnType`: Return type for generated methods (interface type)
+- `collectionType`: The collection class being generated (this class)
 
 ### TypeOptionAttribute
-Marks individual types for discovery:
+Marks individual types for explicit collection targeting:
 
 ```csharp
-[TypeOption("Display Name")]
-public class SqlServerDataContainer : DataContainerType
+// In Any Project - downstream extensibility
+[TypeOption(typeof(SecurityMethods), "CustomAuth")]
+public class CustomAuthMethod : SecurityMethodBase
 {
+    // Implementation
 }
 ```
 
-**Parameter:**
-- `name`: Optional display name (defaults to class name if omitted)
+**Parameters:**
+- `collectionType`: The collection type this option belongs to
+- `name`: Display name for the method/property in the generated collection
 
-## Usage Examples
+**Performance Benefits:**
+- O(types_with_attribute) vs O(collections × assemblies × all_types) discovery
+- Eliminates expensive inheritance scanning across all assemblies
+- Direct collection type targeting for faster source generation
 
-### Example 1: Data Container Collection (FractalDataWorks.DataContainers)
+## Complete Example: Security Methods
 
-```csharp
-// Interface
-public interface IDataContainer
-{
-    string Format { get; }
-    Task<string> ReadAsync();
-}
-
-// Base type
-public abstract class DataContainerType : IDataContainer
-{
-    public abstract string Format { get; }
-    public abstract Task<string> ReadAsync();
-}
-
-// Collection definition (returns interface for polymorphism)
-[TypeCollection(typeof(DataContainerType), typeof(IDataContainer), typeof(DataContainerTypes))]
-public partial class DataContainerTypes : TypeCollectionBase<DataContainerType, IDataContainer>
-{
-}
-
-// Type options
-[TypeOption("CSV")]
-public class CsvDataContainer : DataContainerType
-{
-    public override string Format => "text/csv";
-    public override Task<string> ReadAsync() => /* CSV reading logic */;
-}
-
-[TypeOption("JSON")]
-public class JsonDataContainer : DataContainerType
-{
-    public override string Format => "application/json";
-    public override Task<string> ReadAsync() => /* JSON reading logic */;
-}
-
-[TypeOption("Parquet")]
-public class ParquetDataContainer : DataContainerType
-{
-    public override string Format => "application/parquet";
-    public override Task<string> ReadAsync() => /* Parquet reading logic */;
-}
-
-// Generated API - returns IDataContainer for polymorphism
-IDataContainer csv = DataContainerTypes.Csv;
-IDataContainer json = DataContainerTypes.Json;
-FrozenSet<IDataContainer> all = DataContainerTypes.All(); // High-performance collection
-IDataContainer byName = DataContainerTypes.GetByName("CSV");
-```
-
-### Example 2: Simple Collection (Same Base/Return Type)
+### 1. Abstractions Project (FractalDataWorks.Web.Http.Abstractions)
 
 ```csharp
-// Base type
-public abstract class SortDirectionBase
+// Security/ISecurityMethod.cs - Interface
+public interface ISecurityMethod
 {
-    public abstract string Direction { get; }
+    int Id { get; }
+    string Name { get; }
+    bool RequiresAuthentication { get; }
 }
 
-// Collection definition
-[TypeCollection(typeof(SortDirectionBase), typeof(SortDirectionBase), typeof(SortDirections))]
-public partial class SortDirections : TypeCollectionBase<SortDirectionBase>
-{
-}
-
-// Type options
-[TypeOption("Ascending")]
-public class AscendingSortDirection : SortDirectionBase
-{
-    public override string Direction => "ASC";
-}
-
-[TypeOption("Descending")]
-public class DescendingSortDirection : SortDirectionBase
-{
-    public override string Direction => "DESC";
-}
-
-// Generated API
-var ascending = SortDirections.Ascending;
-ReadOnlyCollection<SortDirectionBase> all = SortDirections.All(); // ReadOnlyCollection for single generic
-var byName = SortDirections.GetByName("Ascending");
-```
-
-### Example 3: No Base Class (Full Control)
-
-```csharp
-// Collection without inheritance - generator creates all methods
+// Security/SecurityMethods.cs - Collection (for discoverability)
 [TypeCollection(typeof(SecurityMethodBase), typeof(ISecurityMethod), typeof(SecurityMethods))]
-public partial class SecurityMethods
+public partial class SecurityMethods : TypeCollectionBase<SecurityMethodBase, ISecurityMethod>
 {
-    // Generator creates all methods and properties
+    // Empty - generator populates all functionality
 }
+```
+
+### 2. Concrete Project (FractalDataWorks.Web.Http)
+
+```csharp
+// Security/SecurityMethodBase.cs - Base Type
+public abstract class SecurityMethodBase : ISecurityMethod
+{
+    protected SecurityMethodBase(int id, string name, bool requiresAuthentication)
+    {
+        Id = id;
+        Name = name;
+        RequiresAuthentication = requiresAuthentication;
+    }
+
+    public int Id { get; }
+    public string Name { get; }
+    public bool RequiresAuthentication { get; }
+}
+```
+
+### 3. Implementation Projects (Any Project)
+
+```csharp
+// Built-in options in framework
+[TypeOption(typeof(SecurityMethods), "None")]
+public sealed class NoneSecurityMethod : SecurityMethodBase
+{
+    public NoneSecurityMethod() : base(1, "None", false) { }
+}
+
+[TypeOption(typeof(SecurityMethods), "JWT")]
+public sealed class JwtSecurityMethod : SecurityMethodBase
+{
+    public JwtSecurityMethod() : base(2, "JWT", true) { }
+}
+
+// Custom option in downstream project
+[TypeOption(typeof(SecurityMethods), "CustomAuth")]
+public sealed class CustomAuthMethod : SecurityMethodBase
+{
+    public CustomAuthMethod() : base(100, "CustomAuth", true) { }
+}
+```
+
+### 4. Usage
+
+```csharp
+// Generated API - all options discovered automatically
+ISecurityMethod none = SecurityMethods.None;              // Built-in
+ISecurityMethod jwt = SecurityMethods.Jwt;                // Built-in
+ISecurityMethod custom = SecurityMethods.CustomAuth;      // Downstream
+
+// High-performance collections
+FrozenSet<ISecurityMethod> all = SecurityMethods.All();   // All discovered options
+ISecurityMethod byName = SecurityMethods.GetByName("JWT");
+ISecurityMethod byId = SecurityMethods.GetById(2);
+
+// Static properties for each discovered type
+var hasCustom = SecurityMethods.CustomAuth != null;       // True if downstream added it
 ```
 
 ## Generated API
 
-All collections generate the following API:
+All collections automatically generate:
 
 ### Static Properties
 ```csharp
-public static TReturn TypeName { get; } // For each discovered type
+public static ISecurityMethod None { get; }           // For each discovered type
+public static ISecurityMethod Jwt { get; }            // CamelCase property name
+public static ISecurityMethod CustomAuth { get; }     // Even downstream types
 ```
 
 ### Collection Methods
 ```csharp
-// Single generic returns ReadOnlyCollection<TBase>
-public static ReadOnlyCollection<TBase> All()
-
-// Dual generic returns FrozenSet<TGeneric>
-public static FrozenSet<TGeneric> All()
-
-public static TReturn Empty()
-public static TReturn GetById(int id)
-public static TReturn GetByName(string name)
+public static FrozenSet<ISecurityMethod> All();                    // All discovered options
+public static ISecurityMethod Empty();                             // Default/fallback instance
+public static ISecurityMethod GetById(int id);                     // O(1) lookup
+public static ISecurityMethod GetByName(string name);              // O(1) lookup
 ```
 
 ### Factory Methods
 ```csharp
-public static TReturn CreateTypeName(params...) // For each constructor overload
+public static ISecurityMethod CreateNone();                        // For each constructor overload
+public static ISecurityMethod CreateJwt();
+public static ISecurityMethod CreateCustomAuth();
 ```
 
-### Performance Features
+## Project Structure and References
+
+### Abstractions Project
+```xml
+<PackageReference Include="FractalDataWorks.Collections" />
+<PackageReference Include="FractalDataWorks.Collections.SourceGenerators">
+  <PrivateAssets>all</PrivateAssets>
+  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+</PackageReference>
+```
+
+### Concrete Project
+```xml
+<ProjectReference Include="..\Project.Abstractions\Project.Abstractions.csproj" />
+<PackageReference Include="FractalDataWorks.Collections" />
+```
+
+### Implementation Projects
+```xml
+<ProjectReference Include="..\Project.Abstractions\Project.Abstractions.csproj" />
+<!-- Collections reference comes transitively through Abstractions -->
+```
+
+## Performance Features
+
 - **O(1) Lookups**: Uses FrozenDictionary for ID/name lookups
 - **Optimized Collections**: ReadOnlyCollection for single generic, FrozenSet for dual generic
 - **Singleton Instances**: Reuses instances for better memory efficiency
-- **Compile-time Safety**: All types validated at compile time
+- **Compile-time Discovery**: All types validated and discovered at compile time
+- **Thread Safety**: All generated collections are thread-safe for reads
+- **Cross-Assembly Discovery**: Finds options across all referenced assemblies
 
 ## Validation Rules
 
-The system enforces these rules:
-
-1. **TypeOption Required**: Types inheriting from collection base types must have `[TypeOption]` attribute
-2. **Generic Consistency**: `TGeneric` in base class must match `defaultReturnType` in attribute
-3. **Base Type Consistency**: `TBase` in base class must match `baseType` in attribute
-4. **Concrete Types Only**: Only concrete (non-abstract) types are discovered
-5. **Public Constructors**: Only public constructors generate factory methods
+1. **TypeOption Required**: Types inheriting from base types must have `[TypeOption(typeof(CollectionType), "Name")]`
+2. **Explicit Collection Targeting**: TypeOption must specify the exact collection type
+3. **Generic Consistency**: `TGeneric` in base class must match `defaultReturnType` in attribute
+4. **Base Type Consistency**: `TBase` in base class must match `baseType` in attribute
+5. **Concrete Types Only**: Only concrete (non-abstract) types are discovered
+6. **Unique Names**: Each option must have a unique name within its collection
 
 ## Error Codes
 
 - **TC001**: Type inherits from collection base but missing `[TypeOption]` attribute
 - **TC002**: TGeneric in base class doesn't match defaultReturnType in attribute
 - **TC003**: TBase in base class doesn't match baseType in attribute
+- **TC004**: Duplicate option names in collection
+- **TC005**: Collection not found for TypeOption attribute
 
 ## Best Practices
 
-1. **Use Interface Return Types**: Prefer `TypeCollectionBase<TBase, TInterface>` for polymorphism and FrozenSet performance
-2. **Descriptive Names**: Use meaningful names in `[TypeOption]` attributes
-3. **Factory Patterns**: Leverage generated factory methods for complex construction
-4. **Performance**: Collections are optimized for read-heavy scenarios
-5. **Thread Safety**: All generated collections are thread-safe for reads
+1. **Abstractions Placement**: Always place collections in abstractions projects for maximum discoverability
+2. **Interface Return Types**: Use `TypeCollectionBase<TBase, TInterface>` for polymorphism
+3. **Descriptive Names**: Use clear, meaningful names in `[TypeOption]` attributes
+4. **Unique IDs**: Assign unique integer IDs to avoid conflicts across implementations
+5. **Documentation**: Document your base types well since downstream developers will inherit from them
 
-## Usage by Other Packages
+## Cross-Project Extensibility
 
-This package provides the foundation for:
-- **FractalDataWorks.DataContainers**: Uses Collections for data container type discovery
-- **FractalDataWorks.DataSets**: Uses Collections for query operator collections
-- **FractalDataWorks.Web.Http**: Uses Collections for security method and endpoint type collections
+The key benefit of TypeCollections is that **any project** can add new options:
 
-## Packaging for Abstractions Projects
+```csharp
+// In MyCustom.SecurityExtensions project
+[TypeOption(typeof(SecurityMethods), "SAML")]
+public class SamlSecurityMethod : SecurityMethodBase
+{
+    public SamlSecurityMethod() : base(200, "SAML", true) { }
+}
 
-When using in `.Abstractions` projects, add the source generator as an analyzer:
-
-```xml
-<PackageReference Include="FractalDataWorks.Collections.SourceGenerators" Version="*">
-  <PrivateAssets>all</PrivateAssets>
-  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-</PackageReference>
+// Automatically discovered and available
+var saml = SecurityMethods.Saml;  // Works immediately
 ```
 
-This ensures the generator runs during compilation but isn't included as a runtime dependency.
+This enables plugin architectures and extensible frameworks where the core defines the contracts (collections + base types) and implementations can be provided by any assembly.
