@@ -54,7 +54,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IFdwServ
     /// </summary>
     /// <param name="logger">The logger for this service.</param>
     /// <param name="configuration">The configuration for this service.</param>
-    protected ServiceBase(ILogger<TService>? logger, TConfiguration configuration)
+    protected ServiceBase(ILogger<TService> logger, TConfiguration configuration)
     {
         _logger = logger ?? NullLogger<TService>.Instance;
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));

@@ -27,5 +27,5 @@ public interface IConnectionConfiguration : IFdwConfiguration
     /// - Singleton: For expensive connections that are safe for concurrent use (connection pools)
     /// - Transient: For lightweight connections without shared state (rare)
     /// </remarks>
-    ServiceLifetimeBase LifetimeBase { get; }
+    IServiceLifetime LifetimeBase { get; }
 }

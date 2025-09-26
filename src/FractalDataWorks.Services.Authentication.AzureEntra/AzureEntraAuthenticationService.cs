@@ -18,18 +18,18 @@ namespace FractalDataWorks.Services.Authentication.AzureEntra;
 /// <summary>
 /// Azure Entra ID (Azure Active Directory) authentication service implementation.
 /// </summary>
-public sealed class AzureEntraAuthenticationService : 
-    ServiceBase<IAuthenticationCommand, AzureEntraConfiguration, AzureEntraAuthenticationService>,
+public sealed class AzureEntraAuthenticationService :
+    AuthenticationServiceBase<IAuthenticationCommand, AzureEntraConfiguration, AzureEntraAuthenticationService>,
     IAuthenticationService
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureEntraAuthenticationService"/> class.
     /// </summary>
+    /// <param name="logger">The logger instance.</param>
     /// <param name="configuration">The Azure Entra configuration.</param>
-    /// <param name="logger">The logger instance. Uses NullLogger if not provided.</param>
     public AzureEntraAuthenticationService(
-        AzureEntraConfiguration configuration,
-        ILogger<AzureEntraAuthenticationService>? logger = null)
+        ILogger<AzureEntraAuthenticationService> logger,
+        AzureEntraConfiguration configuration)
         : base(logger, configuration)
     {
     }

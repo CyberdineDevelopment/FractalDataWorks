@@ -41,7 +41,7 @@ internal sealed class SqlServerResultMapper
     /// <inheritdoc/>
     public async Task<IFdwResult<IEnumerable<TResult>>> MapAsync<TResult>(
         object connectionResult,
-        IDataSet dataSet,
+        IDataSetType dataSet,
         string containerType) where TResult : class
     {
         ArgumentNullException.ThrowIfNull(connectionResult);
@@ -76,7 +76,7 @@ internal sealed class SqlServerResultMapper
     /// <inheritdoc/>
     public async Task<IFdwResult<IEnumerable<object>>> MapAsync(
         object connectionResult,
-        IDataSet dataSet,
+        IDataSetType dataSet,
         string containerType,
         Type targetType)
     {
@@ -113,7 +113,7 @@ internal sealed class SqlServerResultMapper
     /// <inheritdoc/>
     public async Task<IFdwResult> ValidateResultAsync(
         object connectionResult,
-        IDataSet dataSet,
+        IDataSetType dataSet,
         string containerType,
         Type targetType)
     {
@@ -156,7 +156,7 @@ internal sealed class SqlServerResultMapper
 
     private static async Task<IEnumerable<TResult>> MapFromDataReaderAsync<TResult>(
         SqlDataReader reader,
-        IDataSet dataSet) where TResult : class
+        IDataSetType dataSet) where TResult : class
     {
         var results = new List<TResult>();
         var targetType = typeof(TResult);
@@ -174,7 +174,7 @@ internal sealed class SqlServerResultMapper
 
     private static async Task<IEnumerable<object>> MapFromDataReaderAsync(
         SqlDataReader reader,
-        IDataSet dataSet,
+        IDataSetType dataSet,
         Type targetType)
     {
         var results = new List<object>();
@@ -192,7 +192,7 @@ internal sealed class SqlServerResultMapper
 
     private static async Task<IEnumerable<TResult>> MapFromDataTableAsync<TResult>(
         DataTable table,
-        IDataSet dataSet) where TResult : class
+        IDataSetType dataSet) where TResult : class
     {
         var results = new List<TResult>();
         var targetType = typeof(TResult);
@@ -210,7 +210,7 @@ internal sealed class SqlServerResultMapper
 
     private static async Task<IEnumerable<object>> MapFromDataTableAsync(
         DataTable table,
-        IDataSet dataSet,
+        IDataSetType dataSet,
         Type targetType)
     {
         var results = new List<object>();
@@ -228,7 +228,7 @@ internal sealed class SqlServerResultMapper
 
     private static async Task<IEnumerable<TResult>> MapFromDataRecordAsync<TResult>(
         IDataRecord record,
-        IDataSet dataSet) where TResult : class
+        IDataSetType dataSet) where TResult : class
     {
         var targetType = typeof(TResult);
         var properties = GetMappableProperties(targetType);
@@ -241,7 +241,7 @@ internal sealed class SqlServerResultMapper
 
     private static async Task<IEnumerable<object>> MapFromDataRecordAsync(
         IDataRecord record,
-        IDataSet dataSet,
+        IDataSetType dataSet,
         Type targetType)
     {
         var properties = GetMappableProperties(targetType);
@@ -256,7 +256,7 @@ internal sealed class SqlServerResultMapper
         IDataRecord record,
         object target,
         Dictionary<string, PropertyInfo> properties,
-        IDataSet dataSet)
+        IDataSetType dataSet)
     {
         for (int i = 0; i < record.FieldCount; i++)
         {
@@ -282,7 +282,7 @@ internal sealed class SqlServerResultMapper
         DataRow row,
         object target,
         Dictionary<string, PropertyInfo> properties,
-        IDataSet dataSet)
+        IDataSetType dataSet)
     {
         foreach (DataColumn column in row.Table.Columns)
         {

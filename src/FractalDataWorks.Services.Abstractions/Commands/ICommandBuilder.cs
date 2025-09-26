@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using FractalDataWorks.Results;
-
-using System;
 using FluentValidation.Results;
 using FractalDataWorks.Results;
 
@@ -19,7 +16,7 @@ namespace FractalDataWorks.Services.Abstractions.Commands;
 /// interface for creating properly configured data commands. They enable fluent configuration
 /// and validation of command parameters, metadata, and execution options.
 /// </remarks>
-public interface ICommandBuilder<TCommand> where TCommand : IDataCommand
+public interface ICommandBuilder<TCommand>
 {
     /// <summary>
     /// Sets the target resource (table, collection, endpoint) for the command.
@@ -179,7 +176,6 @@ public interface ICommandBuilder<TCommand> where TCommand : IDataCommand
 /// and result type specification, eliminating runtime type checking and casting.
 /// </remarks>
 public interface ICommandBuilder<TCommand, TResult> : ICommandBuilder<TCommand>
-    where TCommand : IDataCommand<TResult>
 {
     /// <summary>
     /// Builds a typed command using the current builder configuration.

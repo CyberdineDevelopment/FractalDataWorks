@@ -16,12 +16,12 @@ namespace FractalDataWorks.Services.Connections.MsSql.Translators;
 /// </summary>
 internal sealed class TSqlCommandBuilder
 {
-    private readonly IDataSet _dataSet;
+    private readonly IDataSetType _dataSet;
     private readonly string _containerType;
     private readonly List<SqlParameter> _parameters = new();
     private int _parameterIndex = 0;
 
-    public TSqlCommandBuilder(IDataSet dataSet, string containerType)
+    public TSqlCommandBuilder(IDataSetType dataSet, string containerType)
     {
         _dataSet = dataSet ?? throw new ArgumentNullException(nameof(dataSet));
         _containerType = containerType ?? throw new ArgumentNullException(nameof(containerType));

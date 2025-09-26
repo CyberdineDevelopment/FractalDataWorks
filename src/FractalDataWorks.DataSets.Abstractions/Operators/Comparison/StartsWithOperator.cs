@@ -8,11 +8,12 @@ public sealed class StartsWithOperator : ComparisonOperatorBase
     /// <summary>
     /// Initializes a new instance of the <see cref="StartsWithOperator"/> class.
     /// </summary>
-    public StartsWithOperator() : base(8, "StartsWith", "Starts with text operator") { }
-
-    /// <inheritdoc/>
-    public override string SqlOperator => "LIKE";
-
-    /// <inheritdoc/>
-    public override bool IsSingleValue => true;
+    public StartsWithOperator() : base(
+        id: 8,
+        name: "StartsWith",
+        description: "Starts with text operator",
+        sqlOperator: "LIKE",
+        isSingleValue: true)
+    {
+    }
 }

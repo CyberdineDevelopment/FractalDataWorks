@@ -391,7 +391,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             "FractalDataWorks.Services.Authentication.Abstractions", 
             "FractalDataWorks.Services.DataGateway.Abstractions",
             "FractalDataWorks.Services.Scheduling.Abstractions",
-            "FractalDataWorks.Services.SecretManagement.Abstractions",
+            "FractalDataWorks.Services.SecretManagers.Abstractions",
             "FractalDataWorks.Services.Transformations.Abstractions",
             "FractalDataWorks.DataContainers.Abstractions"
         };

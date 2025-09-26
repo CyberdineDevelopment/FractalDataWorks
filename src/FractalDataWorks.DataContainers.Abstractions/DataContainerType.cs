@@ -11,7 +11,7 @@ namespace FractalDataWorks.DataContainers.Abstractions;
 /// <summary>
 /// Non-generic base class for data container types to enable collection generation.
 /// </summary>
-public abstract class DataContainerType : TypeOptionBase<DataContainerType>
+public abstract class DataContainerType : TypeOptionBase<DataContainerType>, IDataContainerType
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DataContainerType"/> class.
@@ -99,9 +99,10 @@ public abstract class DataContainerType : TypeOptionBase<DataContainerType>
     public abstract IFdwResult ValidateConfiguration(IContainerConfiguration configuration);
 
     /// <summary>
-    /// Gets metadata about this container type.
+    /// Gets metadata about this container type's capabilities and limitations.
     /// </summary>
-    public abstract IFdwResult<ContainerMetadata> GetMetadata(DataLocation location);
+    /// <returns>Metadata describing the container type characteristics.</returns>
+    public abstract IFdwResult<ContainerTypeMetadata> GetTypeMetadata(DataLocation location);
 
     /// <summary>
     /// Discovers the schema from an existing container at the specified location.

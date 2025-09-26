@@ -4,7 +4,7 @@ using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
 
-namespace FractalDataWorks.Services;
+namespace FractalDataWorks.Services.Abstractions;
 
 /// <summary>
 /// Provides a registry for service factories that can be retrieved by service type name.

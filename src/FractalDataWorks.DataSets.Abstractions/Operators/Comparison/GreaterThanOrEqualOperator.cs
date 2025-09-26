@@ -8,11 +8,12 @@ public sealed class GreaterThanOrEqualOperator : ComparisonOperatorBase
     /// <summary>
     /// Initializes a new instance of the <see cref="GreaterThanOrEqualOperator"/> class.
     /// </summary>
-    public GreaterThanOrEqualOperator() : base(4, "GreaterThanOrEqual", "Greater than or equal to operator") { }
-
-    /// <inheritdoc/>
-    public override string SqlOperator => ">=";
-
-    /// <inheritdoc/>
-    public override bool IsSingleValue => true;
+    public GreaterThanOrEqualOperator() : base(
+        id: 4,
+        name: "GreaterThanOrEqual",
+        description: "Greater than or equal to operator",
+        sqlOperator: ">=",
+        isSingleValue: true)
+    {
+    }
 }

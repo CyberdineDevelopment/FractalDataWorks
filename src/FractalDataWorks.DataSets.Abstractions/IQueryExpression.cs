@@ -20,7 +20,7 @@ public interface IQueryExpression
     /// <summary>
     /// Gets the dataset being queried.
     /// </summary>
-    IDataSet DataSet { get; }
+    IDataSetType DataSet { get; }
     
     /// <summary>
     /// Gets the Where clauses extracted from the expression.

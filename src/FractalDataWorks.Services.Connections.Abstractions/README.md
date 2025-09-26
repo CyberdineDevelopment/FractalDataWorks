@@ -167,7 +167,7 @@ ConcreteConnectionService<SpecificConfig>
 This abstraction integrates with other FractalDataWorks services:
 
 - **DataGateways**: Provides database connections for data services
-- **SecretManagement**: Retrieves connection strings and credentials
+- **SecretManager**: Retrieves connection strings and credentials
 - **Authentication**: Handles connection authentication
 - **Configuration**: Manages connection settings and parameters
 

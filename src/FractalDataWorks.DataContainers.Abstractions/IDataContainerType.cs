@@ -70,25 +70,10 @@ public interface IDataContainerType
     /// <returns>A default configuration for this container type.</returns>
     IContainerConfiguration CreateDefaultConfiguration();
 
-    /// <summary>
-    /// Creates a container instance for the specified location and configuration.
-    /// </summary>
-    /// <param name="location">The data location where the container exists or will be created.</param>
-    /// <param name="configuration">The configuration settings for the container.</param>
-    /// <returns>A container instance configured for this type.</returns>
-    IDataContainer CreateContainer(DataLocation location, IContainerConfiguration configuration);
-
-    /// <summary>
-    /// Validates that a configuration is valid for this container type.
-    /// </summary>
-    /// <param name="configuration">The configuration to validate.</param>
-    /// <returns>A result indicating whether the configuration is valid.</returns>
-    IFdwResult ValidateConfiguration(IContainerConfiguration configuration);
-
 
     /// <summary>
     /// Gets metadata about this container type's capabilities and limitations.
     /// </summary>
     /// <returns>Metadata describing the container type characteristics.</returns>
-    ContainerTypeMetadata GetTypeMetadata();
+    IFdwResult<ContainerTypeMetadata> GetTypeMetadata(DataLocation location);
 }

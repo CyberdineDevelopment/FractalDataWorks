@@ -8,11 +8,12 @@ public sealed class LessThanOrEqualOperator : ComparisonOperatorBase
     /// <summary>
     /// Initializes a new instance of the <see cref="LessThanOrEqualOperator"/> class.
     /// </summary>
-    public LessThanOrEqualOperator() : base(6, "LessThanOrEqual", "Less than or equal to operator") { }
-
-    /// <inheritdoc/>
-    public override string SqlOperator => "<=";
-
-    /// <inheritdoc/>
-    public override bool IsSingleValue => true;
+    public LessThanOrEqualOperator() : base(
+        id: 6,
+        name: "LessThanOrEqual",
+        description: "Less than or equal to operator",
+        sqlOperator: "<=",
+        isSingleValue: true)
+    {
+    }
 }

@@ -5,7 +5,7 @@ using FractalDataWorks.Results;
 namespace FractalDataWorks.Services.Abstractions;
 
 /// <summary>
-/// Defines the contract for validators in the Rec framework.
+/// Defines the contract for validators in the FractalDataWorks framework.
 /// </summary>
 /// <typeparam name="T">The type of object to validate.</typeparam>
 public interface IFdwValidator<T>

@@ -8,7 +8,7 @@ namespace FractalDataWorks.DataSets.Abstractions;
 /// Represents a dataset definition with schema information and query capabilities.
 /// Datasets define the structure and metadata for collections of typed data records.
 /// </summary>
-public interface IDataSet : ITypeOption
+public interface IDataSetType : ITypeOption<IDataSetType>
 {
     /// <summary>
     /// Gets the detailed description of this dataset.
@@ -47,12 +47,3 @@ public interface IDataSet : ITypeOption
     string Version { get; }
 }
 
-/// <summary>
-/// Generic interface for strongly-typed dataset definitions.
-/// Provides type-safe access to dataset functionality with compile-time type checking.
-/// </summary>
-/// <typeparam name="TDataSet">The concrete dataset type for self-referencing generics pattern.</typeparam>
-public interface IDataSet<TDataSet> : IDataSet, ITypeOption<TDataSet>
-    where TDataSet : IDataSet<TDataSet>
-{
-}

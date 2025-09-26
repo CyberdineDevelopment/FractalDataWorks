@@ -121,7 +121,7 @@ public interface IConnectionFactory : IServiceFactory
 /// Use this interface for factories that work with specific configuration and connection types.
 /// It provides type safety and eliminates the need for runtime type checking and casting.
 /// </remarks>
-public interface IConnectionFactory<TConnection, in TConfiguration> : IConnectionFactory,IServiceFactory<TConnection,TConfiguration>
+public interface IConnectionFactory<TConnection, in TConfiguration> : IConnectionFactory, IServiceFactory<TConnection, TConfiguration>
     where TConfiguration : IConnectionConfiguration
     where TConnection : IFdwConnection
 {

@@ -8,11 +8,12 @@ public sealed class NotInOperator : ComparisonOperatorBase
     /// <summary>
     /// Initializes a new instance of the <see cref="NotInOperator"/> class.
     /// </summary>
-    public NotInOperator() : base(11, "NotIn", "Not in list of values operator") { }
-
-    /// <inheritdoc/>
-    public override string SqlOperator => "NOT IN";
-
-    /// <inheritdoc/>
-    public override bool IsSingleValue => false;
+    public NotInOperator() : base(
+        id: 11,
+        name: "NotIn",
+        description: "Not in list of values operator",
+        sqlOperator: "NOT IN",
+        isSingleValue: false)
+    {
+    }
 }

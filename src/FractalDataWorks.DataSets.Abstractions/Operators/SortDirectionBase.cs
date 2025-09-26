@@ -15,12 +15,20 @@ public abstract class SortDirectionBase : TypeOptionBase<SortDirectionBase>, ISo
     /// <param name="name">The name of this sort direction.</param>
     /// <param name="description">The description of this sort direction.</param>
     /// <param name="isAscending">Whether this direction sorts in ascending order.</param>
+    /// <param name="sqlKeyword">The SQL keyword representation of this direction.</param>
     /// <param name="category">The optional category for this sort direction.</param>
-    protected SortDirectionBase(int id, string name, string description, bool isAscending, string? category = null)
+    protected SortDirectionBase(
+        int id,
+        string name,
+        string description,
+        bool isAscending,
+        string sqlKeyword,
+        string? category = null)
         : base(id, name, category ?? "Sort")
     {
         Description = description;
         IsAscending = isAscending;
+        SqlKeyword = sqlKeyword;
     }
 
     /// <summary>
@@ -32,7 +40,7 @@ public abstract class SortDirectionBase : TypeOptionBase<SortDirectionBase>, ISo
     /// Gets the SQL keyword representation of this direction.
     /// Used when translating queries to SQL databases.
     /// </summary>
-    public abstract string SqlKeyword { get; }
+    public string SqlKeyword { get; }
 
     /// <summary>
     /// Gets a value indicating whether this direction sorts in ascending order.

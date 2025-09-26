@@ -11,8 +11,7 @@ namespace FractalDataWorks.DataSets.Abstractions;
 /// Provides common functionality and enforces the structure required for source generation.
 /// </summary>
 /// <typeparam name="TDataSet">The concrete dataset type for self-referencing generics pattern.</typeparam>
-public abstract class DataSetBase<TDataSet> : TypeOptionBase<TDataSet>, IDataSet<TDataSet>
-    where TDataSet : DataSetBase<TDataSet>, IDataSet<TDataSet>
+public abstract class DataSetTypeBase : TypeOptionBase<DataSetTypeBase>, IDataSetType
 {
     private readonly IReadOnlyCollection<IDataField> _fields;
     private readonly System.Collections.ObjectModel.ReadOnlyCollection<string> _keyFields;
@@ -28,7 +27,7 @@ public abstract class DataSetBase<TDataSet> : TypeOptionBase<TDataSet>, IDataSet
     /// <param name="category">The optional category for this dataset. Defaults to "Dataset" if not specified.</param>
     /// <exception cref="ArgumentNullException">Thrown when name, description, recordType, or fields are null.</exception>
     /// <exception cref="ArgumentException">Thrown when fields collection is empty or contains duplicate names.</exception>
-    protected DataSetBase(
+    protected DataSetTypeBase(
         int id,
         string name,
         string description,
@@ -88,8 +87,6 @@ public abstract class DataSetBase<TDataSet> : TypeOptionBase<TDataSet>, IDataSet
     /// <exception cref="ArgumentException">Thrown when no field with the specified name exists.</exception>
     public IDataField GetField(string fieldName)
     {
-        if (fieldName == null) throw new ArgumentNullException(nameof(fieldName));
-        
         var field = _fields.FirstOrDefault(f => string.Equals(f.Name, fieldName, StringComparison.OrdinalIgnoreCase));
         if (field == null)
         {

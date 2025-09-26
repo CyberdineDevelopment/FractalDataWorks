@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
 
@@ -31,8 +32,9 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConnectionServiceBase{TCommand, TConfiguration, TService}"/> class.
     /// </summary>
+    /// <param name="logger">The logger for this connection service.</param>
     /// <param name="configuration">The configuration for this connection service.</param>
-    protected ConnectionServiceBase(TConfiguration configuration)
+    protected ConnectionServiceBase(ILogger<TService> logger, TConfiguration configuration)
     {
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _serviceId = Guid.NewGuid().ToString("N");

@@ -5,7 +5,7 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// <summary>
 /// Interface for logical operators.
 /// </summary>
-public interface ILogicalOperator : ITypeOption<LogicalOperatorBase>
+public interface ILogicalOperator : ITypeOption<ILogicalOperator>
 {
     /// <summary>
     /// Gets the description of this logical operator.

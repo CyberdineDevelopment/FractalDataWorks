@@ -244,7 +244,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
     /// <param name="response">The HTTP response to map.</param>
     /// <param name="dataSet">The dataset schema for mapping guidance.</param>
     /// <returns>The mapped result.</returns>
-    private async Task<IFdwResult<TOut>> MapRestResponse<TOut>(HttpResponseMessage response, IDataSet dataSet)
+    private async Task<IFdwResult<TOut>> MapRestResponse<TOut>(HttpResponseMessage response, IDataSetType dataSet)
     {
         try
         {

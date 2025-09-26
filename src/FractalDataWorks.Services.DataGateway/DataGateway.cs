@@ -398,7 +398,7 @@ public sealed class DataGateway : IDataGateway
     /// </summary>
     /// <param name="dataSet">The dataset to check support for.</param>
     /// <returns>Array of supported connection type names.</returns>
-    private async Task<string[]> GetSupportedConnectionTypes(IDataSet dataSet)
+    private async Task<string[]> GetSupportedConnectionTypes(IDataSetType dataSet)
     {
         // Step 14: Enhanced connection type discovery
         // This will use the ConnectionTypes generated class to find compatible connections

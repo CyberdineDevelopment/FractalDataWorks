@@ -5,7 +5,7 @@ namespace FractalDataWorks.DataSets.Abstractions.Operators;
 /// <summary>
 /// Interface for comparison operators.
 /// </summary>
-public interface IComparisonOperator : ITypeOption<ComparisonOperatorBase>
+public interface IComparisonOperator : ITypeOption<IComparisonOperator>
 {
     /// <summary>
     /// Gets the description of this comparison operator.

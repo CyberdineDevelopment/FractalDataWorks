@@ -63,7 +63,9 @@ public abstract class ServiceFactory<TService, TConfiguration> : IServiceFactory
         // Log configuration
         Logging.ServiceBaseLog.ValidatingServiceConfiguration(_logger, serviceTypeName, configuration);
 
-        if (FastNew.TryCreateInstance<TService, TConfiguration>(configuration, out var service))
+        // Must pass logger as first parameter per service constructor pattern
+        var serviceLogger = NullLogger<TService>.Instance; // TODO: Get proper logger for service
+        if (FastNew.TryCreateInstance<TService, ILogger<TService>, TConfiguration>(serviceLogger, configuration, out var service))
         {
             // Use structured logging for success
             Logging.ServiceBaseLog.FastGenericServiceCreated(_logger, serviceTypeName);

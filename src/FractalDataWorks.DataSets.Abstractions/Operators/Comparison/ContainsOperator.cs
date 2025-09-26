@@ -8,11 +8,12 @@ public sealed class ContainsOperator : ComparisonOperatorBase
     /// <summary>
     /// Initializes a new instance of the <see cref="ContainsOperator"/> class.
     /// </summary>
-    public ContainsOperator() : base(7, "Contains", "Contains text operator") { }
-
-    /// <inheritdoc/>
-    public override string SqlOperator => "LIKE";
-
-    /// <inheritdoc/>
-    public override bool IsSingleValue => true;
+    public ContainsOperator() : base(
+        id: 7,
+        name: "Contains",
+        description: "Contains text operator",
+        sqlOperator: "LIKE",
+        isSingleValue: true)
+    {
+    }
 }

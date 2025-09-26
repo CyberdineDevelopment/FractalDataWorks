@@ -15,12 +15,20 @@ public abstract class LogicalOperatorBase : TypeOptionBase<LogicalOperatorBase>,
     /// <param name="name">The name of this logical operator.</param>
     /// <param name="description">The description of this logical operator.</param>
     /// <param name="precedence">The precedence level for order of operations.</param>
+    /// <param name="sqlOperator">The SQL representation of this operator.</param>
     /// <param name="category">The optional category for this logical operator.</param>
-    protected LogicalOperatorBase(int id, string name, string description, int precedence, string? category = null)
+    protected LogicalOperatorBase(
+        int id,
+        string name,
+        string description,
+        int precedence,
+        string sqlOperator,
+        string? category = null)
         : base(id, name, category ?? "Logical")
     {
         Description = description;
         Precedence = precedence;
+        SqlOperator = sqlOperator;
     }
 
     /// <summary>
@@ -32,7 +40,7 @@ public abstract class LogicalOperatorBase : TypeOptionBase<LogicalOperatorBase>,
     /// Gets the SQL representation of this operator.
     /// Used when translating queries to SQL databases.
     /// </summary>
-    public abstract string SqlOperator { get; }
+    public string SqlOperator { get; }
 
     /// <summary>
     /// Gets the precedence level for this operator.

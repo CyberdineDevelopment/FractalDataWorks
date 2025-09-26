@@ -49,7 +49,7 @@ public abstract class DataContainerTypeBase<T> : DataContainerType, IDataContain
     /// <returns>
     /// Metadata describing performance characteristics, limitations, and features.
     /// </returns>
-    public virtual ContainerTypeMetadata GetTypeMetadata()
+    public virtual IFdwResult<ContainerTypeMetadata> GetTypeMetadata()
     {
         return new ContainerTypeMetadata(
             containerType: Name,

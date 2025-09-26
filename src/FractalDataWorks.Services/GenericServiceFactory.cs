@@ -58,8 +58,9 @@ public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TS
         // Configuration logging
         ServiceFactoryLog.ConfigurationValidationFailed(_logger, serviceTypeName, "Configuration accepted");
 
-        // Try FastGenericNew first for performance
-        if (FastNew.TryCreateInstance<TService, TConfiguration>(configuration, out var service))
+        // Try FastGenericNew first for performance - must pass logger as first parameter
+        var serviceLogger = NullLogger<TService>.Instance; // TODO: Get proper logger for service
+        if (FastNew.TryCreateInstance<TService, ILogger<TService>, TConfiguration>(serviceLogger, configuration, out var service))
         {
             ServiceFactoryLog.ServiceCreatedWithFastNew(_logger, serviceTypeName);
             return FdwResult<TService>.Success(service, $"Service created successfully: {serviceTypeName}");
@@ -69,12 +70,13 @@ public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TS
         // Fallback to Activator.CreateInstance for edge cases
         try
         {
-            // Try with just configuration
-            var constructorParams = new object[] { configuration };
-            if (Activator.CreateInstance(typeof(TService), constructorParams) is TService activatorServiceNoLogger)
+            // Try with logger and configuration
+            var serviceLogger = NullLogger<TService>.Instance; // TODO: Get proper logger for service
+            var constructorParams = new object[] { serviceLogger, configuration };
+            if (Activator.CreateInstance(typeof(TService), constructorParams) is TService activatorServiceWithLogger)
             {
                 ServiceFactoryLog.ServiceCreatedWithActivator(_logger, serviceTypeName);
-                return FdwResult<TService>.Success(activatorServiceNoLogger, $"Service created successfully: {serviceTypeName}");
+                return FdwResult<TService>.Success(activatorServiceWithLogger, $"Service created successfully: {serviceTypeName}");
             }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)

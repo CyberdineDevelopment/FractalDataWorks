@@ -46,7 +46,7 @@ public interface IDataSetCollection
     /// <summary>
     /// Gets all datasets in this collection.
     /// </summary>
-    IReadOnlyList<IDataSet> All { get; }
+    IReadOnlyList<IDataSetType> All { get; }
 
     /// <summary>
     /// Gets the total count of datasets in this collection.
@@ -58,21 +58,21 @@ public interface IDataSetCollection
     /// </summary>
     /// <param name="id">The unique identifier of the dataset.</param>
     /// <returns>The dataset with the specified identifier, or null if not found.</returns>
-    IDataSet? GetById(int id);
+    IDataSetType? GetById(int id);
 
     /// <summary>
     /// Gets a dataset by its name.
     /// </summary>
     /// <param name="name">The name of the dataset.</param>
     /// <returns>The dataset with the specified name, or null if not found.</returns>
-    IDataSet? GetByName(string name);
+    IDataSetType? GetByName(string name);
 
     /// <summary>
     /// Gets all datasets in the specified category.
     /// </summary>
     /// <param name="category">The category to filter by.</param>
     /// <returns>A collection of datasets in the specified category.</returns>
-    IReadOnlyList<IDataSet> GetByCategory(string category);
+    IReadOnlyList<IDataSetType> GetByCategory(string category);
 
     /// <summary>
     /// Gets all datasets that support the specified operation.
@@ -81,5 +81,5 @@ public interface IDataSetCollection
     /// <param name="supportsWrite">Filter by write support capability.</param>
     /// <param name="supportsDelete">Filter by delete support capability.</param>
     /// <returns>A collection of datasets that match the specified capabilities.</returns>
-    IReadOnlyList<IDataSet> GetByCapabilities(bool? supportsRead = null, bool? supportsWrite = null, bool? supportsDelete = null);
+    IReadOnlyList<IDataSetType> GetByCapabilities(bool? supportsRead = null, bool? supportsWrite = null, bool? supportsDelete = null);
 }

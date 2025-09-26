@@ -9,9 +9,12 @@ public sealed class OrOperator : LogicalOperatorBase
     /// <summary>
     /// Initializes a new instance of the <see cref="OrOperator"/> class.
     /// </summary>
-    public OrOperator() : base(2, "Or", "Logical OR - either condition can be true", 1) { }
-
-    /// <inheritdoc/>
-    public override string SqlOperator => "OR";
-
+    public OrOperator() : base(
+        id: 2,
+        name: "Or",
+        description: "Logical OR - either condition can be true",
+        precedence: 1,
+        sqlOperator: "OR")
+    {
+    }
 }

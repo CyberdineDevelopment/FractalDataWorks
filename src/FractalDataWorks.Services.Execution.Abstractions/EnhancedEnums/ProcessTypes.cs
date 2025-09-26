@@ -8,6 +8,6 @@ namespace FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums;
 /// all ProcessTypeBase implementations at runtime.
 /// </summary>
 [TypeCollection(typeof(ProcessTypeBase), typeof(IProcessType), typeof(ProcessTypes))]
-public class ProcessTypes
+public abstract partial class ProcessTypes
 {
 }
