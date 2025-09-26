@@ -441,6 +441,79 @@ Benefits:
 - **Composable operations** through Bind/Map
 - **Explicit error handling** in type system
 
+## GenericServiceFactory Pattern
+
+The framework provides `GenericServiceFactory<TService, TConfiguration>` for services that follow standard instantiation patterns:
+
+### When to Use GenericServiceFactory
+
+Use the generic factory for services that:
+- Constructor accepts only `(ILogger<TService>, TConfiguration)`
+- No complex initialization required
+- No external resource management needed
+- Standard dependency injection patterns
+
+### Implementation Example
+
+```csharp
+// ServiceType uses GenericServiceFactory directly
+public sealed class EmailServiceType : ServiceTypeBase<EmailService, EmailConfiguration, GenericServiceFactory<EmailService, EmailConfiguration>>
+{
+    public override void Register(IServiceCollection services)
+    {
+        // Register the generic factory - no custom factory code needed
+        services.AddScoped<GenericServiceFactory<EmailService, EmailConfiguration>>();
+        services.AddScoped<EmailService>();
+    }
+}
+
+// Service follows standard constructor pattern
+public class EmailService : ServiceBase<EmailCommand, EmailConfiguration, EmailService>
+{
+    public EmailService(ILogger<EmailService> logger, EmailConfiguration configuration)
+        : base(logger, configuration)
+    {
+        // Standard initialization only
+    }
+}
+```
+
+### When to Create Custom Factories
+
+Only create custom factory classes when you need:
+- Connection pooling requirements
+- HttpClient management
+- External service integration
+- Resource lifecycle management
+- Complex validation beyond configuration
+- Special initialization procedures
+
+### Custom Factory Example
+
+```csharp
+public class HttpConnectionFactory : ConnectionFactoryBase<HttpConnection, HttpConfiguration>
+{
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public HttpConnectionFactory(IHttpClientFactory httpClientFactory, ILogger<HttpConnectionFactory> logger)
+        : base(logger)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
+
+    public override IFdwResult<HttpConnection> Create(HttpConfiguration configuration)
+    {
+        // Custom logic: HttpClient setup, connection pooling, etc.
+        var httpClient = _httpClientFactory.CreateClient(configuration.ClientName);
+
+        // Custom instantiation
+        return FdwResult<HttpConnection>.Success(new HttpConnection(configuration, httpClient));
+    }
+}
+```
+
+**Design Principle**: Use GenericServiceFactory for the majority of services. Only implement custom factories when you have specialized instantiation requirements that cannot be handled through standard dependency injection.
+
 ## Testing
 
 ### Unit Testing Services

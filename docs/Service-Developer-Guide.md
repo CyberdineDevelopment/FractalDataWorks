@@ -572,7 +572,39 @@ public class QueryResult
 }
 ```
 
-### Step 5: Create the Factory
+### Step 5: Choose Your Factory Approach
+
+The framework provides two factory patterns. Choose based on your service's instantiation requirements:
+
+#### Option A: GenericServiceFactory (Recommended for Most Services)
+
+For services that can be instantiated with just configuration and standard dependency injection:
+
+```csharp
+// No custom factory class needed!
+// ServiceType directly references GenericServiceFactory
+
+// ServiceTypes/DataProcessorServiceType.cs
+public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, DataProcessorConfiguration, GenericServiceFactory<IDataProcessorService, DataProcessorConfiguration>>
+{
+    public override void Register(IServiceCollection services)
+    {
+        // Register the generic factory - no custom code required
+        services.AddScoped<GenericServiceFactory<IDataProcessorService, DataProcessorConfiguration>>();
+        services.AddTransient<IDataProcessorService, DataProcessorService>();
+    }
+}
+```
+
+**Use this approach when your service:**
+- Constructor accepts only `(ILogger<TService>, TConfiguration)`
+- Requires no complex initialization
+- Has no external resource management needs
+- Follows standard dependency injection patterns
+
+#### Option B: Custom Factory (For Complex Services)
+
+Only create custom factories when you need specialized instantiation logic:
 
 ```csharp
 // Factories/DataProcessorFactory.cs
@@ -584,51 +616,62 @@ using MyCompany.Services.DataProcessor.Services;
 namespace MyCompany.Services.DataProcessor.Factories;
 
 /// <summary>
-/// Factory for creating DataProcessorService instances.
+/// Custom factory for DataProcessorService with specialized initialization.
 /// </summary>
-/// <remarks>
-/// Note: ServiceFactoryBase has minimal constraints:
-/// - TService only requires 'class' (not IFdwService)
-/// - TConfiguration requires 'class, IFdwConfiguration'
-/// This allows flexibility in service implementation.
-/// </remarks>
 public class DataProcessorFactory : ServiceFactoryBase<IDataProcessorService, DataProcessorConfiguration>
 {
-    /// <summary>
-    /// Initializes a new instance of the DataProcessorFactory.
-    /// </summary>
-    public DataProcessorFactory(ILogger<DataProcessorFactory> logger) : base(logger)
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConnectionPool _connectionPool;
+
+    public DataProcessorFactory(
+        ILogger<DataProcessorFactory> logger,
+        IHttpClientFactory httpClientFactory,
+        IConnectionPool connectionPool) : base(logger)
     {
-        // Base class handles all the heavy lifting
-        // FastGenericNew will automatically create instances
-        // Configuration validation is handled automatically
+        _httpClientFactory = httpClientFactory;
+        _connectionPool = connectionPool;
     }
 
-    // That's it! The base class does everything else:
-    // - Validates configuration
-    // - Uses FastGenericNew for performance
-    // - Logs creation events
-    // - Returns proper Result types
+    public override IFdwResult<IDataProcessorService> Create(DataProcessorConfiguration configuration)
+    {
+        // Custom instantiation logic
+        var httpClient = _httpClientFactory.CreateClient(configuration.ClientName);
+        var connection = _connectionPool.GetConnection(configuration.ConnectionString);
+
+        return base.Create(configuration); // Or custom instantiation
+    }
 }
 ```
 
+**Create custom factories when you need:**
+- Connection pooling
+- HttpClient management
+- External dependency integration
+- Resource lifecycle management
+- Complex validation beyond configuration
+- Special initialization procedures
+
 ### Step 6: Create the ServiceType
+
+Choose the ServiceType implementation that matches your factory choice from Step 5:
+
+#### Option A: ServiceType with GenericServiceFactory
 
 ```csharp
 // ServiceTypes/DataProcessorServiceType.cs
 using FractalDataWorks.ServiceTypes;
+using FractalDataWorks.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyCompany.Services.DataProcessor.Configuration;
-using MyCompany.Services.DataProcessor.Factories;
 using MyCompany.Services.DataProcessor.Services;
 
 namespace MyCompany.Services.DataProcessor.ServiceTypes;
 
 /// <summary>
-/// Service type definition for the data processor service.
+/// Service type definition for the data processor service using GenericServiceFactory.
 /// </summary>
-public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, DataProcessorConfiguration, DataProcessorFactory>
+public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, DataProcessorConfiguration, GenericServiceFactory<IDataProcessorService, DataProcessorConfiguration>>
 {
     /// <summary>
     /// Initializes a new instance of the DataProcessorServiceType.
@@ -657,23 +700,11 @@ public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, D
     /// </summary>
     public override void Register(IServiceCollection services)
     {
-        // Register the factory
-        services.AddSingleton<DataProcessorFactory>();
+        // Register the generic factory - no custom factory needed
+        services.AddScoped<GenericServiceFactory<IDataProcessorService, DataProcessorConfiguration>>();
 
         // Register the service as transient (new instance per request)
         services.AddTransient<IDataProcessorService, DataProcessorService>();
-
-        // Optionally register a factory method for direct DI resolution
-        services.AddTransient(provider =>
-        {
-            var factory = provider.GetRequiredService<DataProcessorFactory>();
-            var config = provider.GetRequiredService<IConfiguration>();
-            var serviceConfig = config.GetSection(SectionName).Get<DataProcessorConfiguration>()
-                ?? new DataProcessorConfiguration();
-
-            var result = factory.Create(serviceConfig);
-            return result.IsSuccess ? result.Value! : throw new InvalidOperationException(result.Error);
-        });
     }
 
     /// <summary>
@@ -700,6 +731,54 @@ public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, D
         {
             throw new InvalidOperationException($"Configuration validation failed: {validationResult.Error}");
         }
+    }
+}
+```
+
+#### Option B: ServiceType with Custom Factory
+
+```csharp
+// ServiceTypes/DataProcessorServiceType.cs (Custom Factory Version)
+using FractalDataWorks.ServiceTypes;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using MyCompany.Services.DataProcessor.Configuration;
+using MyCompany.Services.DataProcessor.Factories;
+using MyCompany.Services.DataProcessor.Services;
+
+namespace MyCompany.Services.DataProcessor.ServiceTypes;
+
+/// <summary>
+/// Service type definition for the data processor service using custom factory.
+/// </summary>
+public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, DataProcessorConfiguration, DataProcessorFactory>
+{
+    public DataProcessorServiceType() : base(100, "DataProcessor", "Processing") { }
+
+    public override string SectionName => "Services:DataProcessor";
+    public override string DisplayName => "Data Processor Service";
+    public override string Description => "Processes and queries data records with configurable batching and caching";
+
+    public override void Register(IServiceCollection services)
+    {
+        // Register the custom factory
+        services.AddSingleton<DataProcessorFactory>();
+
+        // Register the service as transient (new instance per request)
+        services.AddTransient<IDataProcessorService, DataProcessorService>();
+    }
+
+    public override void Configure(IConfiguration configuration)
+    {
+        // Same configuration logic as GenericServiceFactory approach
+        var section = configuration.GetSection(SectionName);
+        if (!section.Exists())
+            throw new InvalidOperationException($"Configuration section '{SectionName}' not found");
+
+        var config = section.Get<DataProcessorConfiguration>() ?? new DataProcessorConfiguration();
+        var validationResult = config.Validate();
+        if (!validationResult.IsSuccess)
+            throw new InvalidOperationException($"Configuration validation failed: {validationResult.Error}");
     }
 }
 ```

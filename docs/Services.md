@@ -50,6 +50,63 @@ Central provider for managing multiple service factories:
 - Manages factory registration and retrieval
 - Integrates with dependency injection container
 
+## Factory Pattern Options
+
+The framework provides two approaches for service instantiation:
+
+### GenericServiceFactory (Default Pattern)
+
+For services that can be instantiated using FastGenericNew with just configuration injection:
+
+```csharp
+public sealed class EmailServiceType : ServiceTypeBase<EmailService, EmailConfiguration, GenericServiceFactory<EmailService, EmailConfiguration>>
+{
+    public override void Register(IServiceCollection services)
+    {
+        services.AddScoped<GenericServiceFactory<EmailService, EmailConfiguration>>();
+        services.AddScoped<EmailService>();
+    }
+}
+```
+
+**Benefits:**
+- No custom factory code required
+- High-performance instantiation via FastGenericNew
+- Automatic configuration validation
+- Consistent error handling and logging
+
+### Custom Factory Pattern
+
+For services requiring complex instantiation logic:
+
+```csharp
+public sealed class HttpConnectionType : ConnectionTypeBase<HttpConnection, HttpConfiguration, HttpConnectionFactory>
+{
+    // Custom factory implementation for connection pooling, HttpClient management, etc.
+}
+
+public class HttpConnectionFactory : ConnectionFactoryBase<HttpConnection, HttpConfiguration>
+{
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public override IFdwResult<HttpConnection> Create(HttpConfiguration config)
+    {
+        // Custom logic: connection pooling, HttpClient setup, etc.
+        var httpClient = _httpClientFactory.CreateClient(config.ClientName);
+        return new HttpConnection(config, httpClient);
+    }
+}
+```
+
+**When to Use Custom Factories:**
+- Connection pooling requirements
+- HttpClient management
+- External service integration
+- Resource lifecycle management
+- Complex initialization beyond standard dependency injection
+
+**Use GenericServiceFactory for the majority of services. Only create custom factories when you need specialized instantiation logic.**
+
 ## Message System
 
 The library includes a comprehensive messaging system for service operations:
