@@ -514,6 +514,167 @@ public class HttpConnectionFactory : ConnectionFactoryBase<HttpConnection, HttpC
 
 **Design Principle**: Use GenericServiceFactory for the majority of services. Only implement custom factories when you have specialized instantiation requirements that cannot be handled through standard dependency injection.
 
+## Mandatory Implementation Patterns
+
+All services in the framework MUST follow these patterns for consistency and proper integration:
+
+### 1. Constructor Pattern (CRITICAL)
+
+**Services MUST use this exact constructor signature for GenericServiceFactory compatibility:**
+
+```csharp
+public class MyService : ServiceBase<MyCommand, MyConfiguration, MyService>
+{
+    // REQUIRED: Exactly this constructor signature
+    public MyService(ILogger<MyService> logger, MyConfiguration configuration)
+        : base(logger, configuration)
+    {
+        // Standard initialization only
+        // NO additional dependencies here - use custom factory if needed
+    }
+}
+```
+
+**Violations that break GenericServiceFactory:**
+- Additional constructor parameters
+- ILoggerFactory instead of ILogger<TService>
+- Missing base() call
+- Complex initialization logic
+
+### 2. Source-Generated Logging Pattern (REQUIRED)
+
+**Every service domain MUST implement source-generated logging:**
+
+```csharp
+// Logging/MyServiceLog.cs
+using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
+
+[ExcludeFromCodeCoverage(Justification = "Source-generated logging class")]
+public static partial class MyServiceLog
+{
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information,
+                   Message = "Service operation started for {ServiceName} with {ParameterCount} parameters")]
+    public static partial void OperationStarted(ILogger logger, string serviceName, int parameterCount);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Error,
+                   Message = "Service operation failed for {ServiceName}: {ErrorMessage}")]
+    public static partial void OperationFailed(ILogger logger, string serviceName, string errorMessage, Exception exception);
+}
+```
+
+**Benefits:**
+- Zero allocation logging
+- Compile-time safety
+- Structured logging compatibility
+- Performance optimization
+
+### 3. Structured Messages Pattern (REQUIRED)
+
+**Every service domain MUST implement structured messages:**
+
+```csharp
+// Messages/MyServiceMessage.cs
+[MessageCollection("MyServiceMessages")]
+public abstract class MyServiceMessage : MessageTemplate<MessageSeverity>, IServiceMessage
+{
+    protected MyServiceMessage(int id, string name, MessageSeverity severity, string message, string? code = null)
+        : base(id, name, severity, "MyService", message, code, null, null) { }
+}
+
+// Messages/OperationStartedMessage.cs
+[Message("OperationStartedMessage")]
+public sealed class OperationStartedMessage : MyServiceMessage
+{
+    public OperationStartedMessage() : base(1001, "OperationStarted", MessageSeverity.Information,
+                                           "Service operation started", "OPERATION_STARTED") { }
+
+    public OperationStartedMessage(string serviceName)
+        : base(1001, "OperationStarted", MessageSeverity.Information,
+               $"Service operation started for {serviceName}", "OPERATION_STARTED") { }
+}
+
+// Messages/MyServiceMessageCollectionBase.cs
+[MessageCollection("MyServiceMessages", ReturnType = typeof(IServiceMessage))]
+public abstract class MyServiceMessageCollectionBase : MessageCollectionBase<MyServiceMessage> { }
+```
+
+**Source Generation Result:**
+- Creates `MyServiceMessages.OperationStarted()` static methods
+- Type-safe message creation
+- Consistent error codes and categorization
+
+### 4. Result Pattern (MANDATORY)
+
+**Services MUST return IFdwResult types, never throw exceptions for business logic:**
+
+```csharp
+public override async Task<IFdwResult> Execute(MyCommand command)
+{
+    try
+    {
+        // 1. Log operation start with source-generated logging
+        MyServiceLog.OperationStarted(Logger, Name, command.Parameters?.Count ?? 0);
+
+        // 2. Execute business logic
+        var result = await ExecuteBusinessLogicAsync(command);
+
+        // 3. Log success and return structured message
+        MyServiceLog.OperationCompleted(Logger, Name, result.RecordsProcessed);
+        var successMessage = MyServiceMessages.OperationCompleted(result.RecordsProcessed);
+        return FdwResult.Success(successMessage);
+    }
+    catch (Exception ex)
+    {
+        // 4. Log failure with source-generated logging
+        MyServiceLog.OperationFailed(Logger, Name, ex.Message, ex);
+
+        // 5. Return failure with structured message (never throw)
+        var errorMessage = MyServiceMessages.OperationFailed(ex.Message);
+        return FdwResult.Failure(errorMessage);
+    }
+}
+```
+
+**Key Requirements:**
+- Use `Logger` property from ServiceBase (not injected ILogger)
+- Always use source-generated logging methods
+- Return structured IServiceMessage objects in Results
+- Never throw exceptions for business failures
+- Use proper exception handling for unexpected errors
+
+### 5. Implementation Project Structure
+
+**Every implementation project (e.g., Services.Connections.MsSql) MUST have:**
+
+```
+├── Services/
+│   └── MyService.cs                    # Service implementation
+├── Configuration/
+│   └── MyConfiguration.cs             # Configuration class
+├── Commands/
+│   └── MyCommand.cs                    # Command definitions
+├── Logging/
+│   └── MyServiceLog.cs                 # Source-generated logging
+├── Messages/
+│   ├── MyServiceMessage.cs             # Message base class
+│   ├── Operations/
+│   │   ├── OperationStartedMessage.cs  # Individual messages
+│   │   └── OperationFailedMessage.cs
+│   └── MyServiceMessageCollectionBase.cs  # Collection for source generation
+├── Factories/
+│   └── MyServiceFactory.cs             # Custom factory (if needed)
+└── ServiceTypes/
+    └── MyServiceType.cs                # ServiceType definition
+```
+
+**Compliance Check:**
+- Constructor follows exact pattern ✓
+- Source-generated logging implemented ✓
+- Structured messages implemented ✓
+- Result pattern followed ✓
+- No business logic exceptions ✓
+
 ## Testing
 
 ### Unit Testing Services

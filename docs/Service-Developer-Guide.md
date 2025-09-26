@@ -783,6 +783,216 @@ public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, D
 }
 ```
 
+### Step 7: Create Source-Generated Logging
+
+Create logging methods using the established source-generation pattern:
+
+```csharp
+// Logging/DataProcessorServiceLog.cs
+using System;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
+using FractalDataWorks.Services.DataProcessor.Configuration;
+
+namespace MyCompany.Services.DataProcessor.Logging;
+
+/// <summary>
+/// High-performance logging methods for DataProcessorService using source generators and structured logging.
+/// </summary>
+[ExcludeFromCodeCoverage(Justification = "Source-generated logging class with no business logic")]
+public static partial class DataProcessorServiceLog
+{
+    /// <summary>
+    /// Logs when data processing starts.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Information,
+        Message = "Starting data processing for {RecordCount} records with batch size {BatchSize}")]
+    public static partial void ProcessingStarted(ILogger logger, int recordCount, int batchSize);
+
+    /// <summary>
+    /// Logs when data processing completes successfully.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 2,
+        Level = LogLevel.Information,
+        Message = "Data processing completed successfully. Processed {ProcessedCount} records in {ElapsedMs}ms")]
+    public static partial void ProcessingCompleted(ILogger logger, int processedCount, long elapsedMs);
+
+    /// <summary>
+    /// Logs when data processing fails.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 3,
+        Level = LogLevel.Error,
+        Message = "Data processing failed after processing {ProcessedCount} records: {ErrorMessage}")]
+    public static partial void ProcessingFailed(ILogger logger, int processedCount, string errorMessage, Exception exception);
+
+    /// <summary>
+    /// Logs configuration validation issues.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 4,
+        Level = LogLevel.Warning,
+        Message = "Configuration validation warning for {ServiceName}: {ValidationMessage}")]
+    public static partial void ConfigurationWarning(ILogger logger, string serviceName, string validationMessage);
+}
+```
+
+### Step 8: Create Service Messages
+
+Create structured messages following the established pattern:
+
+```csharp
+// Messages/DataProcessorMessage.cs
+using FractalDataWorks.Messages;
+using FractalDataWorks.Messages.Attributes;
+using FractalDataWorks.Services.Abstractions;
+
+namespace MyCompany.Services.DataProcessor.Messages;
+
+/// <summary>
+/// Base class for all data processor service messages.
+/// </summary>
+[MessageCollection("DataProcessorMessages")]
+public abstract class DataProcessorMessage : MessageTemplate<MessageSeverity>, IServiceMessage
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataProcessorMessage"/> class.
+    /// </summary>
+    protected DataProcessorMessage(int id, string name, MessageSeverity severity,
+                                 string message, string? code = null)
+        : base(id, name, severity, "DataProcessor", message, code, null, null) { }
+}
+```
+
+```csharp
+// Messages/Processing/ProcessingStartedMessage.cs
+using System.Globalization;
+using FractalDataWorks.Messages;
+using FractalDataWorks.Messages.Attributes;
+
+namespace MyCompany.Services.DataProcessor.Messages;
+
+/// <summary>
+/// Message indicating that data processing has started.
+/// </summary>
+[Message("ProcessingStartedMessage")]
+public sealed class ProcessingStartedMessage : DataProcessorMessage
+{
+    public ProcessingStartedMessage()
+        : base(1001, "ProcessingStarted", MessageSeverity.Information,
+               "Data processing started for {0} records", "PROCESSING_STARTED") { }
+
+    public ProcessingStartedMessage(int recordCount)
+        : base(1001, "ProcessingStarted", MessageSeverity.Information,
+               string.Format(CultureInfo.InvariantCulture, "Data processing started for {0} records", recordCount),
+               "PROCESSING_STARTED") { }
+}
+```
+
+```csharp
+// Messages/DataProcessorMessageCollectionBase.cs
+using FractalDataWorks.Messages;
+using FractalDataWorks.Messages.Attributes;
+using FractalDataWorks.Services.Abstractions;
+
+namespace MyCompany.Services.DataProcessor.Messages;
+
+/// <summary>
+/// Collection definition to generate DataProcessorMessages static class.
+/// </summary>
+[MessageCollection("DataProcessorMessages", ReturnType = typeof(IServiceMessage))]
+public abstract class DataProcessorMessageCollectionBase : MessageCollectionBase<DataProcessorMessage>
+{
+}
+```
+
+**Source Generation Result:** This creates a static `DataProcessorMessages.ProcessingStarted(recordCount)` method for use in your service.
+
+### Step 9: Update Service Implementation
+
+Update your service to use the proper constructor pattern, logging, and messages:
+
+```csharp
+// Services/DataProcessorService.cs (Updated)
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using FractalDataWorks.Results;
+using FractalDataWorks.Services;
+using MyCompany.Services.DataProcessor.Configuration;
+using MyCompany.Services.DataProcessor.Commands;
+using MyCompany.Services.DataProcessor.Logging;
+using MyCompany.Services.DataProcessor.Messages;
+
+namespace MyCompany.Services.DataProcessor.Services;
+
+/// <summary>
+/// Data processor service implementation following framework patterns.
+/// </summary>
+public sealed class DataProcessorService : ServiceBase<DataProcessorCommand, DataProcessorConfiguration, DataProcessorService>
+{
+    /// <summary>
+    /// Initializes a new instance of the DataProcessorService.
+    /// CRITICAL: Constructor must follow this exact pattern for GenericServiceFactory.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="configuration">The service configuration.</param>
+    public DataProcessorService(ILogger<DataProcessorService> logger, DataProcessorConfiguration configuration)
+        : base(logger, configuration)
+    {
+        // Standard initialization only - no complex dependencies here
+        // Complex dependencies should be handled in custom factories
+    }
+
+    /// <summary>
+    /// Executes a data processing command.
+    /// </summary>
+    public override async Task<IFdwResult> Execute(DataProcessorCommand command)
+    {
+        try
+        {
+            // Use source-generated logging
+            DataProcessorServiceLog.ProcessingStarted(Logger, command.RecordCount, Configuration.MaxBatchSize);
+
+            // Your business logic here
+            await ProcessDataAsync(command);
+
+            // Log success with structured data
+            DataProcessorServiceLog.ProcessingCompleted(Logger, command.RecordCount, 1000);
+
+            // Return success with structured message
+            var successMessage = DataProcessorMessages.ProcessingStarted(command.RecordCount);
+            return FdwResult.Success(successMessage);
+        }
+        catch (Exception ex)
+        {
+            // Log error with structured data
+            DataProcessorServiceLog.ProcessingFailed(Logger, 0, ex.Message, ex);
+
+            // Return failure with structured message
+            var errorMessage = DataProcessorMessages.ProcessingFailed(ex.Message);
+            return FdwResult.Failure(errorMessage);
+        }
+    }
+
+    private async Task ProcessDataAsync(DataProcessorCommand command)
+    {
+        // Implementation details
+        await Task.Delay(100); // Placeholder
+    }
+}
+```
+
+**Key Patterns Enforced:**
+- **Constructor**: `(ILogger<TService> logger, TConfiguration configuration)` - REQUIRED for GenericServiceFactory
+- **Logging**: Use source-generated `DataProcessorServiceLog.MethodName()` methods
+- **Messages**: Return structured `IServiceMessage` objects in Results
+- **Results**: Always return `IFdwResult` or `IFdwResult<T>`, never throw exceptions for business logic
+
 ## Configuration Management
 
 ### Step 1: Add Configuration to appsettings.json

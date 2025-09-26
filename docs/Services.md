@@ -107,6 +107,111 @@ public class HttpConnectionFactory : ConnectionFactoryBase<HttpConnection, HttpC
 
 **Use GenericServiceFactory for the majority of services. Only create custom factories when you need specialized instantiation logic.**
 
+## Required Service Implementation Patterns
+
+All services must follow these established patterns for consistency and framework integration:
+
+### Constructor Pattern (REQUIRED)
+
+**For GenericServiceFactory compatibility, services MUST use this exact constructor signature:**
+
+```csharp
+public MyService(ILogger<MyService> logger, MyConfiguration configuration)
+    : base(logger, configuration)
+{
+    // Standard initialization only
+    // No complex dependencies - those go in custom factories
+}
+```
+
+**Critical Requirements:**
+- Exactly two parameters: `ILogger<TService>` and `TConfiguration`
+- Must call `base(logger, configuration)`
+- No additional dependencies in constructor (use custom factory if needed)
+- Must inherit from `ServiceBase<TCommand, TConfiguration, TService>`
+
+### Source-Generated Logging (REQUIRED)
+
+Create a static partial class for high-performance logging:
+
+```csharp
+// Logging/MyServiceLog.cs
+[ExcludeFromCodeCoverage(Justification = "Source-generated logging class")]
+public static partial class MyServiceLog
+{
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information,
+                   Message = "Operation started with {Parameter}")]
+    public static partial void OperationStarted(ILogger logger, string parameter);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Error,
+                   Message = "Operation failed: {ErrorMessage}")]
+    public static partial void OperationFailed(ILogger logger, string errorMessage, Exception exception);
+}
+```
+
+### Structured Messages (REQUIRED)
+
+Create message classes for consistent error handling and logging:
+
+```csharp
+// Messages/MyServiceMessage.cs
+[MessageCollection("MyServiceMessages")]
+public abstract class MyServiceMessage : MessageTemplate<MessageSeverity>, IServiceMessage
+{
+    protected MyServiceMessage(int id, string name, MessageSeverity severity, string message, string? code = null)
+        : base(id, name, severity, "MyService", message, code, null, null) { }
+}
+
+// Messages/OperationCompletedMessage.cs
+[Message("OperationCompletedMessage")]
+public sealed class OperationCompletedMessage : MyServiceMessage
+{
+    public OperationCompletedMessage() : base(1001, "OperationCompleted", MessageSeverity.Information,
+                                             "Operation completed successfully", "OPERATION_COMPLETED") { }
+}
+
+// Messages/MyServiceMessageCollectionBase.cs
+[MessageCollection("MyServiceMessages", ReturnType = typeof(IServiceMessage))]
+public abstract class MyServiceMessageCollectionBase : MessageCollectionBase<MyServiceMessage> { }
+```
+
+### Result Pattern (REQUIRED)
+
+Always return `IFdwResult` types with structured messages:
+
+```csharp
+public override async Task<IFdwResult> Execute(MyCommand command)
+{
+    try
+    {
+        // Use source-generated logging
+        MyServiceLog.OperationStarted(Logger, command.Parameter);
+
+        // Business logic here
+        await DoWorkAsync(command);
+
+        // Return success with structured message
+        var message = MyServiceMessages.OperationCompleted();
+        return FdwResult.Success(message);
+    }
+    catch (Exception ex)
+    {
+        // Log with source-generated logging
+        MyServiceLog.OperationFailed(Logger, ex.Message, ex);
+
+        // Return failure with structured message
+        var errorMessage = MyServiceMessages.OperationFailed(ex.Message);
+        return FdwResult.Failure(errorMessage);
+    }
+}
+```
+
+**Key Points:**
+- Never throw exceptions for business logic failures
+- Always use structured logging with source generation
+- Return `IServiceMessage` objects in Results
+- Use the logger from `ServiceBase` via the `Logger` property
+
 ## Message System
 
 The library includes a comprehensive messaging system for service operations:
