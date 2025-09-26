@@ -1443,6 +1443,41 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     }
     
     /// <summary>
+    /// Generates a static property for a type that has no parameterized constructors.
+    /// </summary>
+    private void GenerateTypeProperty(EnumValueInfoModel value)
+    {
+        string expressionBody;
+        string xmlDoc;
+
+        if (value.IsAbstract || value.IsStatic)
+        {
+            expressionBody = "_empty";
+            xmlDoc = $"Gets the {value.Name} type option. Returns empty instance since type is {(value.IsAbstract ? "abstract" : "static")}.";
+        }
+        else if (value.BaseConstructorId.HasValue)
+        {
+            expressionBody = $"_all.TryGetValue({value.BaseConstructorId.Value}, out var result) ? result : _empty";
+            xmlDoc = $"Gets the {value.Name} type option from the collection using ID lookup.";
+        }
+        else
+        {
+            expressionBody = "_all.TryGetValue(0, out var result) ? result : _empty";
+            xmlDoc = $"Gets the {value.Name} type option from the collection using ID lookup.";
+        }
+
+        var typeProperty = new PropertyBuilder()
+            .WithName(value.Name)
+            .WithType(_returnType!)
+            .WithAccessModifier("public")
+            .AsStatic()
+            .WithXmlDoc(xmlDoc)
+            .WithExpressionBody(expressionBody);
+
+        _classBuilder!.WithProperty(typeProperty);
+    }
+
+    /// <summary>
     /// Generates static methods for a discovered type, creating overloads for each constructor.
     /// </summary>
     private void GenerateTypeStaticMethods(EnumValueInfoModel value)

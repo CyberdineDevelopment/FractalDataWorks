@@ -12,9 +12,9 @@ The foundational abstract class for service type definitions:
 
 ```csharp
 public abstract class ServiceTypeBase<TService, TConfiguration, TFactory>
-    where TService : class
-    where TConfiguration : class
-    where TFactory : class
+    where TService : class        // Minimal constraint - just reference type
+    where TConfiguration : class  // Minimal constraint - just reference type
+    where TFactory : class        // Minimal constraint - just reference type
 {
     public int Id { get; }
     public string Name { get; }
@@ -470,6 +470,43 @@ public static partial class ServiceTypes
     }
 }
 ```
+
+## Constraint Hierarchy in ServiceTypes
+
+### ServiceTypeCollectionBase - Most Restrictive
+
+The collection base class enforces full interface compliance:
+
+```csharp
+public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConfiguration, TFactory>
+    where TBase : class, IServiceType<TService, TConfiguration, TFactory>
+    where TGeneric : IServiceType<TService, TConfiguration, TFactory>
+    where TService : class, IFdwService                              // Must be a service
+    where TConfiguration : class, IFdwConfiguration                  // Must be config
+    where TFactory : class, IServiceFactory<TService, TConfiguration> // Must be factory
+```
+
+This ensures type collections maintain full type safety and interface compliance.
+
+### Domain-Specific ServiceTypes
+
+Domain implementations add their specific constraints:
+
+```csharp
+// Connection domain example
+public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory>
+    : ServiceTypeBase<TService, TConfiguration, TFactory>
+    where TService : class, IFdwConnection  // Domain-specific interface
+    where TConfiguration : class, IConnectionConfiguration
+    where TFactory : class, IConnectionFactory<TService, TConfiguration>
+```
+
+### Design Rationale
+
+1. **Base flexibility**: ServiceTypeBase uses minimal constraints for maximum reusability
+2. **Collection strictness**: Collections enforce full interface compliance for type safety
+3. **Domain specificity**: Each domain adds its required constraints
+4. **Progressive enhancement**: Constraints become more specific as you move toward implementation
 
 ## Best Practices
 

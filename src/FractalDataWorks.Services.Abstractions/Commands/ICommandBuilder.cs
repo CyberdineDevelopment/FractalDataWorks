@@ -2,7 +2,12 @@ using System;
 using System.Collections.Generic;
 using FractalDataWorks.Results;
 
+using System;
+using FluentValidation.Results;
+using FractalDataWorks.Results;
+
 namespace FractalDataWorks.Services.Abstractions.Commands;
+
 
 /// <summary>
 /// Interface for command builders in the FractalDataWorks framework.
@@ -188,3 +193,4 @@ public interface ICommandBuilder<TCommand, TResult> : ICommandBuilder<TCommand>
     /// </remarks>
     new IFdwResult<TCommand> Build();
 }
+

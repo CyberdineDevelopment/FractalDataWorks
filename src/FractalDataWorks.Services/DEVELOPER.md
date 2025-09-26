@@ -28,15 +28,18 @@ Concrete Implementation (e.g., MsSqlService)
 
 #### Base Service Interface (`IFdwService`)
 
-Located in `FractalDataWorks.Services.Abstractions/IFdwService.cs`
+Located in `FractalDataWorks.Abstractions/Services/Abstractions/IFdwService.cs`
+
+**Note:** The interface location is split across two projects to manage dependencies:
+- `IFdwService` (base) - in FractalDataWorks.Abstractions (no FluentValidation dependency, supports netstandard2.0)
+- `IFdwService<T>` variants - also in FractalDataWorks.Abstractions
 
 ```csharp
 public interface IFdwService
 {
-    Guid Id { get; }
-    IServiceType ServiceType { get; }
+    string Id { get; }
+    string ServiceType { get; }  // Note: string, not IServiceType
     bool IsAvailable { get; }
-}
 
 public interface IFdwService<TCommand, TConfiguration> : IFdwService
     where TCommand : ICommand
@@ -243,6 +246,64 @@ public sealed class ConnectionTypes : ConnectionTypeCollectionBase
     public static IEnumerable<IConnectionType> GetAll() => _types.Values;
 }
 ```
+
+## Two-Project Architecture for Dependency Management
+
+The framework uses a deliberate two-project split to manage dependencies:
+
+### FractalDataWorks.Abstractions
+- **Target Frameworks:** netstandard2.0, net10.0
+- **No FluentValidation dependency**
+- **Contains:** Base interfaces (IFdwService, ICommand)
+- **RootNamespace:** FractalDataWorks
+- **Purpose:** Maximum compatibility with older frameworks
+
+### FractalDataWorks.Services.Abstractions
+- **Can have FluentValidation dependency**
+- **Contains:** Enhanced interfaces (ICommand<T>)
+- **Purpose:** Rich functionality for modern frameworks
+
+Both projects use the same namespace (`FractalDataWorks.Services.Abstractions`) for seamless usage, but maintain separate assemblies for dependency isolation.
+
+## Progressive Constraint Hierarchy
+
+The framework implements increasingly specific constraints as you move from abstractions to implementations:
+
+### Level 1: Framework Abstractions (Most Flexible)
+```csharp
+// No constraints or minimal constraints
+public interface IServiceFactory<TService> // No constraints
+public interface IServiceFactory<TService, TConfiguration>
+    where TConfiguration : IFdwConfiguration // Only config constrained
+```
+
+### Level 2: Concrete Framework (Basic Constraints)
+```csharp
+public abstract class ServiceBase<TCommand, TConfiguration, TService>
+    where TCommand : ICommand
+    where TConfiguration : IFdwConfiguration
+    where TService : class  // Just reference type
+```
+
+### Level 3: Domain Abstractions (Domain-Specific)
+```csharp
+public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService>
+    where TCommand : IConnectionCommand  // Specific command type
+    where TConfiguration : class, IConnectionConfiguration
+    where TService : class
+```
+
+### Level 4: Domain Implementations (Most Specific)
+```csharp
+public class MsSqlConnection : ConnectionServiceBase<MsSqlCommand, MsSqlConfiguration, MsSqlConnection>
+// All concrete types, no generics
+```
+
+This pattern provides:
+- Maximum flexibility at abstraction layers
+- Domain-specific enforcement where needed
+- Type safety that increases with specificity
+- Ability to integrate non-standard implementations
 
 ## Implementation Guide
 

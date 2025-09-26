@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Services;
+using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.ServiceTypes;
 
@@ -14,11 +17,11 @@ namespace FractalDataWorks.ServiceTypes;
 /// <typeparam name="TConfiguration">The configuration type</typeparam>
 /// <typeparam name="TFactory">The factory type</typeparam>
 public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConfiguration, TFactory>
-    where TBase : ServiceTypeBase<TService, TConfiguration, TFactory>
-    where TGeneric : ServiceTypeBase<TService, TConfiguration, TFactory>
-    where TService : class
-    where TConfiguration : class
-    where TFactory : class
+    where TBase : class, IServiceType<TService, TConfiguration, TFactory>
+    where TGeneric : IServiceType<TService, TConfiguration, TFactory>
+    where TService : class,IFdwService
+    where TConfiguration : class, IFdwConfiguration
+    where TFactory : class , IServiceFactory<TService, TConfiguration>
 {
     /// <summary>
     /// Gets all service types in this collection.

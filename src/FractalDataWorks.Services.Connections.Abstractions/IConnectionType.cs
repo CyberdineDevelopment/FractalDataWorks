@@ -14,9 +14,9 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// <typeparam name="TConfiguration">The configuration type for the connection service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating connection service instances.</typeparam>
 public interface IConnectionType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
-    where TService : class, IFdwConnection
-    where TConfiguration : class, IConnectionConfiguration
-    where TFactory : class, IConnectionFactory<TService, TConfiguration>
+    where TService : IFdwConnection
+    where TConfiguration : IConnectionConfiguration
+    where TFactory : IConnectionFactory<TService, TConfiguration>
 {
     // Connection-specific methods and properties can be added here if needed
 }

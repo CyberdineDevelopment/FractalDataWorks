@@ -62,9 +62,64 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
         {
             foreach (var result in results)
             {
-                Execute(context, result.ServiceTypeInfoModel, result.Compilation, result.DiscoveredServiceTypes, result.CollectionClass);
+                // Report any diagnostics first
+                foreach (var diagnostic in result.Diagnostics)
+                {
+                    context.ReportDiagnostic(diagnostic);
+                }
+
+                // Only generate code if there are no error diagnostics
+                if (!result.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error))
+                {
+                    Execute(context, result.ServiceTypeInfoModel, result.Compilation, result.DiscoveredServiceTypes, result.CollectionClass);
+                }
             }
         });
+    }
+
+    /// <summary>
+    /// Validates that the base type doesn't contain abstract properties.
+    /// Returns diagnostics for any abstract properties found.
+    /// </summary>
+    private static List<Diagnostic> ValidateNoAbstractProperties(INamedTypeSymbol baseType, INamedTypeSymbol collectionClass)
+    {
+        var diagnostics = new List<Diagnostic>();
+        var current = baseType;
+
+        // Walk up the inheritance chain looking for abstract properties
+        while (current != null)
+        {
+            foreach (var member in current.GetMembers())
+            {
+                if (member is IPropertySymbol property && property.IsAbstract)
+                {
+                    // Get the location of the abstract property itself
+                    var propertyLocation = property.Locations.FirstOrDefault();
+
+                    // If we can't get the property location, fall back to the attribute location
+                    if (propertyLocation == null || propertyLocation.IsInMetadata)
+                    {
+                        propertyLocation = collectionClass.GetAttributes()
+                            .FirstOrDefault(a => a.AttributeClass?.Name == "ServiceTypeCollectionAttribute")
+                            ?.ApplicationSyntaxReference?.GetSyntax().GetLocation();
+                    }
+
+                    if (propertyLocation != null)
+                    {
+                        var diagnostic = Diagnostic.Create(
+                            AbstractPropertyInBaseTypeRule,
+                            propertyLocation,
+                            baseType.ToDisplayString(),
+                            property.Name);
+
+                        diagnostics.Add(diagnostic);
+                    }
+                }
+            }
+            current = current.BaseType;
+        }
+
+        return diagnostics;
     }
 
     /// <summary>
@@ -93,6 +148,9 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             var baseType = compilation.GetTypeByMetadataName(baseTypeName!);
             if (baseType == null) continue;
 
+            // STEP 3.1: Validate base type doesn't have abstract properties
+            var diagnostics = ValidateNoAbstractProperties(baseType, collectionClass);
+
             // STEP 4: ULTRA-FAST Option Type Lookup (O(1) dictionary lookup)
             // FIX: Lookup pre-discovered options by collection class, not base type
             if (!serviceOptionsByCollectionType.TryGetValue(collectionClass, out var serviceTypesList))
@@ -109,8 +167,8 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
                 var typeDefinition = BuildServiceTypeCollectionDefinitionFromAttributedCollection(collectionClass, baseType, serviceTypesList, compilation, attribute);
                 if (typeDefinition != null)
                 {
-                    // STEP 7: Final Assembly
-                    results.Add(new ServiceTypeInfoWithCompilation(typeDefinition, compilation, serviceTypes, collectionClass));
+                    // STEP 7: Final Assembly (include diagnostics)
+                    results.Add(new ServiceTypeInfoWithCompilation(typeDefinition, compilation, serviceTypes, collectionClass, diagnostics));
                 }
             }
         }

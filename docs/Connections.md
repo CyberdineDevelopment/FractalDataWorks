@@ -6,6 +6,18 @@ The FractalDataWorks.Services.Connections library provides a unified abstraction
 
 ## Core Components
 
+### IFdwConnection
+
+The base connection interface that all connections must implement:
+
+```csharp
+// Located in: Services.Connections.Abstractions/IFdwConnection.cs
+public interface IFdwConnection : IDisposable, IFdwService
+{
+    // Inherits from IFdwService for consistent service patterns
+}
+```
+
 ### FdwConnectionProvider
 
 The central provider for creating and managing connections:
@@ -86,6 +98,39 @@ The framework uses source generation to automatically discover connection types:
 2. **Inheritance-Based Discovery**: All `ConnectionTypeBase` derivatives are found
 3. **Cross-Assembly Support**: Connection types can be in different assemblies
 4. **Compile-Time Generation**: All discovery happens at compile time
+
+## Progressive Constraint Hierarchy
+
+The Connections library follows the framework's progressive constraint pattern:
+
+### Connection Abstractions
+```csharp
+// Base connection service with domain-specific constraints
+public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService>
+    where TCommand : IConnectionCommand  // Must be connection-specific command
+    where TConfiguration : class, IConnectionConfiguration  // Connection configuration
+    where TService : class  // Flexible service type
+
+// Connection type with full constraints
+public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory>
+    where TService : class, IFdwConnection  // Must implement IFdwConnection
+    where TConfiguration : class, IConnectionConfiguration
+    where TFactory : class, IConnectionFactory<TService, TConfiguration>
+```
+
+### Concrete Implementations
+```csharp
+// Example: MsSql implementation (all concrete types)
+public class MsSqlConnection : ConnectionServiceBase<MsSqlCommand, MsSqlConfiguration, MsSqlConnection>
+{
+    // No generics at implementation level - full type safety
+}
+```
+
+This ensures:
+- Connection services must use connection-specific commands
+- All connections implement IFdwConnection
+- Type safety increases from abstraction to implementation
 
 ## Registration Process
 

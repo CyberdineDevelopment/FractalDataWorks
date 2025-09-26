@@ -27,6 +27,8 @@ dotnet new classlib -n MyCompany.Services.DataProcessor -f net10.0
 dotnet sln add MyCompany.Services.DataProcessor/MyCompany.Services.DataProcessor.csproj
 ```
 
+**Note:** This guide uses .NET 10.0 (Release Candidate). Adjust the target framework as needed for your environment.
+
 ### Step 2: Add FractalDataWorks Dependencies
 
 Edit your `.csproj` file:
@@ -584,6 +586,12 @@ namespace MyCompany.Services.DataProcessor.Factories;
 /// <summary>
 /// Factory for creating DataProcessorService instances.
 /// </summary>
+/// <remarks>
+/// Note: ServiceFactoryBase has minimal constraints:
+/// - TService only requires 'class' (not IFdwService)
+/// - TConfiguration requires 'class, IFdwConfiguration'
+/// This allows flexibility in service implementation.
+/// </remarks>
 public class DataProcessorFactory : ServiceFactoryBase<IDataProcessorService, DataProcessorConfiguration>
 {
     /// <summary>

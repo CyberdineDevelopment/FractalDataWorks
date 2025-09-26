@@ -11,16 +11,18 @@ The FractalDataWorks.Services library provides the core foundation for building 
 The abstract base class that all services inherit from. It provides:
 
 - **Generic Type Parameters:**
-  - `TCommand`: The command type this service executes (must implement `ICommand`)
-  - `TConfiguration`: Configuration type for the service (must implement `IFdwConfiguration`)
-  - `TService`: The concrete service type for logging and identification
+  - `TCommand`: The command type this service executes (`where TCommand : ICommand`)
+  - `TConfiguration`: Configuration type for the service (`where TConfiguration : IFdwConfiguration`)
+  - `TService`: The concrete service type for logging and identification (`where TService : class`)
 
 - **Key Properties:**
-  - `Id`: Unique identifier for the service instance (GUID)
-  - `ServiceType`: The display name of the service type
-  - `IsAvailable`: Indicates if the service is ready for use
+  - `Id`: Unique identifier for the service instance (string)
+  - `ServiceType`: The display name of the service type (string)
+  - `IsAvailable`: Indicates if the service is ready for use (bool)
   - `Name`: Service name from configuration or type name
   - `Configuration`: Strongly-typed configuration instance
+
+**Note:** The `TService` parameter uses a loose `class` constraint to allow maximum flexibility. Domain-specific implementations typically add more restrictive constraints.
 
 - **Core Methods:**
   - `Execute(TCommand command)`: Execute commands with result pattern
@@ -143,6 +145,34 @@ All service operations return `IFdwResult` or `IFdwResult<T>`:
 - Chainable operations
 - No exceptions for control flow
 
+## Progressive Constraint Pattern
+
+The framework implements a deliberate progressive constraint hierarchy that provides maximum flexibility at abstraction layers while enforcing domain-specific rules at implementation layers:
+
+### Constraint Hierarchy (Least to Most Restrictive)
+
+1. **Framework Abstractions** (`FractalDataWorks.Services.Abstractions`)
+   - `IServiceFactory<TService>`: No constraints on TService
+   - `IServiceFactory<TService, TConfiguration>`: Only constrains TConfiguration
+
+2. **Concrete Framework** (`FractalDataWorks.Services`)
+   - `ServiceBase<TCommand, TConfiguration, TService>`: TService only requires `class`
+   - `ServiceFactory<TService, TConfiguration>`: TService only requires `class`
+
+3. **Domain Abstractions** (e.g., `Services.Connections.Abstractions`)
+   - `ConnectionServiceBase`: Requires `IConnectionCommand`, `IConnectionConfiguration`
+   - `ConnectionTypeBase`: Requires `IFdwConnection`, `IConnectionFactory`
+
+4. **Implementations** (e.g., `Services.Connections.MsSql`)
+   - Concrete types with no generics
+   - Full type safety with specific implementations
+
+This pattern allows:
+- Framework reuse for non-standard scenarios
+- Domain-specific enforcement where needed
+- Progressive type safety as you move toward implementation
+- Maximum flexibility without sacrificing safety
+
 ## Key Design Patterns
 
 1. **Abstract Factory Pattern**: ServiceFactoryBase for creating services
@@ -150,6 +180,7 @@ All service operations return `IFdwResult` or `IFdwResult<T>`:
 3. **Strategy Pattern**: Command execution with different command types
 4. **Repository Pattern**: Service provider for service instance management
 5. **Builder Pattern**: Fluent configuration APIs
+6. **Progressive Constraints**: Increasing type safety from abstraction to implementation
 
 ## Thread Safety
 

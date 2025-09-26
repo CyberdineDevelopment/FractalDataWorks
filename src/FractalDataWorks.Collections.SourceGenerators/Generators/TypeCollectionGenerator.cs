@@ -166,16 +166,22 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             {
                 if (member is IPropertySymbol property && property.IsAbstract)
                 {
-                    // Get the location of the TypeCollection attribute on the collection class
-                    var attributeLocation = collectionClass.GetAttributes()
-                        .FirstOrDefault(a => a.AttributeClass?.Name == nameof(TypeCollectionAttribute))
-                        ?.ApplicationSyntaxReference?.GetSyntax().GetLocation();
+                    // Get the location of the abstract property itself
+                    var propertyLocation = property.Locations.FirstOrDefault();
 
-                    if (attributeLocation != null)
+                    // If we can't get the property location, fall back to the attribute location
+                    if (propertyLocation == null || propertyLocation.IsInMetadata)
+                    {
+                        propertyLocation = collectionClass.GetAttributes()
+                            .FirstOrDefault(a => a.AttributeClass?.Name == nameof(TypeCollectionAttribute))
+                            ?.ApplicationSyntaxReference?.GetSyntax().GetLocation();
+                    }
+
+                    if (propertyLocation != null)
                     {
                         var diagnostic = Diagnostic.Create(
                             AbstractPropertyInBaseTypeRule,
-                            attributeLocation,
+                            propertyLocation,
                             baseType.ToDisplayString(),
                             property.Name);
 

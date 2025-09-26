@@ -4,6 +4,12 @@
 
 The FractalDataWorks.Services.Abstractions library defines the core contracts and interfaces for the entire service framework. It establishes the foundation for command-based service architectures with comprehensive abstraction layers that ensure consistency and extensibility across all service implementations.
 
+**Important Architecture Note:** The service abstractions are split across two projects for dependency management:
+- **FractalDataWorks.Abstractions** - Contains base interfaces without FluentValidation dependencies (supports netstandard2.0)
+- **FractalDataWorks.Services.Abstractions** - Contains enhanced interfaces with FluentValidation support
+
+Both projects share the same namespace (`FractalDataWorks.Services.Abstractions`) for seamless usage while maintaining dependency isolation.
+
 ## Core Interfaces
 
 ### IFdwService
@@ -11,10 +17,11 @@ The FractalDataWorks.Services.Abstractions library defines the core contracts an
 The base interface for all services in the framework:
 
 ```csharp
+// Located in: FractalDataWorks.Abstractions/Services/Abstractions/IFdwService.cs
 public interface IFdwService
 {
     string Id { get; }           // Unique service instance identifier
-    string ServiceType { get; }  // Display name of the service
+    string ServiceType { get; }  // Display name of the service (string, not IServiceType)
     bool IsAvailable { get; }    // Current availability status
 }
 ```
@@ -136,7 +143,7 @@ Typed factory for specific service types:
 
 ```csharp
 public interface IServiceFactory<TService> : IServiceFactory
-    where TService : class
+    // Note: NO constraints on TService - maximum flexibility
 {
     IFdwResult<TService> Create(IFdwConfiguration configuration);
 }
@@ -148,8 +155,8 @@ Complete factory with configuration type safety:
 
 ```csharp
 public interface IServiceFactory<TService, TConfiguration> : IServiceFactory<TService>
-    where TService : class
-    where TConfiguration : class, IFdwConfiguration
+    where TConfiguration : IFdwConfiguration  // Only configuration is constrained
+    // Note: TService has NO constraints
 {
     IFdwResult<TService> Create(TConfiguration configuration);
 }

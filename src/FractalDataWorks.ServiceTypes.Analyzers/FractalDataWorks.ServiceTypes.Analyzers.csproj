@@ -42,7 +42,7 @@
     <PackageTags>analyzers;type-collections;roslyn;code-analysis</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageDescription>Roslyn analyzers for Collections that provide compile-time validation and code quality checks for type collection types.</PackageDescription>
+    <PackageDescription>Roslyn analyzers for ServiceTypes that provide compile-time validation and code quality checks for type collection types.</PackageDescription>
     
     <!-- Strong Naming -->
     <SignAssembly>true</SignAssembly>
@@ -69,14 +69,13 @@
     <RunAnalyzers>true</RunAnalyzers>
   </PropertyGroup>
 
-
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.Collections.CodeFixes\FractalDataWorks.Collections.CodeFixes.csproj"
+    <ProjectReference Include="..\FractalDataWorks.ServiceTypes.CodeFixes\FractalDataWorks.ServiceTypes.CodeFixes.csproj"
                       PrivateAssets="All"
                       ReferenceOutputAssembly="true"
                       OutputItemType="Analyzer"

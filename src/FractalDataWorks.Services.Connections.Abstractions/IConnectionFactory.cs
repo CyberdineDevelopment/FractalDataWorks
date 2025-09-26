@@ -123,7 +123,7 @@ public interface IConnectionFactory : IServiceFactory
 /// </remarks>
 public interface IConnectionFactory<TConnection, in TConfiguration> : IConnectionFactory,IServiceFactory<TConnection,TConfiguration>
     where TConfiguration : IConnectionConfiguration
-    where TConnection : class, IFdwConnection
+    where TConnection : IFdwConnection
 {
     /// <summary>
     /// Creates a typed connection using the provided configuration.
