@@ -10,6 +10,57 @@ The FractalDataWorks Developer Kit is a comprehensive .NET framework built on Ra
 - Connection management abstractions
 - Result pattern with structured messaging
 
+## Project Structure and Naming Convention
+
+### Project Organization
+
+The Developer Kit follows a strict project organization pattern that aligns with the plugin architecture:
+
+- **Physical Projects**: Located directly in `src/` folder (e.g., `src/FractalDataWorks.Services`)
+- **Solution Folders**: Virtual organizational folders in the .sln file (e.g., Services, Data, Web)
+- **No Nested Project Folders**: Projects should never be in subfolders like `src/Services/`
+
+### Naming Convention: `FractalDataWorks.[Domain].[SubDomain].[Specialization]`
+
+#### Base Pattern
+- `FractalDataWorks.{Domain}` - Core domain implementation
+- `FractalDataWorks.{Domain}.Abstractions` - Interfaces and contracts
+- `FractalDataWorks.{Domain}.{Provider}` - Specific implementations
+
+#### Common Domains
+Domains are organized by functional area and will expand as the framework grows. Examples include Services, Data, Web, Configuration, Collections, etc.
+
+#### Examples
+```
+FractalDataWorks.Services                           # Core service framework
+FractalDataWorks.Services.Abstractions              # Service contracts
+FractalDataWorks.Services.Connections               # Connection domain
+FractalDataWorks.Services.Connections.Abstractions  # Connection contracts
+FractalDataWorks.Services.Connections.MsSql         # SQL Server provider
+FractalDataWorks.Services.Authentication.AzureEntra # Azure AD provider
+```
+
+#### Development Tools Suffix Pattern
+- `.SourceGenerators` - Source code generation
+- `.Analyzers` - Code analysis and diagnostics
+- `.CodeFixes` - Automated code fixes
+
+### Plugin Architecture Alignment
+
+This naming convention supports the plugin architecture by:
+
+1. **Discovery**: Source generators can find all implementations by scanning for pattern matches
+2. **Registration**: ServiceTypes and Collections use naming patterns for automatic registration
+3. **Dependency Resolution**: Clear hierarchy allows dependency injection to resolve correct implementations
+4. **Provider Pattern**: Multiple providers (MsSql, AzureEntra, etc.) can implement same abstractions
+5. **Progressive Constraints**: Base projects have minimal constraints, implementations add specificity
+
+The pattern ensures:
+- Plugins can be added without modifying core framework
+- Clear separation between abstractions and implementations
+- Consistent discovery patterns for source generators
+- Predictable project locations for developers
+
 ## Core Components
 
 ### 1. Results Pattern (Railway-Oriented Programming)
