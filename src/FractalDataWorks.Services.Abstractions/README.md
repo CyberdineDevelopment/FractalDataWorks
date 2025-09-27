@@ -1,253 +1,617 @@
 # FractalDataWorks.Services.Abstractions
 
-Core service contracts and interfaces for the FractalDataWorks service framework. This library defines the foundational abstractions for command-based service architectures with comprehensive type safety and extensibility.
+**Domain service contracts for the FractalDataWorks service framework.** This library defines the foundational abstractions for domain-driven service architectures with command-based operations, type-safe configuration, and integrated messaging.
 
-## Overview
+## Table of Contents
 
-FractalDataWorks.Services.Abstractions establishes the contract system for all services, providing:
-- Service lifecycle interfaces
-- Command pattern contracts
-- Factory abstractions
-- Configuration interfaces
-- Service provider patterns
-- Message system contracts
+1. [Domain Service Architecture](#domain-service-architecture)
+2. [Framework Integration](#framework-integration)
+3. [Component Rules and Placement](#component-rules-and-placement)
+4. [Core Interface Hierarchy](#core-interface-hierarchy)
+5. [Command System](#command-system)
+6. [Configuration System](#configuration-system)
+7. [Factory System](#factory-system)
+8. [Provider System](#provider-system)
+9. [Message Integration](#message-integration)
+10. [Generic Constraints Reference](#generic-constraints-reference)
 
-## Core Interfaces
+## Domain Service Architecture
 
-### IFdwService
+### What is a Domain Service (Service Type)?
 
-Base interface hierarchy for all services:
+A **domain service** (or **service type**) is a logical grouping of related services that handle a specific business area. Unlike individual services, domain services provide:
+
+- **Unified abstraction** over multiple implementations
+- **Type-safe service discovery** without knowing specific implementations
+- **Domain-specific command hierarchies** that all implementations understand
+- **Coordinated configuration and messaging** across the domain
+
+### Domain vs Individual Services
 
 ```csharp
-// Base service interface
-public interface IFdwService
+// ❌ Individual Service Approach
+IUserRegistrationService registrationService;
+IUserAuthenticationService authService;
+IUserProfileService profileService;
+
+// ✅ Domain Service Approach
+IUserManagementService userService; // Can be ANY implementation:
+// - DatabaseUserManagementService
+// - LdapUserManagementService
+// - AzureAdUserManagementService
+// - CompositeUserManagementService
+```
+
+### Domain Project Structure
+
+Every domain service requires **exactly two projects**:
+
+```
+MyCompany.Services.UserManagement.Abstractions/    (netstandard2.0)
+MyCompany.Services.UserManagement/                 (net10.0+)
+```
+
+#### Why Two Projects?
+
+**Abstractions (`netstandard2.0`)** = **Pure Contracts**
+- Maximum compatibility across .NET implementations
+- Zero implementation logic
+- Consumer dependencies stay minimal
+- Stable API surface
+
+**Concrete (target framework)** = **Domain Foundation**
+- Base classes for implementations to inherit from
+- Source-generated type collections
+- Framework-specific optimizations
+- Implementation extension points
+
+### Domain Service Provider Pattern
+
+The **DomainServiceProvider** enables the "any implementation" pattern:
+
+```csharp
+public interface IUserManagementServiceProvider : IFdwServiceProvider
 {
-    string Id { get; }
-    string ServiceType { get; }
-    bool IsAvailable { get; }
+    // Get ANY user management service - don't care which implementation
+    Task<IFdwResult<IUserManagementService>> GetService();
+    Task<IFdwResult<IUserManagementService>> GetService(string configurationName);
+    Task<IFdwResult<TService>> GetService<TService>() where TService : IUserManagementService;
+}
+```
+
+**Critical Pattern:** Services are resolved by **domain capability**, not specific implementation type.
+
+## Framework Integration
+
+Domain services integrate with three core framework systems to create a cohesive development experience:
+
+### 1. ServiceTypes Collections Project (Source-Generated Discovery)
+
+```csharp
+// Auto-generated from domain implementations in solution
+public static class UserManagementServices
+{
+    public static DatabaseUserManagementService Database => new();
+    public static LdapUserManagementService Ldap => new();
+    public static AzureAdUserManagementService AzureAd => new();
+
+    public static IEnumerable<IUserManagementService> All =>
+        new IUserManagementService[] { Database, Ldap, AzureAd };
+}
+```
+
+**How it Works:**
+1. Source generator scans solution for `IUserManagementService` implementations
+2. Generates type-safe collections for discovery
+3. Enables runtime enumeration and selection
+4. Integrates with DI container registration
+
+### 2. Messages System (Structured Communication)
+
+```csharp
+// Domain message hierarchy
+[MessageCollection("UserManagementMessages")]
+public abstract class UserManagementMessage : MessageTemplate<MessageSeverity>, IServiceMessage
+{
+    protected UserManagementMessage(int id, string name, MessageSeverity severity,
+        string message, string? code = null)
+        : base(id, name, severity, "UserManagement", message, code, null, null) { }
 }
 
-// Service with command execution
+// Source-generated factory methods
+public static class UserManagementMessages
+{
+    public static UserCreatedMessage UserCreated(string userId) => new(userId);
+    public static ValidationFailedMessage ValidationFailed(string field) => new(field);
+}
+```
+
+**Integration Points:**
+- Messages integrate with `IFdwResult` for structured error handling
+- Source-generated factory methods ensure consistent message creation
+- Automatic message ID allocation prevents conflicts
+- Integrated with logging for structured telemetry
+
+### 3. Logging System (High-Performance Structured Logging)
+
+```csharp
+// Source-generated logging methods
+[ExcludeFromCodeCoverage]
+public static partial class UserManagementServiceLog
+{
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information,
+        Message = "Creating user {UserId} with email {Email}")]
+    public static partial void UserCreationStarted(ILogger logger, string userId, string email);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Error,
+        Message = "User creation failed for {UserId}: {ErrorMessage}")]
+    public static partial void UserCreationFailed(ILogger logger, string userId, string errorMessage, Exception exception);
+}
+```
+
+**Integration Benefits:**
+- Zero-allocation logging with compile-time validation
+- Consistent structured data across all domain services
+- Automatic event ID management
+- Integrated with Messages for correlated telemetry
+
+### System Cohesion
+
+The three systems work together to create a unified development experience:
+
+```csharp
+public class UserManagementServiceBase : ServiceBase<UserManagementCommand, UserManagementConfiguration, UserManagementServiceBase>
+{
+    public override async Task<IFdwResult> Execute(UserManagementCommand command)
+    {
+        // 1. Logging integration
+        UserManagementServiceLog.CommandExecutionStarted(Logger, command.GetType().Name);
+
+        try
+        {
+            // Execute business logic
+            var result = await ProcessCommand(command);
+
+            // 2. Messages integration
+            var successMessage = UserManagementMessages.CommandExecuted(command.GetType().Name);
+            UserManagementServiceLog.CommandExecutionCompleted(Logger, command.GetType().Name);
+
+            return FdwResult.Success(successMessage);
+        }
+        catch (Exception ex)
+        {
+            // 3. Coordinated error handling
+            var errorMessage = UserManagementMessages.CommandExecutionFailed(ex.Message);
+            UserManagementServiceLog.CommandExecutionFailed(Logger, command.GetType().Name, ex.Message, ex);
+
+            return FdwResult.Failure(errorMessage);
+        }
+    }
+}
+```
+
+## Component Rules and Placement
+
+### Strict Placement Rules
+
+#### Abstractions Project (`netstandard2.0`)
+
+| Component | Location | Purpose | Naming Pattern |
+|-----------|----------|---------|----------------|
+| **Service Interfaces** | `Services/` | Domain contracts | `I{Domain}Service` |
+| **Command Base Classes** | `Commands/` | Operation contracts | `{Domain}Command` |
+| **Configuration Interfaces** | `Configuration/` | Settings contracts | `I{Domain}Configuration` |
+| **Message Base Classes** | `Messages/` | Communication contracts | `{Domain}Message` |
+| **Logging Signatures** | `Logging/` | Telemetry contracts | `{Domain}ServiceLog` |
+
+#### Concrete Project (target framework)
+
+| Component | Location | Purpose | Naming Pattern |
+|-----------|----------|---------|----------------|
+| **Service Base Classes** | `Services/` | Implementation foundations | `{Domain}ServiceBase` |
+| **Configuration Classes** | `Configuration/` | Settings implementations | `{Domain}Configuration` |
+| **Factory Base Classes** | `Factories/` | Creation patterns | `{Domain}FactoryBase` |
+| **ServiceType Registration** | `ServiceTypes/` | Framework integration | `{Domain}ServiceType` |
+| **Provider Implementation** | `Registration/` | Service resolution | `{Domain}ServiceProvider` |
+| **Registration Options** | `Registration/` | DI configuration | `{Domain}RegistrationOptions` |
+
+### Component Syntax Rules
+
+#### Service Interface Hierarchy
+
+```csharp
+// ✅ Correct: Abstractions project
+namespace MyCompany.Services.UserManagement.Abstractions.Services;
+
+/// <summary>
+/// Defines user management operations for any implementation.
+/// </summary>
+public interface IUserManagementService : IFdwService<UserManagementCommand, IUserManagementConfiguration>
+{
+    /// <summary>
+    /// Creates a new user account.
+    /// </summary>
+    Task<IFdwResult<UserCreatedResult>> CreateUser(CreateUserCommand command);
+
+    /// <summary>
+    /// Authenticates user credentials.
+    /// </summary>
+    Task<IFdwResult<AuthenticationResult>> Authenticate(AuthenticateUserCommand command);
+}
+
+// ❌ Incorrect: Generic constraints missing
+public interface IUserManagementService : IFdwService
+// ❌ Incorrect: Wrong namespace
+namespace MyCompany.Services.UserManagement.Services;
+```
+
+#### Command Hierarchy Rules
+
+```csharp
+// ✅ Correct: Abstractions project base command
+namespace MyCompany.Services.UserManagement.Abstractions.Commands;
+
+/// <summary>
+/// Base class for all user management operations.
+/// </summary>
+public abstract class UserManagementCommand : ICommand
+{
+    /// <summary>
+    /// Gets or sets the command identifier.
+    /// </summary>
+    public string CommandId { get; set; } = Guid.NewGuid().ToString();
+
+    /// <summary>
+    /// Gets or sets when the command was created.
+    /// </summary>
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Gets or sets the user who initiated the command.
+    /// </summary>
+    public string? InitiatedBy { get; set; }
+}
+
+// ✅ Correct: Specific command implementations
+/// <summary>
+/// Command to create a new user account.
+/// </summary>
+public class CreateUserCommand : UserManagementCommand
+{
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public Dictionary<string, object> Properties { get; set; } = new();
+}
+
+// ❌ Incorrect: Missing inheritance
+public class CreateUserCommand : ICommand
+// ❌ Incorrect: Wrong namespace or project
+namespace MyCompany.Services.UserManagement.Commands;
+```
+
+## Core Interface Hierarchy
+
+### Service Interface Evolution
+
+The framework provides a progressive interface hierarchy that adds capabilities:
+
+```csharp
+// Level 1: Basic service identification
+public interface IFdwService
+{
+    string Id { get; }           // Unique instance identifier
+    string ServiceType { get; }  // Service type name for logging
+    bool IsAvailable { get; }    // Runtime availability status
+}
+
+// Level 2: Command execution capability
 public interface IFdwService<TCommand> : IFdwService
     where TCommand : ICommand
 {
     Task<IFdwResult> Execute(TCommand command);
 }
 
-// Service with configuration support
+// Level 3: Configuration access and typed execution
 public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
     where TCommand : ICommand
     where TConfiguration : IFdwConfiguration
 {
-    string Name { get; }
-    TConfiguration Configuration { get; }
+    string Name { get; }                    // Display name from configuration
+    TConfiguration Configuration { get; }   // Strongly-typed configuration access
+
+    // Generic execution with typed results
     Task<IFdwResult<T>> Execute<T>(TCommand command);
     Task<IFdwResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
     Task<IFdwResult> Execute(TCommand command, CancellationToken cancellationToken);
 }
 
-// Full service interface with type identification
-public interface IFdwService<TCommand, TConfiguration, TService>
-    : IFdwService<TCommand, TConfiguration>
+// Level 4: Type identification for logging and DI
+public interface IFdwService<TCommand, TConfiguration, TService> : IFdwService<TCommand, TConfiguration>
     where TCommand : ICommand
     where TConfiguration : IFdwConfiguration
     where TService : class
 {
-    // TService provides type identification for logging and DI
+    // TService provides compile-time type information for:
+    // - Generic logging with ILogger<TService>
+    // - DI registration with proper lifetimes
+    // - Source generator type discovery
+    // - Performance profiling and monitoring
 }
 ```
 
 ## Command System
 
-### ICommand
+### Command Architecture Principles
 
-Base command interface:
+Commands represent **operations** that can be performed within a domain. They:
+- Encapsulate operation data and validation
+- Provide a uniform execution model
+- Enable cross-cutting concerns (logging, metrics, caching)
+- Support command composition and chaining
+
+### Command Hierarchy Design
 
 ```csharp
-public interface ICommand
+// ✅ Correct: Domain command hierarchy
+namespace MyCompany.Services.UserManagement.Abstractions.Commands;
+
+/// <summary>
+/// Base class for all user management operations.
+/// Provides common audit trail and metadata.
+/// </summary>
+public abstract class UserManagementCommand : ICommand
 {
-    // Marker interface - implementations add properties
+    /// <summary>
+    /// Unique identifier for this command instance.
+    /// Used for correlation across logging and monitoring.
+    /// </summary>
+    public string CommandId { get; init; } = Guid.NewGuid().ToString();
+
+    /// <summary>
+    /// Timestamp when the command was created.
+    /// Used for performance monitoring and audit trails.
+    /// </summary>
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Identity of the user who initiated this command.
+    /// Used for authorization and audit logging.
+    /// </summary>
+    public string? InitiatedBy { get; init; }
+
+    /// <summary>
+    /// Additional context data for this command.
+    /// Used for cross-cutting concerns and extensibility.
+    /// </summary>
+    public Dictionary<string, object> Context { get; init; } = new();
 }
 
-public interface ICommandBuilder<TCommand> where TCommand : ICommand
+/// <summary>
+/// Commands that modify user data.
+/// Adds transaction and concurrency control metadata.
+/// </summary>
+public abstract class UserManagementMutationCommand : UserManagementCommand
 {
-    TCommand Build();
-    ICommandBuilder<TCommand> WithParameter(string name, object value);
+    /// <summary>
+    /// Expected version for optimistic concurrency control.
+    /// Prevents lost update scenarios.
+    /// </summary>
+    public string? ExpectedVersion { get; init; }
+
+    /// <summary>
+    /// Whether this command should participate in a transaction.
+    /// Enables batch operation support.
+    /// </summary>
+    public bool RequiresTransaction { get; init; } = true;
 }
 
-public interface ICommandResult
+/// <summary>
+/// Commands that only read user data.
+/// Optimized for caching and read scaling.
+/// </summary>
+public abstract class UserManagementQueryCommand : UserManagementCommand
 {
-    bool IsSuccess { get; }
-    string Message { get; }
-    Exception Error { get; }
-}
+    /// <summary>
+    /// Whether cached results are acceptable.
+    /// Enables performance optimization for read-heavy scenarios.
+    /// </summary>
+    public bool AllowCachedResults { get; init; } = true;
 
-public interface IDataCommand : ICommand
+    /// <summary>
+    /// Maximum age of cached results in seconds.
+    /// Balances consistency with performance.
+    /// </summary>
+    public int CacheMaxAgeSeconds { get; init; } = 300;
+}
+```
+
+## Configuration System
+
+### Configuration Architecture
+
+Configuration in domain services follows a **interface-first, validation-required** pattern:
+
+```csharp
+// ✅ Correct: Abstractions project interface
+namespace MyCompany.Services.UserManagement.Abstractions.Configuration;
+
+/// <summary>
+/// Configuration contract for user management services.
+/// Defines all settings required by any implementation.
+/// </summary>
+public interface IUserManagementConfiguration : IFdwConfiguration
 {
-    string Operation { get; }
-    string Entity { get; }
-    object Data { get; }
+    /// <summary>
+    /// Primary data store connection string.
+    /// Used for user account storage and retrieval.
+    /// </summary>
+    string ConnectionString { get; }
+
+    /// <summary>
+    /// Password policy configuration.
+    /// Defines complexity requirements and expiration rules.
+    /// </summary>
+    PasswordPolicy PasswordPolicy { get; }
+
+    /// <summary>
+    /// Session management settings.
+    /// Controls timeout and concurrent session limits.
+    /// </summary>
+    SessionConfiguration SessionSettings { get; }
 }
 ```
 
 ## Factory System
 
-### IServiceFactory
+### Factory Architecture
 
-Factory interfaces for service creation:
+The factory system provides **type-safe service creation** with **configuration validation**:
 
 ```csharp
-// Base factory interface
-public interface IServiceFactory
-{
-    IFdwResult<IFdwService> Create(IFdwConfiguration configuration);
-    IFdwResult<T> Create<T>(IFdwConfiguration configuration) where T : IFdwService;
-}
+// ✅ Correct: Use GenericServiceFactory for standard services
+namespace MyCompany.Services.UserManagement.ServiceTypes;
 
-// Typed factory for specific services
+public class UserManagementServiceType : ServiceTypeBase<IUserManagementService, UserManagementConfiguration, GenericServiceFactory<IUserManagementService, UserManagementConfiguration>>
+{
+    public UserManagementServiceType() : base(100, "UserManagement", "UserServices") { }
+
+    public override string SectionName => "Services:UserManagement";
+    public override string DisplayName => "User Management Service";
+    public override string Description => "Manages user accounts, authentication, and profiles";
+
+    public override void Register(IServiceCollection services)
+    {
+        // Register the generic factory - no custom factory needed
+        services.AddScoped<GenericServiceFactory<IUserManagementService, UserManagementConfiguration>>();
+
+        // Register service implementations
+        services.AddTransient<IUserManagementService, DatabaseUserManagementService>();
+    }
+}
+```
+
+## Provider System
+
+### Domain Service Provider Architecture
+
+The **DomainServiceProvider** abstracts service resolution within a domain:
+
+```csharp
+// ✅ Correct: Domain service provider interface
+namespace MyCompany.Services.UserManagement.Abstractions;
+
+/// <summary>
+/// Provides access to user management services without knowing specific implementations.
+/// </summary>
+public interface IUserManagementServiceProvider : IFdwServiceProvider
+{
+    /// <summary>
+    /// Gets the default user management service.
+    /// Implementation selected based on configuration priority.
+    /// </summary>
+    Task<IFdwResult<IUserManagementService>> GetService();
+
+    /// <summary>
+    /// Gets a user management service using a named configuration.
+    /// </summary>
+    Task<IFdwResult<IUserManagementService>> GetService(string configurationName);
+
+    /// <summary>
+    /// Gets a specific user management service implementation.
+    /// </summary>
+    Task<IFdwResult<TService>> GetService<TService>() where TService : class, IUserManagementService;
+}
+```
+
+## Message Integration
+
+### Message System Architecture
+
+Messages provide **structured communication** between services and with external systems:
+
+```csharp
+// ✅ Correct: Domain message base class
+namespace MyCompany.Services.UserManagement.Abstractions.Messages;
+
+/// <summary>
+/// Base class for all user management messages.
+/// Provides consistent structure and source generation support.
+/// </summary>
+[MessageCollection("UserManagementMessages")]
+public abstract class UserManagementMessage : MessageTemplate<MessageSeverity>, IServiceMessage
+{
+    /// <summary>
+    /// Initializes a new instance of the UserManagementMessage class.
+    /// </summary>
+    protected UserManagementMessage(int id, string name, MessageSeverity severity,
+        string message, string? code = null)
+        : base(id, name, severity, "UserManagement", message, code, null, null) { }
+}
+```
+
+## Generic Constraints Reference
+
+### Service Interface Constraints
+
+```csharp
+// ✅ Correct: Progressive constraint addition
+public interface IFdwService
+// No constraints - basic service contract
+
+public interface IFdwService<TCommand> : IFdwService
+    where TCommand : ICommand
+// TCommand must implement ICommand - ensures command pattern compliance
+
+public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
+    where TCommand : ICommand
+    where TConfiguration : IFdwConfiguration
+// TConfiguration must implement IFdwConfiguration - ensures validation and binding support
+
+public interface IFdwService<TCommand, TConfiguration, TService> : IFdwService<TCommand, TConfiguration>
+    where TCommand : ICommand
+    where TConfiguration : IFdwConfiguration
+    where TService : class
+// TService must be a reference type - enables logging and DI type identification
+```
+
+### Factory Interface Constraints
+
+```csharp
+// ✅ Correct: Factory constraint patterns
 public interface IServiceFactory<TService> : IServiceFactory
     where TService : class
-{
-    IFdwResult<TService> Create(IFdwConfiguration configuration);
-}
+// TService must be reference type - prevents value type services
 
-// Complete factory with configuration type
 public interface IServiceFactory<TService, TConfiguration> : IServiceFactory<TService>
     where TService : class
     where TConfiguration : class, IFdwConfiguration
-{
-    IFdwResult<TService> Create(TConfiguration configuration);
-}
+// TConfiguration must be reference type AND implement IFdwConfiguration
+// class constraint required for configuration binding and caching
 ```
 
-## Service Lifetimes
+### Constraint Selection Rules
 
-### ServiceLifetimeBase
+#### Reference Type Constraints (`class`)
 
-Base classes for service lifetime management:
+**Always required for:**
+- Service types (enables DI registration)
+- Configuration types (enables binding and caching)
+- Factory types (enables reflection and instantiation)
 
-```csharp
-public abstract class ServiceLifetimeBase
-{
-    public abstract ServiceLifetime Lifetime { get; }
-    public abstract string Name { get; }
-    public abstract string Description { get; }
-}
+#### Interface Constraints
 
-// Built-in lifetime options
-public class SingletonServiceLifetimeOption : ServiceLifetimeBase { }
-public class ScopedServiceLifetimeOption : ServiceLifetimeBase { }
-public class TransientServiceLifetimeOption : ServiceLifetimeBase { }
-```
+**ICommand Constraint:**
+- Required on command type parameters
+- Ensures Execute method compatibility
+- Enables command pattern infrastructure
 
-## Configuration
+**IFdwService Constraint:**
+- Required on service type parameters
+- Ensures service contract compliance
+- Enables service infrastructure integration
 
-### IServiceConfiguration
-
-Configuration interface:
-
-```csharp
-public interface IServiceConfiguration : IFdwConfiguration
-{
-    string Name { get; }
-    bool Enabled { get; }
-    Dictionary<string, object> Settings { get; }
-}
-```
-
-## Provider Pattern
-
-### IFdwServiceProvider
-
-Service provider for resolution:
-
-```csharp
-public interface IFdwServiceProvider
-{
-    T GetService<T>() where T : IFdwService;
-    IFdwService GetService(Type serviceType);
-    IEnumerable<T> GetServices<T>() where T : IFdwService;
-}
-```
-
-## Validation
-
-### IFdwValidator
-
-Validation interface:
-
-```csharp
-public interface IFdwValidator<T>
-{
-    ValidationResult Validate(T instance);
-    Task<ValidationResult> ValidateAsync(T instance);
-}
-```
-
-## Message System
-
-### IServiceMessage
-
-Service message contract:
-
-```csharp
-public interface IServiceMessage
-{
-    string Code { get; }
-    string Message { get; }
-    MessageSeverity Severity { get; }
-    DateTimeOffset Timestamp { get; }
-}
-
-public abstract class ServiceMessageBase : IServiceMessage
-{
-    protected ServiceMessageBase(string code, string message, MessageSeverity severity);
-}
-```
-
-## Installation
-
-```xml
-<PackageReference Include="FractalDataWorks.Services.Abstractions" Version="1.0.0" />
-```
-
-## Dependencies
-
-- `FractalDataWorks.Configuration.Abstractions` - Configuration contracts
-- `FractalDataWorks.Results` - Result pattern types
-- `FractalDataWorks.Messages` - Message infrastructure
-- `Microsoft.Extensions.DependencyInjection.Abstractions` - DI integration
-
-## Design Principles
-
-1. **Interface Segregation** - Multiple focused interfaces instead of one large interface
-2. **Generic Constraints** - Type safety through generic parameters
-3. **Async-First** - All operations return Tasks
-4. **Result Pattern** - No exceptions for control flow
-5. **Cancellation Support** - CancellationToken throughout
-
-## Best Practices
-
-1. Program against interfaces, not implementations
-2. Use the most specific interface that meets your needs
-3. Leverage generic constraints for compile-time safety
-4. Implement proper null checking in concrete classes
-5. Follow the IFdw naming convention
-
-## Extension Points
-
-- Custom commands via `ICommand`
-- Service lifetimes via `ServiceLifetimeBase`
-- Validation strategies via `IFdwValidator`
-- Message types via `IServiceMessage`
-- Provider implementations via `IFdwServiceProvider`
-
-## Documentation
-
-- [Services Architecture](../../docs/Services.Abstractions.md)
-- [Developer Guide](../../docs/DeveloperGuide-ServiceSetup.md)
-- [API Reference](https://docs.fractaldataworks.com/api/services-abstractions)
-
-## License
-
-Copyright © FractalDataWorks Electric Cooperative. All rights reserved.
+**IFdwConfiguration Constraint:**
+- Required on configuration type parameters
+- Ensures validation and binding support
+- Enables configuration infrastructure integration

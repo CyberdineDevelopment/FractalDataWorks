@@ -1,37 +1,120 @@
 # FractalDataWorks Service Development Guide
 
-## Quick Start: Setting Up a New Service Project
-
-This guide walks junior developers through creating production-ready services using the FractalDataWorks framework. Follow these steps to build robust, scalable services with minimal boilerplate.
+**Complete guide for creating domain services and implementations in the FractalDataWorks framework.** This covers both domain creation (new business areas) and implementation creation (specific service implementations within existing domains).
 
 ## Table of Contents
 
-1. [Project Setup](#project-setup)
-2. [Creating Your First Service](#creating-your-first-service)
-3. [Configuration Management](#configuration-management)
-4. [Service Registration](#service-registration)
-5. [Using Services](#using-services)
-6. [Testing Services](#testing-services)
+1. [Architecture Overview](#architecture-overview)
+2. [Creating a New Domain Service](#creating-a-new-domain-service)
+3. [Adding Service Implementations](#adding-service-implementations)
+4. [Command System Deep Dive](#command-system-deep-dive)
+5. [Framework Integration](#framework-integration)
+6. [Testing Strategies](#testing-strategies)
 7. [Common Patterns](#common-patterns)
 8. [Troubleshooting](#troubleshooting)
 
-## Project Setup
+## Architecture Overview
 
-### Step 1: Create a New Project
+### Domain Service vs Implementation
 
-```bash
-# Create a new class library project
-dotnet new classlib -n MyCompany.Services.DataProcessor -f net10.0
+**Domain Service** = Business capability abstraction (UserManagement, OrderProcessing, etc.)
+**Implementation** = Specific technology implementation (DatabaseUserService, LdapUserService, etc.)
 
-# Add to solution
-dotnet sln add MyCompany.Services.DataProcessor/MyCompany.Services.DataProcessor.csproj
+```csharp
+// Domain capability - what can be done
+IUserManagementService userService = provider.GetService();
+
+// Could be ANY implementation:
+// - DatabaseUserManagementService (SQL Server)
+// - LdapUserManagementService (Active Directory)
+// - RestUserManagementService (External API)
+// - CompositeUserManagementService (Multiple backends)
+
+// Same command syntax regardless of implementation
+await userService.Execute(UserManagementCommands.Create(username: "john", email: "john@example.com"));
 ```
 
-**Note:** This guide uses .NET 10.0 (Release Candidate). Adjust the target framework as needed for your environment.
+### Core Principles
 
-### Step 2: Add FractalDataWorks Dependencies
+1. **Commands Unify Domains** - All implementations understand the same command interfaces
+2. **TypeCollections Enable Discovery** - Source-generated service lookup and registration
+3. **Providers Abstract Selection** - Get services by capability, not implementation type
+4. **Execute-Only Interface** - Services only have `Execute(TCommand)` methods
+5. **Translator Pattern** - Implementations translate domain commands to technology-specific operations
 
-Edit your `.csproj` file:
+### Project Structure
+
+Every domain requires **exactly two projects**:
+
+```
+MyCompany.Services.UserManagement.Abstractions/  (netstandard2.0)
+├── Commands/               # Command interfaces
+├── Configuration/          # Configuration contracts
+├── Services/              # Service interfaces
+├── Messages/              # Message base classes
+└── Logging/              # Logging method signatures
+
+MyCompany.Services.UserManagement/              (net10.0)
+├── ServiceTypes/          # TypeCollection definitions
+├── Registration/          # Provider and registration options
+├── Services/             # Service base classes
+├── Messages/             # Message implementations
+└── Logging/             # Logging implementations
+```
+
+## Creating a New Domain Service
+
+### Step 1: Create Domain Projects
+
+```bash
+# Create abstractions project (netstandard2.0)
+dotnet new classlib -n MyCompany.Services.UserManagement.Abstractions -f netstandard2.0
+dotnet sln add MyCompany.Services.UserManagement.Abstractions
+
+# Create concrete project (net10.0)
+dotnet new classlib -n MyCompany.Services.UserManagement -f net10.0
+dotnet sln add MyCompany.Services.UserManagement
+```
+
+### Step 2: Configure Abstractions Project
+
+**MyCompany.Services.UserManagement.Abstractions.csproj:**
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core Framework Dependencies -->
+    <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.ServiceTypes.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.Web.Http.Abstractions\FractalDataWorks.Web.Http.Abstractions.csproj" />
+
+    <!-- Source Generators (Analyzer only) -->
+    <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\FractalDataWorks.EnhancedEnums.SourceGenerators\FractalDataWorks.EnhancedEnums.SourceGenerators.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false" PrivateAssets="all" />
+
+    <!-- Source Generator Base Types -->
+    <None Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.ServiceTypes.SourceGenerators.dll"
+          Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"
+          Condition="Exists('..\FractalDataWorks.ServiceTypes.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.ServiceTypes.SourceGenerators.dll')" />
+  </ItemGroup>
+</Project>
+```
+
+### Step 3: Configure Concrete Project
+
+**MyCompany.Services.UserManagement.csproj:**
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -39,1692 +122,1700 @@ Edit your `.csproj` file:
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Core Framework -->
-    <ProjectReference Include="..\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />
+    <!-- Domain Abstractions -->
+    <ProjectReference Include="..\MyCompany.Services.UserManagement.Abstractions\MyCompany.Services.UserManagement.Abstractions.csproj" />
+
+    <!-- Core Framework Dependencies -->
     <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />
     <ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.ServiceTypes.csproj" />
-
-    <!-- Source Generators (Analyzers only, not referenced) -->
-    <ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
-
-    <!-- Configuration & Results -->
-    <ProjectReference Include="..\FractalDataWorks.Configuration\FractalDataWorks.Configuration.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.Configuration.Abstractions\FractalDataWorks.Configuration.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
+
+    <!-- Source Generators (Analyzer only) -->
+    <ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Required NuGet packages -->
+    <!-- Microsoft Dependencies -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
-    <PackageReference Include="FluentValidation" />
   </ItemGroup>
 </Project>
 ```
 
-### Step 3: Project Structure
+### Step 4: Create Domain Command Interfaces
 
-Create the following folder structure:
-
-```
-MyCompany.Services.DataProcessor/
-├── Commands/
-│   ├── ProcessDataCommand.cs
-│   └── QueryDataCommand.cs
-├── Configuration/
-│   ├── DataProcessorConfiguration.cs
-│   └── DataProcessorConfigurationValidator.cs
-├── Services/
-│   ├── DataProcessorService.cs
-│   └── IDataProcessorService.cs
-├── Factories/
-│   └── DataProcessorFactory.cs
-├── ServiceTypes/
-│   └── DataProcessorServiceType.cs
-└── Extensions/
-    └── ServiceCollectionExtensions.cs
-```
-
-## Creating Your First Service
-
-### Step 1: Define the Service Interface
+**Abstractions/IUserManagementCommand.cs:**
 
 ```csharp
-// Services/IDataProcessorService.cs
-using FractalDataWorks.Services.Abstractions;
-using FractalDataWorks.Results;
-using MyCompany.Services.DataProcessor.Commands;
-using MyCompany.Services.DataProcessor.Configuration;
-
-namespace MyCompany.Services.DataProcessor.Services;
-
-/// <summary>
-/// Interface for data processing operations.
-/// </summary>
-public interface IDataProcessorService : IFdwService<DataCommand, DataProcessorConfiguration>
-{
-    /// <summary>
-    /// Processes a batch of data records.
-    /// </summary>
-    Task<IFdwResult<ProcessingResult>> ProcessBatchAsync(ProcessDataCommand command);
-
-    /// <summary>
-    /// Queries processed data.
-    /// </summary>
-    Task<IFdwResult<QueryResult>> QueryAsync(QueryDataCommand command);
-}
-```
-
-### Step 2: Create the Command Classes
-
-```csharp
-// Commands/DataCommand.cs
 using FractalDataWorks.Services.Abstractions.Commands;
 
-namespace MyCompany.Services.DataProcessor.Commands;
+namespace MyCompany.Services.UserManagement.Abstractions;
 
 /// <summary>
-/// Base command for all data operations.
+/// Base command interface for all user management operations.
+/// Provides domain unification - all implementations understand these commands.
 /// </summary>
-public abstract class DataCommand : ICommand
+public interface IUserManagementCommand : ICommand
 {
-    /// <summary>
-    /// Gets or sets the command identifier.
-    /// </summary>
-    public string CommandId { get; set; } = Guid.NewGuid().ToString();
-
-    /// <summary>
-    /// Gets or sets the timestamp when the command was created.
-    /// </summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    /// <summary>
-    /// Gets or sets the user who initiated the command.
-    /// </summary>
-    public string? InitiatedBy { get; set; }
-}
-
-// Commands/ProcessDataCommand.cs
-namespace MyCompany.Services.DataProcessor.Commands;
-
-/// <summary>
-/// Command to process a batch of data records.
-/// </summary>
-public class ProcessDataCommand : DataCommand
-{
-    /// <summary>
-    /// Gets or sets the data records to process.
-    /// </summary>
-    public List<DataRecord> Records { get; set; } = new();
-
-    /// <summary>
-    /// Gets or sets processing options.
-    /// </summary>
-    public ProcessingOptions Options { get; set; } = new();
-}
-
-/// <summary>
-/// Represents a single data record.
-/// </summary>
-public class DataRecord
-{
-    public string Id { get; set; } = string.Empty;
-    public string Content { get; set; } = string.Empty;
-    public Dictionary<string, object> Metadata { get; set; } = new();
-}
-
-/// <summary>
-/// Processing configuration options.
-/// </summary>
-public class ProcessingOptions
-{
-    public bool ValidateInput { get; set; } = true;
-    public bool EnableParallelProcessing { get; set; } = false;
-    public int MaxParallelism { get; set; } = 4;
-    public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(5);
 }
 ```
 
-### Step 3: Create the Configuration
+**Abstractions/Commands/ICreateUserCommand.cs:**
 
 ```csharp
-// Configuration/DataProcessorConfiguration.cs
+using System.Collections.Generic;
+
+namespace MyCompany.Services.UserManagement.Abstractions.Commands;
+
+/// <summary>
+/// Command interface for creating new user accounts.
+/// All UserManagement implementations must support this operation.
+/// </summary>
+public interface ICreateUserCommand : IUserManagementCommand
+{
+    /// <summary>
+    /// Gets the username for the new account.
+    /// </summary>
+    string Username { get; }
+
+    /// <summary>
+    /// Gets the email address for the new account.
+    /// </summary>
+    string Email { get; }
+
+    /// <summary>
+    /// Gets the initial password for the account.
+    /// </summary>
+    string Password { get; }
+
+    /// <summary>
+    /// Gets additional user properties for extensibility.
+    /// </summary>
+    IReadOnlyDictionary<string, object>? Properties { get; }
+}
+```
+
+**Abstractions/Commands/IAuthenticateUserCommand.cs:**
+
+```csharp
+namespace MyCompany.Services.UserManagement.Abstractions.Commands;
+
+/// <summary>
+/// Command interface for user authentication operations.
+/// </summary>
+public interface IAuthenticateUserCommand : IUserManagementCommand
+{
+    /// <summary>
+    /// Gets the username for authentication.
+    /// </summary>
+    string Username { get; }
+
+    /// <summary>
+    /// Gets the password for authentication.
+    /// </summary>
+    string Password { get; }
+
+    /// <summary>
+    /// Gets whether to remember the authentication.
+    /// </summary>
+    bool RememberMe { get; }
+}
+```
+
+### Step 5: Create Service Interface
+
+**Abstractions/Services/IUserManagementService.cs:**
+
+```csharp
+using FractalDataWorks.Services.Abstractions;
+using MyCompany.Services.UserManagement.Abstractions.Configuration;
+
+namespace MyCompany.Services.UserManagement.Abstractions.Services;
+
+/// <summary>
+/// Service interface for user management operations.
+/// All implementations provide the same command execution interface.
+/// </summary>
+public interface IUserManagementService : IFdwService<IUserManagementCommand, IUserManagementConfiguration>
+{
+    // CRITICAL: No domain-specific methods!
+    // Everything goes through Execute(TCommand) - this enables implementation abstraction
+    // Execute methods are inherited from IFdwService
+}
+```
+
+### Step 6: Create Configuration Interface
+
+**Abstractions/Configuration/IUserManagementConfiguration.cs:**
+
+```csharp
 using FractalDataWorks.Configuration.Abstractions;
+
+namespace MyCompany.Services.UserManagement.Abstractions.Configuration;
+
+/// <summary>
+/// Configuration interface for user management services.
+/// Defines settings contract that all implementations must support.
+/// </summary>
+public interface IUserManagementConfiguration : IFdwConfiguration
+{
+    /// <summary>
+    /// Gets the user data store connection string.
+    /// </summary>
+    string ConnectionString { get; }
+
+    /// <summary>
+    /// Gets the password policy settings.
+    /// </summary>
+    PasswordPolicyConfiguration PasswordPolicy { get; }
+
+    /// <summary>
+    /// Gets the session management settings.
+    /// </summary>
+    SessionConfiguration SessionSettings { get; }
+}
+
+/// <summary>
+/// Password policy configuration.
+/// </summary>
+public class PasswordPolicyConfiguration
+{
+    public int MinLength { get; set; } = 8;
+    public bool RequireDigit { get; set; } = true;
+    public bool RequireLowercase { get; set; } = true;
+    public bool RequireUppercase { get; set; } = true;
+    public bool RequireNonAlphanumeric { get; set; } = true;
+}
+
+/// <summary>
+/// Session management configuration.
+/// </summary>
+public class SessionConfiguration
+{
+    public int TimeoutMinutes { get; set; } = 30;
+    public int MaxConcurrentSessions { get; set; } = 3;
+    public bool RequireReauthentication { get; set; } = true;
+}
+```
+
+### Step 7: Create Service Provider Interface
+
+**Abstractions/IUserManagementProvider.cs:**
+
+```csharp
+using System.Threading.Tasks;
 using FractalDataWorks.Results;
-using FluentValidation.Results;
+using FractalDataWorks.Services.Abstractions;
+using MyCompany.Services.UserManagement.Abstractions.Configuration;
+using MyCompany.Services.UserManagement.Abstractions.Services;
 
-namespace MyCompany.Services.DataProcessor.Configuration;
-
-/// <summary>
-/// Configuration for the data processor service.
-/// </summary>
-public class DataProcessorConfiguration : IFdwConfiguration
-{
-    /// <summary>
-    /// Gets or sets the service name.
-    /// </summary>
-    public string Name { get; set; } = "DataProcessor";
-
-    /// <summary>
-    /// Gets or sets the connection string for the data store.
-    /// </summary>
-    public string ConnectionString { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the maximum batch size for processing.
-    /// </summary>
-    public int MaxBatchSize { get; set; } = 100;
-
-    /// <summary>
-    /// Gets or sets the processing timeout in seconds.
-    /// </summary>
-    public int TimeoutSeconds { get; set; } = 300;
-
-    /// <summary>
-    /// Gets or sets whether to enable caching.
-    /// </summary>
-    public bool EnableCaching { get; set; } = true;
-
-    /// <summary>
-    /// Gets or sets the cache duration in minutes.
-    /// </summary>
-    public int CacheDurationMinutes { get; set; } = 5;
-
-    /// <summary>
-    /// Validates the configuration.
-    /// </summary>
-    public IFdwResult<ValidationResult> Validate()
-    {
-        var validator = new DataProcessorConfigurationValidator();
-        var result = validator.Validate(this);
-
-        if (result.IsValid)
-        {
-            return FdwResult<ValidationResult>.Success(result);
-        }
-
-        var errors = string.Join("; ", result.Errors.Select(e => e.ErrorMessage));
-        return FdwResult<ValidationResult>.Failure(errors);
-    }
-}
-
-// Configuration/DataProcessorConfigurationValidator.cs
-using FluentValidation;
-
-namespace MyCompany.Services.DataProcessor.Configuration;
+namespace MyCompany.Services.UserManagement.Abstractions;
 
 /// <summary>
-/// Validator for DataProcessorConfiguration.
+/// Provider interface for user management services.
+/// Enables "any implementation" resolution pattern.
 /// </summary>
-public class DataProcessorConfigurationValidator : AbstractValidator<DataProcessorConfiguration>
+public interface IUserManagementProvider : IFdwServiceProvider
 {
-    public DataProcessorConfigurationValidator()
-    {
-        RuleFor(x => x.Name)
-            .NotEmpty()
-            .WithMessage("Service name is required");
+    /// <summary>
+    /// Gets a user management service using the provided configuration.
+    /// Implementation is selected based on configuration type.
+    /// </summary>
+    Task<IFdwResult<IUserManagementService>> GetService(IUserManagementConfiguration configuration);
 
-        RuleFor(x => x.ConnectionString)
-            .NotEmpty()
-            .WithMessage("Connection string is required")
-            .Must(BeAValidConnectionString)
-            .WithMessage("Invalid connection string format");
+    /// <summary>
+    /// Gets a user management service by configuration name from appsettings.
+    /// </summary>
+    Task<IFdwResult<IUserManagementService>> GetService(string configurationName);
 
-        RuleFor(x => x.MaxBatchSize)
-            .InclusiveBetween(1, 10000)
-            .WithMessage("Batch size must be between 1 and 10000");
-
-        RuleFor(x => x.TimeoutSeconds)
-            .InclusiveBetween(1, 3600)
-            .WithMessage("Timeout must be between 1 second and 1 hour");
-
-        RuleFor(x => x.CacheDurationMinutes)
-            .InclusiveBetween(1, 1440)
-            .When(x => x.EnableCaching)
-            .WithMessage("Cache duration must be between 1 minute and 24 hours");
-    }
-
-    private bool BeAValidConnectionString(string connectionString)
-    {
-        // Basic validation - in production, use proper connection string validation
-        return !string.IsNullOrWhiteSpace(connectionString)
-            && connectionString.Contains("=");
-    }
+    /// <summary>
+    /// Gets a specific user management service implementation.
+    /// </summary>
+    Task<IFdwResult<TService>> GetService<TService>() where TService : class, IUserManagementService;
 }
 ```
 
-### Step 4: Implement the Service
+### Step 8: Create Message Base Classes
+
+**Abstractions/Messages/UserManagementMessage.cs:**
 
 ```csharp
-// Services/DataProcessorService.cs
-using System.Collections.Concurrent;
-using FractalDataWorks.Results;
-using FractalDataWorks.Services;
-using Microsoft.Extensions.Logging;
-using MyCompany.Services.DataProcessor.Commands;
-using MyCompany.Services.DataProcessor.Configuration;
+using FractalDataWorks.Messages;
+using FractalDataWorks.Messages.Attributes;
+using FractalDataWorks.Services.Abstractions;
 
-namespace MyCompany.Services.DataProcessor.Services;
+namespace MyCompany.Services.UserManagement.Abstractions.Messages;
 
 /// <summary>
-/// Implementation of the data processor service.
+/// Base class for all user management messages.
+/// Provides consistent structure and source generation support.
 /// </summary>
-public class DataProcessorService : ServiceBase<DataCommand, DataProcessorConfiguration, DataProcessorService>,
-    IDataProcessorService
+[MessageCollection("UserManagementMessages")]
+public abstract class UserManagementMessage : MessageTemplate<MessageSeverity>, IServiceMessage
 {
-    private readonly ConcurrentDictionary<string, object> _cache;
-    private readonly SemaphoreSlim _processingLock;
-
     /// <summary>
-    /// Initializes a new instance of the DataProcessorService.
+    /// Initializes a new instance of the UserManagementMessage class.
     /// </summary>
-    public DataProcessorService(
-        ILogger<DataProcessorService> logger,
-        DataProcessorConfiguration configuration)
-        : base(logger, configuration)
-    {
-        _cache = new ConcurrentDictionary<string, object>();
-        _processingLock = new SemaphoreSlim(1, 1);
-    }
-
-    /// <summary>
-    /// Processes a batch of data records.
-    /// </summary>
-    public async Task<IFdwResult<ProcessingResult>> ProcessBatchAsync(ProcessDataCommand command)
-    {
-        Logger.LogInformation("Processing batch with {Count} records", command.Records.Count);
-
-        try
-        {
-            // Validate batch size
-            if (command.Records.Count > Configuration.MaxBatchSize)
-            {
-                return FdwResult<ProcessingResult>.Failure(
-                    $"Batch size {command.Records.Count} exceeds maximum {Configuration.MaxBatchSize}");
-            }
-
-            // Apply timeout
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(Configuration.TimeoutSeconds));
-
-            // Process records
-            var results = new List<ProcessedRecord>();
-
-            if (command.Options.EnableParallelProcessing)
-            {
-                var parallelOptions = new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = command.Options.MaxParallelism,
-                    CancellationToken = cts.Token
-                };
-
-                await Parallel.ForEachAsync(command.Records, parallelOptions, async (record, ct) =>
-                {
-                    var processed = await ProcessSingleRecordAsync(record, ct);
-                    lock (results)
-                    {
-                        results.Add(processed);
-                    }
-                });
-            }
-            else
-            {
-                foreach (var record in command.Records)
-                {
-                    cts.Token.ThrowIfCancellationRequested();
-                    var processed = await ProcessSingleRecordAsync(record, cts.Token);
-                    results.Add(processed);
-                }
-            }
-
-            var result = new ProcessingResult
-            {
-                ProcessedCount = results.Count,
-                SuccessCount = results.Count(r => r.Success),
-                FailedCount = results.Count(r => !r.Success),
-                ProcessedRecords = results,
-                ProcessingTime = DateTime.UtcNow - command.CreatedAt
-            };
-
-            Logger.LogInformation("Batch processing completed. Success: {Success}, Failed: {Failed}",
-                result.SuccessCount, result.FailedCount);
-
-            return FdwResult<ProcessingResult>.Success(result);
-        }
-        catch (OperationCanceledException)
-        {
-            Logger.LogWarning("Batch processing timed out after {Timeout} seconds", Configuration.TimeoutSeconds);
-            return FdwResult<ProcessingResult>.Failure("Processing timeout exceeded");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error processing batch");
-            return FdwResult<ProcessingResult>.Failure($"Processing failed: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Queries processed data.
-    /// </summary>
-    public async Task<IFdwResult<QueryResult>> QueryAsync(QueryDataCommand command)
-    {
-        Logger.LogInformation("Querying data with criteria: {Criteria}", command.Criteria);
-
-        try
-        {
-            // Check cache if enabled
-            if (Configuration.EnableCaching)
-            {
-                var cacheKey = $"query_{command.GetHashCode()}";
-                if (_cache.TryGetValue(cacheKey, out var cached) && cached is QueryResult cachedResult)
-                {
-                    Logger.LogDebug("Returning cached query result");
-                    return FdwResult<QueryResult>.Success(cachedResult);
-                }
-            }
-
-            // Simulate async data query
-            await Task.Delay(100);
-
-            var result = new QueryResult
-            {
-                Records = GenerateSampleData(command.Criteria),
-                TotalCount = 42,
-                PageNumber = command.PageNumber,
-                PageSize = command.PageSize
-            };
-
-            // Cache result if enabled
-            if (Configuration.EnableCaching)
-            {
-                var cacheKey = $"query_{command.GetHashCode()}";
-                _cache.TryAdd(cacheKey, result);
-
-                // Schedule cache expiration
-                _ = Task.Delay(TimeSpan.FromMinutes(Configuration.CacheDurationMinutes))
-                    .ContinueWith(_ => _cache.TryRemove(cacheKey, out _));
-            }
-
-            return FdwResult<QueryResult>.Success(result);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error querying data");
-            return FdwResult<QueryResult>.Failure($"Query failed: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Base implementation for command execution.
-    /// </summary>
-    public override async Task<IFdwResult> Execute(DataCommand command)
-    {
-        return command switch
-        {
-            ProcessDataCommand processCmd => await ProcessBatchAsync(processCmd),
-            QueryDataCommand queryCmd => await QueryAsync(queryCmd),
-            _ => FdwResult.Failure($"Unknown command type: {command.GetType().Name}")
-        };
-    }
-
-    /// <summary>
-    /// Generic command execution with typed result.
-    /// </summary>
-    public override async Task<IFdwResult<TOut>> Execute<TOut>(DataCommand command)
-    {
-        var result = await Execute(command);
-
-        if (result.Error)
-        {
-            return FdwResult<TOut>.Failure(result.Error);
-        }
-
-        if (result.Value is TOut typedValue)
-        {
-            return FdwResult<TOut>.Success(typedValue);
-        }
-
-        return FdwResult<TOut>.Failure($"Cannot cast result to {typeof(TOut).Name}");
-    }
-
-    private async Task<ProcessedRecord> ProcessSingleRecordAsync(DataRecord record, CancellationToken cancellationToken)
-    {
-        await _processingLock.WaitAsync(cancellationToken);
-        try
-        {
-            // Simulate processing
-            await Task.Delay(10, cancellationToken);
-
-            return new ProcessedRecord
-            {
-                Id = record.Id,
-                Success = true,
-                ProcessedAt = DateTime.UtcNow,
-                Result = $"Processed: {record.Content}"
-            };
-        }
-        catch (Exception ex)
-        {
-            return new ProcessedRecord
-            {
-                Id = record.Id,
-                Success = false,
-                ProcessedAt = DateTime.UtcNow,
-                Error = ex.Message
-            };
-        }
-        finally
-        {
-            _processingLock.Release();
-        }
-    }
-
-    private List<DataRecord> GenerateSampleData(string criteria)
-    {
-        // Generate sample data based on criteria
-        return Enumerable.Range(1, 10)
-            .Select(i => new DataRecord
-            {
-                Id = $"record_{i}",
-                Content = $"Sample data {i} matching {criteria}",
-                Metadata = new Dictionary<string, object>
-                {
-                    ["created"] = DateTime.UtcNow.AddDays(-i),
-                    ["criteria"] = criteria
-                }
-            })
-            .ToList();
-    }
-}
-
-// Supporting classes for results
-public class ProcessingResult
-{
-    public int ProcessedCount { get; set; }
-    public int SuccessCount { get; set; }
-    public int FailedCount { get; set; }
-    public List<ProcessedRecord> ProcessedRecords { get; set; } = new();
-    public TimeSpan ProcessingTime { get; set; }
-}
-
-public class ProcessedRecord
-{
-    public string Id { get; set; } = string.Empty;
-    public bool Success { get; set; }
-    public DateTime ProcessedAt { get; set; }
-    public string? Result { get; set; }
-    public string? Error { get; set; }
-}
-
-public class QueryResult
-{
-    public List<DataRecord> Records { get; set; } = new();
-    public int TotalCount { get; set; }
-    public int PageNumber { get; set; }
-    public int PageSize { get; set; }
+    protected UserManagementMessage(int id, string name, MessageSeverity severity,
+        string message, string? code = null)
+        : base(id, name, severity, "UserManagement", message, code, null, null) { }
 }
 ```
 
-### Step 5: Choose Your Factory Approach
+### Step 9: Create Logging Signatures
 
-The framework provides two factory patterns. Choose based on your service's instantiation requirements:
-
-#### Option A: GenericServiceFactory (Recommended for Most Services)
-
-For services that can be instantiated with just configuration and standard dependency injection:
+**Abstractions/Logging/UserManagementServiceLog.cs:**
 
 ```csharp
-// No custom factory class needed!
-// ServiceType directly references GenericServiceFactory
-
-// ServiceTypes/DataProcessorServiceType.cs
-public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, DataProcessorConfiguration, GenericServiceFactory<IDataProcessorService, DataProcessorConfiguration>>
-{
-    public override void Register(IServiceCollection services)
-    {
-        // Register the generic factory - no custom code required
-        services.AddScoped<GenericServiceFactory<IDataProcessorService, DataProcessorConfiguration>>();
-        services.AddTransient<IDataProcessorService, DataProcessorService>();
-    }
-}
-```
-
-**Use this approach when your service:**
-- Constructor accepts only `(ILogger<TService>, TConfiguration)`
-- Requires no complex initialization
-- Has no external resource management needs
-- Follows standard dependency injection patterns
-
-#### Option B: Custom Factory (For Complex Services)
-
-Only create custom factories when you need specialized instantiation logic:
-
-```csharp
-// Factories/DataProcessorFactory.cs
-using FractalDataWorks.Services;
-using Microsoft.Extensions.Logging;
-using MyCompany.Services.DataProcessor.Configuration;
-using MyCompany.Services.DataProcessor.Services;
-
-namespace MyCompany.Services.DataProcessor.Factories;
-
-/// <summary>
-/// Custom factory for DataProcessorService with specialized initialization.
-/// </summary>
-public class DataProcessorFactory : ServiceFactoryBase<IDataProcessorService, DataProcessorConfiguration>
-{
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IConnectionPool _connectionPool;
-
-    public DataProcessorFactory(
-        ILogger<DataProcessorFactory> logger,
-        IHttpClientFactory httpClientFactory,
-        IConnectionPool connectionPool) : base(logger)
-    {
-        _httpClientFactory = httpClientFactory;
-        _connectionPool = connectionPool;
-    }
-
-    public override IFdwResult<IDataProcessorService> Create(DataProcessorConfiguration configuration)
-    {
-        // Custom instantiation logic
-        var httpClient = _httpClientFactory.CreateClient(configuration.ClientName);
-        var connection = _connectionPool.GetConnection(configuration.ConnectionString);
-
-        return base.Create(configuration); // Or custom instantiation
-    }
-}
-```
-
-**Create custom factories when you need:**
-- Connection pooling
-- HttpClient management
-- External dependency integration
-- Resource lifecycle management
-- Complex validation beyond configuration
-- Special initialization procedures
-
-### Step 6: Create the ServiceType
-
-Choose the ServiceType implementation that matches your factory choice from Step 5:
-
-#### Option A: ServiceType with GenericServiceFactory
-
-```csharp
-// ServiceTypes/DataProcessorServiceType.cs
-using FractalDataWorks.ServiceTypes;
-using FractalDataWorks.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using MyCompany.Services.DataProcessor.Configuration;
-using MyCompany.Services.DataProcessor.Services;
-
-namespace MyCompany.Services.DataProcessor.ServiceTypes;
-
-/// <summary>
-/// Service type definition for the data processor service using GenericServiceFactory.
-/// </summary>
-public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, DataProcessorConfiguration, GenericServiceFactory<IDataProcessorService, DataProcessorConfiguration>>
-{
-    /// <summary>
-    /// Initializes a new instance of the DataProcessorServiceType.
-    /// </summary>
-    public DataProcessorServiceType() : base(100, "DataProcessor", "Processing")
-    {
-    }
-
-    /// <summary>
-    /// Gets the configuration section name.
-    /// </summary>
-    public override string SectionName => "Services:DataProcessor";
-
-    /// <summary>
-    /// Gets the display name.
-    /// </summary>
-    public override string DisplayName => "Data Processor Service";
-
-    /// <summary>
-    /// Gets the description.
-    /// </summary>
-    public override string Description => "Processes and queries data records with configurable batching and caching";
-
-    /// <summary>
-    /// Registers the service with dependency injection.
-    /// </summary>
-    public override void Register(IServiceCollection services)
-    {
-        // Register the generic factory - no custom factory needed
-        services.AddScoped<GenericServiceFactory<IDataProcessorService, DataProcessorConfiguration>>();
-
-        // Register the service as transient (new instance per request)
-        services.AddTransient<IDataProcessorService, DataProcessorService>();
-    }
-
-    /// <summary>
-    /// Configures the service type.
-    /// </summary>
-    public override void Configure(IConfiguration configuration)
-    {
-        // Validate configuration exists
-        var section = configuration.GetSection(SectionName);
-        if (!section.Exists())
-        {
-            throw new InvalidOperationException($"Configuration section '{SectionName}' not found");
-        }
-
-        // Bind and validate configuration
-        var config = section.Get<DataProcessorConfiguration>();
-        if (config == null)
-        {
-            throw new InvalidOperationException($"Failed to bind configuration for '{SectionName}'");
-        }
-
-        var validationResult = config.Validate();
-        if (!validationResult.IsSuccess)
-        {
-            throw new InvalidOperationException($"Configuration validation failed: {validationResult.Error}");
-        }
-    }
-}
-```
-
-#### Option B: ServiceType with Custom Factory
-
-```csharp
-// ServiceTypes/DataProcessorServiceType.cs (Custom Factory Version)
-using FractalDataWorks.ServiceTypes;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using MyCompany.Services.DataProcessor.Configuration;
-using MyCompany.Services.DataProcessor.Factories;
-using MyCompany.Services.DataProcessor.Services;
-
-namespace MyCompany.Services.DataProcessor.ServiceTypes;
-
-/// <summary>
-/// Service type definition for the data processor service using custom factory.
-/// </summary>
-public class DataProcessorServiceType : ServiceTypeBase<IDataProcessorService, DataProcessorConfiguration, DataProcessorFactory>
-{
-    public DataProcessorServiceType() : base(100, "DataProcessor", "Processing") { }
-
-    public override string SectionName => "Services:DataProcessor";
-    public override string DisplayName => "Data Processor Service";
-    public override string Description => "Processes and queries data records with configurable batching and caching";
-
-    public override void Register(IServiceCollection services)
-    {
-        // Register the custom factory
-        services.AddSingleton<DataProcessorFactory>();
-
-        // Register the service as transient (new instance per request)
-        services.AddTransient<IDataProcessorService, DataProcessorService>();
-    }
-
-    public override void Configure(IConfiguration configuration)
-    {
-        // Same configuration logic as GenericServiceFactory approach
-        var section = configuration.GetSection(SectionName);
-        if (!section.Exists())
-            throw new InvalidOperationException($"Configuration section '{SectionName}' not found");
-
-        var config = section.Get<DataProcessorConfiguration>() ?? new DataProcessorConfiguration();
-        var validationResult = config.Validate();
-        if (!validationResult.IsSuccess)
-            throw new InvalidOperationException($"Configuration validation failed: {validationResult.Error}");
-    }
-}
-```
-
-### Step 7: Create Source-Generated Logging
-
-Create logging methods using the established source-generation pattern:
-
-```csharp
-// Logging/DataProcessorServiceLog.cs
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using FractalDataWorks.Services.DataProcessor.Configuration;
 
-namespace MyCompany.Services.DataProcessor.Logging;
+namespace MyCompany.Services.UserManagement.Abstractions.Logging;
 
 /// <summary>
-/// High-performance logging methods for DataProcessorService using source generators and structured logging.
+/// Source-generated logging methods for user management services.
+/// Provides high-performance, structured logging with compile-time validation.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "Source-generated logging class with no business logic")]
-public static partial class DataProcessorServiceLog
+[ExcludeFromCodeCoverage]
+public static partial class UserManagementServiceLog
 {
-    /// <summary>
-    /// Logs when data processing starts.
-    /// </summary>
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Information,
-        Message = "Starting data processing for {RecordCount} records with batch size {BatchSize}")]
-    public static partial void ProcessingStarted(ILogger logger, int recordCount, int batchSize);
+    [LoggerMessage(EventId = 1000, Level = LogLevel.Information,
+        Message = "Executing command {CommandType} with ID {CommandId}")]
+    public static partial void CommandExecutionStarted(ILogger logger, string commandType, string commandId);
 
-    /// <summary>
-    /// Logs when data processing completes successfully.
-    /// </summary>
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Information,
-        Message = "Data processing completed successfully. Processed {ProcessedCount} records in {ElapsedMs}ms")]
-    public static partial void ProcessingCompleted(ILogger logger, int processedCount, long elapsedMs);
+    [LoggerMessage(EventId = 1001, Level = LogLevel.Information,
+        Message = "Command {CommandType} completed successfully in {ElapsedMs}ms")]
+    public static partial void CommandExecutionCompleted(ILogger logger, string commandType, long elapsedMs);
 
-    /// <summary>
-    /// Logs when data processing fails.
-    /// </summary>
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Error,
-        Message = "Data processing failed after processing {ProcessedCount} records: {ErrorMessage}")]
-    public static partial void ProcessingFailed(ILogger logger, int processedCount, string errorMessage, Exception exception);
+    [LoggerMessage(EventId = 1002, Level = LogLevel.Error,
+        Message = "Command {CommandType} failed: {ErrorMessage}")]
+    public static partial void CommandExecutionFailed(ILogger logger, string commandType, string errorMessage, Exception exception);
 
-    /// <summary>
-    /// Logs configuration validation issues.
-    /// </summary>
-    [LoggerMessage(
-        EventId = 4,
-        Level = LogLevel.Warning,
-        Message = "Configuration validation warning for {ServiceName}: {ValidationMessage}")]
-    public static partial void ConfigurationWarning(ILogger logger, string serviceName, string validationMessage);
+    [LoggerMessage(EventId = 2000, Level = LogLevel.Information,
+        Message = "Creating user {Username} with email {Email}")]
+    public static partial void UserCreationStarted(ILogger logger, string username, string email);
+
+    [LoggerMessage(EventId = 2001, Level = LogLevel.Information,
+        Message = "User {Username} created successfully with ID {UserId}")]
+    public static partial void UserCreated(ILogger logger, string username, string userId);
+
+    [LoggerMessage(EventId = 2002, Level = LogLevel.Warning,
+        Message = "User creation failed for {Username}: {Reason}")]
+    public static partial void UserCreationFailed(ILogger logger, string username, string reason);
+
+    [LoggerMessage(EventId = 3000, Level = LogLevel.Information,
+        Message = "Authentication attempt for user {Username}")]
+    public static partial void AuthenticationAttempt(ILogger logger, string username);
+
+    [LoggerMessage(EventId = 3001, Level = LogLevel.Information,
+        Message = "Authentication successful for user {Username}")]
+    public static partial void AuthenticationSucceeded(ILogger logger, string username);
+
+    [LoggerMessage(EventId = 3002, Level = LogLevel.Warning,
+        Message = "Authentication failed for user {Username}: {Reason}")]
+    public static partial void AuthenticationFailed(ILogger logger, string username, string reason);
 }
 ```
 
-### Step 8: Create Service Messages
+### Step 10: Create Concrete Domain Foundation
 
-Create structured messages following the established pattern:
+**ServiceTypes/UserManagementTypes.cs:**
 
 ```csharp
-// Messages/DataProcessorMessage.cs
-using FractalDataWorks.Messages;
-using FractalDataWorks.Messages.Attributes;
-using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.ServiceTypes;
+using FractalDataWorks.ServiceTypes.Attributes;
+using MyCompany.Services.UserManagement.Abstractions;
+using MyCompany.Services.UserManagement.Abstractions.Configuration;
+using MyCompany.Services.UserManagement.Abstractions.Services;
 
-namespace MyCompany.Services.DataProcessor.Messages;
+namespace MyCompany.Services.UserManagement.ServiceTypes;
 
 /// <summary>
-/// Base class for all data processor service messages.
+/// Collection of user management service types.
+/// Generated by ServiceTypeCollectionGenerator with high-performance lookups.
+/// Source generator discovers all IUserManagementService implementations in the solution.
 /// </summary>
-[MessageCollection("DataProcessorMessages")]
-public abstract class DataProcessorMessage : MessageTemplate<MessageSeverity>, IServiceMessage
+[ServiceTypeCollection(typeof(UserManagementTypeBase<,,>), typeof(IUserManagementServiceType), typeof(UserManagementTypes))]
+public partial class UserManagementTypes : ServiceTypeCollectionBase<UserManagementTypeBase<IUserManagementService, IUserManagementConfiguration, IUserManagementServiceFactory<IUserManagementService, IUserManagementConfiguration>>, IUserManagementServiceType, IUserManagementService, IUserManagementConfiguration, IUserManagementServiceFactory<IUserManagementService, IUserManagementConfiguration>>
 {
+    // Source generator creates:
+    // - static UserManagementTypes Name(string typeName) => lookup by name
+    // - static UserManagementTypes All => all registered types
+    // - Type ServiceType, ConfigurationType, FactoryType properties
+    // - High-performance lookup tables
+}
+```
+
+**Registration/UserManagementProvider.cs:**
+
+```csharp
+using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using FractalDataWorks.Results;
+using MyCompany.Services.UserManagement.Abstractions;
+using MyCompany.Services.UserManagement.Abstractions.Configuration;
+using MyCompany.Services.UserManagement.Abstractions.Services;
+using MyCompany.Services.UserManagement.ServiceTypes;
+
+namespace MyCompany.Services.UserManagement.Registration;
+
+/// <summary>
+/// Implementation of user management provider.
+/// Uses UserManagementTypes for service lookup and creation.
+/// </summary>
+public sealed class UserManagementProvider : IUserManagementProvider
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<UserManagementProvider> _logger;
+
+    public UserManagementProvider(
+        IServiceProvider serviceProvider,
+        IConfiguration configuration,
+        ILogger<UserManagementProvider> logger)
+    {
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataProcessorMessage"/> class.
+    /// Gets a user management service using the provided configuration.
+    /// Uses UserManagementTypes for dynamic service lookup.
     /// </summary>
-    protected DataProcessorMessage(int id, string name, MessageSeverity severity,
-                                 string message, string? code = null)
-        : base(id, name, severity, "DataProcessor", message, code, null, null) { }
+    public async Task<IFdwResult<IUserManagementService>> GetService(IUserManagementConfiguration configuration)
+    {
+        if (configuration == null)
+        {
+            return FdwResult.Failure<IUserManagementService>("Configuration cannot be null");
+        }
+
+        try
+        {
+            // Look up service type by configuration's UserManagementType property
+            var serviceType = UserManagementTypes.Name(configuration.UserManagementType);
+            if (serviceType.IsEmpty)
+            {
+                return FdwResult.Failure<IUserManagementService>(
+                    $"Unknown user management type: {configuration.UserManagementType}");
+            }
+
+            // Get factory from DI and create service
+            var factory = _serviceProvider.GetService(serviceType.FactoryType) as IUserManagementServiceFactory;
+            if (factory == null)
+            {
+                return FdwResult.Failure<IUserManagementService>(
+                    $"No factory registered for user management type: {configuration.UserManagementType}");
+            }
+
+            return await factory.CreateService(configuration);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create user management service");
+            return FdwResult.Failure<IUserManagementService>(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Gets a user management service by configuration name from appsettings.
+    /// </summary>
+    public async Task<IFdwResult<IUserManagementService>> GetService(string configurationName)
+    {
+        if (string.IsNullOrEmpty(configurationName))
+        {
+            return FdwResult.Failure<IUserManagementService>("Configuration name cannot be null or empty");
+        }
+
+        try
+        {
+            // Load configuration section
+            var section = _configuration.GetSection($"Services:UserManagement:{configurationName}");
+            if (!section.Exists())
+            {
+                return FdwResult.Failure<IUserManagementService>(
+                    $"Configuration section not found: Services:UserManagement:{configurationName}");
+            }
+
+            // Get service type from configuration
+            var userManagementTypeName = section["UserManagementType"];
+            if (string.IsNullOrEmpty(userManagementTypeName))
+            {
+                return FdwResult.Failure<IUserManagementService>(
+                    $"UserManagementType not specified in configuration section: {configurationName}");
+            }
+
+            // Look up service type and bind configuration
+            var serviceType = UserManagementTypes.Name(userManagementTypeName);
+            if (serviceType.IsEmpty)
+            {
+                return FdwResult.Failure<IUserManagementService>(
+                    $"Unknown user management type: {userManagementTypeName}");
+            }
+
+            var config = section.Get(serviceType.ConfigurationType) as IUserManagementConfiguration;
+            if (config == null)
+            {
+                return FdwResult.Failure<IUserManagementService>(
+                    $"Failed to bind configuration to {serviceType.ConfigurationType?.Name}");
+            }
+
+            return await GetService(config);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get user management service by name: {ConfigurationName}", configurationName);
+            return FdwResult.Failure<IUserManagementService>(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Gets a specific user management service implementation.
+    /// </summary>
+    public async Task<IFdwResult<TService>> GetService<TService>() where TService : class, IUserManagementService
+    {
+        try
+        {
+            var service = _serviceProvider.GetService<TService>();
+            if (service == null)
+            {
+                return FdwResult.Failure<TService>($"Service not registered: {typeof(TService).Name}");
+            }
+
+            return FdwResult.Success(service);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get specific user management service: {ServiceType}", typeof(TService).Name);
+            return FdwResult.Failure<TService>(ex.Message);
+        }
+    }
 }
 ```
 
-```csharp
-// Messages/Processing/ProcessingStartedMessage.cs
-using System.Globalization;
-using FractalDataWorks.Messages;
-using FractalDataWorks.Messages.Attributes;
+## Adding Service Implementations
 
-namespace MyCompany.Services.DataProcessor.Messages;
+### Step 1: Create Implementation Project
+
+```bash
+# Create implementation project
+dotnet new classlib -n MyCompany.Services.UserManagement.Database -f net10.0
+dotnet sln add MyCompany.Services.UserManagement.Database
+```
+
+### Step 2: Configure Implementation Project
+
+**MyCompany.Services.UserManagement.Database.csproj:**
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Domain Dependencies -->
+    <ProjectReference Include="..\MyCompany.Services.UserManagement.Abstractions\MyCompany.Services.UserManagement.Abstractions.csproj" />
+    <ProjectReference Include="..\MyCompany.Services.UserManagement\MyCompany.Services.UserManagement.csproj" />
+
+    <!-- Framework Dependencies -->
+    <ProjectReference Include="..\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.ServiceTypes.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Database-specific dependencies -->
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Dapper" />
+  </ItemGroup>
+</Project>
+```
+
+### Step 3: Create Command Implementations
+
+**Commands/CreateUserCommand.cs:**
+
+```csharp
+using System.Collections.Generic;
+using MyCompany.Services.UserManagement.Abstractions;
+using MyCompany.Services.UserManagement.Abstractions.Commands;
+
+namespace MyCompany.Services.UserManagement.Database.Commands;
 
 /// <summary>
-/// Message indicating that data processing has started.
+/// Database implementation of create user command.
+/// Implements the domain command interface for SQL Server operations.
 /// </summary>
-[Message("ProcessingStartedMessage")]
-public sealed class ProcessingStartedMessage : DataProcessorMessage
+public sealed class CreateUserCommand : ICreateUserCommand
 {
-    public ProcessingStartedMessage()
-        : base(1001, "ProcessingStarted", MessageSeverity.Information,
-               "Data processing started for {0} records", "PROCESSING_STARTED") { }
+    public string Username { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
+    public IReadOnlyDictionary<string, object>? Properties { get; init; }
 
-    public ProcessingStartedMessage(int recordCount)
-        : base(1001, "ProcessingStarted", MessageSeverity.Information,
-               string.Format(CultureInfo.InvariantCulture, "Data processing started for {0} records", recordCount),
-               "PROCESSING_STARTED") { }
+    /// <summary>
+    /// Creates a command instance using collection expressions.
+    /// </summary>
+    public static CreateUserCommand Create(string username, string email, string password,
+        IReadOnlyDictionary<string, object>? properties = null) => new()
+    {
+        Username = username,
+        Email = email,
+        Password = password,
+        Properties = properties ?? new Dictionary<string, object>()
+    };
 }
 ```
 
-```csharp
-// Messages/DataProcessorMessageCollectionBase.cs
-using FractalDataWorks.Messages;
-using FractalDataWorks.Messages.Attributes;
-using FractalDataWorks.Services.Abstractions;
+### Step 4: Create Service Implementation
 
-namespace MyCompany.Services.DataProcessor.Messages;
-
-/// <summary>
-/// Collection definition to generate DataProcessorMessages static class.
-/// </summary>
-[MessageCollection("DataProcessorMessages", ReturnType = typeof(IServiceMessage))]
-public abstract class DataProcessorMessageCollectionBase : MessageCollectionBase<DataProcessorMessage>
-{
-}
-```
-
-**Source Generation Result:** This creates a static `DataProcessorMessages.ProcessingStarted(recordCount)` method for use in your service.
-
-### Step 9: Update Service Implementation
-
-Update your service to use the proper constructor pattern, logging, and messages:
+**Services/DatabaseUserManagementService.cs:**
 
 ```csharp
-// Services/DataProcessorService.cs (Updated)
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services;
-using MyCompany.Services.DataProcessor.Configuration;
-using MyCompany.Services.DataProcessor.Commands;
-using MyCompany.Services.DataProcessor.Logging;
-using MyCompany.Services.DataProcessor.Messages;
+using MyCompany.Services.UserManagement.Abstractions;
+using MyCompany.Services.UserManagement.Abstractions.Commands;
+using MyCompany.Services.UserManagement.Abstractions.Configuration;
+using MyCompany.Services.UserManagement.Abstractions.Services;
+using MyCompany.Services.UserManagement.Abstractions.Logging;
+using MyCompany.Services.UserManagement.Database.Translators;
 
-namespace MyCompany.Services.DataProcessor.Services;
+namespace MyCompany.Services.UserManagement.Database.Services;
 
 /// <summary>
-/// Data processor service implementation following framework patterns.
+/// SQL Server implementation of user management service.
+/// Translates domain commands to SQL operations via CommandTranslator.
 /// </summary>
-public sealed class DataProcessorService : ServiceBase<DataProcessorCommand, DataProcessorConfiguration, DataProcessorService>
+public sealed class DatabaseUserManagementService : ServiceBase<IUserManagementCommand, IUserManagementConfiguration, DatabaseUserManagementService>,
+    IUserManagementService
 {
-    /// <summary>
-    /// Initializes a new instance of the DataProcessorService.
-    /// CRITICAL: Constructor must follow this exact pattern for GenericServiceFactory.
-    /// </summary>
-    /// <param name="logger">The logger instance.</param>
-    /// <param name="configuration">The service configuration.</param>
-    public DataProcessorService(ILogger<DataProcessorService> logger, DataProcessorConfiguration configuration)
+    private readonly UserManagementCommandTranslator _translator;
+
+    public DatabaseUserManagementService(
+        ILogger<DatabaseUserManagementService> logger,
+        IUserManagementConfiguration configuration,
+        UserManagementCommandTranslator translator)
         : base(logger, configuration)
     {
-        // Standard initialization only - no complex dependencies here
-        // Complex dependencies should be handled in custom factories
+        _translator = translator ?? throw new ArgumentNullException(nameof(translator));
     }
 
     /// <summary>
-    /// Executes a data processing command.
+    /// Executes domain commands by translating them to SQL operations.
+    /// CRITICAL: This is the ONLY method - no domain-specific methods!
     /// </summary>
-    public override async Task<IFdwResult> Execute(DataProcessorCommand command)
+    public override async Task<IFdwResult> Execute(IUserManagementCommand command, CancellationToken cancellationToken = default)
     {
+        var commandType = command.GetType().Name;
+        var commandId = Guid.NewGuid().ToString();
+
+        UserManagementServiceLog.CommandExecutionStarted(Logger, commandType, commandId);
+
         try
         {
-            // Use source-generated logging
-            DataProcessorServiceLog.ProcessingStarted(Logger, command.RecordCount, Configuration.MaxBatchSize);
+            // TRANSLATOR PATTERN: Convert domain command to SQL operation
+            var result = command switch
+            {
+                ICreateUserCommand createCmd => await _translator.TranslateCreateUser(createCmd, cancellationToken),
+                IAuthenticateUserCommand authCmd => await _translator.TranslateAuthenticate(authCmd, cancellationToken),
+                _ => FdwResult.Failure($"Unknown command type: {commandType}")
+            };
 
-            // Your business logic here
-            await ProcessDataAsync(command);
+            if (result.IsSuccess)
+            {
+                UserManagementServiceLog.CommandExecutionCompleted(Logger, commandType, 0); // Add timing
+            }
+            else
+            {
+                UserManagementServiceLog.CommandExecutionFailed(Logger, commandType, result.Error, new InvalidOperationException(result.Error));
+            }
 
-            // Log success with structured data
-            DataProcessorServiceLog.ProcessingCompleted(Logger, command.RecordCount, 1000);
-
-            // Return success with structured message
-            var successMessage = DataProcessorMessages.ProcessingStarted(command.RecordCount);
-            return FdwResult.Success(successMessage);
+            return result;
         }
         catch (Exception ex)
         {
-            // Log error with structured data
-            DataProcessorServiceLog.ProcessingFailed(Logger, 0, ex.Message, ex);
-
-            // Return failure with structured message
-            var errorMessage = DataProcessorMessages.ProcessingFailed(ex.Message);
-            return FdwResult.Failure(errorMessage);
+            UserManagementServiceLog.CommandExecutionFailed(Logger, commandType, ex.Message, ex);
+            return FdwResult.Failure($"Command execution failed: {ex.Message}");
         }
     }
 
-    private async Task ProcessDataAsync(DataProcessorCommand command)
+    /// <summary>
+    /// Executes domain commands with typed results.
+    /// </summary>
+    public override async Task<IFdwResult<T>> Execute<T>(IUserManagementCommand command, CancellationToken cancellationToken = default)
     {
-        // Implementation details
-        await Task.Delay(100); // Placeholder
+        var result = await Execute(command, cancellationToken);
+
+        if (!result.IsSuccess)
+        {
+            return FdwResult<T>.Failure(result.Error);
+        }
+
+        if (result.Value is T typedValue)
+        {
+            return FdwResult<T>.Success(typedValue);
+        }
+
+        return FdwResult<T>.Failure($"Result type mismatch. Expected {typeof(T).Name}, got {result.Value?.GetType().Name ?? "null"}");
     }
 }
 ```
 
-**Key Patterns Enforced:**
-- **Constructor**: `(ILogger<TService> logger, TConfiguration configuration)` - REQUIRED for GenericServiceFactory
-- **Logging**: Use source-generated `DataProcessorServiceLog.MethodName()` methods
-- **Messages**: Return structured `IServiceMessage` objects in Results
-- **Results**: Always return `IFdwResult` or `IFdwResult<T>`, never throw exceptions for business logic
+### Step 5: Create Command Translator
 
-## Configuration Management
-
-### Step 1: Add Configuration to appsettings.json
-
-```json
-{
-  "Services": {
-    "DataProcessor": {
-      "Name": "MainDataProcessor",
-      "ConnectionString": "Server=localhost;Database=DataDB;Integrated Security=true",
-      "MaxBatchSize": 500,
-      "TimeoutSeconds": 180,
-      "EnableCaching": true,
-      "CacheDurationMinutes": 10
-    }
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "MyCompany.Services.DataProcessor": "Debug"
-    }
-  }
-}
-```
-
-### Step 2: Environment-Specific Configuration
-
-Create `appsettings.Development.json`:
-
-```json
-{
-  "Services": {
-    "DataProcessor": {
-      "ConnectionString": "Server=dev-server;Database=DataDB_Dev;Integrated Security=true",
-      "MaxBatchSize": 100,
-      "EnableCaching": false
-    }
-  }
-}
-```
-
-Create `appsettings.Production.json`:
-
-```json
-{
-  "Services": {
-    "DataProcessor": {
-      "ConnectionString": "#{Azure.KeyVault.DataProcessorConnectionString}#",
-      "MaxBatchSize": 1000,
-      "TimeoutSeconds": 300,
-      "CacheDurationMinutes": 30
-    }
-  }
-}
-```
-
-## Service Registration
-
-### Step 1: Create Extension Methods
+**Translators/UserManagementCommandTranslator.cs:**
 
 ```csharp
-// Extensions/ServiceCollectionExtensions.cs
-using Microsoft.Extensions.DependencyInjection;
-using MyCompany.Services.DataProcessor.Factories;
-using MyCompany.Services.DataProcessor.Services;
-using MyCompany.Services.DataProcessor.ServiceTypes;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
+using Dapper;
+using FractalDataWorks.Results;
+using MyCompany.Services.UserManagement.Abstractions.Commands;
+using MyCompany.Services.UserManagement.Abstractions.Configuration;
+using MyCompany.Services.UserManagement.Abstractions.Logging;
 
-namespace MyCompany.Services.DataProcessor.Extensions;
+namespace MyCompany.Services.UserManagement.Database.Translators;
 
 /// <summary>
-/// Extension methods for service registration.
+/// Translates domain commands to SQL Server operations.
+/// This is where domain commands become technology-specific.
 /// </summary>
-public static class ServiceCollectionExtensions
+public sealed class UserManagementCommandTranslator
 {
-    /// <summary>
-    /// Adds data processor services to the service collection.
-    /// </summary>
-    public static IServiceCollection AddDataProcessorService(this IServiceCollection services)
-    {
-        // Register the service type (which handles all registrations)
-        var serviceType = new DataProcessorServiceType();
-        serviceType.Register(services);
+    private readonly IUserManagementConfiguration _configuration;
+    private readonly ILogger<UserManagementCommandTranslator> _logger;
 
-        return services;
+    public UserManagementCommandTranslator(
+        IUserManagementConfiguration configuration,
+        ILogger<UserManagementCommandTranslator> logger)
+    {
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>
-    /// Adds data processor services with custom configuration.
+    /// Translates domain CreateUser command to SQL INSERT operation.
     /// </summary>
-    public static IServiceCollection AddDataProcessorService(
-        this IServiceCollection services,
-        Action<DataProcessorConfiguration> configure)
+    public async Task<IFdwResult> TranslateCreateUser(ICreateUserCommand command, CancellationToken cancellationToken = default)
     {
-        // Register base services
-        services.AddDataProcessorService();
-
-        // Override configuration
-        services.Configure<DataProcessorConfiguration>(configure);
-
-        return services;
-    }
-}
-```
-
-### Step 2: Register in Program.cs or Startup.cs
-
-```csharp
-// Program.cs (minimal API)
-using MyCompany.Services.DataProcessor.Extensions;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services
-builder.Services.AddControllers();
-builder.Services.AddLogging();
-
-// Add data processor service
-builder.Services.AddDataProcessorService();
-
-// Or with inline configuration
-builder.Services.AddDataProcessorService(config =>
-{
-    config.MaxBatchSize = 200;
-    config.EnableCaching = true;
-});
-
-// If using ServiceTypes collection (automatic discovery)
-ServiceTypes.RegisterAll(builder.Services);
-
-var app = builder.Build();
-
-// Configure pipeline
-app.UseRouting();
-app.MapControllers();
-
-app.Run();
-```
-
-## Using Services
-
-### Option 1: Direct Factory Usage
-
-```csharp
-using Microsoft.AspNetCore.Mvc;
-using MyCompany.Services.DataProcessor.Commands;
-using MyCompany.Services.DataProcessor.Configuration;
-using MyCompany.Services.DataProcessor.Factories;
-
-[ApiController]
-[Route("api/[controller]")]
-public class DataController : ControllerBase
-{
-    private readonly DataProcessorFactory _factory;
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<DataController> _logger;
-
-    public DataController(
-        DataProcessorFactory factory,
-        IConfiguration configuration,
-        ILogger<DataController> logger)
-    {
-        _factory = factory;
-        _configuration = configuration;
-        _logger = logger;
-    }
-
-    [HttpPost("process")]
-    public async Task<IActionResult> ProcessData([FromBody] List<DataRecord> records)
-    {
-        // Get configuration
-        var config = _configuration.GetSection("Services:DataProcessor")
-            .Get<DataProcessorConfiguration>() ?? new DataProcessorConfiguration();
-
-        // Create service instance
-        var serviceResult = _factory.Create(config);
-        if (!serviceResult.IsSuccess)
+        try
         {
-            return BadRequest(serviceResult.Error);
-        }
+            UserManagementServiceLog.UserCreationStarted(_logger, command.Username, command.Email);
 
-        var service = serviceResult.Value!;
+            using var connection = new SqlConnection(_configuration.ConnectionString);
+            await connection.OpenAsync(cancellationToken);
 
-        // Create and execute command
-        var command = new ProcessDataCommand
-        {
-            Records = records,
-            Options = new ProcessingOptions
+            // Hash password (implementation-specific)
+            var passwordHash = HashPassword(command.Password);
+
+            // SQL operation (implementation-specific)
+            var sql = """
+                INSERT INTO Users (Username, Email, PasswordHash, CreatedAt)
+                OUTPUT INSERTED.UserId
+                VALUES (@Username, @Email, @PasswordHash, @CreatedAt)
+                """;
+
+            var userId = await connection.QuerySingleAsync<int>(sql, new
             {
-                EnableParallelProcessing = true,
-                MaxParallelism = 4
+                command.Username,
+                command.Email,
+                PasswordHash = passwordHash,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            UserManagementServiceLog.UserCreated(_logger, command.Username, userId.ToString());
+            return FdwResult.Success($"User created with ID: {userId}");
+        }
+        catch (SqlException ex) when (ex.Number == 2627) // Unique constraint violation
+        {
+            UserManagementServiceLog.UserCreationFailed(_logger, command.Username, "Username or email already exists");
+            return FdwResult.Failure("Username or email already exists");
+        }
+        catch (Exception ex)
+        {
+            UserManagementServiceLog.UserCreationFailed(_logger, command.Username, ex.Message);
+            return FdwResult.Failure($"Failed to create user: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Translates domain Authenticate command to SQL SELECT operation.
+    /// </summary>
+    public async Task<IFdwResult> TranslateAuthenticate(IAuthenticateUserCommand command, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            UserManagementServiceLog.AuthenticationAttempt(_logger, command.Username);
+
+            using var connection = new SqlConnection(_configuration.ConnectionString);
+            await connection.OpenAsync(cancellationToken);
+
+            // SQL operation (implementation-specific)
+            var sql = """
+                SELECT UserId, PasswordHash, IsActive
+                FROM Users
+                WHERE Username = @Username OR Email = @Username
+                """;
+
+            var user = await connection.QuerySingleOrDefaultAsync(sql, new { command.Username });
+
+            if (user == null || !user.IsActive)
+            {
+                UserManagementServiceLog.AuthenticationFailed(_logger, command.Username, "User not found or inactive");
+                return FdwResult.Failure("Authentication failed");
             }
-        };
 
-        var result = await service.ProcessBatchAsync(command);
+            // Verify password (implementation-specific)
+            if (!VerifyPassword(command.Password, user.PasswordHash))
+            {
+                UserManagementServiceLog.AuthenticationFailed(_logger, command.Username, "Invalid password");
+                return FdwResult.Failure("Authentication failed");
+            }
 
-        if (result.IsSuccess)
-        {
-            return Ok(result.Value);
+            UserManagementServiceLog.AuthenticationSucceeded(_logger, command.Username);
+            return FdwResult.Success($"Authentication successful for user: {user.UserId}");
         }
+        catch (Exception ex)
+        {
+            UserManagementServiceLog.AuthenticationFailed(_logger, command.Username, ex.Message);
+            return FdwResult.Failure($"Authentication error: {ex.Message}");
+        }
+    }
 
-        return StatusCode(500, result.Error);
+    private static string HashPassword(string password)
+    {
+        // Implementation-specific password hashing
+        return BCrypt.Net.BCrypt.HashPassword(password);
+    }
+
+    private static bool VerifyPassword(string password, string hash)
+    {
+        // Implementation-specific password verification
+        return BCrypt.Net.BCrypt.Verify(password, hash);
     }
 }
 ```
 
-### Option 2: Dependency Injection
+### Step 6: Create ServiceType Registration
+
+**ServiceTypes/DatabaseUserManagementServiceType.cs:**
 
 ```csharp
-[ApiController]
-[Route("api/[controller]")]
-public class DataControllerV2 : ControllerBase
-{
-    private readonly IDataProcessorService _dataProcessor;
-    private readonly ILogger<DataControllerV2> _logger;
-
-    public DataControllerV2(
-        IDataProcessorService dataProcessor,
-        ILogger<DataControllerV2> logger)
-    {
-        _dataProcessor = dataProcessor;
-        _logger = logger;
-    }
-
-    [HttpPost("process")]
-    public async Task<IActionResult> ProcessData([FromBody] List<DataRecord> records)
-    {
-        var command = new ProcessDataCommand
-        {
-            Records = records,
-            InitiatedBy = User.Identity?.Name
-        };
-
-        var result = await _dataProcessor.ProcessBatchAsync(command);
-
-        return result.IsSuccess
-            ? Ok(result.Value)
-            : StatusCode(500, result.Error);
-    }
-
-    [HttpGet("query")]
-    public async Task<IActionResult> QueryData(
-        [FromQuery] string criteria,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10)
-    {
-        var command = new QueryDataCommand
-        {
-            Criteria = criteria,
-            PageNumber = pageNumber,
-            PageSize = pageSize
-        };
-
-        var result = await _dataProcessor.QueryAsync(command);
-
-        return result.IsSuccess
-            ? Ok(result.Value)
-            : StatusCode(500, result.Error);
-    }
-}
-```
-
-### Option 3: Service Provider Pattern
-
-```csharp
+using Microsoft.Extensions.DependencyInjection;
+using FractalDataWorks.ServiceTypes;
 using FractalDataWorks.Services;
+using MyCompany.Services.UserManagement.Abstractions.Configuration;
+using MyCompany.Services.UserManagement.Abstractions.Services;
+using MyCompany.Services.UserManagement.Database.Services;
+using MyCompany.Services.UserManagement.Database.Translators;
 
-[ApiController]
-[Route("api/[controller]")]
-public class DataControllerV3 : ControllerBase
+namespace MyCompany.Services.UserManagement.Database.ServiceTypes;
+
+/// <summary>
+/// ServiceType registration for database user management implementation.
+/// Source generator will discover this and add it to UserManagementTypes collection.
+/// </summary>
+public sealed class DatabaseUserManagementServiceType : UserManagementTypeBase<IUserManagementService, IUserManagementConfiguration, GenericServiceFactory<IUserManagementService, IUserManagementConfiguration>>
 {
-    private readonly IServiceFactoryProvider _serviceProvider;
+    public DatabaseUserManagementServiceType() : base(100, "Database", "UserManagement") { }
 
-    public DataControllerV3(IServiceFactoryProvider serviceProvider)
+    public override string SectionName => "Services:UserManagement:Database";
+    public override string DisplayName => "Database User Management Service";
+    public override string Description => "SQL Server-based user management with full CRUD operations";
+
+    public override void Register(IServiceCollection services)
     {
-        _serviceProvider = serviceProvider;
-    }
+        // Register the generic factory
+        services.AddScoped<GenericServiceFactory<IUserManagementService, IUserManagementConfiguration>>();
 
-    [HttpPost("process/{serviceName}")]
-    public async Task<IActionResult> ProcessWithNamedService(
-        string serviceName,
-        [FromBody] List<DataRecord> records)
-    {
-        // Get service by name from configuration
-        var serviceResult = await _serviceProvider.GetService<IDataProcessorService>(serviceName);
+        // Register the specific implementation
+        services.AddScoped<IUserManagementService, DatabaseUserManagementService>();
 
-        if (!serviceResult.IsSuccess)
-        {
-            return NotFound($"Service '{serviceName}' not found");
-        }
-
-        var service = serviceResult.Value!;
-        var command = new ProcessDataCommand { Records = records };
-        var result = await service.ProcessBatchAsync(command);
-
-        return result.IsSuccess
-            ? Ok(result.Value)
-            : StatusCode(500, result.Error);
+        // Register implementation-specific dependencies
+        services.AddScoped<UserManagementCommandTranslator>();
     }
 }
 ```
 
-## Testing Services
+## Command System Deep Dive
 
-### Unit Testing
+### Command as Domain Unification
+
+Commands are the **critical unification point** that makes domain services work. They define the **shared vocabulary** that all implementations understand:
 
 ```csharp
-using Xunit;
-using Shouldly;
-using Microsoft.Extensions.Logging;
-using Moq;
-using MyCompany.Services.DataProcessor.Services;
-using MyCompany.Services.DataProcessor.Configuration;
-using MyCompany.Services.DataProcessor.Commands;
+// SAME command syntax across ALL implementations
+var createCommand = UserManagementCommands.Create(
+    username: "john",
+    email: "john@example.com",
+    password: "SecurePass123!"
+);
 
-public class DataProcessorServiceTests
+// Database implementation translates to SQL INSERT
+await databaseService.Execute(createCommand);
+
+// LDAP implementation translates to LDAP Add
+await ldapService.Execute(createCommand);
+
+// REST implementation translates to HTTP POST
+await restService.Execute(createCommand);
+
+// ALL use the SAME command interface!
+```
+
+### Command Interface Design Rules
+
+**Rule 1: Commands are Interfaces**
+```csharp
+// ✅ Correct - Interface with read-only properties
+public interface ICreateUserCommand : IUserManagementCommand
 {
-    private readonly ILogger<DataProcessorService> _logger;
-    private readonly DataProcessorConfiguration _configuration;
-    private readonly DataProcessorService _service;
+    string Username { get; }
+    string Email { get; }
+    string Password { get; }
+}
 
-    public DataProcessorServiceTests()
+// ❌ Wrong - Abstract class
+public abstract class CreateUserCommand : IUserManagementCommand
+```
+
+**Rule 2: Read-Only Properties**
+```csharp
+// ✅ Correct - Read-only properties
+public interface ICreateUserCommand : IUserManagementCommand
+{
+    string Username { get; }        // No setter
+    string Email { get; }           // No setter
+    string Password { get; }        // No setter
+}
+
+// ❌ Wrong - Mutable properties
+public interface ICreateUserCommand : IUserManagementCommand
+{
+    string Username { get; set; }   // NO!
+}
+```
+
+**Rule 3: Collection Expressions for Complex Properties**
+```csharp
+// ✅ Correct - Use collection expressions and read-only types
+public interface ICreateUserCommand : IUserManagementCommand
+{
+    IReadOnlyDictionary<string, object>? Properties { get; }
+    string[]? Roles { get; }
+}
+
+// Implementation uses collection expressions
+public static CreateUserCommand Create(string username, string email, string password) => new()
+{
+    Username = username,
+    Email = email,
+    Password = password,
+    Properties = [],                    // Collection expression
+    Roles = ["User", "Member"]          // Collection expression
+};
+```
+
+### Command Hierarchies
+
+**Organize Commands by Operation Type:**
+
+```csharp
+// Base domain command
+public interface IUserManagementCommand : ICommand { }
+
+// Query operations (read-only)
+public interface IUserManagementQueryCommand : IUserManagementCommand
+{
+    bool AllowCachedResults { get; }
+    int CacheMaxAgeSeconds { get; }
+}
+
+// Mutation operations (write operations)
+public interface IUserManagementMutationCommand : IUserManagementCommand
+{
+    string? ExpectedVersion { get; }     // Optimistic concurrency
+    bool RequiresTransaction { get; }    // Transaction participation
+}
+
+// Specific operations
+public interface IGetUserCommand : IUserManagementQueryCommand
+{
+    string UserId { get; }
+}
+
+public interface ICreateUserCommand : IUserManagementMutationCommand
+{
+    string Username { get; }
+    string Email { get; }
+    string Password { get; }
+}
+```
+
+### Command Implementation Pattern
+
+**Each implementation creates concrete command classes:**
+
+```csharp
+// Database implementation
+namespace MyCompany.Services.UserManagement.Database.Commands;
+
+public sealed class CreateUserCommand : ICreateUserCommand
+{
+    public string Username { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
+    public string? ExpectedVersion { get; init; }
+    public bool RequiresTransaction { get; init; } = true;
+
+    public static CreateUserCommand Create(string username, string email, string password) => new()
     {
-        _logger = new Mock<ILogger<DataProcessorService>>().Object;
-        _configuration = new DataProcessorConfiguration
-        {
-            Name = "TestProcessor",
-            ConnectionString = "Server=test;Database=test;",
-            MaxBatchSize = 10,
-            TimeoutSeconds = 30,
-            EnableCaching = false
-        };
-        _service = new DataProcessorService(_logger, _configuration);
+        Username = username,
+        Email = email,
+        Password = password
+    };
+}
+```
+
+### Command Collections (Future Enhancement)
+
+Commands can be organized into TypeCollections for factory pattern access:
+
+```csharp
+// Would be source-generated
+public static class UserManagementCommands
+{
+    public static CreateUserCommand Create(string username, string email, string password)
+        => CreateUserCommand.Create(username, email, password);
+
+    public static AuthenticateUserCommand Authenticate(string username, string password)
+        => AuthenticateUserCommand.Create(username, password);
+
+    public static GetUserCommand Get(string userId)
+        => GetUserCommand.Create(userId);
+}
+
+// Usage becomes very clean
+await service.Execute(UserManagementCommands.Create("john", "john@example.com", "SecurePass123!"));
+await service.Execute(UserManagementCommands.Authenticate("john", "SecurePass123!"));
+```
+
+## Framework Integration
+
+### ServiceTypes Collections Integration
+
+**Automatic Service Discovery:**
+```csharp
+// Source generator scans solution for IUserManagementService implementations
+// Generates UserManagementTypes static class
+
+// Runtime service lookup
+var serviceType = UserManagementTypes.Name("Database");
+if (!serviceType.IsEmpty)
+{
+    // Get factory type: typeof(GenericServiceFactory<IUserManagementService, DatabaseUserConfiguration>)
+    var factoryType = serviceType.FactoryType;
+
+    // Get configuration type: typeof(DatabaseUserConfiguration)
+    var configurationType = serviceType.ConfigurationType;
+
+    // Get service type: typeof(IUserManagementService)
+    var serviceInterfaceType = serviceType.ServiceType;
+}
+
+// Enumerate all implementations
+foreach (var type in UserManagementTypes.All)
+{
+    Console.WriteLine($"{type.Name}: {type.Description}");
+}
+```
+
+**DI Registration Integration:**
+```csharp
+// Each ServiceType handles its own registration
+public override void Register(IServiceCollection services)
+{
+    // Framework services
+    services.AddScoped<GenericServiceFactory<IUserManagementService, IUserManagementConfiguration>>();
+
+    // Implementation-specific services
+    services.AddScoped<IUserManagementService, DatabaseUserManagementService>();
+    services.AddScoped<UserManagementCommandTranslator>();
+
+    // Implementation-specific dependencies
+    services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+    services.AddScoped<IUserRepository, SqlUserRepository>();
+}
+```
+
+### Messages Integration
+
+**Structured Communication:**
+```csharp
+// Domain messages (abstractions project)
+[MessageCollection("UserManagementMessages")]
+public abstract class UserManagementMessage : MessageTemplate<MessageSeverity>, IServiceMessage
+{
+    protected UserManagementMessage(int id, string name, MessageSeverity severity,
+        string message, string? code = null)
+        : base(id, name, severity, "UserManagement", message, code, null, null) { }
+}
+
+// Specific messages (concrete project)
+public sealed class UserCreatedMessage : UserManagementMessage
+{
+    public UserCreatedMessage(string userId, string username)
+        : base(1001, "UserCreated", MessageSeverity.Information,
+               $"User account created: {username} (ID: {userId})", "USER_CREATED") { }
+}
+
+// Source-generated factory methods
+public static class UserManagementMessages
+{
+    public static UserCreatedMessage UserCreated(string userId, string username)
+        => new(userId, username);
+
+    public static AuthenticationFailedMessage AuthenticationFailed(string username, string reason)
+        => new(username, reason);
+}
+```
+
+**Results Integration:**
+```csharp
+// Services return Results with Messages
+public async Task<IFdwResult> Execute(ICreateUserCommand command)
+{
+    try
+    {
+        var userId = await CreateUserInDatabase(command);
+
+        // Success with structured message
+        var message = UserManagementMessages.UserCreated(userId, command.Username);
+        return FdwResult.Success(message);
+    }
+    catch (Exception ex)
+    {
+        // Failure with structured message
+        var message = UserManagementMessages.UserCreationFailed(command.Username, ex.Message);
+        return FdwResult.Failure(message);
+    }
+}
+```
+
+### Logging Integration
+
+**High-Performance Structured Logging:**
+```csharp
+// Source-generated logging methods
+[LoggerMessage(EventId = 2000, Level = LogLevel.Information,
+    Message = "Creating user {Username} with email {Email}")]
+public static partial void UserCreationStarted(ILogger logger, string username, string email);
+
+// Automatic event ID management prevents conflicts
+[LoggerMessage(EventId = 2001, Level = LogLevel.Information,
+    Message = "User {Username} created successfully with ID {UserId}")]
+public static partial void UserCreated(ILogger logger, string username, string userId);
+```
+
+**Logging-Message Integration:**
+```csharp
+public async Task<IFdwResult> TranslateCreateUser(ICreateUserCommand command)
+{
+    // Log start with structured data
+    UserManagementServiceLog.UserCreationStarted(_logger, command.Username, command.Email);
+
+    try
+    {
+        var userId = await ExecuteSqlInsert(command);
+
+        // Log success AND create message
+        UserManagementServiceLog.UserCreated(_logger, command.Username, userId);
+        var message = UserManagementMessages.UserCreated(userId, command.Username);
+
+        return FdwResult.Success(message);
+    }
+    catch (Exception ex)
+    {
+        // Log failure AND create message
+        UserManagementServiceLog.UserCreationFailed(_logger, command.Username, ex.Message);
+        var message = UserManagementMessages.UserCreationFailed(command.Username, ex.Message);
+
+        return FdwResult.Failure(message);
+    }
+}
+```
+
+## Testing Strategies
+
+### Domain Contract Testing
+
+**Test command interfaces work across implementations:**
+
+```csharp
+public abstract class UserManagementServiceContractTests<TService, TConfiguration>
+    where TService : class, IUserManagementService
+    where TConfiguration : class, IUserManagementConfiguration
+{
+    protected abstract TService CreateService(TConfiguration configuration);
+    protected abstract TConfiguration CreateValidConfiguration();
+
+    [Fact]
+    public async Task Execute_CreateUserCommand_ShouldSucceed()
+    {
+        // Arrange
+        var configuration = CreateValidConfiguration();
+        var service = CreateService(configuration);
+        var command = CreateUserCommand.Create("testuser", "test@example.com", "SecurePass123!");
+
+        // Act
+        var result = await service.Execute(command);
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Message.ShouldContain("User created");
     }
 
     [Fact]
-    public async Task ProcessBatchAsync_WithValidData_ShouldSucceed()
+    public async Task Execute_DuplicateUsername_ShouldFail()
     {
-        // Arrange
-        var command = new ProcessDataCommand
-        {
-            Records = new List<DataRecord>
-            {
-                new() { Id = "1", Content = "Test 1" },
-                new() { Id = "2", Content = "Test 2" }
-            }
-        };
+        // Test that ALL implementations handle duplicate usernames consistently
+        var configuration = CreateValidConfiguration();
+        var service = CreateService(configuration);
+        var command1 = CreateUserCommand.Create("duplicate", "first@example.com", "Pass123!");
+        var command2 = CreateUserCommand.Create("duplicate", "second@example.com", "Pass456!");
 
         // Act
-        var result = await _service.ProcessBatchAsync(command);
+        var result1 = await service.Execute(command1);
+        var result2 = await service.Execute(command2);
+
+        // Assert
+        result1.IsSuccess.ShouldBeTrue();
+        result2.IsSuccess.ShouldBeFalse();
+        result2.Error.ShouldContain("already exists");
+    }
+}
+
+// Concrete test classes inherit contract tests
+public class DatabaseUserManagementServiceTests : UserManagementServiceContractTests<DatabaseUserManagementService, DatabaseUserConfiguration>
+{
+    protected override DatabaseUserManagementService CreateService(DatabaseUserConfiguration configuration)
+    {
+        var logger = new Mock<ILogger<DatabaseUserManagementService>>().Object;
+        var translator = new Mock<UserManagementCommandTranslator>().Object;
+        return new DatabaseUserManagementService(logger, configuration, translator);
+    }
+
+    protected override DatabaseUserConfiguration CreateValidConfiguration()
+    {
+        return new DatabaseUserConfiguration
+        {
+            ConnectionString = "Server=localhost;Database=TestDB;Trusted_Connection=true;",
+            UserManagementType = "Database"
+        };
+    }
+
+    // Implementation-specific tests
+    [Fact]
+    public async Task DatabaseSpecific_SqlInjection_ShouldBeBlocked()
+    {
+        // Database-specific security tests
+    }
+}
+```
+
+### Command Validation Testing
+
+**Ensure commands are validated consistently:**
+
+```csharp
+public class CreateUserCommandValidationTests
+{
+    [Theory]
+    [InlineData("", "Valid email required")]
+    [InlineData("ab", "Username too short")]
+    [InlineData("toolongusernameexceedslimit", "Username too long")]
+    public void Create_InvalidUsername_ShouldFailValidation(string username, string expectedError)
+    {
+        // Arrange
+        var command = CreateUserCommand.Create(username, "valid@example.com", "ValidPass123!");
+
+        // Act
+        var validationResult = ValidateCommand(command);
+
+        // Assert
+        validationResult.IsValid.ShouldBeFalse();
+        validationResult.Errors.ShouldContain(e => e.ErrorMessage.Contains(expectedError));
+    }
+
+    [Theory]
+    [InlineData("notanemail", "Invalid email format")]
+    [InlineData("", "Email required")]
+    public void Create_InvalidEmail_ShouldFailValidation(string email, string expectedError)
+    {
+        // Test email validation
+    }
+
+    private ValidationResult ValidateCommand<T>(T command) where T : IUserManagementCommand
+    {
+        var validator = new CommandValidator<T>();
+        return validator.Validate(command);
+    }
+}
+```
+
+### Provider Integration Testing
+
+**Test the provider pattern:**
+
+```csharp
+public class UserManagementProviderIntegrationTests
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IConfiguration _configuration;
+
+    public UserManagementProviderIntegrationTests()
+    {
+        var services = new ServiceCollection();
+
+        // Register all UserManagement implementations
+        foreach (var serviceType in UserManagementTypes.All)
+        {
+            serviceType.Register(services);
+        }
+
+        _serviceProvider = services.BuildServiceProvider();
+        _configuration = CreateTestConfiguration();
+    }
+
+    [Theory]
+    [InlineData("Database")]
+    [InlineData("Ldap")]
+    [InlineData("Rest")]
+    public async Task GetService_ByTypeName_ShouldReturnCorrectImplementation(string typeName)
+    {
+        // Arrange
+        var provider = new UserManagementProvider(_serviceProvider, _configuration, Mock.Of<ILogger<UserManagementProvider>>());
+
+        // Act
+        var result = await provider.GetService(typeName);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
-        result.Value.ProcessedCount.ShouldBe(2);
-        result.Value.SuccessCount.ShouldBe(2);
+
+        // Verify it's the correct implementation type
+        var expectedType = UserManagementTypes.Name(typeName);
+        result.Value.ShouldBeOfType(expectedType.ServiceType);
     }
 
     [Fact]
-    public async Task ProcessBatchAsync_ExceedingMaxBatchSize_ShouldFail()
+    public async Task GetService_WithConfiguration_ShouldExecuteCommands()
     {
-        // Arrange
-        var records = Enumerable.Range(1, 20)
-            .Select(i => new DataRecord { Id = i.ToString(), Content = $"Test {i}" })
-            .ToList();
+        // Test end-to-end: Provider → Service → Command execution
+        var provider = new UserManagementProvider(_serviceProvider, _configuration, Mock.Of<ILogger<UserManagementProvider>>());
 
-        var command = new ProcessDataCommand { Records = records };
+        var serviceResult = await provider.GetService("Database");
+        serviceResult.IsSuccess.ShouldBeTrue();
 
-        // Act
-        var result = await _service.ProcessBatchAsync(command);
+        var service = serviceResult.Value;
+        var command = CreateUserCommand.Create("integrationtest", "test@example.com", "Pass123!");
 
-        // Assert
-        result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("exceeds maximum");
-    }
-
-    [Fact]
-    public async Task QueryAsync_WithCachingDisabled_ShouldNotCache()
-    {
-        // Arrange
-        var command = new QueryDataCommand
-        {
-            Criteria = "test",
-            PageNumber = 1,
-            PageSize = 10
-        };
-
-        // Act
-        var result1 = await _service.QueryAsync(command);
-        var result2 = await _service.QueryAsync(command);
-
-        // Assert
-        result1.IsSuccess.ShouldBeTrue();
-        result2.IsSuccess.ShouldBeTrue();
-        // With caching disabled, both calls should execute the query
-        result1.Value.ShouldNotBeSameAs(result2.Value);
-    }
-}
-```
-
-### Integration Testing
-
-```csharp
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
-
-public class DataProcessorIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
-{
-    private readonly WebApplicationFactory<Program> _factory;
-    private readonly HttpClient _client;
-
-    public DataProcessorIntegrationTests(WebApplicationFactory<Program> factory)
-    {
-        _factory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                // Override configuration for testing
-                services.Configure<DataProcessorConfiguration>(config =>
-                {
-                    config.ConnectionString = "Server=testserver;Database=testdb;";
-                    config.EnableCaching = false;
-                });
-            });
-        });
-        _client = _factory.CreateClient();
-    }
-
-    [Fact]
-    public async Task ProcessEndpoint_ShouldProcessDataSuccessfully()
-    {
-        // Arrange
-        var records = new[]
-        {
-            new { Id = "1", Content = "Test 1", Metadata = new Dictionary<string, object>() },
-            new { Id = "2", Content = "Test 2", Metadata = new Dictionary<string, object>() }
-        };
-
-        var json = JsonSerializer.Serialize(records);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        // Act
-        var response = await _client.PostAsync("/api/data/process", content);
-
-        // Assert
-        response.IsSuccessStatusCode.ShouldBeTrue();
-
-        var responseContent = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<ProcessingResult>(responseContent);
-
-        result.ShouldNotBeNull();
-        result.ProcessedCount.ShouldBe(2);
-        result.SuccessCount.ShouldBe(2);
+        var commandResult = await service.Execute(command);
+        commandResult.IsSuccess.ShouldBeTrue();
     }
 }
 ```
 
 ## Common Patterns
 
-### Pattern 1: Service Composition
+### Configuration Binding Pattern
 
-```csharp
-/// <summary>
-/// Composite service that orchestrates multiple services.
-/// </summary>
-public class DataPipelineService : ServiceBase<PipelineCommand, PipelineConfiguration, DataPipelineService>
+**appsettings.json structure:**
+```json
 {
-    private readonly IDataProcessorService _processor;
-    private readonly IDataValidatorService _validator;
-    private readonly IDataStorageService _storage;
+  "Services": {
+    "UserManagement": {
+      "Default": {
+        "UserManagementType": "Database",
+        "ConnectionString": "Server=localhost;Database=UserDB;Trusted_Connection=true;",
+        "PasswordPolicy": {
+          "MinLength": 12,
+          "RequireDigit": true,
+          "RequireUppercase": true,
+          "RequireLowercase": true,
+          "RequireNonAlphanumeric": true
+        },
+        "SessionSettings": {
+          "TimeoutMinutes": 30,
+          "MaxConcurrentSessions": 3
+        }
+      },
+      "Ldap": {
+        "UserManagementType": "Ldap",
+        "LdapServer": "ldap://dc.company.com",
+        "BaseDn": "DC=company,DC=com",
+        "ServiceAccount": "CN=ServiceAccount,OU=Services,DC=company,DC=com"
+      }
+    }
+  }
+}
+```
 
-    public DataPipelineService(
-        ILogger<DataPipelineService> logger,
-        PipelineConfiguration configuration,
-        IDataProcessorService processor,
-        IDataValidatorService validator,
-        IDataStorageService storage)
-        : base(logger, configuration)
+**Configuration Usage:**
+```csharp
+// Get service by configuration name
+var service = await provider.GetService("Default");    // Uses Database
+var ldapService = await provider.GetService("Ldap");   // Uses LDAP
+
+// Configuration is automatically bound based on UserManagementType
+var dbConfig = configuration.GetSection("Services:UserManagement:Default").Get<DatabaseUserConfiguration>();
+var ldapConfig = configuration.GetSection("Services:UserManagement:Ldap").Get<LdapUserConfiguration>();
+```
+
+### Dependency Injection Pattern
+
+**Registration in Program.cs:**
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Register all UserManagement service types
+foreach (var serviceType in UserManagementTypes.All)
+{
+    serviceType.Register(builder.Services);
+}
+
+// Register the provider
+builder.Services.AddScoped<IUserManagementProvider, UserManagementProvider>();
+
+// Register shared dependencies
+builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+
+var app = builder.Build();
+```
+
+**Usage in Controllers:**
+```csharp
+[ApiController]
+[Route("api/[controller]")]
+public class UsersController : ControllerBase
+{
+    private readonly IUserManagementProvider _provider;
+
+    public UsersController(IUserManagementProvider provider)
     {
-        _processor = processor;
-        _validator = validator;
-        _storage = storage;
+        _provider = provider;
     }
 
-    public override async Task<IFdwResult> Execute(PipelineCommand command)
+    [HttpPost]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
     {
-        // Validate
-        var validationResult = await _validator.ValidateAsync(command.Data);
-        if (!validationResult.IsSuccess)
-            return validationResult;
+        // Get service (could be any implementation)
+        var serviceResult = await _provider.GetService();
+        if (!serviceResult.IsSuccess)
+        {
+            return StatusCode(500, serviceResult.Error);
+        }
 
-        // Process
-        var processingResult = await _processor.ProcessBatchAsync(
-            new ProcessDataCommand { Records = command.Data });
-        if (!processingResult.IsSuccess)
-            return processingResult;
+        // Execute domain command
+        var command = CreateUserCommand.Create(request.Username, request.Email, request.Password);
+        var result = await serviceResult.Value.Execute(command);
 
-        // Store
-        var storageResult = await _storage.StoreAsync(processingResult.Value);
-
-        return storageResult;
+        return result.IsSuccess
+            ? Ok(new { Message = result.Message })
+            : BadRequest(new { Error = result.Error });
     }
 }
 ```
 
-### Pattern 2: Service Decorators
+### Error Handling Pattern
 
+**Structured Error Responses:**
 ```csharp
-/// <summary>
-/// Decorator that adds caching to any service.
-/// </summary>
-public class CachedServiceDecorator<TService> : IFdwService
-    where TService : IFdwService
+public async Task<IFdwResult> Execute(IUserManagementCommand command)
 {
-    private readonly TService _innerService;
-    private readonly IMemoryCache _cache;
-    private readonly ILogger _logger;
-
-    public CachedServiceDecorator(
-        TService innerService,
-        IMemoryCache cache,
-        ILogger<CachedServiceDecorator<TService>> logger)
+    try
     {
-        _innerService = innerService;
-        _cache = cache;
-        _logger = logger;
-    }
-
-    public string Id => _innerService.Id;
-    public string ServiceType => $"Cached<{_innerService.ServiceType}>";
-    public bool IsAvailable => _innerService.IsAvailable;
-
-    public async Task<IFdwResult> Execute(ICommand command)
-    {
-        var cacheKey = $"{ServiceType}_{command.GetHashCode()}";
-
-        if (_cache.TryGetValue<IFdwResult>(cacheKey, out var cached))
+        var result = command switch
         {
-            _logger.LogDebug("Cache hit for {Key}", cacheKey);
-            return cached!;
-        }
-
-        var result = await _innerService.Execute(command);
-
-        if (result.IsSuccess)
-        {
-            _cache.Set(cacheKey, result, TimeSpan.FromMinutes(5));
-        }
+            ICreateUserCommand createCmd => await ProcessCreateUser(createCmd),
+            IAuthenticateUserCommand authCmd => await ProcessAuthenticate(authCmd),
+            _ => FdwResult.Failure(UserManagementMessages.UnknownCommand(command.GetType().Name))
+        };
 
         return result;
     }
+    catch (ValidationException ex)
+    {
+        var message = UserManagementMessages.ValidationFailed(ex.Message);
+        return FdwResult.Failure(message);
+    }
+    catch (SecurityException ex)
+    {
+        var message = UserManagementMessages.SecurityViolation(ex.Message);
+        return FdwResult.Failure(message);
+    }
+    catch (Exception ex)
+    {
+        Logger.LogError(ex, "Unexpected error executing command: {CommandType}", command.GetType().Name);
+        var message = UserManagementMessages.UnexpectedError(command.GetType().Name);
+        return FdwResult.Failure(message);
+    }
 }
 ```
 
-### Pattern 3: Service Health Checks
+### Performance Patterns
 
+**Caching Implementation:**
 ```csharp
-/// <summary>
-/// Health check for services.
-/// </summary>
-public class ServiceHealthCheck<TService> : IHealthCheck
-    where TService : IFdwService
+public sealed class CachedUserManagementService : IUserManagementService
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IUserManagementService _innerService;
+    private readonly IMemoryCache _cache;
 
-    public ServiceHealthCheck(IServiceProvider serviceProvider)
+    public async Task<IFdwResult> Execute(IUserManagementCommand command)
     {
-        _serviceProvider = serviceProvider;
-    }
-
-    public async Task<HealthCheckResult> CheckHealthAsync(
-        HealthCheckContext context,
-        CancellationToken cancellationToken = default)
-    {
-        try
+        // Cache read operations
+        if (command is IUserManagementQueryCommand queryCmd && queryCmd.AllowCachedResults)
         {
-            var service = _serviceProvider.GetService<TService>();
+            var cacheKey = GenerateCacheKey(command);
+            if (_cache.TryGetValue(cacheKey, out IFdwResult cachedResult))
+            {
+                return cachedResult;
+            }
 
-            if (service == null)
-                return HealthCheckResult.Unhealthy("Service not registered");
-
-            if (!service.IsAvailable)
-                return HealthCheckResult.Degraded("Service not available");
-
-            // Optionally perform a test operation
-            var testCommand = new HealthCheckCommand();
-            var result = await service.Execute(testCommand);
-
-            return result.IsSuccess
-                ? HealthCheckResult.Healthy("Service is healthy")
-                : HealthCheckResult.Unhealthy($"Service check failed: {result.Error}");
+            var result = await _innerService.Execute(command);
+            if (result.IsSuccess)
+            {
+                _cache.Set(cacheKey, result, TimeSpan.FromSeconds(queryCmd.CacheMaxAgeSeconds));
+            }
+            return result;
         }
-        catch (Exception ex)
+
+        // Invalidate cache for mutations
+        if (command is IUserManagementMutationCommand)
         {
-            return HealthCheckResult.Unhealthy("Service health check failed", ex);
+            var result = await _innerService.Execute(command);
+            if (result.IsSuccess)
+            {
+                InvalidateRelatedCacheEntries(command);
+            }
+            return result;
         }
+
+        return await _innerService.Execute(command);
     }
 }
+```
 
-// Register in Program.cs
-builder.Services.AddHealthChecks()
-    .AddCheck<ServiceHealthCheck<IDataProcessorService>>("data_processor");
+**Decorator Registration:**
+```csharp
+public override void Register(IServiceCollection services)
+{
+    // Register base service
+    services.AddScoped<DatabaseUserManagementService>();
+
+    // Register decorated service
+    services.AddScoped<IUserManagementService>(provider =>
+    {
+        var baseService = provider.GetRequiredService<DatabaseUserManagementService>();
+        var cache = provider.GetRequiredService<IMemoryCache>();
+        return new CachedUserManagementService(baseService, cache);
+    });
+}
 ```
 
 ## Troubleshooting
 
-### Issue: Service Creation Fails
+### Common Issues
 
-**Symptoms**: Factory returns failure result when creating service.
+**Issue: Service Not Found**
+```
+Error: "Unknown user management type: Database"
+```
 
-**Common Causes**:
-1. Invalid configuration
-2. Missing dependencies in DI container
-3. Constructor parameter mismatch
-
-**Solution**:
+**Solution:** Verify ServiceType registration
 ```csharp
-// Enable detailed logging
-builder.Logging.AddConsole().SetMinimumLevel(LogLevel.Debug);
-
-// Check configuration validation
-var config = new DataProcessorConfiguration { /* ... */ };
-var validationResult = config.Validate();
-if (!validationResult.IsSuccess)
+// Check that ServiceType is registered
+foreach (var type in UserManagementTypes.All)
 {
-    Console.WriteLine($"Validation errors: {validationResult.Error}");
+    Console.WriteLine($"Registered: {type.Name}");
 }
 
-// Verify DI registration
-var services = builder.Services.BuildServiceProvider();
-var factory = services.GetService<DataProcessorFactory>();
-if (factory == null)
+// Verify ServiceType registration
+public class DatabaseUserManagementServiceType : UserManagementTypeBase<...>
 {
-    Console.WriteLine("Factory not registered!");
+    public DatabaseUserManagementServiceType() : base(100, "Database", "UserManagement") { }
+    //                                                      ^^^^^^^^
+    //                                                      This name must match configuration
 }
 ```
 
-### Issue: Configuration Not Loading
-
-**Symptoms**: Configuration values are default/empty.
-
-**Solution**:
-```csharp
-// Verify configuration section exists
-var config = builder.Configuration;
-var section = config.GetSection("Services:DataProcessor");
-if (!section.Exists())
-{
-    Console.WriteLine("Configuration section missing!");
-}
-
-// Check binding
-var boundConfig = section.Get<DataProcessorConfiguration>();
-Console.WriteLine($"Loaded config: {JsonSerializer.Serialize(boundConfig)}");
+**Issue: Command Not Recognized**
+```
+Error: "Unknown command type: CreateUserCommand"
 ```
 
-### Issue: Source Generators Not Working
+**Solution:** Verify command inheritance and switch statement
+```csharp
+// Ensure command implements domain interface
+public sealed class CreateUserCommand : ICreateUserCommand // Must implement interface
 
-**Symptoms**: ServiceTypes collection is empty or not generated.
+// Ensure service handles command type
+public override async Task<IFdwResult> Execute(IUserManagementCommand command)
+{
+    return command switch
+    {
+        ICreateUserCommand createCmd => await ProcessCreate(createCmd),  // Must match interface
+        IAuthenticateUserCommand authCmd => await ProcessAuth(authCmd),
+        _ => FdwResult.Failure($"Unknown command type: {command.GetType().Name}")
+    };
+}
+```
 
-**Solution**:
-1. Clean and rebuild solution
-2. Check .csproj references:
+**Issue: Configuration Binding Fails**
+```
+Error: "Failed to bind configuration to DatabaseUserConfiguration"
+```
+
+**Solution:** Verify appsettings.json structure and property names
+```json
+{
+  "Services": {
+    "UserManagement": {
+      "Default": {
+        "UserManagementType": "Database",    // Must match ServiceType name
+        "ConnectionString": "...",           // Must match property name exactly
+        "PasswordPolicy": {                  // Nested objects must match
+          "MinLength": 12                    // Property names case-sensitive
+        }
+      }
+    }
+  }
+}
+```
+
+**Issue: Source Generator Not Running**
+```
+Error: "UserManagementTypes does not contain a definition for 'Name'"
+```
+
+**Solution:** Verify source generator references
 ```xml
-<ProjectReference Include="...\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"
-                  OutputItemType="Analyzer"
-                  ReferenceOutputAssembly="false" />
+<!-- Ensure analyzer reference -->
+<ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"
+                  OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+
+<!-- Ensure TypeCollection attribute -->
+[ServiceTypeCollection(typeof(UserManagementTypeBase<,,>), typeof(IUserManagementServiceType), typeof(UserManagementTypes))]
+public partial class UserManagementTypes : ServiceTypeCollectionBase<...>
 ```
-3. Enable source generator logging:
+
+### Debugging Tips
+
+**Enable Source Generator Diagnostics:**
 ```xml
 <PropertyGroup>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
+  <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
 </PropertyGroup>
 ```
 
-### Issue: Performance Problems
-
-**Symptoms**: Service operations are slow.
-
-**Solutions**:
-1. Enable FastGenericNew:
+**Verify Service Registration:**
 ```csharp
-// Ensure FastGenericNew package is installed
-<PackageReference Include="FastGenericNew.SourceGenerator" PrivateAssets="all" />
+public void ConfigureServices(IServiceCollection services)
+{
+    // Register services
+    foreach (var serviceType in UserManagementTypes.All)
+    {
+        Console.WriteLine($"Registering: {serviceType.Name}");
+        serviceType.Register(services);
+    }
+
+    // Verify registration
+    var provider = services.BuildServiceProvider();
+    var factory = provider.GetService<IUserManagementServiceFactory>();
+    Console.WriteLine($"Factory registered: {factory != null}");
+}
 ```
 
-2. Use appropriate service lifetime:
+**Test Configuration Binding:**
 ```csharp
-// Singleton for stateless services
-services.AddSingleton<IStatelessService, StatelessService>();
+[Fact]
+public void Configuration_ShouldBindCorrectly()
+{
+    var configuration = new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json")
+        .Build();
 
-// Scoped for per-request state
-services.AddScoped<IRequestService, RequestService>();
+    var section = configuration.GetSection("Services:UserManagement:Default");
+    var config = section.Get<DatabaseUserConfiguration>();
 
-// Transient for lightweight services
-services.AddTransient<ILightweightService, LightweightService>();
+    config.ShouldNotBeNull();
+    config.UserManagementType.ShouldBe("Database");
+    config.ConnectionString.ShouldNotBeEmpty();
+}
 ```
 
-3. Enable caching where appropriate:
+### Modern C# Patterns Reference
+
+**Collection Expressions:**
 ```csharp
-services.AddMemoryCache();
-services.Decorate<IDataProcessorService, CachedServiceDecorator<IDataProcessorService>>();
+// ✅ Use collection expressions
+string[] roles = ["User", "Admin"];
+List<string> permissions = ["Read", "Write"];
+Dictionary<string, object> properties = [];
+
+// ❌ Don't use old syntax
+string[] roles = new string[] { "User", "Admin" };
+List<string> permissions = new List<string> { "Read", "Write" };
+Dictionary<string, object> properties = new Dictionary<string, object>();
 ```
 
-## Best Practices Summary
+**No Async Suffix:**
+```csharp
+// ✅ Correct - Task return type makes it obvious
+public async Task<IFdwResult> Execute(ICommand command)
+public async Task<IFdwResult<T>> Execute<T>(ICommand command)
 
-1. **Always validate configuration** - Use FluentValidation for comprehensive validation
-2. **Use structured logging** - Include context in all log messages
-3. **Return Result types** - Never throw exceptions from services
-4. **Implement cancellation** - Support CancellationToken in all async operations
-5. **Design for testability** - Use interfaces and dependency injection
-6. **Document thoroughly** - XML documentation on all public members
-7. **Follow naming conventions** - Consistent naming across the codebase
-8. **Leverage source generation** - Use ServiceTypes for automatic discovery
-9. **Monitor service health** - Implement health checks for production
-10. **Cache appropriately** - Balance performance with data freshness
+// ❌ Wrong - Redundant Async suffix
+public async Task<IFdwResult> ExecuteAsync(ICommand command)
+```
 
-## Next Steps
+**Init-Only Properties:**
+```csharp
+// ✅ Use init for immutable commands
+public sealed class CreateUserCommand : ICreateUserCommand
+{
+    public string Username { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
+}
 
-1. Explore advanced patterns in the samples directory
-2. Review the architecture documentation
-3. Join the developer community discussions
-4. Contribute improvements back to the framework
+// ❌ Don't use set for command properties
+public string Username { get; set; } = string.Empty;
+```
 
-## Resources
-
-- [Services Framework Documentation](./Services-Documentation.md)
-- [Connections Framework Documentation](./Connections-Documentation.md)
-- [API Reference](./api/index.html)
-- [Sample Projects](../samples/)
-- [GitHub Repository](https://github.com/fractaldataworks/developerkit)
-
----
-
-*This guide is maintained by the FractalDataWorks Engineering Team. For questions or improvements, please submit an issue or pull request.*
+This comprehensive guide covers the complete domain service development workflow, from creating new domains to adding implementations, with emphasis on the command system as the domain unification mechanism and proper framework integration patterns.

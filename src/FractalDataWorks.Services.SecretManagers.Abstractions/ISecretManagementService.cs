@@ -1,6 +1,8 @@
+using System.Threading;
+using System.Threading.Tasks;
+using FractalDataWorks.Results;
 using FractalDataWorks.Services;
 using FractalDataWorks.Services.Abstractions;
-using FractalDataWorks.Services.SecretManagers.Commands;
 
 namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 
@@ -9,6 +11,24 @@ namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 /// </summary>
 public interface ISecretManagerService : IFdwService
 {
+    /// <summary>
+    /// Executes a secret manager command and returns a typed result.
+    /// Integrates with the command pattern for unified service execution.
+    /// </summary>
+    /// <typeparam name="TResult">The type of result expected from the command execution.</typeparam>
+    /// <param name="command">The secret manager command to execute.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
+    /// <returns>A task that represents the asynchronous command execution operation.</returns>
+    Task<IFdwResult<TResult>> Execute<TResult>(ISecretManagerCommand command, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes a secret manager command without returning a specific result type.
+    /// Integrates with the command pattern for unified service execution.
+    /// </summary>
+    /// <param name="command">The secret manager command to execute.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
+    /// <returns>A task that represents the asynchronous command execution operation.</returns>
+    Task<IFdwResult> Execute(ISecretManagerCommand command, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -22,6 +42,6 @@ public interface ISecretManagerService : IFdwService
 /// error handling, and result formatting.
 /// </remarks>
 public interface ISecretManagerService<TSecretCommand> : ISecretManagerService, IFdwService<TSecretCommand>
-    where TSecretCommand : Commands.ISecretManagerCommand
+    where TSecretCommand : ISecretManagerCommand
 {
 }

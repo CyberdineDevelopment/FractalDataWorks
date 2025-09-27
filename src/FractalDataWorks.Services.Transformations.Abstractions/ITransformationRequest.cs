@@ -169,3 +169,66 @@ public interface ITransformationRequest : ICommand
     /// </remarks>
     ITransformationRequest WithOptions(IReadOnlyDictionary<string, object> newOptions);
 }
+
+/// <summary>
+/// Generic interface for transformation requests with typed input data.
+/// Extends the base transformation request interface with compile-time type safety for input data.
+/// </summary>
+/// <typeparam name="TInput">The type of the input data for transformation.</typeparam>
+/// <remarks>
+/// Use this interface when the input data type is known at compile time.
+/// It provides type safety and eliminates the need for runtime type checking and casting.
+/// </remarks>
+public interface ITransformationRequest<TInput> : ITransformationRequest
+{
+    /// <summary>
+    /// Gets the strongly-typed input data to be transformed.
+    /// </summary>
+    /// <value>The source data for transformation.</value>
+    new TInput? InputData { get; }
+
+    /// <summary>
+    /// Creates a copy of this request with modified input data.
+    /// </summary>
+    /// <param name="newInputData">The new input data.</param>
+    /// <param name="newInputType">The new input type (optional, defaults to current type).</param>
+    /// <returns>A new typed transformation request with the specified input data.</returns>
+    /// <remarks>
+    /// This method provides type-safe request copying for generic request instances.
+    /// </remarks>
+    new ITransformationRequest<TInput> WithInputData(TInput? newInputData, string? newInputType = null);
+
+    /// <summary>
+    /// Creates a copy of this request with modified output type.
+    /// </summary>
+    /// <param name="newOutputType">The new output type.</param>
+    /// <param name="newExpectedResultType">The new expected result type (optional).</param>
+    /// <returns>A new typed transformation request with the specified output type.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="newOutputType"/> is null.</exception>
+    /// <remarks>
+    /// This method provides type-safe request copying for generic request instances.
+    /// </remarks>
+    new ITransformationRequest<TInput> WithOutputType(string newOutputType, Type? newExpectedResultType = null);
+
+    /// <summary>
+    /// Creates a copy of this request with modified configuration.
+    /// </summary>
+    /// <param name="newConfiguration">The new configuration parameters.</param>
+    /// <returns>A new typed transformation request with the specified configuration.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="newConfiguration"/> is null.</exception>
+    /// <remarks>
+    /// This method provides type-safe request copying for generic request instances.
+    /// </remarks>
+    new ITransformationRequest<TInput> WithConfiguration(IReadOnlyDictionary<string, object> newConfiguration);
+
+    /// <summary>
+    /// Creates a copy of this request with modified execution options.
+    /// </summary>
+    /// <param name="newOptions">The new execution options.</param>
+    /// <returns>A new typed transformation request with the specified options.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="newOptions"/> is null.</exception>
+    /// <remarks>
+    /// This method provides type-safe request copying for generic request instances.
+    /// </remarks>
+    new ITransformationRequest<TInput> WithOptions(IReadOnlyDictionary<string, object> newOptions);
+}

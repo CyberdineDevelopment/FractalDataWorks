@@ -134,4 +134,23 @@ public interface IDataGateway : IFdwService<DataCommandBase>
     /// </code>
     /// </example>
     Task<IFdwResult<IDictionary<string, object>>> GetConnectionsInfo(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes a data command and returns a typed result.
+    /// Integrates with the command pattern for unified service execution.
+    /// </summary>
+    /// <typeparam name="TResult">The type of result expected from the command execution.</typeparam>
+    /// <param name="command">The data command to execute.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
+    /// <returns>A task that represents the asynchronous command execution operation.</returns>
+    Task<IFdwResult<TResult>> Execute<TResult>(IDataCommand command, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes a data command without returning a specific result type.
+    /// Integrates with the command pattern for unified service execution.
+    /// </summary>
+    /// <param name="command">The data command to execute.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
+    /// <returns>A task that represents the asynchronous command execution operation.</returns>
+    Task<IFdwResult> Execute(IDataCommand command, CancellationToken cancellationToken = default);
 }

@@ -207,4 +207,23 @@ public interface IAuthenticationService : IFdwService
     /// Thrown when <paramref name="token"/> is empty or whitespace.
     /// </exception>
     Task<IFdwResult> RevokeTokenAsync(string token, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes an authentication command and returns a typed result.
+    /// Integrates with the command pattern for unified service execution.
+    /// </summary>
+    /// <typeparam name="TResult">The type of result expected from the command execution.</typeparam>
+    /// <param name="command">The authentication command to execute.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
+    /// <returns>A task that represents the asynchronous command execution operation.</returns>
+    Task<IFdwResult<TResult>> Execute<TResult>(IAuthenticationCommand command, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes an authentication command without returning a specific result type.
+    /// Integrates with the command pattern for unified service execution.
+    /// </summary>
+    /// <param name="command">The authentication command to execute.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
+    /// <returns>A task that represents the asynchronous command execution operation.</returns>
+    Task<IFdwResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken = default);
 }

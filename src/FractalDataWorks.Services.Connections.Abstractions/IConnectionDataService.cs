@@ -54,4 +54,23 @@ public interface IConnectionDataService : IFdwService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing the health check results.</returns>
     Task<IFdwResult<IDictionary<string, bool>>> HealthCheckAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes a connection command and returns a typed result.
+    /// Integrates with the command pattern for unified service execution.
+    /// </summary>
+    /// <typeparam name="TResult">The type of result expected from the command execution.</typeparam>
+    /// <param name="command">The connection command to execute.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
+    /// <returns>A task that represents the asynchronous command execution operation.</returns>
+    Task<IFdwResult<TResult>> Execute<TResult>(IConnectionCommand command, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes a connection command without returning a specific result type.
+    /// Integrates with the command pattern for unified service execution.
+    /// </summary>
+    /// <param name="command">The connection command to execute.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
+    /// <returns>A task that represents the asynchronous command execution operation.</returns>
+    Task<IFdwResult> Execute(IConnectionCommand command, CancellationToken cancellationToken = default);
 }
