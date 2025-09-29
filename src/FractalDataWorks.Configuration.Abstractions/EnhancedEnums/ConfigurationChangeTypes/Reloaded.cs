@@ -5,7 +5,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Represents a configuration source that was reloaded.
 /// </summary>
-[EnumOption("Reloaded")]
+[EnumOption(typeof(ConfigurationChangeTypes), "Reloaded")]
 public sealed class Reloaded : ConfigurationChangeTypeBase
 {
     /// <summary>

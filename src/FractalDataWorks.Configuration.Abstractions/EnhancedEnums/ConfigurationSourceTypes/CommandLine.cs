@@ -5,7 +5,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Represents configuration from command line arguments.
 /// </summary>
-[EnumOption("CommandLine")]
+[EnumOption(typeof(ConfigurationSourceTypes), "CommandLine")]
 public sealed class CommandLine : ConfigurationSourceTypeBase
 {
     /// <summary>

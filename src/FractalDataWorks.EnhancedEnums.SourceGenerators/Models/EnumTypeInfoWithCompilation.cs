@@ -18,20 +18,23 @@ internal sealed class EnumTypeInfoWithCompilation
     public Compilation Compilation { get; }
     public List<INamedTypeSymbol> DiscoveredOptionTypes { get; }
     public INamedTypeSymbol CollectionClass { get; }
+    public List<Diagnostic> Diagnostics { get; }
 
-    public EnumTypeInfoWithCompilation(EnumTypeInfoModel enumTypeInfoModel, Compilation compilation, List<INamedTypeSymbol> discoveredOptionTypes, INamedTypeSymbol collectionClass)
+    public EnumTypeInfoWithCompilation(EnumTypeInfoModel enumTypeInfoModel, Compilation compilation, List<INamedTypeSymbol> discoveredOptionTypes, INamedTypeSymbol collectionClass, List<Diagnostic> diagnostics)
     {
         EnumTypeInfoModel = enumTypeInfoModel;
         Compilation = compilation;
         DiscoveredOptionTypes = discoveredOptionTypes;
         CollectionClass = collectionClass;
+        Diagnostics = diagnostics;
     }
 
-    public void Deconstruct(out EnumTypeInfoModel enumTypeInfoModel, out Compilation compilation, out List<INamedTypeSymbol> discoveredOptionTypes, out INamedTypeSymbol collectionClass)
+    public void Deconstruct(out EnumTypeInfoModel enumTypeInfoModel, out Compilation compilation, out List<INamedTypeSymbol> discoveredOptionTypes, out INamedTypeSymbol collectionClass, out List<Diagnostic> diagnostics)
     {
         enumTypeInfoModel = EnumTypeInfoModel;
         compilation = Compilation;
         discoveredOptionTypes = DiscoveredOptionTypes;
         collectionClass = CollectionClass;
+        diagnostics = Diagnostics;
     }
 }

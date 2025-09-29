@@ -1589,7 +1589,7 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     /// </summary>
     private void GenerateEmptyClass()
     {
-        if (_definition == null || _values == null || _values.Count == 0)
+        if (_definition == null)
             return;
             
         // Get the base type name (e.g., "DataStoreTypeBase" from full type name)

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
-using FractalDataWorks.Services.SecretManagers.Commands;
+
 
 namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 
@@ -22,25 +22,25 @@ public interface ISecretManager : IFdwService
     /// <summary>
     /// Executes a secret management managementCommand.
     /// </summary>
-    /// <param name="managementCommandet managementCommand to execute.</param>
+    /// <param name="managementCommand">The managementCommand to execute.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation, containing the managementCommand result.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="managementCommandl.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="managementCommand"/> is null.</exception>
     /// <remarks>
     /// This is the primary method for executing secret operations. The managementCommand pattern
     /// allows for consistent handling of different operation types while maintaining
     /// flexibility for provider-specific implementations.
     /// </remarks>
-    Task<IFdwResult<object?>> Execute(Commands.ISecretManagerCommand managementCommand, CancellationToken cancellationToken = default);
+    Task<IFdwResult<object?>> Execute(ISecretManagerCommand managementCommand, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Executes a typed secret management managementCommand.
     /// </summary>
     /// <typeparam name="TResult">The expected result type.</typeparam>
-    /// <param name="managementCommandet managementCommand to execute.</param>
+    /// <param name="managementCommand">The managementCommand to execute.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation, containing the typed managementCommand result.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="managementCommandl.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="managementCommand"/> is null.</exception>
     /// <remarks>
     /// This method provides compile-time type safety for secret operations when the
     /// expected result type is known. It eliminates the need for runtime type checking.
@@ -60,18 +60,18 @@ public interface ISecretManager : IFdwService
     /// and may provide transactional guarantees depending on the provider implementation.
     /// If one managementCommand fails, the behavior depends on the provider's batch handling strategy.
     /// </remarks>
-    Task<IFdwResult<ISecretBatchResult>> ExecuteBatch(IReadOnlyList<Commands.ISecretManagerCommand> commands, CancellationToken cancellationToken = default);
+    Task<IFdwResult> ExecuteBatch(IReadOnlyList<ISecretManagerCommand> commands, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Validates a secret managementCommand before execution.
     /// </summary>
-    /// <param name="managementCommandet managementCommand to validate.</param>
+    /// <param name="managementCommand">The managementCommand to validate.</param>
     /// <returns>A result indicating whether the managementCommand is valid for execution.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="managementCommandl.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="managementCommand"/> is null.</exception>
     /// <remarks>
     /// This method performs validation of the managementCommand including parameter checking,
     /// access control verification, and provider capability assessment.
     /// It allows pre-flight validation without executing the actual operation.
     /// </remarks>
-    IFdwResult ValidateCommand(Commands.ISecretManagerCommand managementCommand);
+    IFdwResult ValidateCommand(ISecretManagerCommand managementCommand);
 }

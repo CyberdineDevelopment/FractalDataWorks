@@ -5,7 +5,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Represents configuration from memory/cache.
 /// </summary>
-[EnumOption("Memory")]
+[EnumOption(typeof(ConfigurationSourceTypes), "Memory")]
 public sealed class Memory : ConfigurationSourceTypeBase
 {
     /// <summary>

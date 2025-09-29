@@ -7,6 +7,6 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// Collection of execution statuses.
 /// </summary>
 [TypeCollection(typeof(ExecutionStatus), typeof(IExecutionStatus), typeof(ExecutionStatuses))]
-public sealed partial class ExecutionStatuses : TypeCollectionBase<ExecutionStatus, IExecutionStatus>
+public abstract partial class ExecutionStatuses : TypeCollectionBase<ExecutionStatus, IExecutionStatus>
 {
 }

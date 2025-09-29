@@ -14,17 +14,32 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace FractalDataWorks.ServiceTypes.CodeFixes;
 
+/// <summary>
+/// Code fix provider for converting abstract properties to constructor parameters.
+/// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AbstractPropertyCodeFixProvider)), Shared]
 public class AbstractPropertyCodeFixProvider : CodeFixProvider
 {
     private const string Title = "Convert abstract property to constructor parameter and update derived classes";
 
+    /// <summary>
+    /// Gets the diagnostic IDs that this provider can fix.
+    /// </summary>
     public sealed override ImmutableArray<string> FixableDiagnosticIds
         => ImmutableArray.Create("ST006");
 
+    /// <summary>
+    /// Gets the fix all provider for this code fix provider.
+    /// </summary>
+    /// <returns>The fix all provider.</returns>
     public sealed override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;
 
+    /// <summary>
+    /// Registers code fixes for the specified context.
+    /// </summary>
+    /// <param name="context">The code fix context.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);

@@ -1,7 +1,7 @@
 namespace FractalDataWorks.DataSets.Abstractions.Operators;
 
 /// <summary>
-/// Inequality comparison operator (!=, <>).
+/// Inequality comparison operator (!=, &lt;&gt;).
 /// </summary>
 public sealed class NotEqualOperator : ComparisonOperatorBase
 {

@@ -5,7 +5,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Represents a configuration that was deleted.
 /// </summary>
-[EnumOption("Deleted")]
+[EnumOption(typeof(ConfigurationChangeTypes), "Deleted")]
 public sealed class Deleted : ConfigurationChangeTypeBase
 {
     /// <summary>

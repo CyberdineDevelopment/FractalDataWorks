@@ -5,7 +5,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Represents configuration from environment variables.
 /// </summary>
-[EnumOption("Environment")]
+[EnumOption(typeof(ConfigurationSourceTypes), "Environment")]
 public sealed class Environment : ConfigurationSourceTypeBase
 {
     /// <summary>

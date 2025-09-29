@@ -5,7 +5,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Represents configuration from a file.
 /// </summary>
-[EnumOption("FileConfigurationSource")]
+[EnumOption(typeof(ConfigurationSourceTypes), "FileConfigurationSource")]
 public sealed class FileConfigurationSource : ConfigurationSourceTypeBase
 {
     /// <summary>

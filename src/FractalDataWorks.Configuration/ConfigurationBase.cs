@@ -12,7 +12,7 @@ namespace FractalDataWorks.Configuration;
 /// Base class for all configuration types in the Rec framework.
 /// </summary>
 /// <typeparam name="TConfiguration">The derived configuration type.</typeparam>
-public abstract class ConfigurationBase<TConfiguration> : FractalConfigurationBase
+public abstract class ConfigurationBase<TConfiguration> : fdwConfigurationBase
     where TConfiguration : ConfigurationBase<TConfiguration>, new()
 {
 

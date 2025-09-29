@@ -9,7 +9,7 @@ namespace FractalDataWorks.Services.DataGateway;
 /// The source generator will discover all DataGatewayTypeBase implementations.
 /// </summary>
 [ServiceTypeCollection("IDataGatewayServiceType", "DataGatewayServiceTypes")]
-public partial abstract class DataGatewayServiceTypesCollection
+public abstract partial class DataGatewayServiceTypesCollection
 {
     // DO NOT IMPLEMENT BY HAND!
     // Source generator automatically creates static DataGatewayServiceTypes class with:

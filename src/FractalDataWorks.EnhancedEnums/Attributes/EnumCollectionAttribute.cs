@@ -3,30 +3,40 @@ using System;
 namespace FractalDataWorks.EnhancedEnums.Attributes;
 
 /// <summary>
-/// Marks a class as an enhanced enum collection base type that should have a collection generated.
-/// The source generator will create a static collection class for all types that inherit from this base.
+/// Marks a class as an Enhanced Enum collection for source generation.
+/// Applied to collection classes to enable efficient discovery and generation of high-performance collections.
+/// Follows the same pattern as TypeCollectionAttribute and ServiceTypeCollectionAttribute.
 /// </summary>
+/// <param name="baseType">The base enum type to collect (e.g., typeof(ExecutionStatus)).</param>
+/// <param name="defaultReturnType">The default return type for generated methods (e.g., typeof(IExecutionStatus)).</param>
+/// <param name="collectionType">The partial class type being generated (e.g., typeof(ExecutionStatuses)).</param>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-public sealed class EnumCollectionAttribute : Attribute
+public sealed class EnumCollectionAttribute(Type baseType, Type defaultReturnType, Type collectionType) : Attribute
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="EnumCollectionAttribute"/> class.
+    /// Gets the base enum type to collect.
     /// </summary>
-    public EnumCollectionAttribute()
-    {
-    }
+    public Type BaseType { get; } = baseType ?? throw new ArgumentNullException(nameof(baseType));
 
     /// <summary>
-    /// Gets or sets the name of the generated collection class.
-    /// If null or empty, uses the base class name with "s" suffix.
+    /// Gets the default return type for generated methods.
     /// </summary>
-    public string? CollectionName { get; set; }
+    public Type DefaultReturnType { get; } = defaultReturnType ?? throw new ArgumentNullException(nameof(defaultReturnType));
 
     /// <summary>
-    /// Gets or sets the default generic return type for generated methods.
-    /// If null, uses the base enum type.
+    /// Gets the partial class type being generated.
     /// </summary>
-    public Type? DefaultGenericReturnType { get; set; }
+    public Type CollectionType { get; } = collectionType ?? throw new ArgumentNullException(nameof(collectionType));
+
+    /// <summary>
+    /// Gets the fully qualified name of the base type (for generator compatibility).
+    /// </summary>
+    public string BaseTypeName => BaseType.FullName ?? BaseType.Name;
+
+    /// <summary>
+    /// Gets the collection name (for generator compatibility).
+    /// </summary>
+    public string CollectionName => CollectionType.Name;
 
     /// <summary>
     /// Gets or sets a value indicating whether singleton instances should be used instead of factory methods.

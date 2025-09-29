@@ -16,9 +16,9 @@ namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 /// <typeparam name="TConfiguration">The configuration type for the secret management service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating secret management service instances.</typeparam>
 public interface ISecretManagerType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
-    where TService : class, ISecretService
-    where TConfiguration : class, ISecretManagerConfiguration
-    where TFactory : class, ISecretServiceFactory<TService, TConfiguration>
+    where TService : ISecretManager
+    where TConfiguration : ISecretManagerConfiguration
+    where TFactory : ISecretManagerServiceFactory<TService, TConfiguration>
 {
     /// <summary>
     /// Gets the secret store types supported by this provider.
@@ -122,8 +122,4 @@ public interface ISecretManagerType : IServiceType
     /// </summary>
     string CloudProvider { get; }
 
-    /// <summary>
-    /// Gets the current health status of this secret management provider.
-    /// </summary>
-    HealthStatus HealthStatus { get; }
 }

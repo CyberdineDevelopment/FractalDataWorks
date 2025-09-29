@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FractalDataWorks.EnhancedEnums.Models;
-using FractalDataWorks.EnhancedEnums.Discovery;
 using FractalDataWorks.EnhancedEnums.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,29 +9,19 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace FractalDataWorks.EnhancedEnums.Services;
 
 /// <summary>
-/// Service responsible for discovering enum values from current compilation and referenced assemblies.
+/// Service responsible for discovering enum values using attribute-based discovery.
 /// </summary>
 public static class EnumValueDiscoveryService
 {
-    private static readonly CrossAssemblyTypeDiscoveryService _discoveryService = new();
-
     /// <summary>
     /// Discovers all enum values for a given enum definition.
     /// </summary>
     public static IList<EnumValueInfoModel> DiscoverEnumValues(EnumTypeInfoModel def, INamedTypeSymbol baseTypeSymbol, Compilation compilation, SourceProductionContext context)
     {
         List<EnumValueInfoModel> values = [];
-        List<INamedTypeSymbol> allTypes = [];
 
-        // Step 1: Scan current compilation
-        allTypes.AddRange(ScanCurrentCompilation(compilation));
-
-        // Step 2: Scan referenced assemblies if enabled
-        if (def.IncludeReferencedAssemblies)
-        {
-            var crossAssemblyTypes = ScanReferencedAssemblies(compilation, context);
-            allTypes.AddRange(crossAssemblyTypes);
-        }
+        // Scan current compilation only (like TypeCollectionGenerator)
+        var allTypes = ScanCurrentCompilation(compilation);
 
         // Process all found types
         foreach (var typeSymbol in allTypes)
@@ -69,25 +58,6 @@ public static class EnumValueDiscoveryService
         return allTypes;
     }
 
-    private static IEnumerable<INamedTypeSymbol> ScanReferencedAssemblies(Compilation compilation, SourceProductionContext context)
-    {
-        // Use the discovery service to find types with EnumOption attribute by name
-        var typesWithAttribute = _discoveryService.FindTypesWithAttributeName(nameof(EnumOptionAttribute), compilation);
-        
-        // Report diagnostic about cross-assembly scanning
-        var typeCount = typesWithAttribute.Count();
-        context.ReportDiagnostic(Diagnostic.Create(
-            new DiagnosticDescriptor(
-                "ENH_INFO_001",
-                "Cross-assembly scan complete",
-                $"Found {typeCount} types with EnumOption attribute from assemblies that opted in",
-                "EnhancedEnumOptions",
-                DiagnosticSeverity.Info,
-                isEnabledByDefault: true),
-            null));
-
-        return typesWithAttribute;
-    }
 
     private static void ProcessTypeForEnumValues(INamedTypeSymbol typeSymbol, EnumTypeInfoModel def, INamedTypeSymbol baseTypeSymbol, List<EnumValueInfoModel> values)
     {

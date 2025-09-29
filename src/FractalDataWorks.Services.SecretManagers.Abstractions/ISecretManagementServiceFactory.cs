@@ -14,7 +14,7 @@ public interface ISecretManagerServiceFactory : IServiceFactory
 /// </summary>
 /// <typeparam name="TSecretService">The secret management service type to create.</typeparam>
 public interface ISecretManagerServiceFactory<TSecretService> : ISecretManagerServiceFactory, IServiceFactory<TSecretService>
-    where TSecretService : ISecretManagerService
+    where TSecretService : ISecretManager
 {
 }
 
@@ -24,7 +24,7 @@ public interface ISecretManagerServiceFactory<TSecretService> : ISecretManagerSe
 /// <typeparam name="TSecretService">The secret management service type to create.</typeparam>
 /// <typeparam name="TConfiguration">The configuration type for the secret management service.</typeparam>
 public interface ISecretManagerServiceFactory<TSecretService, TConfiguration> : ISecretManagerServiceFactory<TSecretService>, IServiceFactory<TSecretService, TConfiguration>
-    where TSecretService : ISecretManagerService
+    where TSecretService : ISecretManager
     where TConfiguration : ISecretManagerConfiguration
 {
 }

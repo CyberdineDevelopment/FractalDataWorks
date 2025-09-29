@@ -4,6 +4,7 @@ using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.Services;
 using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.DataGateway.Abstractions;
+using FractalDataWorks.Services.DataGateway.Services;
 
 namespace FractalDataWorks.Services.DataGateway;
 
@@ -12,7 +13,7 @@ namespace FractalDataWorks.Services.DataGateway;
 /// </summary>
 [ServiceTypeOption(typeof(DataGatewayTypes), "SqlDataGateway")]
 public sealed class SqlDataGatewayServiceType :
-    DataGatewayTypeBase<IDataService, IDataGatewaysConfiguration, IServiceFactory<IDataService, IDataGatewaysConfiguration>>
+    DataGatewayTypeBase<IFdwService, IDataGatewaysConfiguration, IServiceFactory<IFdwService, IDataGatewaysConfiguration>>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlDataGatewayServiceType"/> class.

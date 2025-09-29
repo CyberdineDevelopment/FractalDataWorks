@@ -27,7 +27,7 @@ public interface IAuthenticationType<TService, TConfiguration, TFactory> : IServ
     /// <summary>
     /// Gets the authentication method used by this provider.
     /// </summary>
-    AuthenticationMethod Method { get; }
+    IAuthenticationMethod Method { get; }
 
     /// <summary>
     /// Gets whether this authentication type supports multi-tenant scenarios.
@@ -64,7 +64,7 @@ public interface IAuthenticationType : IServiceType
     /// <summary>
     /// Gets the authentication method used by this provider.
     /// </summary>
-    AuthenticationMethod Method { get; }
+    IAuthenticationMethod Method { get; }
 
     /// <summary>
     /// Gets whether this authentication type supports multi-tenant scenarios.

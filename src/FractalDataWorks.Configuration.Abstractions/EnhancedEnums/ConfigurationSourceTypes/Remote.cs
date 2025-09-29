@@ -5,7 +5,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Represents configuration from a remote service.
 /// </summary>
-[EnumOption("Remote")]
+[EnumOption(typeof(ConfigurationSourceTypes), "Remote")]
 public sealed class Remote : ConfigurationSourceTypeBase
 {
     /// <summary>

@@ -3,32 +3,26 @@ using FractalDataWorks.Collections;
 namespace FractalDataWorks.MCP.Abstractions;
 
 /// <summary>
-/// Base class for MCP tool types.
+/// Abstract base class for MCP tool type definitions.
+/// Provides the foundation for MCP tool implementations in the framework.
 /// </summary>
-public abstract class McpToolType : TypeOptionBase<McpToolType>
+public abstract class McpToolType : TypeOptionBase<McpToolType>, ITypeOption<McpToolType>
 {
-    /// <summary>
-    /// Gets the description of this tool type.
-    /// </summary>
-    public string Description { get; }
-
-    /// <summary>
-    /// Gets the display name for this tool type.
-    /// </summary>
-    public string DisplayName { get; }
-
     /// <summary>
     /// Initializes a new instance of the <see cref="McpToolType"/> class.
     /// </summary>
     /// <param name="id">The unique identifier for this tool type.</param>
-    /// <param name="name">The name of this tool type.</param>
-    /// <param name="displayName">The display name for this tool type.</param>
-    /// <param name="description">The description of this tool type.</param>
-    /// <param name="category">The category (default is "MCP Tools").</param>
-    protected McpToolType(int id, string name, string displayName, string description, string? category = "MCP Tools")
+    /// <param name="name">The name of the tool type.</param>
+    /// <param name="description">The description of what this tool does.</param>
+    /// <param name="category">The category this tool belongs to.</param>
+    protected McpToolType(int id, string name, string description, string category)
         : base(id, name, category)
     {
-        DisplayName = displayName;
         Description = description;
     }
+
+    /// <summary>
+    /// Gets the description of what this tool does.
+    /// </summary>
+    public string Description { get; }
 }

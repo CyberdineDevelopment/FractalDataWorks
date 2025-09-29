@@ -75,7 +75,7 @@ public interface IServiceType<TService, TConfiguration> : IServiceType<TService>
 /// </list>
 /// </remarks>
 public interface IServiceType<TService> : IServiceType
-    where TService : class, IFdwService
+    where TService : IFdwService
 {
 
 }

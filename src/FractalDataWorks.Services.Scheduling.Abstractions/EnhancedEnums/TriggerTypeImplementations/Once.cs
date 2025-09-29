@@ -1,6 +1,6 @@
 using System;
 using System.Globalization;
-using FractalDataWorks.Collections.Attributes;
+using FractalDataWorks.EnhancedEnums.Attributes;
 using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.TriggerTypeImplementations;
@@ -46,7 +46,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.Trigge
 /// var nextExecution = onceTrigger.CalculateNextExecution(trigger, null);
 /// </code>
 /// </example>
-[TypeOption(typeof(TriggerTypes), "Once")]
+[EnumOption(typeof(TriggerTypes), "Once")]
 public sealed class Once : TriggerTypeBase
 {
     /// <summary>

@@ -13,13 +13,11 @@ public abstract class TypeOptionBase<T> : ITypeOption<T> where T : ITypeOption<T
     /// <summary>
     /// Gets the unique identifier for this type option value.
     /// </summary>
-    [TypeLookup("GetById")]
     public int Id { get; }
 
     /// <summary>
     /// Gets the name of this type option value.
     /// </summary>
-    [TypeLookup("GetByName")]
     public string Name { get; }
 
     /// <summary>
@@ -30,7 +28,6 @@ public abstract class TypeOptionBase<T> : ITypeOption<T> where T : ITypeOption<T
     /// <summary>
     /// Gets the category of this type option value.
     /// </summary>
-    [TypeLookup("GetByCategory")]
     public string Category => string.IsNullOrEmpty(_category) ? "NotCategorized" : _category;
 
     /// <summary>

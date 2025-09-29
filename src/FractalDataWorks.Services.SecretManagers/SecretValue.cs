@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security;
 
-namespace FractalDataWorks.Services.SecretManager;
+namespace FractalDataWorks.Services.SecretManagers;
 
 /// <summary>
 /// Represents a secure container for secret data with proper disposal patterns.

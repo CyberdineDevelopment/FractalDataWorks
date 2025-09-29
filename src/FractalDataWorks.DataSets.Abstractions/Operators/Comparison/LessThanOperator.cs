@@ -1,7 +1,7 @@
 namespace FractalDataWorks.DataSets.Abstractions.Operators;
 
 /// <summary>
-/// Less than comparison operator (<).
+/// Less than comparison operator (&lt;).
 /// </summary>
 public sealed class LessThanOperator : ComparisonOperatorBase
 {

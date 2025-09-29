@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.DataGateway.Abstractions.Models;
 
@@ -27,6 +28,9 @@ public abstract class DataCommandBase : IDataCommand
         IReadOnlyDictionary<string, object>? metadata,
         TimeSpan? timeout)
     {
+        CommandId = Guid.NewGuid();
+        CorrelationId = Guid.NewGuid();
+        Timestamp = DateTimeOffset.UtcNow;
         CommandName = commandName ?? throw new ArgumentNullException(nameof(commandName));
         ConnectionName = connectionName;
         TargetContainer = targetContainer;
@@ -34,6 +38,21 @@ public abstract class DataCommandBase : IDataCommand
         Metadata = metadata ?? new Dictionary<string, object>(StringComparer.Ordinal);
         Timeout = timeout;
     }
+
+    /// <summary>
+    /// Gets the unique identifier for this command instance.
+    /// </summary>
+    public Guid CommandId { get; }
+
+    /// <summary>
+    /// Gets the correlation identifier for tracking related operations.
+    /// </summary>
+    public Guid CorrelationId { get; }
+
+    /// <summary>
+    /// Gets the timestamp when this command was created.
+    /// </summary>
+    public DateTimeOffset Timestamp { get; }
 
     /// <summary>
     /// Gets the name of the command.
@@ -69,6 +88,20 @@ public abstract class DataCommandBase : IDataCommand
     /// Gets a value indicating whether this command modifies data.
     /// </summary>
     public abstract bool IsDataModifying { get; }
+
+    /// <summary>
+    /// Validates this command.
+    /// </summary>
+    /// <returns>A FdwResult containing the validation result.</returns>
+    public virtual IFdwResult Validate()
+    {
+        if (string.IsNullOrWhiteSpace(CommandName))
+        {
+            return FdwResult.Failure("Command name cannot be null or empty");
+        }
+
+        return FdwResult.Success();
+    }
 
     /// <summary>
     /// Creates a copy of this command with the specified modifications.

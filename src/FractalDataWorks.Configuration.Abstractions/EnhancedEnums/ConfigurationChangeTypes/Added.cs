@@ -5,7 +5,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Represents a configuration that was added.
 /// </summary>
-[EnumOption("Added")]
+[EnumOption(typeof(ConfigurationChangeTypes), "Added")]
 public sealed class Added : ConfigurationChangeTypeBase
 {
     /// <summary>

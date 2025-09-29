@@ -5,7 +5,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Represents a custom configuration source.
 /// </summary>
-[EnumOption("Custom")]
+[EnumOption(typeof(ConfigurationSourceTypes), "Custom")]
 public sealed class Custom : ConfigurationSourceTypeBase
 {
     /// <summary>
