@@ -7,7 +7,7 @@
 ### 1. ConnectionTypes
 - [ ] **Collection:** Update `src/FractalDataWorks.Services.Connections/ConnectionTypes.cs` (CONCRETE project)
   - Attribute: `[ServiceTypeCollection(typeof(ConnectionTypeBase<,,>), typeof(IConnectionType), typeof(ConnectionTypes))]`
-  - Inheritance: `: ServiceTypeCollectionBase<ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>, IConnectionType, IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>`
+  - Inheritance: `: ServiceTypeCollectionBase<ConnectionTypeBase<IGenericConnection, IConnectionConfiguration, IConnectionFactory<IGenericConnection, IConnectionConfiguration>>, IConnectionType, IGenericConnection, IConnectionConfiguration, IConnectionFactory<IGenericConnection, IConnectionConfiguration>>`
   - Remove custom Register methods, make empty partial class
 - [ ] **Option:** Update `src/FractalDataWorks.Services.Connections.Rest/RestConnectionType.cs`
   - Update attribute to: `[ServiceTypeOption(typeof(ConnectionTypes), "Rest")]`

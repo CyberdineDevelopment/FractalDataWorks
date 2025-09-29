@@ -12,7 +12,7 @@ The abstract base class that all services inherit from. It provides:
 
 - **Generic Type Parameters:**
   - `TCommand`: The command type this service executes (`where TCommand : ICommand`)
-  - `TConfiguration`: Configuration type for the service (`where TConfiguration : IFdwConfiguration`)
+  - `TConfiguration`: Configuration type for the service (`where TConfiguration : IGenericConfiguration`)
   - `TService`: The concrete service type for logging and identification (`where TService : class`)
 
 - **Key Properties:**
@@ -89,7 +89,7 @@ public class HttpConnectionFactory : ConnectionFactoryBase<HttpConnection, HttpC
 {
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public override IFdwResult<HttpConnection> Create(HttpConfiguration config)
+    public override IGenericResult<HttpConnection> Create(HttpConfiguration config)
     {
         // Custom logic: connection pooling, HttpClient setup, etc.
         var httpClient = _httpClientFactory.CreateClient(config.ClientName);
@@ -177,10 +177,10 @@ public abstract class MyServiceMessageCollectionBase : MessageCollectionBase<MyS
 
 ### Result Pattern (REQUIRED)
 
-Always return `IFdwResult` types with structured messages:
+Always return `IGenericResult` types with structured messages:
 
 ```csharp
-public override async Task<IFdwResult> Execute(MyCommand command)
+public override async Task<IGenericResult> Execute(MyCommand command)
 {
     try
     {
@@ -192,7 +192,7 @@ public override async Task<IFdwResult> Execute(MyCommand command)
 
         // Return success with structured message
         var message = MyServiceMessages.OperationCompleted();
-        return FdwResult.Success(message);
+        return GenericResult.Success(message);
     }
     catch (Exception ex)
     {
@@ -201,7 +201,7 @@ public override async Task<IFdwResult> Execute(MyCommand command)
 
         // Return failure with structured message
         var errorMessage = MyServiceMessages.OperationFailed(ex.Message);
-        return FdwResult.Failure(errorMessage);
+        return GenericResult.Failure(errorMessage);
     }
 }
 ```
@@ -300,7 +300,7 @@ This provides intellisense support and compile-time safety for all enumeration v
 
 ## Result Pattern Implementation
 
-All service operations return `IFdwResult` or `IFdwResult<T>`:
+All service operations return `IGenericResult` or `IGenericResult<T>`:
 
 - Railway-Oriented Programming pattern
 - Success/Failure states with messages
@@ -323,7 +323,7 @@ The framework implements a deliberate progressive constraint hierarchy that prov
 
 3. **Domain Abstractions** (e.g., `Services.Connections.Abstractions`)
    - `ConnectionServiceBase`: Requires `IConnectionCommand`, `IConnectionConfiguration`
-   - `ConnectionTypeBase`: Requires `IFdwConnection`, `IConnectionFactory`
+   - `ConnectionTypeBase`: Requires `IGenericConnection`, `IConnectionFactory`
 
 4. **Implementations** (e.g., `Services.Connections.MsSql`)
    - Concrete types with no generics

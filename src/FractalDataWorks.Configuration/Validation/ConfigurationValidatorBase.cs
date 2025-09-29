@@ -12,7 +12,7 @@ namespace FractalDataWorks.Configuration.Validation;
 /// <ExcludeFromTest>Abstract base class for configuration validators with no business logic to test</ExcludeFromTest>
 [ExcludeFromCodeCoverage]
 public abstract class ConfigurationValidatorBase<TConfiguration> : AbstractValidator<TConfiguration>
-    where TConfiguration : ConfigurationBase<TConfiguration>, IFdwConfiguration, new()
+    where TConfiguration : ConfigurationBase<TConfiguration>, IGenericConfiguration, new()
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ConfigurationValidatorBase{TConfiguration}"/> class.

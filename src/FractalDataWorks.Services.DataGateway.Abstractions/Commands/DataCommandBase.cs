@@ -92,15 +92,15 @@ public abstract class DataCommandBase : IDataCommand
     /// <summary>
     /// Validates this command.
     /// </summary>
-    /// <returns>A FdwResult containing the validation result.</returns>
-    public virtual IFdwResult Validate()
+    /// <returns>A GenericResult containing the validation result.</returns>
+    public virtual IGenericResult Validate()
     {
         if (string.IsNullOrWhiteSpace(CommandName))
         {
-            return FdwResult.Failure("Command name cannot be null or empty");
+            return GenericResult.Failure("Command name cannot be null or empty");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <summary>

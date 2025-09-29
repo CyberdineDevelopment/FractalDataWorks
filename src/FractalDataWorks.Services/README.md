@@ -9,7 +9,7 @@ Core service foundation for the FractalDataWorks framework providing comprehensi
 - **Configuration Management** - Integrated FluentValidation for configuration validation
 - **Message System** - Comprehensive messaging for service operations with source-generated collections
 - **Structured Logging** - High-performance logging with LoggerMessage delegates
-- **Result Pattern** - Railway-Oriented Programming with IFdwResult<T>
+- **Result Pattern** - Railway-Oriented Programming with IGenericResult<T>
 - **Thread Safety** - All base classes designed for concurrent usage
 
 ## Installation
@@ -48,7 +48,7 @@ public class SendEmailCommand : IEmailCommand
 using FractalDataWorks.Configuration.Abstractions;
 using FluentValidation;
 
-public class EmailConfiguration : IFdwConfiguration
+public class EmailConfiguration : IGenericConfiguration
 {
     public string Name { get; set; } = "EmailService";
     public string SmtpServer { get; set; }
@@ -57,10 +57,10 @@ public class EmailConfiguration : IFdwConfiguration
     public string Username { get; set; }
     public string Password { get; set; }
 
-    public IFdwResult<ValidationResult> Validate()
+    public IGenericResult<ValidationResult> Validate()
     {
         var validator = new EmailConfigurationValidator();
-        return FdwResult<ValidationResult>.Success(validator.Validate(this));
+        return GenericResult<ValidationResult>.Success(validator.Validate(this));
     }
 }
 
@@ -86,30 +86,30 @@ public class EmailService : ServiceBase<IEmailCommand, EmailConfiguration, Email
     {
     }
 
-    public override async Task<IFdwResult> Execute(IEmailCommand command)
+    public override async Task<IGenericResult> Execute(IEmailCommand command)
     {
         try
         {
             if (command is not SendEmailCommand sendCmd)
-                return FdwResult.Failure("Invalid command type");
+                return GenericResult.Failure("Invalid command type");
 
             // Send email logic here
             await SendEmail(sendCmd);
 
             Logger.LogInformation("Email sent to {To}", sendCmd.To);
-            return FdwResult.Success("Email sent successfully");
+            return GenericResult.Success("Email sent successfully");
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to send email");
-            return FdwResult.Failure($"Failed to send email: {ex.Message}");
+            return GenericResult.Failure($"Failed to send email: {ex.Message}");
         }
     }
 
-    public override async Task<IFdwResult<TOut>> Execute<TOut>(IEmailCommand command)
+    public override async Task<IGenericResult<TOut>> Execute<TOut>(IEmailCommand command)
     {
         // Implement for commands that return values
-        return FdwResult<TOut>.Failure("This service does not return values");
+        return GenericResult<TOut>.Failure("This service does not return values");
     }
 }
 ```
@@ -129,7 +129,7 @@ public class EmailServiceFactory : ServiceFactoryBase<EmailService, EmailConfigu
         _serviceLogger = serviceLogger;
     }
 
-    public override IFdwResult<EmailService> Create(EmailConfiguration configuration)
+    public override IGenericResult<EmailService> Create(EmailConfiguration configuration)
     {
         // Validation is handled by base class
         // FastGenericNew creates the instance efficiently
@@ -188,7 +188,7 @@ All messages are source-generated for type safety and consistency.
 1. **Factory Creation** - Factory validates configuration
 2. **Service Instantiation** - FastGenericNew creates instance
 3. **Command Execution** - Command validated and executed
-4. **Result Wrapping** - Success/failure wrapped in IFdwResult
+4. **Result Wrapping** - Success/failure wrapped in IGenericResult
 5. **Logging** - Operations logged with structured data
 
 ## Dependencies
@@ -218,14 +218,14 @@ All messages are source-generated for type safety and consistency.
 ### Custom Validation
 
 ```csharp
-public override IFdwResult<EmailService> Create(EmailConfiguration configuration)
+public override IGenericResult<EmailService> Create(EmailConfiguration configuration)
 {
     var baseResult = base.Create(configuration);
     if (baseResult.Error) return baseResult;
 
     // Add custom validation
     if (!IsSmtpServerReachable(configuration.SmtpServer))
-        return FdwResult<EmailService>.Failure("SMTP server unreachable");
+        return GenericResult<EmailService>.Failure("SMTP server unreachable");
 
     return baseResult;
 }
@@ -245,7 +245,7 @@ services.AddServiceFactory<EmailService, EmailConfiguration, EmailServiceFactory
 
 - [Services Architecture](../../docs/Services.md)
 - [Developer Guide](../../docs/DeveloperGuide-ServiceSetup.md)
-- [API Reference](https://docs.fractaldataworks.com/api/services)
+- [API Reference](https://docs.FractalDataWorks.com/api/services)
 
 ## License
 

@@ -31,19 +31,19 @@ public interface ITransformationEngine
     /// <param name="request">The transformation request to execute.</param>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous transformation operation.</returns>
-    Task<IFdwResult<ITransformationResult>> ExecuteTransformationAsync(ITransformationRequest request, CancellationToken cancellationToken = default);
+    Task<IGenericResult<ITransformationResult>> ExecuteTransformationAsync(ITransformationRequest request, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Starts the transformation engine.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous start operation.</returns>
-    Task<IFdwResult> StartAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult> StartAsync(CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Stops the transformation engine.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous stop operation.</returns>
-    Task<IFdwResult> StopAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult> StopAsync(CancellationToken cancellationToken = default);
 }

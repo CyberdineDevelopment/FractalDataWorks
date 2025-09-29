@@ -9,9 +9,9 @@ using Microsoft.Extensions.Logging;
 namespace FractalDataWorks.Services.Connections.MsSql;
 
 /// <summary>
-/// SQL Server implementation of IFdwConnection.
+/// SQL Server implementation of IGenericConnection.
 /// </summary>
-public sealed class MsSqlConnection : IFdwConnection
+public sealed class MsSqlConnection : IGenericConnection
 {
     private readonly ILogger<MsSqlConnection> _logger;
     private readonly MsSqlConfiguration _configuration;
@@ -39,24 +39,24 @@ public sealed class MsSqlConnection : IFdwConnection
     public string ProviderName => "MsSql";
 
     /// <inheritdoc />
-    public async Task<IFdwResult> Execute(
+    public async Task<IGenericResult> Execute(
         IDataCommand command,
         CancellationToken cancellationToken = default)
     {
         var result = await Execute<object>(command, cancellationToken);
-        return result.IsSuccess ? FdwResult.Success() : FdwResult.Failure(result.Error);
+        return result.IsSuccess ? GenericResult.Success() : GenericResult.Failure(result.Error);
     }
 
     /// <inheritdoc />
-    public async Task<IFdwResult<TResult>> Execute<TResult>(
+    public async Task<IGenericResult<TResult>> Execute<TResult>(
         IDataCommand command,
         CancellationToken cancellationToken = default)
     {
         if (_disposed)
-            return FdwResult.Failure<TResult>("Connection has been disposed");
+            return GenericResult.Failure<TResult>("Connection has been disposed");
 
         if (command == null)
-            return FdwResult.Failure<TResult>("Command cannot be null");
+            return GenericResult.Failure<TResult>("Command cannot be null");
 
         try
         {
@@ -73,12 +73,12 @@ public sealed class MsSqlConnection : IFdwConnection
             AddParameters(sqlCommand, command);
 
             var result = await ExecuteCommand<TResult>(sqlCommand, command.CommandType, cancellationToken);
-            return FdwResult.Success(result);
+            return GenericResult.Success(result);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to execute command on connection {ConnectionId}", ConnectionId);
-            return FdwResult.Failure<TResult>(ex.Message);
+            return GenericResult.Failure<TResult>(ex.Message);
         }
     }
 

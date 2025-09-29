@@ -15,14 +15,14 @@ public interface IServiceFactory
     /// <typeparam name="T">The type of service to create.</typeparam>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    public IFdwResult<T> Create<T>(IFdwConfiguration configuration) where T : IFdwService;
+    public IGenericResult<T> Create<T>(IGenericConfiguration configuration) where T : IGenericService;
 
     /// <summary>
     /// Creates a service instance.
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    IFdwResult<IFdwService> Create(IFdwConfiguration configuration);
+    IGenericResult<IGenericService> Create(IGenericConfiguration configuration);
 }
 /// <summary>
 /// Generic factory interface for creating Service instances of a specific type
@@ -35,7 +35,7 @@ public interface IServiceFactory<TService> : IServiceFactory
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    new IFdwResult<TService> Create(IFdwConfiguration configuration);
+    new IGenericResult<TService> Create(IGenericConfiguration configuration);
 }
 
 /// <summary>
@@ -44,14 +44,14 @@ public interface IServiceFactory<TService> : IServiceFactory
 /// <typeparam name="TService">The type of service this factory creates</typeparam>
 /// <typeparam name="TConfiguration">The configuration type required by the service</typeparam>
 public interface IServiceFactory<TService, in TConfiguration> : IServiceFactory<TService>
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
 {
     /// <summary>
     /// Creates a service instance using the strongly-typed configuration.
     /// </summary>
     /// <param name="configuration">The strongly-typed configuration for the service.</param>
     /// <returns>A result containing the created service or an error message.</returns>
-    IFdwResult<TService> Create(TConfiguration configuration);
+    IGenericResult<TService> Create(TConfiguration configuration);
 
 
 }

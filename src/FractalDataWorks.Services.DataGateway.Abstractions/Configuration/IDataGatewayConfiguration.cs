@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions;
 /// and manage connections to external data sources through the data gateway abstraction.
 /// This includes connection details, caching policies, and operational parameters.
 /// </remarks>
-public interface IDataGatewayConfiguration : IFdwConfiguration
+public interface IDataGatewayConfiguration : IGenericConfiguration
 {
     // Marker interface for data gateway configurations
     // Additional properties specific to data gateway configuration can be added here

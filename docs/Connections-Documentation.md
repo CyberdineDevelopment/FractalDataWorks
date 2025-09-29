@@ -10,7 +10,7 @@ The FractalDataWorks Connections Framework provides a unified, pluggable archite
 
 The Connections framework extends the Services architecture specifically for connection management:
 
-1. **Unified Connection Interface**: All connections implement `IFdwConnection` regardless of underlying technology
+1. **Unified Connection Interface**: All connections implement `IGenericConnection` regardless of underlying technology
 2. **Factory-Based Creation**: Connection factories ensure proper initialization and resource management
 3. **Configuration-Driven**: Strongly-typed configuration with validation for each connection type
 4. **Provider Pattern**: Central connection provider manages all connection types
@@ -42,10 +42,10 @@ The Connections framework extends the Services architecture specifically for con
 
 #### Core Interfaces
 
-##### IFdwConnection
+##### IGenericConnection
 The base interface for all connections:
 ```csharp
-public interface IFdwConnection : IAsyncDisposable, IDisposable
+public interface IGenericConnection : IAsyncDisposable, IDisposable
 {
     string ConnectionId { get; }           // Unique identifier
     string ConnectionName { get; }         // Friendly name
@@ -60,10 +60,10 @@ public interface IFdwConnection : IAsyncDisposable, IDisposable
 }
 ```
 
-##### IFdwConnection<TResource>
+##### IGenericConnection<TResource>
 Generic connection with typed resource access:
 ```csharp
-public interface IFdwConnection<TResource> : IFdwConnection
+public interface IGenericConnection<TResource> : IGenericConnection
 {
     TResource Resource { get; }            // Underlying resource (DbConnection, HttpClient, etc.)
     Task<TResource> GetResourceAsync();    // Async resource acquisition
@@ -73,7 +73,7 @@ public interface IFdwConnection<TResource> : IFdwConnection
 ##### IConnectionConfiguration
 Base configuration for all connections:
 ```csharp
-public interface IConnectionConfiguration : IFdwConfiguration
+public interface IConnectionConfiguration : IGenericConfiguration
 {
     string ConnectionType { get; set; }    // Type identifier for factory lookup
     string Name { get; set; }              // Configuration name
@@ -89,28 +89,28 @@ Factory pattern for connection creation:
 ```csharp
 public interface IConnectionFactory
 {
-    Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(
+    Task<IGenericResult<IGenericConnection>> CreateConnectionAsync(
         IConnectionConfiguration configuration);
 }
 
 public interface IConnectionFactory<TConnection, TConfiguration> : IConnectionFactory
-    where TConnection : IFdwConnection
+    where TConnection : IGenericConnection
     where TConfiguration : IConnectionConfiguration
 {
-    Task<IFdwResult<TConnection>> CreateConnectionAsync(
+    Task<IGenericResult<TConnection>> CreateConnectionAsync(
         TConfiguration configuration);
 }
 ```
 
-##### IFdwConnectionProvider
+##### IGenericConnectionProvider
 Central provider for all connection types:
 ```csharp
-public interface IFdwConnectionProvider
+public interface IGenericConnectionProvider
 {
-    Task<IFdwResult<IFdwConnection>> GetConnection(IConnectionConfiguration configuration);
-    Task<IFdwResult<IFdwConnection>> GetConnection(int configurationId);
-    Task<IFdwResult<IFdwConnection>> GetConnection(string configurationName);
-    Task<IFdwResult<T>> GetConnection<T>(IConnectionConfiguration configuration) where T : IFdwConnection;
+    Task<IGenericResult<IGenericConnection>> GetConnection(IConnectionConfiguration configuration);
+    Task<IGenericResult<IGenericConnection>> GetConnection(int configurationId);
+    Task<IGenericResult<IGenericConnection>> GetConnection(string configurationName);
+    Task<IGenericResult<T>> GetConnection<T>(IConnectionConfiguration configuration) where T : IGenericConnection;
 }
 ```
 
@@ -144,16 +144,16 @@ public interface IConnectionEvents
 
 **Purpose**: Core implementation of the connections framework with base classes and provider.
 
-#### FdwConnectionProvider
+#### GenericConnectionProvider
 Central connection management:
 ```csharp
-public sealed class FdwConnectionProvider : IFdwConnectionProvider
+public sealed class GenericConnectionProvider : IGenericConnectionProvider
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
-    private readonly ILogger<FdwConnectionProvider> _logger;
+    private readonly ILogger<GenericConnectionProvider> _logger;
 
-    public async Task<IFdwResult<IFdwConnection>> GetConnection(
+    public async Task<IGenericResult<IGenericConnection>> GetConnection(
         IConnectionConfiguration configuration)
     {
         // 1. Validate configuration
@@ -192,7 +192,7 @@ public static partial class ConnectionTypes
 ##### ConnectionBase<TResource, TConfiguration>
 ```csharp
 public abstract class ConnectionBase<TResource, TConfiguration>
-    : IFdwConnection<TResource>
+    : IGenericConnection<TResource>
     where TConfiguration : IConnectionConfiguration
 {
     protected readonly ILogger Logger;
@@ -281,11 +281,11 @@ public class MsSqlConnection : ConnectionBase<SqlConnection, MsSqlConfiguration>
         return connection;
     }
 
-    public async Task<IFdwResult<T>> ExecuteAsync<T>(
+    public async Task<IGenericResult<T>> ExecuteAsync<T>(
         Func<SqlConnection, Task<T>> operation)
     {
         if (State != ConnectionState.Connected)
-            return FdwResult<T>.Failure("Connection not open");
+            return GenericResult<T>.Failure("Connection not open");
 
         SetState(ConnectionState.Executing);
 
@@ -293,7 +293,7 @@ public class MsSqlConnection : ConnectionBase<SqlConnection, MsSqlConfiguration>
         {
             var result = await _retryPolicy.ExecuteAsync(() => operation(_resource!));
             LastUsedAt = DateTime.UtcNow;
-            return FdwResult<T>.Success(result);
+            return GenericResult<T>.Success(result);
         }
         finally
         {
@@ -320,10 +320,10 @@ public class MsSqlConfiguration : IConnectionConfiguration
     public bool Encrypt { get; set; } = true;
     public bool TrustServerCertificate { get; set; } = false;
 
-    public IFdwResult<ValidationResult> Validate()
+    public IGenericResult<ValidationResult> Validate()
     {
         var validator = new MsSqlConfigurationValidator();
-        return FdwResult<ValidationResult>.From(validator.Validate(this));
+        return GenericResult<ValidationResult>.From(validator.Validate(this));
     }
 }
 ```
@@ -335,14 +335,14 @@ public class MsSqlConnectionFactory : IConnectionFactory<MsSqlConnection, MsSqlC
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<MsSqlConnectionFactory> _logger;
 
-    public async Task<IFdwResult<MsSqlConnection>> CreateConnectionAsync(
+    public async Task<IGenericResult<MsSqlConnection>> CreateConnectionAsync(
         MsSqlConfiguration configuration)
     {
         try
         {
             var validationResult = configuration.Validate();
             if (!validationResult.IsSuccess)
-                return FdwResult<MsSqlConnection>.Failure(validationResult.Error);
+                return GenericResult<MsSqlConnection>.Failure(validationResult.Error);
 
             var connection = new MsSqlConnection(
                 _serviceProvider.GetRequiredService<ILogger<MsSqlConnection>>(),
@@ -352,12 +352,12 @@ public class MsSqlConnectionFactory : IConnectionFactory<MsSqlConnection, MsSqlC
 
             await connection.OpenAsync();
 
-            return FdwResult<MsSqlConnection>.Success(connection);
+            return GenericResult<MsSqlConnection>.Success(connection);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to create SQL connection");
-            return FdwResult<MsSqlConnection>.Failure(ex.Message);
+            return GenericResult<MsSqlConnection>.Failure(ex.Message);
         }
     }
 }
@@ -462,7 +462,7 @@ public class RestConnection : ConnectionBase<HttpClient, RestConfiguration>
         return client;
     }
 
-    public async Task<IFdwResult<T>> GetAsync<T>(
+    public async Task<IGenericResult<T>> GetAsync<T>(
         string endpoint,
         CancellationToken cancellationToken = default)
     {
@@ -475,7 +475,7 @@ public class RestConnection : ConnectionBase<HttpClient, RestConfiguration>
         });
     }
 
-    public async Task<IFdwResult<TResponse>> PostAsync<TRequest, TResponse>(
+    public async Task<IGenericResult<TResponse>> PostAsync<TRequest, TResponse>(
         string endpoint,
         TRequest data,
         CancellationToken cancellationToken = default)
@@ -536,8 +536,8 @@ public interface IHttpRequestBuilder
 ```csharp
 public interface IHttpResponseHandler<T>
 {
-    Task<IFdwResult<T>> HandleAsync(HttpResponseMessage response);
-    Task<IFdwResult<T>> HandleErrorAsync(HttpResponseMessage response);
+    Task<IGenericResult<T>> HandleAsync(HttpResponseMessage response);
+    Task<IGenericResult<T>> HandleErrorAsync(HttpResponseMessage response);
 }
 ```
 
@@ -596,7 +596,7 @@ public class PoolStatistics
 ```csharp
 public class ConnectionHealthCheck : IHealthCheck
 {
-    private readonly IFdwConnectionProvider _provider;
+    private readonly IGenericConnectionProvider _provider;
     private readonly string _connectionName;
 
     public async Task<HealthCheckResult> CheckHealthAsync(
@@ -724,7 +724,7 @@ public class CircuitBreaker
 ```csharp
 public class DataService
 {
-    private readonly IFdwConnectionProvider _connectionProvider;
+    private readonly IGenericConnectionProvider _connectionProvider;
 
     public async Task<IEnumerable<Customer>> GetCustomersAsync()
     {
@@ -760,7 +760,7 @@ public class DataService
 ```csharp
 public class ApiService
 {
-    private readonly IFdwConnectionProvider _connectionProvider;
+    private readonly IGenericConnectionProvider _connectionProvider;
 
     public async Task<WeatherData> GetWeatherAsync(string city)
     {
@@ -792,9 +792,9 @@ public class ApiService
 ```csharp
 public class TransactionService
 {
-    private readonly IFdwConnectionProvider _connectionProvider;
+    private readonly IGenericConnectionProvider _connectionProvider;
 
-    public async Task<IFdwResult> TransferFundsAsync(
+    public async Task<IGenericResult> TransferFundsAsync(
         int fromAccount,
         int toAccount,
         decimal amount)
@@ -802,7 +802,7 @@ public class TransactionService
         var connectionResult = await _connectionProvider.GetConnection("BankingDB");
 
         if (!connectionResult.IsSuccess)
-            return FdwResult.Failure(connectionResult.Error);
+            return GenericResult.Failure(connectionResult.Error);
 
         var sqlConnection = connectionResult.Value as MsSqlConnection;
 
@@ -837,12 +837,12 @@ public class TransactionService
             });
 
             await transaction.CommitAsync();
-            return FdwResult.Success("Transfer completed");
+            return GenericResult.Success("Transfer completed");
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return FdwResult.Failure($"Transfer failed: {ex.Message}");
+            return GenericResult.Failure($"Transfer failed: {ex.Message}");
         }
     }
 }
@@ -896,7 +896,7 @@ public class Startup
         ConnectionTypes.RegisterAll(services);
 
         // Register connection provider
-        services.AddSingleton<IFdwConnectionProvider, FdwConnectionProvider>();
+        services.AddSingleton<IGenericConnectionProvider, GenericConnectionProvider>();
 
         // Register specific factories
         services.AddTransient<IConnectionFactory, MsSqlConnectionFactory>();
@@ -1004,7 +1004,7 @@ public class CustomConnection : ConnectionBase<CustomResource, CustomConfigurati
 ```csharp
 public class CustomConnectionFactory : IConnectionFactory<CustomConnection, CustomConfiguration>
 {
-    public async Task<IFdwResult<CustomConnection>> CreateConnectionAsync(
+    public async Task<IGenericResult<CustomConnection>> CreateConnectionAsync(
         CustomConfiguration configuration)
     {
         // Create and return connection

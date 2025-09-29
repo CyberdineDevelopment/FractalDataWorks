@@ -17,7 +17,7 @@ public interface IAuthenticationProvider
     /// </summary>
     /// <param name="configuration">The configuration containing the authentication type and settings.</param>
     /// <returns>A result containing the authentication service instance or failure information.</returns>
-    Task<IFdwResult<IAuthenticationService>> GetAuthenticationService(IAuthenticationConfiguration configuration);
+    Task<IGenericResult<IAuthenticationService>> GetAuthenticationService(IAuthenticationConfiguration configuration);
 
     /// <summary>
     /// Gets an authentication service by configuration name from appsettings.
@@ -25,5 +25,5 @@ public interface IAuthenticationProvider
     /// </summary>
     /// <param name="configurationName">The name of the configuration section.</param>
     /// <returns>A result containing the authentication service instance or failure information.</returns>
-    Task<IFdwResult<IAuthenticationService>> GetAuthenticationService(string configurationName);
+    Task<IGenericResult<IAuthenticationService>> GetAuthenticationService(string configurationName);
 }

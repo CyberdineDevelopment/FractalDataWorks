@@ -524,7 +524,7 @@ Service Types use `ServiceTypeBase<TService, TConfiguration, TFactory>` and repr
 **Implementation**:
 ```csharp
 public sealed class MsSqlConnectionType :
-    ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
+    ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
 {
     public static MsSqlConnectionType Instance { get; } = new(); // ✅ SINGLETON
     private MsSqlConnectionType() : base(2, "MsSql", "Database Connections") { }

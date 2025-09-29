@@ -45,5 +45,5 @@ public abstract class DataStoreTypeBase<TService, TConfiguration, TFactory> :
     /// Gets the factory type for creating data store service instances.
     /// </summary>
     /// <returns>The factory type.</returns>
-    public IFdwResult<Type> Factory() => FdwResult<Type>.Success(typeof(TFactory));
+    public IGenericResult<Type> Factory() => GenericResult<Type>.Success(typeof(TFactory));
 }

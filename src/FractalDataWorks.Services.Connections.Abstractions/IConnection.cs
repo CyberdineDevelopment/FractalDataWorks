@@ -16,7 +16,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// beyond basic connection strings. The configuration provides type safety and
 /// validation for connection parameters.
 /// </remarks>
-public interface IConnection<TConfiguration> : IFdwConnection
+public interface IConnection<TConfiguration> : IGenericConnection
     where TConfiguration : IConnectionConfiguration
 {
     /// <summary>
@@ -44,5 +44,5 @@ public interface IConnection<TConfiguration> : IFdwConnection
     /// This method must be called before the connection can be used. It validates
     /// the configuration and prepares the connection for opening.
     /// </remarks>
-    Task<IFdwResult> InitializeAsync(TConfiguration configuration);
+    Task<IGenericResult> InitializeAsync(TConfiguration configuration);
 }

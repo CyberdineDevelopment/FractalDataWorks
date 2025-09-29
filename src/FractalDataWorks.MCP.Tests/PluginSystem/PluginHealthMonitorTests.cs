@@ -47,7 +47,7 @@ public class PluginHealthMonitorTests
         };
 
         mockPlugin.Setup(p => p.GetHealthAsync(It.IsAny<CancellationToken>()))
-                  .ReturnsAsync(FdwResult.Success(health));
+                  .ReturnsAsync(GenericResult.Success(health));
 
         return mockPlugin;
     }
@@ -57,7 +57,7 @@ public class PluginHealthMonitorTests
     {
         // Arrange
         var monitoringInterval = TimeSpan.FromMinutes(1);
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
 
         _mockHealthMonitor.Setup(m => m.StartMonitoringAsync(monitoringInterval, _cancellationToken))
                          .ReturnsAsync(successResult);
@@ -79,7 +79,7 @@ public class PluginHealthMonitorTests
     {
         // Arrange
         var invalidInterval = TimeSpan.FromSeconds(invalidSeconds);
-        var failureResult = FdwResult.Failure("Monitoring interval must be greater than zero");
+        var failureResult = GenericResult.Failure("Monitoring interval must be greater than zero");
 
         _mockHealthMonitor.Setup(m => m.StartMonitoringAsync(invalidInterval, _cancellationToken))
                          .ReturnsAsync(failureResult);
@@ -98,7 +98,7 @@ public class PluginHealthMonitorTests
     public async Task StopMonitoringAsync_WhenMonitoringActive_ReturnsSuccess()
     {
         // Arrange
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
         _mockHealthMonitor.Setup(m => m.StopMonitoringAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -115,7 +115,7 @@ public class PluginHealthMonitorTests
     public async Task StopMonitoringAsync_WhenMonitoringNotActive_ReturnsSuccess()
     {
         // Arrange
-        var successResult = FdwResult.Success(); // Stopping already stopped monitor should still succeed
+        var successResult = GenericResult.Success(); // Stopping already stopped monitor should still succeed
         _mockHealthMonitor.Setup(m => m.StopMonitoringAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -190,7 +190,7 @@ public class PluginHealthMonitorTests
     {
         // Arrange
         var nonExistentId = "NonExistentPlugin";
-        var failureResult = FdwResult.Failure<PluginHealth>($"Plugin with ID '{nonExistentId}' not found");
+        var failureResult = GenericResult.Failure<PluginHealth>($"Plugin with ID '{nonExistentId}' not found");
 
         _mockHealthMonitor.Setup(m => m.CheckPluginHealthAsync(nonExistentId, _cancellationToken))
                          .ReturnsAsync(failureResult);
@@ -212,7 +212,7 @@ public class PluginHealthMonitorTests
     public async Task CheckPluginHealthAsync_WithInvalidPluginId_ReturnsFailure(string invalidId)
     {
         // Arrange
-        var failureResult = FdwResult.Failure<PluginHealth>("Plugin ID cannot be null or empty");
+        var failureResult = GenericResult.Failure<PluginHealth>("Plugin ID cannot be null or empty");
 
         _mockHealthMonitor.Setup(m => m.CheckPluginHealthAsync(invalidId, _cancellationToken))
                          .ReturnsAsync(failureResult);
@@ -238,7 +238,7 @@ public class PluginHealthMonitorTests
             [_unhealthyPlugin.Object.Id] = (await _unhealthyPlugin.Object.GetHealthAsync(_cancellationToken)).Value
         };
 
-        var successResult = FdwResult.Success(allPluginsHealth);
+        var successResult = GenericResult.Success(allPluginsHealth);
         _mockHealthMonitor.Setup(m => m.CheckAllPluginsHealthAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -260,7 +260,7 @@ public class PluginHealthMonitorTests
     {
         // Arrange
         var emptyHealth = new Dictionary<string, PluginHealth>(StringComparer.Ordinal);
-        var successResult = FdwResult.Success(emptyHealth);
+        var successResult = GenericResult.Success(emptyHealth);
 
         _mockHealthMonitor.Setup(m => m.CheckAllPluginsHealthAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
@@ -289,7 +289,7 @@ public class PluginHealthMonitorTests
             OverallStatus = HealthStatus.Degraded // Worst status determines overall
         };
 
-        var successResult = FdwResult.Success(healthSummary);
+        var successResult = GenericResult.Success(healthSummary);
         _mockHealthMonitor.Setup(m => m.GetHealthSummaryAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -321,7 +321,7 @@ public class PluginHealthMonitorTests
             OverallStatus = HealthStatus.Healthy
         };
 
-        var successResult = FdwResult.Success(healthSummary);
+        var successResult = GenericResult.Success(healthSummary);
         _mockHealthMonitor.Setup(m => m.GetHealthSummaryAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -384,7 +384,7 @@ public class PluginHealthMonitorTests
     public async Task AddPluginToMonitoringAsync_WithValidPlugin_ReturnsSuccess()
     {
         // Arrange
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
         _mockHealthMonitor.Setup(m => m.AddPluginToMonitoringAsync(_healthyPlugin.Object.Id, _cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -401,7 +401,7 @@ public class PluginHealthMonitorTests
     public async Task RemovePluginFromMonitoringAsync_WithValidPlugin_ReturnsSuccess()
     {
         // Arrange
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
         _mockHealthMonitor.Setup(m => m.RemovePluginFromMonitoringAsync(_healthyPlugin.Object.Id, _cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -424,7 +424,7 @@ public class PluginHealthMonitorTests
                          .Returns(async (string id, CancellationToken ct) =>
                          {
                              await Task.Delay(1000, ct); // Will timeout
-                             return FdwResult.Success(new PluginHealth { Status = HealthStatus.Healthy });
+                             return GenericResult.Success(new PluginHealth { Status = HealthStatus.Healthy });
                          });
 
         // Act & Assert
@@ -456,13 +456,13 @@ public class PluginHealthMonitorTests
     /// </summary>
     private interface IPluginHealthMonitor
     {
-        Task<IFdwResult> StartMonitoringAsync(TimeSpan interval, CancellationToken cancellationToken = default);
-        Task<IFdwResult> StopMonitoringAsync(CancellationToken cancellationToken = default);
-        Task<IFdwResult<PluginHealth>> CheckPluginHealthAsync(string pluginId, CancellationToken cancellationToken = default);
-        Task<IFdwResult<Dictionary<string, PluginHealth>>> CheckAllPluginsHealthAsync(CancellationToken cancellationToken = default);
-        Task<IFdwResult<HealthSummary>> GetHealthSummaryAsync(CancellationToken cancellationToken = default);
-        Task<IFdwResult> AddPluginToMonitoringAsync(string pluginId, CancellationToken cancellationToken = default);
-        Task<IFdwResult> RemovePluginFromMonitoringAsync(string pluginId, CancellationToken cancellationToken = default);
+        Task<IGenericResult> StartMonitoringAsync(TimeSpan interval, CancellationToken cancellationToken = default);
+        Task<IGenericResult> StopMonitoringAsync(CancellationToken cancellationToken = default);
+        Task<IGenericResult<PluginHealth>> CheckPluginHealthAsync(string pluginId, CancellationToken cancellationToken = default);
+        Task<IGenericResult<Dictionary<string, PluginHealth>>> CheckAllPluginsHealthAsync(CancellationToken cancellationToken = default);
+        Task<IGenericResult<HealthSummary>> GetHealthSummaryAsync(CancellationToken cancellationToken = default);
+        Task<IGenericResult> AddPluginToMonitoringAsync(string pluginId, CancellationToken cancellationToken = default);
+        Task<IGenericResult> RemovePluginFromMonitoringAsync(string pluginId, CancellationToken cancellationToken = default);
         bool IsMonitoring { get; }
         TimeSpan MonitoringInterval { get; }
     }
@@ -504,7 +504,7 @@ public class PluginHealthMonitorEdgeCaseTests
     {
         // Arrange
         var interval = TimeSpan.FromMilliseconds(milliseconds);
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
 
         _mockHealthMonitor.Setup(m => m.StartMonitoringAsync(interval, _cancellationToken))
                          .ReturnsAsync(successResult);
@@ -538,7 +538,7 @@ public class PluginHealthMonitorEdgeCaseTests
             };
         }
 
-        var successResult = FdwResult.Success(largePluginHealth);
+        var successResult = GenericResult.Success(largePluginHealth);
         _mockHealthMonitor.Setup(m => m.CheckAllPluginsHealthAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -560,7 +560,7 @@ public class PluginHealthMonitorEdgeCaseTests
     {
         // Arrange
         var faultyPluginId = "FaultyPlugin";
-        var failureResult = FdwResult.Failure<PluginHealth>("Plugin health check failed: Internal error");
+        var failureResult = GenericResult.Failure<PluginHealth>("Plugin health check failed: Internal error");
 
         _mockHealthMonitor.Setup(m => m.CheckPluginHealthAsync(faultyPluginId, _cancellationToken))
                          .ReturnsAsync(failureResult);
@@ -589,7 +589,7 @@ public class PluginHealthMonitorEdgeCaseTests
             OverallStatus = HealthStatus.Unhealthy
         };
 
-        var successResult = FdwResult.Success(unhealthySummary);
+        var successResult = GenericResult.Success(unhealthySummary);
         _mockHealthMonitor.Setup(m => m.GetHealthSummaryAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -608,7 +608,7 @@ public class PluginHealthMonitorEdgeCaseTests
     public async Task StartMonitoringAsync_WhenAlreadyMonitoring_ReturnsFailure()
     {
         // Arrange
-        var failureResult = FdwResult.Failure("Monitoring is already active");
+        var failureResult = GenericResult.Failure("Monitoring is already active");
         _mockHealthMonitor.Setup(m => m.StartMonitoringAsync(It.IsAny<TimeSpan>(), _cancellationToken))
                          .ReturnsAsync(failureResult);
 
@@ -627,7 +627,7 @@ public class PluginHealthMonitorEdgeCaseTests
     {
         // Arrange
         var duplicatePluginId = "AlreadyMonitoredPlugin";
-        var failureResult = FdwResult.Failure($"Plugin '{duplicatePluginId}' is already being monitored");
+        var failureResult = GenericResult.Failure($"Plugin '{duplicatePluginId}' is already being monitored");
 
         _mockHealthMonitor.Setup(m => m.AddPluginToMonitoringAsync(duplicatePluginId, _cancellationToken))
                          .ReturnsAsync(failureResult);
@@ -647,7 +647,7 @@ public class PluginHealthMonitorEdgeCaseTests
     {
         // Arrange
         var nonMonitoredPluginId = "NonMonitoredPlugin";
-        var failureResult = FdwResult.Failure($"Plugin '{nonMonitoredPluginId}' is not being monitored");
+        var failureResult = GenericResult.Failure($"Plugin '{nonMonitoredPluginId}' is not being monitored");
 
         _mockHealthMonitor.Setup(m => m.RemovePluginFromMonitoringAsync(nonMonitoredPluginId, _cancellationToken))
                          .ReturnsAsync(failureResult);
@@ -672,7 +672,7 @@ public class PluginHealthMonitorEdgeCaseTests
             // Failed plugins would be omitted from results
         };
 
-        var successResult = FdwResult.Success(partialResults);
+        var successResult = GenericResult.Success(partialResults);
         _mockHealthMonitor.Setup(m => m.CheckAllPluginsHealthAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -693,14 +693,14 @@ public class PluginHealthMonitorEdgeCaseTests
     public async Task StartMonitoringAsync_WithExtremeTimeSpanValues_HandlesGracefully(TimeSpan extremeInterval)
     {
         // Arrange
-        IFdwResult result;
+        IGenericResult result;
         if (extremeInterval == TimeSpan.MinValue || extremeInterval <= TimeSpan.Zero)
         {
-            result = FdwResult.Failure("Invalid monitoring interval");
+            result = GenericResult.Failure("Invalid monitoring interval");
         }
         else
         {
-            result = FdwResult.Success();
+            result = GenericResult.Success();
         }
 
         _mockHealthMonitor.Setup(m => m.StartMonitoringAsync(extremeInterval, _cancellationToken))
@@ -723,7 +723,7 @@ public class PluginHealthMonitorEdgeCaseTests
     {
         // Arrange
         var longPluginId = new string('x', 10000); // 10k character ID
-        var healthResult = FdwResult.Success(new PluginHealth
+        var healthResult = GenericResult.Success(new PluginHealth
         {
             Status = HealthStatus.Healthy,
             Message = "Long ID plugin is healthy",
@@ -757,7 +757,7 @@ public class PluginHealthMonitorEdgeCaseTests
             OverallStatus = HealthStatus.Unknown // No plugins means unknown status
         };
 
-        var successResult = FdwResult.Success(emptySummary);
+        var successResult = GenericResult.Success(emptySummary);
         _mockHealthMonitor.Setup(m => m.GetHealthSummaryAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -776,7 +776,7 @@ public class PluginHealthMonitorEdgeCaseTests
     public async Task StopMonitoringAsync_WithConcurrentStopRequests_HandlesGracefully()
     {
         // Arrange
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
         _mockHealthMonitor.Setup(m => m.StopMonitoringAsync(_cancellationToken))
                          .ReturnsAsync(successResult);
 
@@ -797,13 +797,13 @@ public class PluginHealthMonitorEdgeCaseTests
     /// </summary>
     private interface IPluginHealthMonitor
     {
-        Task<IFdwResult> StartMonitoringAsync(TimeSpan interval, CancellationToken cancellationToken = default);
-        Task<IFdwResult> StopMonitoringAsync(CancellationToken cancellationToken = default);
-        Task<IFdwResult<PluginHealth>> CheckPluginHealthAsync(string pluginId, CancellationToken cancellationToken = default);
-        Task<IFdwResult<Dictionary<string, PluginHealth>>> CheckAllPluginsHealthAsync(CancellationToken cancellationToken = default);
-        Task<IFdwResult<HealthSummary>> GetHealthSummaryAsync(CancellationToken cancellationToken = default);
-        Task<IFdwResult> AddPluginToMonitoringAsync(string pluginId, CancellationToken cancellationToken = default);
-        Task<IFdwResult> RemovePluginFromMonitoringAsync(string pluginId, CancellationToken cancellationToken = default);
+        Task<IGenericResult> StartMonitoringAsync(TimeSpan interval, CancellationToken cancellationToken = default);
+        Task<IGenericResult> StopMonitoringAsync(CancellationToken cancellationToken = default);
+        Task<IGenericResult<PluginHealth>> CheckPluginHealthAsync(string pluginId, CancellationToken cancellationToken = default);
+        Task<IGenericResult<Dictionary<string, PluginHealth>>> CheckAllPluginsHealthAsync(CancellationToken cancellationToken = default);
+        Task<IGenericResult<HealthSummary>> GetHealthSummaryAsync(CancellationToken cancellationToken = default);
+        Task<IGenericResult> AddPluginToMonitoringAsync(string pluginId, CancellationToken cancellationToken = default);
+        Task<IGenericResult> RemovePluginFromMonitoringAsync(string pluginId, CancellationToken cancellationToken = default);
         bool IsMonitoring { get; }
         TimeSpan MonitoringInterval { get; }
     }

@@ -13,7 +13,7 @@ This package provides concrete implementations of REST endpoint patterns using F
 ## Core Components
 
 ### Base Endpoint Classes
-- **FractalEndpoint**: Base class for endpoints returning `FdwResult<T>` responses
+- **FractalEndpoint**: Base class for endpoints returning `GenericResult<T>` responses
 - **QueryEndpoint**: Specialized base for read-only query operations
 - **CrudEndpoint**: Base for Create, Read, Update, Delete operations
 - **FileEndpoint**: Base for file upload/download operations

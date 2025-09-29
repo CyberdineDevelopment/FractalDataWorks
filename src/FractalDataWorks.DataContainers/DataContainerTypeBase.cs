@@ -80,7 +80,7 @@ public abstract class DataContainerTypeBase : TypeOptionBase, IDataContainerType
     public abstract IContainerConfiguration CreateDefaultConfiguration();
 
     /// <inheritdoc/>
-    public abstract IFdwResult<ContainerTypeMetadata> GetTypeMetadata(DataLocation location);
+    public abstract IGenericResult<ContainerTypeMetadata> GetTypeMetadata(DataLocation location);
 
 
     /// <summary>

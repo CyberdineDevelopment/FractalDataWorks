@@ -75,5 +75,5 @@ public interface IDataContainerType
     /// Gets metadata about this container type's capabilities and limitations.
     /// </summary>
     /// <returns>Metadata describing the container type characteristics.</returns>
-    IFdwResult<ContainerTypeMetadata> GetTypeMetadata(DataLocation location);
+    IGenericResult<ContainerTypeMetadata> GetTypeMetadata(DataLocation location);
 }

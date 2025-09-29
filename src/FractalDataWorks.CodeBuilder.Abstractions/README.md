@@ -193,7 +193,7 @@ if (parseResult.IsSuccess)
 ## Dependencies
 
 ### Core Dependencies
-- **FractalDataWorks.net**: Provides `IFdwResult` for consistent error handling
+- **FractalDataWorks.net**: Provides `IGenericResult` for consistent error handling
 - **.NET 8.0**: Modern C# language features and performance improvements
 
 ### Framework Integration
@@ -228,7 +228,7 @@ public class PythonParser : ICodeParser
 {
     public string Language => "python";
     
-    public async Task<IFdwResult<ISyntaxTree>> ParseAsync(
+    public async Task<IGenericResult<ISyntaxTree>> ParseAsync(
         string sourceCode, 
         string? filePath = null, 
         CancellationToken cancellationToken = default)

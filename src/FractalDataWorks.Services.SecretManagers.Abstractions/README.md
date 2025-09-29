@@ -33,11 +33,11 @@ The secret management abstractions follow both the framework's **minimal interfa
 ```csharp
 public interface ISecretManager : IFractalService
 {
-    Task<IFdwResult<object?>> Execute(ISecretCommand command, CancellationToken cancellationToken = default);
-    Task<IFdwResult<TResult>> Execute<TResult>(ISecretCommand<TResult> command, CancellationToken cancellationToken = default);
-    Task<IFdwResult<ISecretBatchResult>> ExecuteBatch(IReadOnlyList<ISecretCommand> commands, CancellationToken cancellationToken = default);
-    IFdwResult ValidateCommand(ISecretCommand command);
-    Task<IFdwResult<ISecretManagerHealth>> HealthCheckAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult<object?>> Execute(ISecretCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<TResult>> Execute<TResult>(ISecretCommand<TResult> command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<ISecretBatchResult>> ExecuteBatch(IReadOnlyList<ISecretCommand> commands, CancellationToken cancellationToken = default);
+    IGenericResult ValidateCommand(ISecretCommand command);
+    Task<IGenericResult<ISecretManagerHealth>> HealthCheckAsync(CancellationToken cancellationToken = default);
 }
 ```
 
@@ -396,7 +396,7 @@ ConcreteSecretService<SpecificCommand, SpecificConfiguration, ConcreteSecretServ
 This abstraction integrates with other FractalDataWorks services:
 
 - **Authentication**: Uses secrets for API keys and certificates
-- **FdwConnections**: Stores connection strings and credentials
+- **GenericConnections**: Stores connection strings and credentials
 - **DataGateways**: Secures database passwords and keys
 - **Configuration**: Provides secure configuration values
 

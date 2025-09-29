@@ -10,6 +10,6 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// Interface for FractalDataWorks framework connections.
 /// Provides a framework-specific interface for connection implementations.
 /// </summary>
-public interface IFdwConnection : IDisposable, IFdwService
+public interface IGenericConnection : IDisposable, IGenericService
 {
 }

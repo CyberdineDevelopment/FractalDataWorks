@@ -65,7 +65,7 @@ public interface IDataWriter : IDisposable
     /// compile-time knowledge of the record structure. Field values should match
     /// the types specified in the writer's schema.
     /// </remarks>
-    Task<IFdwResult> WriteRecordAsync(
+    Task<IGenericResult> WriteRecordAsync(
         IReadOnlyDictionary<string, object> record, 
         CancellationToken cancellationToken = default);
 
@@ -80,7 +80,7 @@ public interface IDataWriter : IDisposable
     /// This method provides strongly-typed writing with automatic serialization
     /// and validation. Properties are mapped to schema fields based on name and type.
     /// </remarks>
-    Task<IFdwResult> WriteRecordAsync<T>(
+    Task<IGenericResult> WriteRecordAsync<T>(
         T record, 
         CancellationToken cancellationToken = default) where T : class;
 
@@ -95,7 +95,7 @@ public interface IDataWriter : IDisposable
     /// efficient than calling WriteRecordAsync repeatedly for large datasets.
     /// If any record fails validation, the operation may stop early.
     /// </remarks>
-    Task<IFdwResult<long>> WriteRecordsAsync(
+    Task<IGenericResult<long>> WriteRecordsAsync(
         IEnumerable<IReadOnlyDictionary<string, object>> records, 
         CancellationToken cancellationToken = default);
 
@@ -111,7 +111,7 @@ public interface IDataWriter : IDisposable
     /// It provides better performance than individual record writing for large datasets.
     /// If any record fails validation, the operation may stop early.
     /// </remarks>
-    Task<IFdwResult<long>> WriteRecordsAsync<T>(
+    Task<IGenericResult<long>> WriteRecordsAsync<T>(
         IEnumerable<T> records, 
         CancellationToken cancellationToken = default) where T : class;
 
@@ -125,7 +125,7 @@ public interface IDataWriter : IDisposable
     /// Some container types may buffer writes for performance, so explicit flushing
     /// may be necessary to ensure data persistence.
     /// </remarks>
-    Task<IFdwResult> FlushAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult> FlushAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Finalizes the writing operation and closes the writer.
@@ -137,7 +137,7 @@ public interface IDataWriter : IDisposable
     /// It should be called when all writing is complete. After calling this method,
     /// the writer should not be used for further write operations.
     /// </remarks>
-    Task<IFdwResult<IWriterStatistics>> FinalizeAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult<IWriterStatistics>> FinalizeAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Begins a transaction for atomic write operations.
@@ -148,7 +148,7 @@ public interface IDataWriter : IDisposable
     /// This method is only supported if SupportsTransactions returns true.
     /// Transactions ensure that either all writes succeed or none do.
     /// </remarks>
-    Task<IFdwResult<IWriteTransaction>> BeginTransactionAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult<IWriteTransaction>> BeginTransactionAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets statistics about the writing operation so far.

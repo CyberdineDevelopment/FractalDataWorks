@@ -75,15 +75,15 @@ Basic result pattern with success/failure states:
 - `Message` - Additional context message
 - `Value` - Return value for generic version
 
-#### IFdwResult / IFdwResult<T>
+#### IGenericResult / IGenericResult<T>
 Enhanced result pattern with message collections:
 - Extends `IGenericResult` interface
 - `IsEmpty` - Indicates if result contains data
 - `Error` - Boolean error indicator
-- `Messages` - Collection of `IFdwMessage` objects
+- `Messages` - Collection of `IGenericMessage` objects
 - Supports multiple messages with severity levels
 
-#### FdwResult Implementation
+#### GenericResult Implementation
 Concrete implementation providing:
 - Static factory methods for Success/Failure
 - Message collection management
@@ -92,7 +92,7 @@ Concrete implementation providing:
 
 ### 2. Message System
 
-#### IFdwMessage Interface
+#### IGenericMessage Interface
 Structured messages with:
 - `Message` - Human-readable text
 - `Code` - Unique identifier
@@ -249,7 +249,7 @@ Base class for collection items:
 - Priority-based execution
 
 ### 5. Structured Messaging
-- All messages implement IFdwMessage
+- All messages implement IGenericMessage
 - Severity levels for filtering
 - Correlation IDs for tracing
 - Metadata for extensibility
@@ -262,7 +262,7 @@ Base class for collection items:
 ```csharp
 public interface IMyService
 {
-    Task<IFdwResult<MyData>> GetDataAsync(int id);
+    Task<IGenericResult<MyData>> GetDataAsync(int id);
 }
 ```
 
@@ -270,10 +270,10 @@ public interface IMyService
 ```csharp
 public class MyService : IMyService
 {
-    public async Task<IFdwResult<MyData>> GetDataAsync(int id)
+    public async Task<IGenericResult<MyData>> GetDataAsync(int id)
     {
         // Implementation
-        return FdwResult<MyData>.Success(data);
+        return GenericResult<MyData>.Success(data);
     }
 }
 ```
@@ -320,12 +320,12 @@ public class MyAnalysisTool : IMcpTool
     public string Name => "MyAnalysis";
     public string Category => "CodeAnalysis";
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
         // Tool implementation
-        return FdwResult<object>.Success(result);
+        return GenericResult<object>.Success(result);
     }
 }
 ```
@@ -386,13 +386,13 @@ public Data GetData(int id)
 }
 
 // After
-public IFdwResult<Data> GetData(int id)
+public IGenericResult<Data> GetData(int id)
 {
     if (id <= 0)
-        return FdwResult<Data>.Failure("Invalid ID", "INVALID_ID");
+        return GenericResult<Data>.Failure("Invalid ID", "INVALID_ID");
 
     var data = repository.GetById(id);
-    return FdwResult<Data>.Success(data);
+    return GenericResult<Data>.Success(data);
 }
 ```
 

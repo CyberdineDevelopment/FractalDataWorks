@@ -56,11 +56,11 @@ public abstract class FractalConfigurationBase : IFractalConfiguration
     /// <summary>
     /// Validates the configuration settings.
     /// </summary>
-    /// <returns>A FdwResult containing the FluentValidation ValidationResult.</returns>
-    public virtual IFdwResult<ValidationResult> Validate()
+    /// <returns>A GenericResult containing the FluentValidation ValidationResult.</returns>
+    public virtual IGenericResult<ValidationResult> Validate()
     {
         // Default implementation returns success - derived classes should override
-        return FdwResult<ValidationResult>.Success(new ValidationResult());
+        return GenericResult<ValidationResult>.Success(new ValidationResult());
     }
 
     /// <summary>
@@ -100,20 +100,20 @@ public abstract class ConfigurationBase<TConfiguration> : FractalConfigurationBa
     /// <summary>
     /// Validates the configuration using FluentValidation.
     /// </summary>
-    /// <returns>A FdwResult containing the FluentValidation ValidationResult.</returns>
-    public override IFdwResult<ValidationResult> Validate()
+    /// <returns>A GenericResult containing the FluentValidation ValidationResult.</returns>
+    public override IGenericResult<ValidationResult> Validate()
     {
         var validator = GetValidator();
         if (validator == null)
         {
             // No validator configured, return success
-            return FdwResult<ValidationResult>.Success(new ValidationResult());
+            return GenericResult<ValidationResult>.Success(new ValidationResult());
         }
 
         var validationResult = validator.Validate((TConfiguration)this);
         // Always return success with the validation result
         // The caller should check validationResult.IsValid to determine if validation passed
-        return FdwResult<ValidationResult>.Success(validationResult);
+        return GenericResult<ValidationResult>.Success(validationResult);
     }
 
     /// <summary>
@@ -255,19 +255,19 @@ public abstract class ConfigurationSourceBase : IFractalConfigurationSource
     /// <summary>
     /// Loads configurations from this source.
     /// </summary>
-    public abstract Task<IFdwResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
+    public abstract Task<IGenericResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
         where TConfiguration : IFractalConfiguration;
 
     /// <summary>
     /// Saves a configuration to this source.
     /// </summary>
-    public virtual Task<IFdwResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration)
+    public virtual Task<IGenericResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration)
         where TConfiguration : IFractalConfiguration
     {
         if (!IsWritable)
         {
-            return Task.FromResult<IFdwResult<TConfiguration>>(
-                FdwResult<TConfiguration>.Failure<TConfiguration>($"Configuration source '{Name}' is read-only"));
+            return Task.FromResult<IGenericResult<TConfiguration>>(
+                GenericResult<TConfiguration>.Failure<TConfiguration>($"Configuration source '{Name}' is read-only"));
         }
 
         return SaveCore(configuration);
@@ -276,13 +276,13 @@ public abstract class ConfigurationSourceBase : IFractalConfigurationSource
     /// <summary>
     /// Core implementation of save operation.
     /// </summary>
-    protected abstract Task<IFdwResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
+    protected abstract Task<IGenericResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
         where TConfiguration : IFractalConfiguration;
 
     /// <summary>
     /// Core implementation of delete operation.
     /// </summary>
-    protected abstract Task<IFdwResult<NonResult>> DeleteCore<TConfiguration>(int id)
+    protected abstract Task<IGenericResult<NonResult>> DeleteCore<TConfiguration>(int id)
         where TConfiguration : IFractalConfiguration;
 
     /// <summary>
@@ -329,7 +329,7 @@ public class JsonConfigurationSource : ConfigurationSourceBase
     public override bool IsWritable => true;
     public override bool SupportsReload => false;
 
-    public override async Task<IFdwResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
+    public override async Task<IGenericResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
     {
         var typeName = typeof(TConfiguration).Name;
         var pattern = $"{typeName}_*.json";
@@ -356,10 +356,10 @@ public class JsonConfigurationSource : ConfigurationSourceBase
             }
         }
 
-        return FdwResult<IEnumerable<TConfiguration>>.Success(configurations);
+        return GenericResult<IEnumerable<TConfiguration>>.Success(configurations);
     }
 
-    protected override async Task<IFdwResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
+    protected override async Task<IGenericResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
     {
         var fileName = GetFileName(configuration);
         var filePath = Path.Combine(_basePath, fileName);
@@ -369,11 +369,11 @@ public class JsonConfigurationSource : ConfigurationSourceBase
             var json = JsonSerializer.Serialize(configuration, _jsonOptions);
             await File.WriteAllTextAsync(filePath, json).ConfigureAwait(false);
 
-            return FdwResult<TConfiguration>.Success(configuration);
+            return GenericResult<TConfiguration>.Success(configuration);
         }
         catch (Exception ex)
         {
-            return FdwResult<TConfiguration>.Failure($"Error saving configuration: {ex.Message}");
+            return GenericResult<TConfiguration>.Failure($"Error saving configuration: {ex.Message}");
         }
     }
 
@@ -503,7 +503,7 @@ public class SimpleConfiguration : FractalConfigurationBase
     public string Value { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
     
-    public override IFdwResult<ValidationResult> Validate()
+    public override IGenericResult<ValidationResult> Validate()
     {
         var validationResult = new ValidationResult();
         
@@ -512,7 +512,7 @@ public class SimpleConfiguration : FractalConfigurationBase
             validationResult.Errors.Add(new ValidationFailure(nameof(Value), "Value is required"));
         }
         
-        return FdwResult<ValidationResult>.Success(validationResult);
+        return GenericResult<ValidationResult>.Success(validationResult);
     }
 }
 ```
@@ -640,17 +640,17 @@ public class DatabaseService : ServiceBase<DatabaseCommand, DatabaseConfiguratio
             Configuration.CommandTimeout);
     }
     
-    public async Task<IFdwResult<string>> TestConnection()
+    public async Task<IGenericResult<string>> TestConnection()
     {
         try
         {
             using var connection = new SqlConnection(Configuration.ConnectionString);
             await connection.OpenAsync();
-            return FdwResult<string>.Success("Connection successful");
+            return GenericResult<string>.Success("Connection successful");
         }
         catch (Exception ex)
         {
-            return FdwResult<string>.Failure($"Connection failed: {ex.Message}");
+            return GenericResult<string>.Failure($"Connection failed: {ex.Message}");
         }
     }
 }
@@ -698,7 +698,7 @@ public class DatabaseConfigurationSource : ConfigurationSourceBase
     public override bool IsWritable => true;
     public override bool SupportsReload => false;
     
-    public override async Task<IFdwResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
+    public override async Task<IGenericResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
     {
         var configurations = new List<TConfiguration>();
         
@@ -722,15 +722,15 @@ public class DatabaseConfigurationSource : ConfigurationSourceBase
                 }
             }
             
-            return FdwResult<IEnumerable<TConfiguration>>.Success(configurations);
+            return GenericResult<IEnumerable<TConfiguration>>.Success(configurations);
         }
         catch (Exception ex)
         {
-            return FdwResult<IEnumerable<TConfiguration>>.Failure($"Failed to load configurations: {ex.Message}");
+            return GenericResult<IEnumerable<TConfiguration>>.Failure($"Failed to load configurations: {ex.Message}");
         }
     }
     
-    protected override async Task<IFdwResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
+    protected override async Task<IGenericResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
     {
         try
         {
@@ -750,15 +750,15 @@ public class DatabaseConfigurationSource : ConfigurationSourceBase
             await command.ExecuteNonQueryAsync();
             
             OnChanged(ConfigurationChangeTypes.Added, typeof(TConfiguration), configuration.Id);
-            return FdwResult<TConfiguration>.Success(configuration);
+            return GenericResult<TConfiguration>.Success(configuration);
         }
         catch (Exception ex)
         {
-            return FdwResult<TConfiguration>.Failure($"Failed to save configuration: {ex.Message}");
+            return GenericResult<TConfiguration>.Failure($"Failed to save configuration: {ex.Message}");
         }
     }
     
-    protected override async Task<IFdwResult<NonResult>> DeleteCore<TConfiguration>(int id)
+    protected override async Task<IGenericResult<NonResult>> DeleteCore<TConfiguration>(int id)
     {
         try
         {
@@ -775,15 +775,15 @@ public class DatabaseConfigurationSource : ConfigurationSourceBase
             var rowsAffected = await command.ExecuteNonQueryAsync();
             if (rowsAffected == 0)
             {
-                return FdwResult<NonResult>.Failure("Configuration not found");
+                return GenericResult<NonResult>.Failure("Configuration not found");
             }
             
             OnChanged(ConfigurationChangeTypes.Deleted, typeof(TConfiguration), id);
-            return FdwResult<NonResult>.Success(NonResult.Value);
+            return GenericResult<NonResult>.Success(NonResult.Value);
         }
         catch (Exception ex)
         {
-            return FdwResult<NonResult>.Failure($"Failed to delete configuration: {ex.Message}");
+            return GenericResult<NonResult>.Failure($"Failed to delete configuration: {ex.Message}");
         }
     }
 }
@@ -819,7 +819,7 @@ public class DatabaseConfigurationSource : ConfigurationSourceBase
 3. **Handle Configuration Sources**:
    - Implement `ConfigurationSourceBase` for custom storage backends
    - Use `JsonConfigurationSource` for file-based configuration storage
-   - Handle exceptions in source operations and return appropriate `FdwResult<T>` objects
+   - Handle exceptions in source operations and return appropriate `GenericResult<T>` objects
 
 4. **Configuration Design**:
    - Set sensible defaults in property initializers
@@ -828,7 +828,7 @@ public class DatabaseConfigurationSource : ConfigurationSourceBase
    - Implement `OnConfigurationLoaded()` for post-load initialization
 
 5. **Error Handling**:
-   - Always check `FdwResult<T>.IsValid` before using the result
+   - Always check `GenericResult<T>.IsValid` before using the result
    - Log configuration errors appropriately using the provided logging methods
    - Validate configurations before using them in services
 
@@ -859,7 +859,7 @@ public void Configuration_Should_Be_Invalid_With_Empty_ConnectionString()
     
     var validationResult = config.Validate();
     
-    Assert.True(validationResult.IsValid); // FdwResult is valid
+    Assert.True(validationResult.IsValid); // GenericResult is valid
     Assert.False(validationResult.Value.IsValid); // But validation failed
     Assert.Contains(validationResult.Value.Errors, 
         e => e.PropertyName == nameof(DatabaseConfiguration.ConnectionString));

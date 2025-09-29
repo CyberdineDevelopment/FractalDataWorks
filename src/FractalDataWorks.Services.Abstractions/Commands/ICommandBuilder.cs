@@ -139,7 +139,7 @@ public interface ICommandBuilder<TCommand>
     /// attempting to build the actual command. Useful for providing user feedback
     /// during interactive command construction.
     /// </remarks>
-    IFdwResult ValidateBuilder();
+    IGenericResult ValidateBuilder();
 
     /// <summary>
     /// Builds the command using the current builder configuration.
@@ -152,7 +152,7 @@ public interface ICommandBuilder<TCommand>
     /// metadata, and options. The builder validates the configuration and returns
     /// appropriate error information if the command cannot be constructed.
     /// </remarks>
-    IFdwResult<TCommand> Build();
+    IGenericResult<TCommand> Build();
 
     /// <summary>
     /// Resets the builder to its initial state, clearing all configured values.
@@ -187,6 +187,6 @@ public interface ICommandBuilder<TCommand, TResult> : ICommandBuilder<TCommand>
     /// This method creates a strongly-typed command instance that eliminates the need
     /// for runtime type checking when processing command results.
     /// </remarks>
-    new IFdwResult<TCommand> Build();
+    new IGenericResult<TCommand> Build();
 }
 

@@ -4,7 +4,7 @@
   "classifications": ["FractalDataWorks", "Service", "Library"],
   "identity": "FractalDataWorks.Service.Template",
   "name": "FractalDataWorks Service",
-  "shortName": "fdwservice",
+  "shortName": "Genericservice",
   "tags": {
     "language": "C#",
     "type": "project"

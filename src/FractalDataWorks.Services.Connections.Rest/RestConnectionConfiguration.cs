@@ -112,8 +112,8 @@ public sealed class RestConnectionConfiguration : IConnectionConfiguration
     /// <summary>
     /// Validates this configuration using FluentValidation.
     /// </summary>
-    /// <returns>A FdwResult containing the FluentValidation ValidationResult.</returns>
-    public IFdwResult<ValidationResult> Validate()
+    /// <returns>A GenericResult containing the FluentValidation ValidationResult.</returns>
+    public IGenericResult<ValidationResult> Validate()
     {
         var result = new ValidationResult();
         
@@ -127,6 +127,6 @@ public sealed class RestConnectionConfiguration : IConnectionConfiguration
             result.Errors.Add(new ValidationFailure(nameof(TimeoutSeconds), "TimeoutSeconds must be greater than 0"));
         }
         
-        return FdwResult.Success(result);
+        return GenericResult.Success(result);
     }
 }

@@ -11,7 +11,7 @@ The FractalDataWorks.Services.Connections.MsSql library provides a complete impl
 The ServiceType definition for SQL Server connections:
 
 ```csharp
-public sealed class MsSqlConnectionType : ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
+public sealed class MsSqlConnectionType : ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
 {
     public static MsSqlConnectionType Instance { get; } = new();
 
@@ -43,14 +43,14 @@ public class MsSqlExternalConnection : ConnectionServiceBase<IConnectionCommand,
     private SqlConnection _sqlConnection;
     private readonly MsSqlCommandTranslator _translator;
 
-    protected override async Task<IFdwResult> OpenCoreAsync()
+    protected override async Task<IGenericResult> OpenCoreAsync()
     {
         _sqlConnection = new SqlConnection(Configuration.ConnectionString);
         await _sqlConnection.OpenAsync();
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
-    public override async Task<IFdwResult<T>> Execute<T>(IConnectionCommand command)
+    public override async Task<IGenericResult<T>> Execute<T>(IConnectionCommand command)
     {
         var translationResult = _translator.Translate(command);
         // Execute SQL and map results
@@ -73,7 +73,7 @@ public class MsSqlService : ServiceBase<IConnectionCommand, MsSqlConfiguration, 
 {
     private readonly MsSqlExternalConnection _connection;
 
-    public override async Task<IFdwResult> Execute(IConnectionCommand command)
+    public override async Task<IGenericResult> Execute(IConnectionCommand command)
     {
         return await _connection.Execute(command);
     }
@@ -325,7 +325,7 @@ Factory interface:
 ```csharp
 public interface IMsSqlConnectionFactory : IConnectionFactory
 {
-    Task<IFdwResult<MsSqlExternalConnection>> CreateTypedConnectionAsync(MsSqlConfiguration configuration);
+    Task<IGenericResult<MsSqlExternalConnection>> CreateTypedConnectionAsync(MsSqlConfiguration configuration);
 }
 ```
 
@@ -339,10 +339,10 @@ public class MsSqlConnectionFactory : IMsSqlConnectionFactory
     private readonly ILogger<MsSqlConnectionFactory> _logger;
     private readonly MsSqlCommandTranslator _translator;
 
-    public async Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IConnectionConfiguration configuration)
+    public async Task<IGenericResult<IGenericConnection>> CreateConnectionAsync(IConnectionConfiguration configuration)
     {
         if (configuration is not MsSqlConfiguration sqlConfig)
-            return FdwResult<IFdwConnection>.Failure("Invalid configuration type");
+            return GenericResult<IGenericConnection>.Failure("Invalid configuration type");
 
         var connection = new MsSqlExternalConnection(sqlConfig, _translator, _logger);
 
@@ -350,10 +350,10 @@ public class MsSqlConnectionFactory : IMsSqlConnectionFactory
         {
             var openResult = await connection.OpenAsync();
             if (openResult.Error)
-                return FdwResult<IFdwConnection>.Failure(openResult.Message);
+                return GenericResult<IGenericConnection>.Failure(openResult.Message);
         }
 
-        return FdwResult<IFdwConnection>.Success(connection);
+        return GenericResult<IGenericConnection>.Success(connection);
     }
 }
 ```
@@ -456,16 +456,16 @@ public class MsSqlExternalConnection
 {
     private SqlTransaction _currentTransaction;
 
-    public async Task<IFdwResult> BeginTransactionAsync(IsolationLevel level)
+    public async Task<IGenericResult> BeginTransactionAsync(IsolationLevel level)
     {
         _currentTransaction = await _sqlConnection.BeginTransactionAsync(level);
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
-    public async Task<IFdwResult> CommitAsync()
+    public async Task<IGenericResult> CommitAsync()
     {
         await _currentTransaction.CommitAsync();
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 }
 ```
@@ -497,7 +497,7 @@ services.AddDbContext<MyDbContext>(options =>
 ```csharp
 public class DapperRepository
 {
-    private readonly IFdwConnectionProvider _provider;
+    private readonly IGenericConnectionProvider _provider;
 
     public async Task<IEnumerable<T>> QueryAsync<T>(string sql)
     {

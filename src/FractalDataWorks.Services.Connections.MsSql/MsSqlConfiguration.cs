@@ -166,7 +166,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     public System.Data.IsolationLevel TransactionIsolationLevel { get; set; } = System.Data.IsolationLevel.ReadCommitted;
 
     /// <inheritdoc/>
-    public override string SectionName => "FdwConnections:MsSql";
+    public override string SectionName => "GenericConnections:MsSql";
 
     /// <inheritdoc/>
     public string ConnectionType { get; set; } = "MsSql";

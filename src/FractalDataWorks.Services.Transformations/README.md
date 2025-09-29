@@ -24,7 +24,7 @@ The Transformations framework provides ServiceType auto-discovery for data trans
 
 ```csharp
 // Program.cs - Zero-configuration registration
-builder.Services.AddScoped<IFdwTransformationProvider, FdwTransformationProvider>();
+builder.Services.AddScoped<IGenericTransformationProvider, GenericTransformationProvider>();
 
 // Single line registers ALL discovered transformation types
 TransformationTypes.Register(builder.Services);
@@ -51,18 +51,18 @@ TransformationTypes.Register(builder.Services);
 ```csharp
 public class DataProcessingService
 {
-    private readonly IFdwTransformationProvider _transformationProvider;
+    private readonly IGenericTransformationProvider _transformationProvider;
 
-    public DataProcessingService(IFdwTransformationProvider transformationProvider)
+    public DataProcessingService(IGenericTransformationProvider transformationProvider)
     {
         _transformationProvider = transformationProvider;
     }
 
-    public async Task<IFdwResult<List<ProcessedData>>> ProcessDataAsync(List<RawData> rawData)
+    public async Task<IGenericResult<List<ProcessedData>>> ProcessDataAsync(List<RawData> rawData)
     {
         var engineResult = await _transformationProvider.GetTransformationEngine("DataProcessor");
         if (!engineResult.IsSuccess)
-            return FdwResult<List<ProcessedData>>.Failure(engineResult.Error);
+            return GenericResult<List<ProcessedData>>.Failure(engineResult.Error);
 
         using var engine = engineResult.Value;
 
@@ -100,7 +100,7 @@ public class DataProcessingService
 
 ```csharp
 // 1. Create your transformation type (singleton pattern)
-public sealed class CustomTransformationType : TransformationTypeBase<IFdwTransformationEngine, CustomTransformationConfiguration, ICustomTransformationFactory>
+public sealed class CustomTransformationType : TransformationTypeBase<IGenericTransformationEngine, CustomTransformationConfiguration, ICustomTransformationFactory>
 {
     public static CustomTransformationType Instance { get; } = new();
 
@@ -125,11 +125,11 @@ public sealed class CustomTransformationType : TransformationTypeBase<IFdwTransf
 ### Batch Processing
 
 ```csharp
-public async Task<IFdwResult> ProcessLargeDatatAsync(IEnumerable<DataRecord> records)
+public async Task<IGenericResult> ProcessLargeDatatAsync(IEnumerable<DataRecord> records)
 {
     var engineResult = await _transformationProvider.GetTransformationEngine("Parallel");
     if (!engineResult.IsSuccess)
-        return FdwResult.Failure(engineResult.Error);
+        return GenericResult.Failure(engineResult.Error);
 
     using var engine = engineResult.Value;
 
@@ -146,11 +146,11 @@ public async Task<IFdwResult> ProcessLargeDatatAsync(IEnumerable<DataRecord> rec
 ### Streaming Transformations
 
 ```csharp
-public async Task<IFdwResult> ProcessStreamAsync(IAsyncEnumerable<StreamData> dataStream)
+public async Task<IGenericResult> ProcessStreamAsync(IAsyncEnumerable<StreamData> dataStream)
 {
     var engineResult = await _transformationProvider.GetTransformationEngine("Streaming");
     if (!engineResult.IsSuccess)
-        return FdwResult.Failure(engineResult.Error);
+        return GenericResult.Failure(engineResult.Error);
 
     using var engine = engineResult.Value;
 
@@ -163,7 +163,7 @@ public async Task<IFdwResult> ProcessStreamAsync(IAsyncEnumerable<StreamData> da
             continue;
     }
 
-    return FdwResult.Success();
+    return GenericResult.Success();
 }
 ```
 

@@ -13,14 +13,14 @@ namespace FractalDataWorks.Services.Connections.MsSql.Commands;
 /// <summary>
 /// Command for creating new SQL Server connections.
 /// </summary>
-public sealed class MsSqlFdwConnectionCreateCommand : IConnectionCommand, IConnectionCreateCommand
+public sealed class MsSqlGenericConnectionCreateCommand : IConnectionCommand, IConnectionCreateCommand
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MsSqlFdwConnectionCreateCommand"/> class.
+    /// Initializes a new instance of the <see cref="MsSqlGenericConnectionCreateCommand"/> class.
     /// </summary>
     /// <param name="connectionName">The name for the new connection.</param>
     /// <param name="connectionConfiguration">The SQL Server configuration for the connection.</param>
-    public MsSqlFdwConnectionCreateCommand(string connectionName, MsSqlConfiguration connectionConfiguration)
+    public MsSqlGenericConnectionCreateCommand(string connectionName, MsSqlConfiguration connectionConfiguration)
     {
         ConnectionName = connectionName ?? throw new ArgumentNullException(nameof(connectionName));
         ConnectionConfiguration = connectionConfiguration ?? throw new ArgumentNullException(nameof(connectionConfiguration));
@@ -40,7 +40,7 @@ public sealed class MsSqlFdwConnectionCreateCommand : IConnectionCommand, IConne
     /// Validates this command using FluentValidation.
     /// </summary>
     /// <returns>The validation result.</returns>
-    public IFdwResult<ValidationResult> Validate()
+    public IGenericResult<ValidationResult> Validate()
     {
         var result = new ValidationResult();
 
@@ -56,11 +56,11 @@ public sealed class MsSqlFdwConnectionCreateCommand : IConnectionCommand, IConne
 
         if (result.IsValid)
         {
-            return FdwResult<ValidationResult>.Success(result);
+            return GenericResult<ValidationResult>.Success(result);
         }
         
         var errors = string.Join("; ", result.Errors.Select(e => e.ErrorMessage));
-        return FdwResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errors, "ValidationFailed", "MsSqlFdwConnectionCreateCommand"));
+        return GenericResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errors, "ValidationFailed", "MsSqlGenericConnectionCreateCommand"));
     }
 
     /// <summary>
@@ -81,5 +81,5 @@ public sealed class MsSqlFdwConnectionCreateCommand : IConnectionCommand, IConne
     /// <summary>
     /// Gets the configuration associated with this command.
     /// </summary>
-    public IFdwConfiguration? Configuration => ConnectionConfiguration as IFdwConfiguration;
+    public IGenericConfiguration? Configuration => ConnectionConfiguration as IGenericConfiguration;
 }

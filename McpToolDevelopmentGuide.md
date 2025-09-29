@@ -21,8 +21,8 @@ FractalDataWorks.McpTools.{Category}/
     └── ...
 
 FractalDataWorks.Results/
-├── FdwResult.cs                 # Result pattern implementation
-└── IFdwResult.cs                # Result interfaces
+├── GenericResult.cs                 # Result pattern implementation
+└── IGenericResult.cs                # Result interfaces
 ```
 
 ## Creating a New MCP Tool
@@ -73,7 +73,7 @@ public class ComplexityAnalyzerTool : IMcpTool
 
     public int Priority => 100; // Lower = higher priority
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken = default)
     {
@@ -83,7 +83,7 @@ public class ComplexityAnalyzerTool : IMcpTool
             var validationResult = await ValidateArgumentsAsync(arguments, cancellationToken);
             if (validationResult.IsFailure)
             {
-                return FdwResult<object>.Failure(validationResult.Message);
+                return GenericResult<object>.Failure(validationResult.Message);
             }
 
             var args = arguments as ComplexityAnalyzerArguments;
@@ -100,42 +100,42 @@ public class ComplexityAnalyzerTool : IMcpTool
                 "COMPLEXITY_ANALYZED",
                 Name);
 
-            return FdwResult<object>.Success(metrics, successMessage);
+            return GenericResult<object>.Success(metrics, successMessage);
         }
         catch (OperationCanceledException)
         {
-            return FdwResult<object>.Failure("Operation was cancelled");
+            return GenericResult<object>.Failure("Operation was cancelled");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error analyzing complexity");
-            return FdwResult<object>.Failure($"Analysis failed: {ex.Message}");
+            return GenericResult<object>.Failure($"Analysis failed: {ex.Message}");
         }
     }
 
-    public async Task<IFdwResult> ValidateArgumentsAsync(
+    public async Task<IGenericResult> ValidateArgumentsAsync(
         object? arguments,
         CancellationToken cancellationToken = default)
     {
         if (arguments == null)
         {
-            return FdwResult.Failure("Arguments are required");
+            return GenericResult.Failure("Arguments are required");
         }
 
         if (arguments is not ComplexityAnalyzerArguments args)
         {
-            return FdwResult.Failure("Invalid argument type");
+            return GenericResult.Failure("Invalid argument type");
         }
 
         if (string.IsNullOrWhiteSpace(args.FilePath))
         {
-            return FdwResult.Failure("FilePath is required");
+            return GenericResult.Failure("FilePath is required");
         }
 
         // Additional validation
         await Task.CompletedTask; // Async validation if needed
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     private async Task<ComplexityMetrics> AnalyzeComplexityAsync(
@@ -293,7 +293,7 @@ public class SessionAwareTool : IMcpTool
     private readonly ISessionManager _sessionManager;
     private readonly ConcurrentDictionary<Guid, ToolSession> _sessions;
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -339,13 +339,13 @@ public class SessionAwareTool : IMcpTool
 ```csharp
 public class BatchProcessingTool : IMcpTool
 {
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
         var args = arguments as BatchArguments;
         var results = new List<BatchItemResult>();
-        var errors = new List<IFdwMessage>();
+        var errors = new List<IGenericMessage>();
 
         // Process items in parallel with controlled concurrency
         var semaphore = new SemaphoreSlim(args!.MaxConcurrency);
@@ -384,8 +384,8 @@ public class BatchProcessingTool : IMcpTool
         };
 
         return errors.Count > 0
-            ? FdwResult<object>.Success(batchResult, errors)
-            : FdwResult<object>.Success(batchResult);
+            ? GenericResult<object>.Success(batchResult, errors)
+            : GenericResult<object>.Success(batchResult);
     }
 }
 ```
@@ -397,7 +397,7 @@ public class PipelineTool : IMcpTool
 {
     private readonly List<IPipelineStage> _stages;
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -413,7 +413,7 @@ public class PipelineTool : IMcpTool
 
             if (stageResult.IsFailure)
             {
-                return FdwResult<object>.Failure(
+                return GenericResult<object>.Failure(
                     $"Pipeline failed at stage {stage.Name}: {stageResult.Message}");
             }
 
@@ -426,7 +426,7 @@ public class PipelineTool : IMcpTool
             }
         }
 
-        return FdwResult<object>.Success(context.GetFinalResult());
+        return GenericResult<object>.Success(context.GetFinalResult());
     }
 }
 
@@ -435,7 +435,7 @@ public interface IPipelineStage
     string Name { get; }
     bool IsTerminal { get; }
     bool ShouldExecute(PipelineContext context);
-    Task<IFdwResult<object>> ExecuteAsync(
+    Task<IGenericResult<object>> ExecuteAsync(
         PipelineContext context,
         CancellationToken cancellationToken);
 }
@@ -449,7 +449,7 @@ public class CachedAnalysisTool : IMcpTool
     private readonly IMemoryCache _cache;
     private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(5);
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -460,7 +460,7 @@ public class CachedAnalysisTool : IMcpTool
         if (_cache.TryGetValue<AnalysisResult>(cacheKey, out var cached))
         {
             _logger.LogDebug("Returning cached result for {Key}", cacheKey);
-            return FdwResult<object>.Success(
+            return GenericResult<object>.Success(
                 cached,
                 "Result retrieved from cache");
         }
@@ -649,14 +649,14 @@ public class McpToolFixture : IDisposable
 ### 1. Use Structured Messages
 
 ```csharp
-public async Task<IFdwResult<object>> ExecuteAsync(
+public async Task<IGenericResult<object>> ExecuteAsync(
     object? arguments,
     CancellationToken cancellationToken)
 {
     try
     {
         // Operation
-        return FdwResult<object>.Success(result);
+        return GenericResult<object>.Success(result);
     }
     catch (FileNotFoundException ex)
     {
@@ -673,11 +673,11 @@ public async Task<IFdwResult<object>> ExecuteAsync(
             }
         };
 
-        return FdwResult<object>.Failure(errorMessage);
+        return GenericResult<object>.Failure(errorMessage);
     }
     catch (UnauthorizedAccessException ex)
     {
-        return FdwResult<object>.Failure(new FractalMessage(
+        return GenericResult<object>.Failure(new FractalMessage(
             MessageSeverity.Error,
             "Access denied to requested resource",
             "ACCESS_DENIED",
@@ -689,12 +689,12 @@ public async Task<IFdwResult<object>> ExecuteAsync(
 ### 2. Aggregate Multiple Errors
 
 ```csharp
-public async Task<IFdwResult<object>> ExecuteAsync(
+public async Task<IGenericResult<object>> ExecuteAsync(
     object? arguments,
     CancellationToken cancellationToken)
 {
-    var errors = new List<IFdwMessage>();
-    var warnings = new List<IFdwMessage>();
+    var errors = new List<IGenericMessage>();
+    var warnings = new List<IGenericMessage>();
 
     // Validation phase
     foreach (var validator in _validators)
@@ -708,22 +708,22 @@ public async Task<IFdwResult<object>> ExecuteAsync(
 
     if (errors.Count > 0)
     {
-        return FdwResult<object>.Failure(errors);
+        return GenericResult<object>.Failure(errors);
     }
 
     // Processing with warning collection
     var processResult = await ProcessAsync(arguments, warnings);
 
     return warnings.Count > 0
-        ? FdwResult<object>.Success(processResult, warnings)
-        : FdwResult<object>.Success(processResult);
+        ? GenericResult<object>.Success(processResult, warnings)
+        : GenericResult<object>.Success(processResult);
 }
 ```
 
 ### 3. Provide Recovery Options
 
 ```csharp
-public async Task<IFdwResult<object>> ExecuteAsync(
+public async Task<IGenericResult<object>> ExecuteAsync(
     object? arguments,
     CancellationToken cancellationToken)
 {
@@ -743,14 +743,14 @@ public async Task<IFdwResult<object>> ExecuteAsync(
                 "FALLBACK_USED",
                 Name);
 
-            return FdwResult<object>.Success(fallbackResult.Value, warningMessage);
+            return GenericResult<object>.Success(fallbackResult.Value, warningMessage);
         }
     }
 
     return result;
 }
 
-private bool IsRecoverable(IFdwResult<object> result)
+private bool IsRecoverable(IGenericResult<object> result)
 {
     // Check if error is recoverable
     return result.Messages.Any(m =>
@@ -764,7 +764,7 @@ private bool IsRecoverable(IFdwResult<object> result)
 ### 1. Async All the Way
 
 ```csharp
-public async Task<IFdwResult<object>> ExecuteAsync(
+public async Task<IGenericResult<object>> ExecuteAsync(
     object? arguments,
     CancellationToken cancellationToken)
 {
@@ -780,7 +780,7 @@ public async Task<IFdwResult<object>> ExecuteAsync(
 
     var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
-    return FdwResult<object>.Success(results);
+    return GenericResult<object>.Success(results);
 }
 
 private async ValueTask<ProcessedData> ProcessDataFastAsync(RawData data)
@@ -812,7 +812,7 @@ public class ResourceIntensiveTool : IMcpTool, IDisposable
             Environment.ProcessorCount * 2);
     }
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -851,7 +851,7 @@ public class ExpensiveInitializationTool : IMcpTool
             LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -908,7 +908,7 @@ public class EnvironmentAwareTool : IMcpTool
         ? _configuration.GetValue<bool>("MCP:ProductionTools:Enabled")
         : _configuration.GetValue<bool>("MCP:DevelopmentTools:Enabled");
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -967,7 +967,7 @@ public class InstrumentedTool : IMcpTool
     private readonly IMetrics _metrics;
     private readonly ILogger<InstrumentedTool> _logger;
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -1015,7 +1015,7 @@ public class InstrumentedTool : IMcpTool
 ```csharp
 public class WellLoggedTool : IMcpTool
 {
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -1064,7 +1064,7 @@ public class SecureTool : IMcpTool
 {
     private readonly IValidator<ToolArguments> _validator;
 
-    public async Task<IFdwResult> ValidateArgumentsAsync(
+    public async Task<IGenericResult> ValidateArgumentsAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -1074,23 +1074,23 @@ public class SecureTool : IMcpTool
         var validationResult = await _validator.ValidateAsync(args!, cancellationToken);
         if (!validationResult.IsValid)
         {
-            return FdwResult.Failure(string.Join(", ",
+            return GenericResult.Failure(string.Join(", ",
                 validationResult.Errors.Select(e => e.ErrorMessage)));
         }
 
         // Sanitize paths
         if (!IsPathSafe(args!.FilePath))
         {
-            return FdwResult.Failure("Invalid file path");
+            return GenericResult.Failure("Invalid file path");
         }
 
         // Check permissions
         if (!await HasPermissionAsync(args.FilePath))
         {
-            return FdwResult.Failure("Insufficient permissions");
+            return GenericResult.Failure("Insufficient permissions");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     private bool IsPathSafe(string path)
@@ -1110,7 +1110,7 @@ public class SecretAwareTool : IMcpTool
 {
     private readonly ISecretManager _secretManager;
 
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -1167,7 +1167,7 @@ public class SecretAwareTool : IMcpTool
 #if DEBUG
 public class DebugTool : IMcpTool
 {
-    public async Task<IFdwResult<object>> ExecuteAsync(
+    public async Task<IGenericResult<object>> ExecuteAsync(
         object? arguments,
         CancellationToken cancellationToken)
     {
@@ -1204,7 +1204,7 @@ MCP tools in the FractalDataWorks framework provide a structured way to extend f
 
 1. **Always use Result types** - Never throw exceptions from public methods
 2. **Implement proper validation** - Validate arguments before processing
-3. **Use structured messages** - Provide rich error information via IFdwMessage
+3. **Use structured messages** - Provide rich error information via IGenericMessage
 4. **Follow category conventions** - Organize tools by functional area
 5. **Write comprehensive tests** - Unit and integration tests are essential
 6. **Consider performance** - Use async patterns and resource pooling

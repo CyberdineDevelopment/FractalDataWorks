@@ -53,13 +53,13 @@ public interface ITransformationProvider<TTransformationRequest> : ITransformati
     int Priority { get; }
     
     // Validation and execution
-    IFdwResult ValidateTransformation(string inputType, string outputType, string? transformationCategory = null);
-    Task<IFdwResult<TOutput>> Transform<TOutput>(ITransformationRequest transformationRequest);
-    Task<IFdwResult<object?>> Transform(ITransformationRequest transformationRequest);
+    IGenericResult ValidateTransformation(string inputType, string outputType, string? transformationCategory = null);
+    Task<IGenericResult<TOutput>> Transform<TOutput>(ITransformationRequest transformationRequest);
+    Task<IGenericResult<object?>> Transform(ITransformationRequest transformationRequest);
     
     // Advanced capabilities
-    Task<IFdwResult<ITransformationEngine>> CreateEngineAsync(ITransformationEngineConfiguration configuration);
-    Task<IFdwResult<ITransformationMetrics>> GetTransformationMetricsAsync();
+    Task<IGenericResult<ITransformationEngine>> CreateEngineAsync(ITransformationEngineConfiguration configuration);
+    Task<IGenericResult<ITransformationMetrics>> GetTransformationMetricsAsync();
 }
 ```
 
@@ -114,11 +114,11 @@ public interface ITransformationEngine
     bool IsRunning { get; }
     
     // Engine operations
-    Task<IFdwResult<ITransformationResult>> ExecuteTransformationAsync(
+    Task<IGenericResult<ITransformationResult>> ExecuteTransformationAsync(
         ITransformationRequest request, 
         CancellationToken cancellationToken = default);
-    Task<IFdwResult> StartAsync(CancellationToken cancellationToken = default);
-    Task<IFdwResult> StopAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult> StartAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult> StopAsync(CancellationToken cancellationToken = default);
 }
 ```
 
@@ -189,12 +189,12 @@ public class MyTransformationProvider : ITransformationProvider<ITransformationR
     public IReadOnlyList<string> TransformationCategories => new[] { "Mapping", "Conversion" };
     public int Priority => 50;
 
-    public IFdwResult ValidateTransformation(string inputType, string outputType, string? category = null)
+    public IGenericResult ValidateTransformation(string inputType, string outputType, string? category = null)
     {
         // Validate if this provider can handle the transformation
     }
 
-    public async Task<IFdwResult<TOutput>> Transform<TOutput>(ITransformationRequest request)
+    public async Task<IGenericResult<TOutput>> Transform<TOutput>(ITransformationRequest request)
     {
         // Perform the actual transformation
     }
@@ -240,7 +240,7 @@ All interfaces extend the core FractalDataWorks service framework patterns:
 - `ITransformationProvider` extends `IFractalService`
 - `ITransformationRequest` extends `ICommand` 
 - `ITransformationsConfiguration` extends `IFractalConfiguration`
-- Results follow `IFdwResult<T>` pattern
+- Results follow `IGenericResult<T>` pattern
 
 ### Immutable Request Pattern
 The `ITransformationRequest` interface provides immutable update methods (`WithInputData`, `WithOutputType`, etc.) that return new instances rather than modifying existing ones, ensuring thread safety and predictable behavior.

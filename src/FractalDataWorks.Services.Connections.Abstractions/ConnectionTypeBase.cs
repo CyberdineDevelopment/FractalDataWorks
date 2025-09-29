@@ -17,7 +17,7 @@ public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> :
     ServiceTypeBase<TService, TConfiguration, TFactory>,
     IConnectionType<TService, TConfiguration, TFactory>,
     IConnectionType
-    where TService : class, IFdwConnection
+    where TService : class, IGenericConnection
     where TConfiguration : class, IConnectionConfiguration
     where TFactory : class, IConnectionFactory<TService, TConfiguration>
 {
@@ -46,7 +46,7 @@ public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> :
     /// Gets the factory type for creating connection service instances.
     /// </summary>
     /// <returns>The factory type.</returns>
-    public IFdwResult<Type> Factory() => FdwResult<Type>.Success(typeof(TFactory));
+    public IGenericResult<Type> Factory() => GenericResult<Type>.Success(typeof(TFactory));
 
     // NOTE: Container type and translator support will be added when those abstractions are ready
 }

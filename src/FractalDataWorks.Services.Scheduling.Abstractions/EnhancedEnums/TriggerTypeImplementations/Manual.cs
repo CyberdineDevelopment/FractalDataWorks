@@ -124,7 +124,7 @@ public sealed class Manual : TriggerTypeBase
     /// // scheduler.ExecuteManualTrigger(triggerId, userId);
     /// </code>
     /// </example>
-    public override DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution)
+    public override DateTime? CalculateNextExecution(IGenericTrigger trigger, DateTime? lastExecution)
     {
         // Manual triggers never auto-schedule - they execute only when manually triggered
         return null;
@@ -170,11 +170,11 @@ public sealed class Manual : TriggerTypeBase
     /// // result.Success == true
     /// </code>
     /// </example>
-    public override IFdwResult ValidateTrigger(IFdwTrigger trigger)
+    public override IGenericResult ValidateTrigger(IGenericTrigger trigger)
     {
         if (trigger?.Configuration == null)
         {
-            return FdwResult.Failure("Trigger configuration is required for Manual trigger type");
+            return GenericResult.Failure("Trigger configuration is required for Manual trigger type");
         }
 
         // Validate AllowConcurrent if provided
@@ -182,7 +182,7 @@ public sealed class Manual : TriggerTypeBase
             allowConcurrentObj != null &&
             !TryConvertToBool(allowConcurrentObj, out var _))
         {
-            return FdwResult.Failure($"'{AllowConcurrentKey}' configuration value must be a boolean if provided");
+            return GenericResult.Failure($"'{AllowConcurrentKey}' configuration value must be a boolean if provided");
         }
 
         // Validate Description if provided (just check it's a string)
@@ -190,7 +190,7 @@ public sealed class Manual : TriggerTypeBase
             descriptionObj != null &&
             descriptionObj is not string)
         {
-            return FdwResult.Failure($"'{DescriptionKey}' configuration value must be a string if provided");
+            return GenericResult.Failure($"'{DescriptionKey}' configuration value must be a string if provided");
         }
 
         // Validate RequiredRole if provided (just check it's a string)
@@ -198,11 +198,11 @@ public sealed class Manual : TriggerTypeBase
             roleObj != null &&
             roleObj is not string)
         {
-            return FdwResult.Failure($"'{RequiredRoleKey}' configuration value must be a string if provided");
+            return GenericResult.Failure($"'{RequiredRoleKey}' configuration value must be a string if provided");
         }
 
         // Manual triggers are always valid - they have no complex requirements
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <summary>

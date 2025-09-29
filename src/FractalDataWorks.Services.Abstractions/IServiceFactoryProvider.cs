@@ -26,7 +26,7 @@ public interface IServiceFactoryProvider
     /// The type name should match the Name property of the corresponding ServiceTypeBase
     /// implementation. For example, "MsSql", "Rest", "GraphQL", etc.
     /// </remarks>
-    IFdwResult RegisterFactory(string typeName, IServiceFactory factory);
+    IGenericResult RegisterFactory(string typeName, IServiceFactory factory);
 
     /// <summary>
     /// Registers a factory for a specific service type with the specified lifetime.
@@ -35,7 +35,7 @@ public interface IServiceFactoryProvider
     /// <param name="factory">The factory instance to register.</param>
     /// <param name="lifetime">The service lifetime for DI container registration.</param>
     /// <returns>A result indicating success or failure.</returns>
-    IFdwResult RegisterFactory(string typeName, IServiceFactory factory, IServiceLifetime lifetime);
+    IGenericResult RegisterFactory(string typeName, IServiceFactory factory, IServiceLifetime lifetime);
 
     /// <summary>
     /// Gets the service factory for the specified service type name.
@@ -46,7 +46,7 @@ public interface IServiceFactoryProvider
     /// This method is used by service providers to retrieve the appropriate factory
     /// for creating services based on configuration values.
     /// </remarks>
-    IFdwResult<IServiceFactory> GetFactory(string typeName);
+    IGenericResult<IServiceFactory> GetFactory(string typeName);
 
     /// <summary>
     /// Gets the service factory for the specified service type, with generic type safety.
@@ -55,9 +55,9 @@ public interface IServiceFactoryProvider
     /// <typeparam name="TConfiguration">The configuration type.</typeparam>
     /// <param name="typeName">The service type name to get the factory for.</param>
     /// <returns>A result containing the strongly-typed factory, or a failure if not found.</returns>
-    IFdwResult<IServiceFactory<TService, TConfiguration>> GetFactory<TService, TConfiguration>(string typeName)
+    IGenericResult<IServiceFactory<TService, TConfiguration>> GetFactory<TService, TConfiguration>(string typeName)
         where TService : class
-        where TConfiguration : IFdwConfiguration;
+        where TConfiguration : IGenericConfiguration;
 
     /// <summary>
     /// Checks whether a factory is registered for the specified service type name.

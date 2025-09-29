@@ -40,11 +40,11 @@ public sealed class DataProvider : IDataProvider
     /// </summary>
     /// <param name="configuration">The configuration containing the data type and settings.</param>
     /// <returns>A result containing the data service instance or failure information.</returns>
-    public async Task<IFdwResult<IDataService>> GetDataService(IDataConfiguration configuration)
+    public async Task<IGenericResult<IDataService>> GetDataService(IDataConfiguration configuration)
     {
         if (configuration == null)
         {
-            return FdwResult.Failure<IDataService>("Configuration cannot be null");
+            return GenericResult.Failure<IDataService>("Configuration cannot be null");
         }
 
         try
@@ -57,7 +57,7 @@ public sealed class DataProvider : IDataProvider
             if (dataType.IsEmpty)
             {
                 _logger.LogWarning("Unknown data type: {DataType}", configuration.DataType);
-                return FdwResult.Failure<IDataService>(
+                return GenericResult.Failure<IDataService>(
                     $"Unknown data type: {configuration.DataType}");
             }
 
@@ -66,7 +66,7 @@ public sealed class DataProvider : IDataProvider
             if (factory == null)
             {
                 _logger.LogWarning("No factory registered for data type: {DataType}", configuration.DataType);
-                return FdwResult.Failure<IDataService>(
+                return GenericResult.Failure<IDataService>(
                     $"No factory registered for data type: {configuration.DataType}");
             }
 
@@ -88,7 +88,7 @@ public sealed class DataProvider : IDataProvider
         catch (Exception ex)
         {
             _logger.LogError(ex, "Exception getting data service for type: {DataType}", configuration.DataType);
-            return FdwResult.Failure<IDataService>(ex.Message);
+            return GenericResult.Failure<IDataService>(ex.Message);
         }
     }
 }

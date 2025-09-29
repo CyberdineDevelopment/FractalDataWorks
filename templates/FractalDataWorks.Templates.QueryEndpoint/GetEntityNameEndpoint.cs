@@ -64,9 +64,9 @@ public class GetEntityNameEndpoint : FractalEndpoint<GetEntityNameRequest, List<
 #endif
 
 #if (EnablePagination)
-    protected override async Task<IFdwResult<PagedResponse<EntityNameResponse>>> ExecuteQueryAsync(GetEntityNameRequest query, CancellationToken ct)
+    protected override async Task<IGenericResult<PagedResponse<EntityNameResponse>>> ExecuteQueryAsync(GetEntityNameRequest query, CancellationToken ct)
 #else
-    protected override async Task<IFdwResult<List<EntityNameResponse>>> ExecuteQueryAsync(GetEntityNameRequest query, CancellationToken ct)
+    protected override async Task<IGenericResult<List<EntityNameResponse>>> ExecuteQueryAsync(GetEntityNameRequest query, CancellationToken ct)
 #endif
     {
         try
@@ -76,7 +76,7 @@ public class GetEntityNameEndpoint : FractalEndpoint<GetEntityNameRequest, List<
             // var dataCommand = new GetEntityNameCommand(query.Search);
             // var result = await DataGateway.Execute<List<EntityName>>(dataCommand, ct);
             // if (!result.IsSuccess)
-            //     return FdwResult<PagedResponse<EntityNameResponse>>.Failure(result.Message);
+            //     return GenericResult<PagedResponse<EntityNameResponse>>.Failure(result.Message);
 
             // For now, return sample data
             var sampleData = new List<EntityNameResponse>
@@ -110,18 +110,18 @@ public class GetEntityNameEndpoint : FractalEndpoint<GetEntityNameRequest, List<
                                     .ToList();
 
             var response = PagedResponse<EntityNameResponse>.Create(pagedData, query, totalCount);
-            return FdwResult<PagedResponse<EntityNameResponse>>.Success(response);
+            return GenericResult<PagedResponse<EntityNameResponse>>.Success(response);
 #else
-            return FdwResult<List<EntityNameResponse>>.Success(sampleData);
+            return GenericResult<List<EntityNameResponse>>.Success(sampleData);
 #endif
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error retrieving EntityName records");
 #if (EnablePagination)
-            return FdwResult<PagedResponse<EntityNameResponse>>.Failure("Failed to retrieve EntityName records");
+            return GenericResult<PagedResponse<EntityNameResponse>>.Failure("Failed to retrieve EntityName records");
 #else
-            return FdwResult<List<EntityNameResponse>>.Failure("Failed to retrieve EntityName records");
+            return GenericResult<List<EntityNameResponse>>.Failure("Failed to retrieve EntityName records");
 #endif
         }
     }

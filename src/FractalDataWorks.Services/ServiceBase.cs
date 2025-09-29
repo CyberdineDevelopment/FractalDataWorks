@@ -17,9 +17,9 @@ namespace FractalDataWorks.Services;
 /// <typeparam name="TCommand">The type of command this service executes.</typeparam>
 /// <typeparam name="TConfiguration">The type of configuration this service uses.</typeparam>
 /// <typeparam name="TService">The concrete service type for identification purposes.</typeparam>
-public abstract class ServiceBase<TCommand, TConfiguration, TService> : IFdwService<TCommand, TConfiguration, TService>
+public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGenericService<TCommand, TConfiguration, TService>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
     where TService : class
 {
     private readonly ILogger<TService> _logger;
@@ -67,7 +67,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IFdwServ
     /// </summary>
     /// <param name="command">The command to execute.</param>
     /// <returns>A task containing the execution result.</returns>
-    public abstract Task<IFdwResult> Execute(TCommand command);
+    public abstract Task<IGenericResult> Execute(TCommand command);
 
     /// <summary>
     /// Executes a command with generic return type.
@@ -75,7 +75,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IFdwServ
     /// <typeparam name="TOut">The expected return type.</typeparam>
     /// <param name="command">The command to execute.</param>
     /// <returns>A task containing the execution result.</returns>
-    public abstract Task<IFdwResult<TOut>> Execute<TOut>(TCommand command);
+    public abstract Task<IGenericResult<TOut>> Execute<TOut>(TCommand command);
 
     /// <summary>
     /// Executes a command with generic return type and cancellation support.
@@ -84,7 +84,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IFdwServ
     /// <param name="command">The command to execute.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>A task containing the execution result.</returns>
-    public virtual Task<IFdwResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken)
+    public virtual Task<IGenericResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken)
     {
         return Execute<TOut>(command);
     }
@@ -95,7 +95,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IFdwServ
     /// <param name="command">The command to execute.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>A task containing the execution result.</returns>
-    public virtual Task<IFdwResult> Execute(TCommand command, CancellationToken cancellationToken)
+    public virtual Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken)
     {
         return Execute(command);
     }

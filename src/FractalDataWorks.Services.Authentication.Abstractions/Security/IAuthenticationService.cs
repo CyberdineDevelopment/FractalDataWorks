@@ -17,7 +17,7 @@ namespace FractalDataWorks.Services.Authentication.Abstractions.Security;
 /// authentication schemes through the SecurityMethod enhanced enum system.
 /// </para>
 /// <para>
-/// All operations return IFdwResult to provide consistent error handling and
+/// All operations return IGenericResult to provide consistent error handling and
 /// success/failure semantics across the FractalDataWorks framework.
 /// </para>
 /// <para>
@@ -26,7 +26,7 @@ namespace FractalDataWorks.Services.Authentication.Abstractions.Security;
 /// requirements and thread-safety characteristics.
 /// </para>
 /// </remarks>
-public interface IAuthenticationService : IFdwService
+public interface IAuthenticationService : IGenericService
 {
     /// <summary>
     /// Authenticates a user based on the provided authentication token.
@@ -34,7 +34,7 @@ public interface IAuthenticationService : IFdwService
     /// <param name="token">The authentication token to validate.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the authentication operation to complete.</param>
     /// <returns>A task that represents the asynchronous authentication operation.</returns>
-    Task<IFdwResult<IAuthenticationContext>> Authenticate(string token, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IAuthenticationContext>> Authenticate(string token, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates whether the provided token is currently valid without performing full authentication.
@@ -42,7 +42,7 @@ public interface IAuthenticationService : IFdwService
     /// <param name="token">The authentication token to validate.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the validation operation to complete.</param>
     /// <returns>A task that represents the asynchronous validation operation.</returns>
-    Task<IFdwResult<bool>> ValidateToken(string token, CancellationToken cancellationToken = default);
+    Task<IGenericResult<bool>> ValidateToken(string token, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Refreshes an authentication token using the provided refresh token.
@@ -50,7 +50,7 @@ public interface IAuthenticationService : IFdwService
     /// <param name="refreshToken">The refresh token to use for obtaining a new authentication token.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the refresh operation to complete.</param>
     /// <returns>A task that represents the asynchronous token refresh operation.</returns>
-    Task<IFdwResult<string>> RefreshToken(string refreshToken, CancellationToken cancellationToken = default);
+    Task<IGenericResult<string>> RefreshToken(string refreshToken, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Revokes the specified authentication token, making it invalid for future use.
@@ -58,7 +58,7 @@ public interface IAuthenticationService : IFdwService
     /// <param name="token">The authentication token to revoke.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the revocation operation to complete.</param>
     /// <returns>A task that represents the asynchronous token revocation operation.</returns>
-    Task<IFdwResult> RevokeToken(string token, CancellationToken cancellationToken = default);
+    Task<IGenericResult> RevokeToken(string token, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes an authentication command and returns a typed result.
@@ -68,7 +68,7 @@ public interface IAuthenticationService : IFdwService
     /// <param name="command">The authentication command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult<TResult>> Execute<TResult>(IAuthenticationCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<TResult>> Execute<TResult>(IAuthenticationCommand command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes an authentication command without returning a specific result type.
@@ -77,5 +77,5 @@ public interface IAuthenticationService : IFdwService
     /// <param name="command">The authentication command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken = default);
 }

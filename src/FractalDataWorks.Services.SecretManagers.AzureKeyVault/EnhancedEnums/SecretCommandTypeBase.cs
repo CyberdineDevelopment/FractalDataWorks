@@ -40,7 +40,7 @@ public abstract class SecretCommandTypeBase : EnumOptionBase<SecretCommandTypeBa
     /// <param name="managementCommandmanagementCommand to execute.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation with the result.</returns>
-    public abstract Task<IFdwResult> Execute(
+    public abstract Task<IGenericResult> Execute(
         AzureKeyVaultService service, 
         ISecretManagerCommand managementCommand, 
         CancellationToken cancellationToken);

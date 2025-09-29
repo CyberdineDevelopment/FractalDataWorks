@@ -55,21 +55,21 @@ public static class ServiceCollectionExtensions
         configure?.Invoke(options);
         
         // Register core services
-        services.AddFdwCore();
-        services.AddFdwConfiguration(configuration);
-        services.AddFdwServices();
+        services.AddGenericCore();
+        services.AddGenericConfiguration(configuration);
+        services.AddGenericServices();
         
         // Register optional modules
         if (options.UseConnections)
-            services.AddFdwConnections();
+            services.AddGenericConnections();
         if (options.UseData)
-            services.AddFdwData();
+            services.AddGenericData();
         
         return services;
     }
     
     // Register services with configuration
-    public static IServiceCollection AddFdwService<TService, TImplementation, TConfiguration>(
+    public static IServiceCollection AddGenericService<TService, TImplementation, TConfiguration>(
         this IServiceCollection services,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
         where TService : class, IFractalService<TConfiguration>
@@ -246,7 +246,7 @@ public void ConfigureServices(IServiceCollection services)
     });
     
     // Register custom services
-    services.AddFdwService<IOrderService, OrderService, OrderConfiguration>();
+    services.AddGenericService<IOrderService, OrderService, OrderConfiguration>();
 }
 ```
 

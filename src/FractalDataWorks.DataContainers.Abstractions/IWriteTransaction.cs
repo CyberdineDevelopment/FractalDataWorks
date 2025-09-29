@@ -37,7 +37,7 @@ public interface IWriteTransaction : IDisposable
     /// This method makes all changes within the transaction permanent.
     /// Once committed, the transaction becomes inactive and cannot be used further.
     /// </remarks>
-    Task<IFdwResult> CommitAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult> CommitAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Rolls back all operations performed within this transaction.
@@ -48,5 +48,5 @@ public interface IWriteTransaction : IDisposable
     /// This method discards all changes made within the transaction.
     /// Once rolled back, the transaction becomes inactive and cannot be used further.
     /// </remarks>
-    Task<IFdwResult> RollbackAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult> RollbackAsync(CancellationToken cancellationToken = default);
 }

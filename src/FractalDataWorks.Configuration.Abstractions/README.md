@@ -11,7 +11,7 @@ The FractalDataWorks.Configuration.Abstractions library provides the foundationa
 - **Change Tracking**: Event-driven notifications when configurations change
 - **Multiple Source Types**: Support for files, databases, environment variables, and more
 - **Type Safety**: Generic interfaces for type-safe configuration operations
-- **Result Pattern**: Uses `IFdwResult<T>` for robust error handling
+- **Result Pattern**: Uses `IGenericResult<T>` for robust error handling
 - **Enhanced Enums**: Type-safe enumeration of change types and source types
 
 ## Core Interfaces
@@ -28,7 +28,7 @@ public interface IFractalConfiguration
     string SectionName { get; }        // appsettings.json section name
     bool IsEnabled { get; }            // Enable/disable flag
     
-    IFdwResult<ValidationResult> Validate(); // FluentValidation integration
+    IGenericResult<ValidationResult> Validate(); // FluentValidation integration
 }
 ```
 
@@ -37,7 +37,7 @@ public interface IFractalConfiguration
 - `Name` provides human-readable identification and lookup capability
 - `SectionName` maps to configuration sections in appsettings.json
 - `IsEnabled` allows configurations to be temporarily disabled
-- `Validate()` returns FluentValidation results wrapped in `IFdwResult<T>`
+- `Validate()` returns FluentValidation results wrapped in `IGenericResult<T>`
 
 ### IConfigurationRegistry
 
@@ -78,11 +78,11 @@ Asynchronous configuration provider with full CRUD operations:
 // Generic provider for any configuration type
 public interface IFractalConfigurationProvider
 {
-    Task<IFdwResult<TConfiguration>> Get<TConfiguration>(int id);
-    Task<IFdwResult<TConfiguration>> Get<TConfiguration>(string name);
-    Task<IFdwResult<IEnumerable<TConfiguration>>> GetAll<TConfiguration>();
-    Task<IFdwResult<IEnumerable<TConfiguration>>> GetEnabled<TConfiguration>();
-    Task<IFdwResult<NonResult>> Reload();
+    Task<IGenericResult<TConfiguration>> Get<TConfiguration>(int id);
+    Task<IGenericResult<TConfiguration>> Get<TConfiguration>(string name);
+    Task<IGenericResult<IEnumerable<TConfiguration>>> GetAll<TConfiguration>();
+    Task<IGenericResult<IEnumerable<TConfiguration>>> GetEnabled<TConfiguration>();
+    Task<IGenericResult<NonResult>> Reload();
     
     IFractalConfigurationSource Source { get; }
 }
@@ -90,17 +90,17 @@ public interface IFractalConfigurationProvider
 // Typed provider for specific configuration types
 public interface IFractalConfigurationProvider<TConfiguration>
 {
-    Task<IFdwResult<TConfiguration>> Get(int id);
-    Task<IFdwResult<TConfiguration>> Get(string name);
-    Task<IFdwResult<IEnumerable<TConfiguration>>> GetAll();
-    Task<IFdwResult<IEnumerable<TConfiguration>>> GetEnabled();
-    Task<IFdwResult<TConfiguration>> Save(TConfiguration configuration);
-    Task<IFdwResult<NonResult>> Delete(int id);
+    Task<IGenericResult<TConfiguration>> Get(int id);
+    Task<IGenericResult<TConfiguration>> Get(string name);
+    Task<IGenericResult<IEnumerable<TConfiguration>>> GetAll();
+    Task<IGenericResult<IEnumerable<TConfiguration>>> GetEnabled();
+    Task<IGenericResult<TConfiguration>> Save(TConfiguration configuration);
+    Task<IGenericResult<NonResult>> Delete(int id);
 }
 ```
 
 **Key Behaviors:**
-- All operations are asynchronous and return `IFdwResult<T>`
+- All operations are asynchronous and return `IGenericResult<T>`
 - `GetEnabled()` filters for configurations where `IsEnabled = true`
 - Typed provider supports full CRUD operations (Save/Delete)
 - Generic provider is read-only with reload capability
@@ -117,9 +117,9 @@ public interface IFractalConfigurationSource
     bool IsWritable { get; }               // Supports save/delete operations
     bool SupportsReload { get; }           // Supports change notifications
     
-    Task<IFdwResult<IEnumerable<TConfiguration>>> Load<TConfiguration>();
-    Task<IFdwResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration);
-    Task<IFdwResult<NonResult>> Delete<TConfiguration>(int id);
+    Task<IGenericResult<IEnumerable<TConfiguration>>> Load<TConfiguration>();
+    Task<IGenericResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration);
+    Task<IGenericResult<NonResult>> Delete<TConfiguration>(int id);
     
     event EventHandler<ConfigurationSourceChangedEventArgs>? Changed;
 }
@@ -235,7 +235,7 @@ When implementing `IFractalConfiguration`:
 
 When implementing `IFractalConfigurationProvider`:
 
-1. **Handle Errors Gracefully**: Always return `IFdwResult<T>` with appropriate error information
+1. **Handle Errors Gracefully**: Always return `IGenericResult<T>` with appropriate error information
 2. **Respect IsEnabled Filter**: `GetEnabled()` should only return configurations where `IsEnabled = true`
 3. **Validate Before Save**: Call `Validate()` on configurations before persisting
 4. **Maintain Consistency**: Ensure `Get(int id)` and `Get(string name)` return the same configuration
@@ -269,7 +269,7 @@ This library represents a refactored configuration system with the following cha
 
 1. **Enhanced Enum Integration**: Configuration change types and source types now use Enhanced Enums for type safety
 2. **Unified IFractalConfiguration**: All configurations now implement a common base interface
-3. **Result Pattern**: All provider operations return `IFdwResult<T>` instead of throwing exceptions
+3. **Result Pattern**: All provider operations return `IGenericResult<T>` instead of throwing exceptions
 4. **Async-First Design**: All provider operations are asynchronous
 5. **Validation Integration**: Built-in FluentValidation support for all configurations
 6. **Event-Driven Changes**: Configuration sources now provide change notification events

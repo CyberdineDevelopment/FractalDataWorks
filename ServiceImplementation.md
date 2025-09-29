@@ -23,7 +23,7 @@ This file tracks the implementation progress for bringing all service domains in
 **Status**: Enhanced pattern integrated with standard pattern
 - ✅ Created `src/FractalDataWorks.Services.Connections.Abstractions/ConnectionCommands.cs`
 - ✅ Added Execute methods to `src/FractalDataWorks.Services.Connections.Abstractions/IConnectionDataService.cs`
-- ✅ Existing: FdwConnectionProvider, ConnectionTypes collection
+- ✅ Existing: GenericConnectionProvider, ConnectionTypes collection
 - **Pattern**: Provider + Commands + Execute methods (enhanced pattern preserved)
 
 #### 3. SecretManager Domain ✅ COMPLETED
@@ -76,14 +76,14 @@ Every domain now has a `[DomainName]Commands.cs` file with `[TypeCollection]` at
 #### Execute Methods in Service Interfaces
 All main service interfaces now expose the standard Execute pattern:
 ```csharp
-Task<IFdwResult<TResult>> Execute<TResult>(I[Domain]Command command, CancellationToken cancellationToken = default);
-Task<IFdwResult> Execute(I[Domain]Command command, CancellationToken cancellationToken = default);
+Task<IGenericResult<TResult>> Execute<TResult>(I[Domain]Command command, CancellationToken cancellationToken = default);
+Task<IGenericResult> Execute(I[Domain]Command command, CancellationToken cancellationToken = default);
 ```
 
 #### Consistent Framework Integration
 - ✅ ServiceTypes collections exist in all domains
 - ✅ Command interfaces inherit from `ICommand`
-- ✅ Service interfaces inherit from `IFdwService`
+- ✅ Service interfaces inherit from `IGenericService`
 - ✅ Proper using statements and namespace organization
 
 ## Architecture Patterns Preserved
@@ -91,7 +91,7 @@ Task<IFdwResult> Execute(I[Domain]Command command, CancellationToken cancellatio
 ### Provider Pattern Domains
 Domains that use the Provider pattern for service resolution:
 - **Authentication**: `AuthenticationProvider : IAuthenticationProvider`
-- **Connections**: `FdwConnectionProvider : IFdwConnectionProvider`
+- **Connections**: `GenericConnectionProvider : IGenericConnectionProvider`
 
 ### ServiceTypes Pattern Domains
 Domains that use the ServiceTypes pattern for service discovery:
@@ -116,8 +116,8 @@ Domains that use the ServiceTypes pattern for service discovery:
 ✅ Integration points verified:
 - ServiceTypes collections work with source generators
 - Commands integrate with `ICommand` hierarchy
-- Services integrate with `IFdwService` pattern
-- Results use `IFdwResult` pattern consistently
+- Services integrate with `IGenericService` pattern
+- Results use `IGenericResult` pattern consistently
 
 ## Future Enhancement Opportunities
 

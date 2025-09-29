@@ -8,7 +8,7 @@ using FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.TriggerTyp
 namespace FractalDataWorks.Services.Scheduling.Abstractions.Models;
 
 /// <summary>
-/// Default implementation of <see cref="IFdwTrigger"/> that represents a trigger configuration
+/// Default implementation of <see cref="IGenericTrigger"/> that represents a trigger configuration
 /// defining HOW a schedule determines WHEN to execute.
 /// </summary>
 /// <remarks>
@@ -51,7 +51,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions.Models;
 /// var validationResult = trigger.Validate();
 /// </code>
 /// </example>
-public sealed class Trigger : IFdwTrigger
+public sealed class Trigger : IGenericTrigger
 {
     private readonly Dictionary<string, object> _configuration;
     private readonly Dictionary<string, object> _metadata;
@@ -583,32 +583,32 @@ public sealed class Trigger : IFdwTrigger
     /// await scheduler.ScheduleTrigger(trigger);
     /// </code>
     /// </example>
-    public IFdwResult Validate()
+    public IGenericResult Validate()
     {
         // Basic validation first
         if (string.IsNullOrWhiteSpace(TriggerId))
         {
-            return FdwResult.Failure("Trigger ID cannot be null or empty");
+            return GenericResult.Failure("Trigger ID cannot be null or empty");
         }
 
         if (string.IsNullOrWhiteSpace(TriggerName))
         {
-            return FdwResult.Failure("Trigger name cannot be null or empty");
+            return GenericResult.Failure("Trigger name cannot be null or empty");
         }
 
         if (string.IsNullOrWhiteSpace(TriggerType))
         {
-            return FdwResult.Failure("Trigger type cannot be null or empty");
+            return GenericResult.Failure("Trigger type cannot be null or empty");
         }
 
         if (Configuration == null)
         {
-            return FdwResult.Failure("Trigger configuration cannot be null");
+            return GenericResult.Failure("Trigger configuration cannot be null");
         }
 
         if (ModifiedUtc < CreatedUtc)
         {
-            return FdwResult.Failure("Modified timestamp cannot be earlier than created timestamp");
+            return GenericResult.Failure("Modified timestamp cannot be earlier than created timestamp");
         }
 
         // Delegate to trigger type specific validation
@@ -725,7 +725,7 @@ public sealed class Trigger : IFdwTrigger
     /// </summary>
     /// <returns>Validation result from the appropriate trigger type.</returns>
     [ExcludeFromCodeCoverage] // Helper method - trigger type validation tested in trigger type tests
-    private IFdwResult ValidateByTriggerType()
+    private IGenericResult ValidateByTriggerType()
     {
         // Note: In a complete implementation, this would look up the trigger type
         // from a registry and call its ValidateTrigger method. For this implementation,
@@ -737,7 +737,7 @@ public sealed class Trigger : IFdwTrigger
             "Interval" => ValidateIntervalTrigger(),
             "Once" => ValidateOnceTrigger(),
             "Manual" => ValidateManualTrigger(),
-            _ => FdwResult.Failure($"Unknown trigger type: {TriggerType}")
+            _ => GenericResult.Failure($"Unknown trigger type: {TriggerType}")
         };
     }
 
@@ -746,22 +746,22 @@ public sealed class Trigger : IFdwTrigger
     /// </summary>
     /// <returns>Validation result for cron configuration.</returns>
     [ExcludeFromCodeCoverage] // Helper method - detailed validation tested in trigger type tests
-    private IFdwResult ValidateCronTrigger()
+    private IGenericResult ValidateCronTrigger()
     {
         if (!Configuration.TryGetValue(Cron.CronExpressionKey, out var cronObj) ||
             cronObj is not string cronExpression ||
             string.IsNullOrWhiteSpace(cronExpression))
         {
-            return FdwResult.Failure("Cron expression is required for Cron triggers");
+            return GenericResult.Failure("Cron expression is required for Cron triggers");
         }
 
         // Basic cron expression validation - detailed validation would be in TriggerType
         if (cronExpression.Split(' ').Length < 5)
         {
-            return FdwResult.Failure("Cron expression must have at least 5 fields");
+            return GenericResult.Failure("Cron expression must have at least 5 fields");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <summary>
@@ -769,23 +769,23 @@ public sealed class Trigger : IFdwTrigger
     /// </summary>
     /// <returns>Validation result for interval configuration.</returns>
     [ExcludeFromCodeCoverage] // Helper method - detailed validation tested in trigger type tests
-    private IFdwResult ValidateIntervalTrigger()
+    private IGenericResult ValidateIntervalTrigger()
     {
         if (!Configuration.TryGetValue(Interval.IntervalMinutesKey, out var intervalObj) ||
             !TryConvertToInt(intervalObj, out var intervalMinutes) ||
             intervalMinutes <= 0)
         {
-            return FdwResult.Failure("Interval minutes must be a positive integer for Interval triggers");
+            return GenericResult.Failure("Interval minutes must be a positive integer for Interval triggers");
         }
 
         if (Configuration.TryGetValue(Interval.StartTimeKey, out var startTimeObj) &&
             startTimeObj != null &&
             !TryConvertToDateTime(startTimeObj, out var _))
         {
-            return FdwResult.Failure("Start time must be a valid DateTime if provided for Interval triggers");
+            return GenericResult.Failure("Start time must be a valid DateTime if provided for Interval triggers");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <summary>
@@ -793,20 +793,20 @@ public sealed class Trigger : IFdwTrigger
     /// </summary>
     /// <returns>Validation result for once configuration.</returns>
     [ExcludeFromCodeCoverage] // Helper method - detailed validation tested in trigger type tests
-    private IFdwResult ValidateOnceTrigger()
+    private IGenericResult ValidateOnceTrigger()
     {
         if (!Configuration.TryGetValue(Once.StartTimeKey, out var executeObj) ||
             executeObj is not DateTime executeAtUtc)
         {
-            return FdwResult.Failure("Execute at UTC timestamp is required for Once triggers");
+            return GenericResult.Failure("Execute at UTC timestamp is required for Once triggers");
         }
 
         if (executeAtUtc.Kind != DateTimeKind.Utc)
         {
-            return FdwResult.Failure("Execute at timestamp must be in UTC for Once triggers");
+            return GenericResult.Failure("Execute at timestamp must be in UTC for Once triggers");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <summary>
@@ -814,16 +814,16 @@ public sealed class Trigger : IFdwTrigger
     /// </summary>
     /// <returns>Validation result for manual configuration.</returns>
     [ExcludeFromCodeCoverage] // Helper method - detailed validation tested in trigger type tests
-    private IFdwResult ValidateManualTrigger()
+    private IGenericResult ValidateManualTrigger()
     {
         // Manual triggers have minimal validation requirements
         if (Configuration.TryGetValue(Manual.AllowConcurrentKey, out var allowConcurrentObj) &&
             !TryConvertToBool(allowConcurrentObj, out var _))
         {
-            return FdwResult.Failure("Allow concurrent must be a boolean value for Manual triggers");
+            return GenericResult.Failure("Allow concurrent must be a boolean value for Manual triggers");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <summary>

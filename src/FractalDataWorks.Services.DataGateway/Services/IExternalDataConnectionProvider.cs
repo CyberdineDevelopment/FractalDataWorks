@@ -30,7 +30,7 @@ public interface IExternalDataConnectionProvider
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult&lt;T&gt; with the command execution result or error information.
+    /// an IGenericResult&lt;T&gt; with the command execution result or error information.
     /// </returns>
     /// <remarks>
     /// This method will:
@@ -39,7 +39,7 @@ public interface IExternalDataConnectionProvider
     /// 3. Execute the command against the external data store
     /// 4. Return the typed result or error information
     /// </remarks>
-    Task<IFdwResult<T>> ExecuteCommand<T>(DataCommandBase command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<T>> ExecuteCommand<T>(DataCommandBase command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Discovers the schema structure of a named connection starting from an optional path.
@@ -49,9 +49,9 @@ public interface IExternalDataConnectionProvider
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult with a collection of discovered data containers.
+    /// an IGenericResult with a collection of discovered data containers.
     /// </returns>
-    Task<IFdwResult<IEnumerable<DataContainer>>> DiscoverConnectionSchema(
+    Task<IGenericResult<IEnumerable<DataContainer>>> DiscoverConnectionSchema(
         string connectionName, 
         DataPath? startPath = null, 
         CancellationToken cancellationToken = default);
@@ -62,9 +62,9 @@ public interface IExternalDataConnectionProvider
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult with a dictionary of connection names and their metadata.
+    /// an IGenericResult with a dictionary of connection names and their metadata.
     /// </returns>
-    Task<IFdwResult<IDictionary<string, object>>> GetConnectionsMetadata(CancellationToken cancellationToken = default);
+    Task<IGenericResult<IDictionary<string, object>>> GetConnectionsMetadata(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks if a named connection is available and operational.
@@ -73,7 +73,7 @@ public interface IExternalDataConnectionProvider
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult&lt;bool&gt; indicating whether the connection is available.
+    /// an IGenericResult&lt;bool&gt; indicating whether the connection is available.
     /// </returns>
-    Task<IFdwResult<bool>> IsConnectionAvailable(string connectionName, CancellationToken cancellationToken = default);
+    Task<IGenericResult<bool>> IsConnectionAvailable(string connectionName, CancellationToken cancellationToken = default);
 }

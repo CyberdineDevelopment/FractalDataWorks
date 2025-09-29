@@ -12,13 +12,13 @@ Both projects share the same namespace (`FractalDataWorks.Services.Abstractions`
 
 ## Core Interfaces
 
-### IFdwService
+### IGenericService
 
 The base interface for all services in the framework:
 
 ```csharp
-// Located in: FractalDataWorks.Abstractions/Services/Abstractions/IFdwService.cs
-public interface IFdwService
+// Located in: FractalDataWorks.Abstractions/Services/Abstractions/IGenericService.cs
+public interface IGenericService
 {
     string Id { get; }           // Unique service instance identifier
     string ServiceType { get; }  // Display name of the service (string, not IServiceType)
@@ -26,43 +26,43 @@ public interface IFdwService
 }
 ```
 
-### IFdwService<TCommand>
+### IGenericService<TCommand>
 
 Extends the base interface with command execution capabilities:
 
 ```csharp
-public interface IFdwService<TCommand> where TCommand : ICommand
+public interface IGenericService<TCommand> where TCommand : ICommand
 {
-    Task<IFdwResult> Execute(TCommand command);
+    Task<IGenericResult> Execute(TCommand command);
 }
 ```
 
-### IFdwService<TCommand, TConfiguration>
+### IGenericService<TCommand, TConfiguration>
 
 Adds configuration support to command-based services:
 
 ```csharp
-public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
+public interface IGenericService<TCommand, TConfiguration> : IGenericService<TCommand>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
 {
     string Name { get; }
     TConfiguration Configuration { get; }
-    Task<IFdwResult<T>> Execute<T>(TCommand command);
-    Task<IFdwResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
-    Task<IFdwResult> Execute(TCommand command, CancellationToken cancellationToken);
+    Task<IGenericResult<T>> Execute<T>(TCommand command);
+    Task<IGenericResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
+    Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
 }
 ```
 
-### IFdwService<TCommand, TConfiguration, TService>
+### IGenericService<TCommand, TConfiguration, TService>
 
 The complete service interface with full type identification:
 
 ```csharp
-public interface IFdwService<TCommand, TConfiguration, TService>
-    : IFdwService<TCommand, TConfiguration>
+public interface IGenericService<TCommand, TConfiguration, TService>
+    : IGenericService<TCommand, TConfiguration>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
     where TService : class
 {
     // TService is used for type identification and logging
@@ -132,8 +132,8 @@ Base factory interface for service creation:
 ```csharp
 public interface IServiceFactory
 {
-    IFdwResult<IFdwService> Create(IFdwConfiguration configuration);
-    IFdwResult<T> Create<T>(IFdwConfiguration configuration) where T : IFdwService;
+    IGenericResult<IGenericService> Create(IGenericConfiguration configuration);
+    IGenericResult<T> Create<T>(IGenericConfiguration configuration) where T : IGenericService;
 }
 ```
 
@@ -145,7 +145,7 @@ Typed factory for specific service types:
 public interface IServiceFactory<TService> : IServiceFactory
     // Note: NO constraints on TService - maximum flexibility
 {
-    IFdwResult<TService> Create(IFdwConfiguration configuration);
+    IGenericResult<TService> Create(IGenericConfiguration configuration);
 }
 ```
 
@@ -155,10 +155,10 @@ Complete factory with configuration type safety:
 
 ```csharp
 public interface IServiceFactory<TService, TConfiguration> : IServiceFactory<TService>
-    where TConfiguration : IFdwConfiguration  // Only configuration is constrained
+    where TConfiguration : IGenericConfiguration  // Only configuration is constrained
     // Note: TService has NO constraints
 {
-    IFdwResult<TService> Create(TConfiguration configuration);
+    IGenericResult<TService> Create(TConfiguration configuration);
 }
 ```
 
@@ -196,25 +196,25 @@ public abstract class ServiceLifetimeCollectionBase
 
 ## Provider and Validation
 
-### IFdwServiceProvider (IRecServiceProvider)
+### IGenericServiceProvider (IRecServiceProvider)
 
 Service provider interface for service resolution:
 
 ```csharp
-public interface IFdwServiceProvider
+public interface IGenericServiceProvider
 {
-    T GetService<T>() where T : IFdwService;
-    IFdwService GetService(Type serviceType);
-    IEnumerable<T> GetServices<T>() where T : IFdwService;
+    T GetService<T>() where T : IGenericService;
+    IGenericService GetService(Type serviceType);
+    IEnumerable<T> GetServices<T>() where T : IGenericService;
 }
 ```
 
-### IFdwValidator (IRecValidator)
+### IGenericValidator (IRecValidator)
 
 Validation interface for service configurations:
 
 ```csharp
-public interface IFdwValidator<T>
+public interface IGenericValidator<T>
 {
     ValidationResult Validate(T instance);
     Task<ValidationResult> ValidateAsync(T instance);
@@ -276,7 +276,7 @@ public interface IDataCommand : ICommand
 Base configuration interface:
 
 ```csharp
-public interface IServiceConfiguration : IFdwConfiguration
+public interface IServiceConfiguration : IGenericConfiguration
 {
     string Name { get; }
     bool Enabled { get; }
@@ -298,9 +298,9 @@ The abstractions library provides multiple extension points:
 
 1. Custom command types by implementing `ICommand`
 2. Service lifetime options by extending `ServiceLifetimeBase`
-3. Validation strategies via `IFdwValidator`
+3. Validation strategies via `IGenericValidator`
 4. Message types through `IServiceMessage`
-5. Provider implementations of `IFdwServiceProvider`
+5. Provider implementations of `IGenericServiceProvider`
 
 ## Thread Safety Guarantees
 
@@ -315,11 +315,11 @@ The abstractions library provides multiple extension points:
 2. Use the most specific interface that meets your needs
 3. Leverage generic constraints for compile-time type safety
 4. Implement proper null checking in concrete classes
-5. Follow the established naming conventions (IFdw prefix)
+5. Follow the established naming conventions (IGeneric prefix)
 
 ## Integration Requirements
 
 Implementations must reference:
-- `FractalDataWorks.Configuration.Abstractions` for IFdwConfiguration
-- `FractalDataWorks.Results` for IFdwResult types
+- `FractalDataWorks.Configuration.Abstractions` for IGenericConfiguration
+- `FractalDataWorks.Results` for IGenericResult types
 - `Microsoft.Extensions.DependencyInjection.Abstractions` for DI integration

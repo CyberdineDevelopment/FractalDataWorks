@@ -57,7 +57,7 @@ public class CommandActionEntityNameEndpoint : CommandEndpoint<CommandActionEnti
         Validator<CommandActionEntityNameRequestValidator>();
     }
 
-    protected override async Task<IFdwResult<CommandActionEntityNameResponse>> ExecuteCommandAsync(CommandActionEntityNameRequest command, CancellationToken ct)
+    protected override async Task<IGenericResult<CommandActionEntityNameResponse>> ExecuteCommandAsync(CommandActionEntityNameRequest command, CancellationToken ct)
     {
         try
         {
@@ -66,7 +66,7 @@ public class CommandActionEntityNameEndpoint : CommandEndpoint<CommandActionEnti
             // var existsResult = await DataGateway.Execute(new CheckEntityNameExistsCommand(command.Name), ct);
             // if (existsResult.IsSuccess && existsResult.Value)
             // {
-            //     return FdwResult<CommandActionEntityNameResponse>.Failure("EntityName already exists");
+            //     return GenericResult<CommandActionEntityNameResponse>.Failure("EntityName already exists");
             // }
 
             // TODO: Create EntityName using DataGateway
@@ -74,7 +74,7 @@ public class CommandActionEntityNameEndpoint : CommandEndpoint<CommandActionEnti
             // var createResult = await DataGateway.Execute<EntityName>(createCommand, ct);
             // if (!createResult.IsSuccess)
             // {
-            //     return FdwResult<CommandActionEntityNameResponse>.Failure(createResult.Message);
+            //     return GenericResult<CommandActionEntityNameResponse>.Failure(createResult.Message);
             // }
 
             // For now, simulate creation
@@ -91,7 +91,7 @@ public class CommandActionEntityNameEndpoint : CommandEndpoint<CommandActionEnti
             // var existsResult = await DataGateway.Execute(new GetEntityNameByIdCommand(command.Id), ct);
             // if (!existsResult.IsSuccess)
             // {
-            //     return FdwResult<CommandActionEntityNameResponse>.Failure("EntityName not found");
+            //     return GenericResult<CommandActionEntityNameResponse>.Failure("EntityName not found");
             // }
 
             // TODO: Update EntityName using DataGateway
@@ -99,7 +99,7 @@ public class CommandActionEntityNameEndpoint : CommandEndpoint<CommandActionEnti
             // var updateResult = await DataGateway.Execute<EntityName>(updateCommand, ct);
             // if (!updateResult.IsSuccess)
             // {
-            //     return FdwResult<CommandActionEntityNameResponse>.Failure(updateResult.Message);
+            //     return GenericResult<CommandActionEntityNameResponse>.Failure(updateResult.Message);
             // }
 
             // For now, simulate update
@@ -116,7 +116,7 @@ public class CommandActionEntityNameEndpoint : CommandEndpoint<CommandActionEnti
             // var existsResult = await DataGateway.Execute(new GetEntityNameByIdCommand(command.Id), ct);
             // if (!existsResult.IsSuccess)
             // {
-            //     return FdwResult<CommandActionEntityNameResponse>.Failure("EntityName not found");
+            //     return GenericResult<CommandActionEntityNameResponse>.Failure("EntityName not found");
             // }
 
             // TODO: Delete EntityName using DataGateway
@@ -124,7 +124,7 @@ public class CommandActionEntityNameEndpoint : CommandEndpoint<CommandActionEnti
             // var deleteResult = await DataGateway.Execute(deleteCommand, ct);
             // if (!deleteResult.IsSuccess)
             // {
-            //     return FdwResult<CommandActionEntityNameResponse>.Failure(deleteResult.Message);
+            //     return GenericResult<CommandActionEntityNameResponse>.Failure(deleteResult.Message);
             // }
 
             Logger.LogInformation("EntityName deleted: {EntityId}", command.Id);
@@ -138,24 +138,24 @@ public class CommandActionEntityNameEndpoint : CommandEndpoint<CommandActionEnti
 #endif
 
 #if (Action == "Create")
-            return FdwResult<CommandActionEntityNameResponse>.Success(newEntity);
+            return GenericResult<CommandActionEntityNameResponse>.Success(newEntity);
 #elseif (Action == "Update")
-            return FdwResult<CommandActionEntityNameResponse>.Success(updatedEntity);
+            return GenericResult<CommandActionEntityNameResponse>.Success(updatedEntity);
 #elseif (Action == "Delete")
-            return FdwResult<CommandActionEntityNameResponse>.Success(deleteResponse);
+            return GenericResult<CommandActionEntityNameResponse>.Success(deleteResponse);
 #endif
         }
         catch (Exception ex)
         {
 #if (Action == "Create")
             Logger.LogError(ex, "Error creating EntityName: {EntityName}", command.Name);
-            return FdwResult<CommandActionEntityNameResponse>.Failure("Failed to create EntityName");
+            return GenericResult<CommandActionEntityNameResponse>.Failure("Failed to create EntityName");
 #elseif (Action == "Update")
             Logger.LogError(ex, "Error updating EntityName: {EntityId} - {EntityName}", command.Id, command.Name);
-            return FdwResult<CommandActionEntityNameResponse>.Failure("Failed to update EntityName");
+            return GenericResult<CommandActionEntityNameResponse>.Failure("Failed to update EntityName");
 #elseif (Action == "Delete")
             Logger.LogError(ex, "Error deleting EntityName: {EntityId}", command.Id);
-            return FdwResult<CommandActionEntityNameResponse>.Failure("Failed to delete EntityName");
+            return GenericResult<CommandActionEntityNameResponse>.Failure("Failed to delete EntityName");
 #endif
         }
     }

@@ -17,14 +17,14 @@ public sealed class RoslynCSharpParser : ICodeParser
     public string Language => "csharp";
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<ISyntaxTree>> ParseAsync(
+    public async Task<IGenericResult<ISyntaxTree>> ParseAsync(
         string sourceCode,
         string? filePath = null,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(sourceCode))
         {
-            return FdwResult<ISyntaxTree>.Failure("Source code cannot be null or empty");
+            return GenericResult<ISyntaxTree>.Failure("Source code cannot be null or empty");
         }
 
         try
@@ -43,21 +43,21 @@ public sealed class RoslynCSharpParser : ICodeParser
                     cancellationToken: cancellationToken);
 
                 var roslynTree = new RoslynSyntaxTree(syntaxTree, sourceCode, Language, filePath);
-                return FdwResult<ISyntaxTree>.Success(roslynTree);
+                return GenericResult<ISyntaxTree>.Success(roslynTree);
             }, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
-            return FdwResult<ISyntaxTree>.Failure("Parse operation was cancelled");
+            return GenericResult<ISyntaxTree>.Failure("Parse operation was cancelled");
         }
         catch (Exception ex)
         {
-            return FdwResult<ISyntaxTree>.Failure($"Parse error: {ex.Message}");
+            return GenericResult<ISyntaxTree>.Failure($"Parse error: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult> ValidateAsync(
+    public async Task<IGenericResult> ValidateAsync(
         string sourceCode,
         CancellationToken cancellationToken = default)
     {
@@ -65,7 +65,7 @@ public sealed class RoslynCSharpParser : ICodeParser
         
         if (parseResult.IsFailure)
         {
-            return FdwResult.Failure(parseResult.Message ?? "Validation failed");
+            return GenericResult.Failure(parseResult.Message ?? "Validation failed");
         }
 
         if (parseResult.Value!.HasErrors)
@@ -75,9 +75,9 @@ public sealed class RoslynCSharpParser : ICodeParser
             {
                 errorCount++;
             }
-            return FdwResult.Failure($"Source code contains {errorCount} syntax error(s)");
+            return GenericResult.Failure($"Source code contains {errorCount} syntax error(s)");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 }

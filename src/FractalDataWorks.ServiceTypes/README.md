@@ -23,14 +23,14 @@ Domain-specific interfaces like `IConnectionType<TService, TConfiguration, TFact
 ```csharp
 // Generic interface constrains to connection-specific types
 public interface IConnectionType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
-    where TService : class, IFdwConnection              // Must be connection service
+    where TService : class, IGenericConnection              // Must be connection service
     where TConfiguration : class, IConnectionConfiguration   // Must be connection config
     where TFactory : class, IConnectionFactory<TService, TConfiguration> // Must be connection factory
 
 // Implementation gets constrained generics
 public sealed class MsSqlConnectionType : 
-    ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,
-    IConnectionType<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
+    ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,
+    IConnectionType<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
 ```
 
 #### Purpose 2: Type Discovery and Metadata Access
@@ -41,7 +41,7 @@ Collections store the base interface but can discover generic types, configurati
 IConnectionType connectionType = MsSqlConnectionType.Instance;
 
 // Collection can discover the specific types
-Type serviceType = connectionType.ServiceType;           // IFdwConnection
+Type serviceType = connectionType.ServiceType;           // IGenericConnection
 Type configurationType = connectionType.ConfigurationType; // MsSqlConfiguration  
 Type factoryType = connectionType.FactoryType;           // IMsSqlConnectionFactory
 string category = connectionType.Category;               // "Database"
@@ -85,13 +85,13 @@ Generic collection providing:
 ```csharp
 // ✅ CORRECT - Both base class and interface
 public sealed class MsSqlConnectionType : 
-    ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,
-    IConnectionType<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,
+    ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,
+    IConnectionType<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,
     IConnectionType
 
 // ❌ WRONG - Missing interface implementation
 public sealed class BadConnectionType : 
-    ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
+    ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
 ```
 
 ### Rule 2: Singleton Pattern with Static Instance
@@ -129,7 +129,7 @@ private PostgreSqlConnectionType() : base(id: 1, name: "PostgreSql") { } // Dupl
 // ✅ CORRECT - Proper constraints for connections
 public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> : 
     ServiceTypeBase<TService, TConfiguration, TFactory>
-    where TService : class, IFdwConnection          // Must implement IFdwConnection
+    where TService : class, IGenericConnection          // Must implement IGenericConnection
     where TConfiguration : class, IConnectionConfiguration // Must implement IConnectionConfiguration  
     where TFactory : class, IConnectionFactory<TService, TConfiguration> // Must implement factory interface
 ```
@@ -200,8 +200,8 @@ public sealed class MsSqlConnectionType : ConnectionTypeBase<...>
 // ✅ CORRECT - Attribute with explicit collection type and name
 [ServiceTypeOption(typeof(ConnectionTypes), "MsSql")]
 public sealed class MsSqlConnectionType :
-    ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,
-    IConnectionType<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
+    ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,
+    IConnectionType<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
 {
     public static MsSqlConnectionType Instance { get; } = new();
     private MsSqlConnectionType() : base(id: 2, name: "MsSql", category: "Database") { }
@@ -249,7 +249,7 @@ public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> :
     ServiceTypeBase<TService, TConfiguration, TFactory>,    // Rule 1: Inherit base class
     IConnectionType<TService, TConfiguration, TFactory>,    // Rule 1: Implement generic interface
     IConnectionType                                         // Rule 1: Implement non-generic interface
-    where TService : class, IFdwConnection              // Rule 4: Service constraint
+    where TService : class, IGenericConnection              // Rule 4: Service constraint
     where TConfiguration : class, IConnectionConfiguration   // Rule 4: Configuration constraint  
     where TFactory : class, IConnectionFactory<TService, TConfiguration> // Rule 4: Factory constraint
 {
@@ -272,11 +272,11 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 [ServiceTypeCollection(typeof(ConnectionTypeBase<,,>), typeof(IConnectionType), typeof(ConnectionTypes))]  // Rule 5: Collection attribute
 public partial class ConnectionTypesBase : 
     ConnectionTypeCollectionBase<
-        ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>,
-        ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>,
-        IFdwConnection,
+        ConnectionTypeBase<IGenericConnection, IConnectionConfiguration, IConnectionFactory<IGenericConnection, IConnectionConfiguration>>,
+        ConnectionTypeBase<IGenericConnection, IConnectionConfiguration, IConnectionFactory<IGenericConnection, IConnectionConfiguration>>,
+        IGenericConnection,
         IConnectionConfiguration,
-        IConnectionFactory<IFdwConnection, IConnectionConfiguration>>
+        IConnectionFactory<IGenericConnection, IConnectionConfiguration>>
 {
     // Source generator will populate with discovered connection types
 }
@@ -293,8 +293,8 @@ namespace FractalDataWorks.Services.Connections.MsSql;
 
 [ServiceTypeOption(typeof(ConnectionTypes), "MsSql")]                                   // Rule 8: ServiceTypeOption with collection targeting
 public sealed class MsSqlConnectionType :
-    ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>, // Rule 1: Base class
-    IConnectionType<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,    // Rule 1: Generic interface
+    ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>, // Rule 1: Base class
+    IConnectionType<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>,    // Rule 1: Generic interface
     IConnectionType                                                                      // Rule 1: Non-generic interface
 {
     public static MsSqlConnectionType Instance { get; } = new();                        // Rule 2: Singleton
@@ -333,7 +333,7 @@ public sealed class MsSqlConfiguration : IConnectionConfiguration
 }
 
 // IMsSqlConnectionFactory.cs - Rule 4: Factory constraint satisfaction
-public interface IMsSqlConnectionFactory : IConnectionFactory<IFdwConnection, MsSqlConfiguration>
+public interface IMsSqlConnectionFactory : IConnectionFactory<IGenericConnection, MsSqlConfiguration>
 {
     // SQL Server specific factory methods
 }
@@ -348,7 +348,7 @@ IConnectionType connectionType = MsSqlConnectionType.Instance;
 List<IConnectionType> allConnections = new() { connectionType };
 
 // Use constrained interface for type-safe operations
-public void ConfigureConnection<T>(IConnectionType<IFdwConnection, T, IConnectionFactory<IFdwConnection, T>> connectionType)
+public void ConfigureConnection<T>(IConnectionType<IGenericConnection, T, IConnectionFactory<IGenericConnection, T>> connectionType)
     where T : class, IConnectionConfiguration
 {
     // Compiler guarantees T is IConnectionConfiguration
@@ -480,7 +480,7 @@ public sealed class BadServiceType : ServiceTypeBase<...>
 ```csharp
 // WRONG - Service doesn't implement required interface
 public sealed class BadConnection : 
-    ConnectionTypeBase<SomeService, Config, Factory>  // SomeService must implement IFdwConnection
+    ConnectionTypeBase<SomeService, Config, Factory>  // SomeService must implement IGenericConnection
 ```
 
 ## Source Generator Integration

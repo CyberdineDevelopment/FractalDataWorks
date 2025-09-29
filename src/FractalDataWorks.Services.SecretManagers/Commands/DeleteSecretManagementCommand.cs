@@ -13,7 +13,7 @@ namespace FractalDataWorks.Services.SecretManagers.Commands;
 /// The managementCommand can specify whether to perform a soft delete (if supported)
 /// or a permanent deletion through its parameters.
 /// </remarks>
-public sealed class DeleteSecretManagerCommand : SecretManagerCommandBase, ISecretManagerCommand<IFdwResult>
+public sealed class DeleteSecretManagerCommand : SecretManagerCommandBase, ISecretManagerCommand<IGenericResult>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DeleteSecretManagerCommand"/> class.
@@ -30,7 +30,7 @@ public sealed class DeleteSecretManagerCommand : SecretManagerCommandBase, ISecr
         IReadOnlyDictionary<string, object?>? parameters = null,
         IReadOnlyDictionary<string, object>? metadata = null,
         TimeSpan? timeout = null)
-        : base("DeleteSecret", container, secretKey, typeof(IFdwResult), parameters, metadata, timeout)
+        : base("DeleteSecret", container, secretKey, typeof(IGenericResult), parameters, metadata, timeout)
     {
         if (string.IsNullOrWhiteSpace(secretKey))
             throw new ArgumentException("Secret key cannot be null or empty for DeleteSecret operation.", nameof(secretKey));
@@ -123,13 +123,13 @@ public sealed class DeleteSecretManagerCommand : SecretManagerCommandBase, ISecr
     }
 
     /// <inheritdoc/>
-    ISecretManagerCommand<IFdwResult> ISecretManagerCommand<IFdwResult>.WithParameters(IReadOnlyDictionary<string, object?> newParameters)
+    ISecretManagerCommand<IGenericResult> ISecretManagerCommand<IGenericResult>.WithParameters(IReadOnlyDictionary<string, object?> newParameters)
     {
         return new DeleteSecretManagerCommand(Container, SecretKey!, newParameters, Metadata, Timeout);
     }
 
     /// <inheritdoc/>
-    ISecretManagerCommand<IFdwResult> ISecretManagerCommand<IFdwResult>.WithMetadata(IReadOnlyDictionary<string, object> newMetadata)
+    ISecretManagerCommand<IGenericResult> ISecretManagerCommand<IGenericResult>.WithMetadata(IReadOnlyDictionary<string, object> newMetadata)
     {
         return new DeleteSecretManagerCommand(Container, SecretKey!, Parameters, newMetadata, Timeout);
     }

@@ -12,7 +12,7 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions;
 /// Provider metrics enable monitoring, optimization, and troubleshooting of data access operations.
 /// Metrics are collected during normal operation and provide both real-time and historical insights.
 /// </remarks>
-public interface IFdwProviderMetrics
+public interface IGenericProviderMetrics
 {
     /// <summary>
     /// Gets the provider identifier these metrics belong to.

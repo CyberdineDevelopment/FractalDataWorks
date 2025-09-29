@@ -22,7 +22,7 @@ public interface ICodeParser
     /// <param name="filePath">Optional file path for context.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result containing the syntax tree or error information.</returns>
-    Task<IFdwResult<ISyntaxTree>> ParseAsync(
+    Task<IGenericResult<ISyntaxTree>> ParseAsync(
         string sourceCode,
         string? filePath = null,
         CancellationToken cancellationToken = default);
@@ -33,7 +33,7 @@ public interface ICodeParser
     /// <param name="sourceCode">The source code to validate.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Result indicating whether the code is valid.</returns>
-    Task<IFdwResult> ValidateAsync(
+    Task<IGenericResult> ValidateAsync(
         string sourceCode,
         CancellationToken cancellationToken = default);
 }

@@ -5,8 +5,8 @@ A robust result pattern library that provides a standardized way to handle opera
 ## Project Overview
 
 The FractalDataWorks.Results library provides:
-- **IFdwResult** and **IFdwResult&lt;T&gt;** interfaces for result handling
-- **FdwResult** and **FdwResult&lt;T&gt;** concrete implementations
+- **IGenericResult** and **IGenericResult&lt;T&gt;** interfaces for result handling
+- **GenericResult** and **GenericResult&lt;T&gt;** concrete implementations
 - **NonResult** unit type for operations that don't return values
 - Integration with **FractalDataWorks.Messages** for structured message handling
 - Functional programming methods (Map, Match) for result composition
@@ -16,12 +16,12 @@ The FractalDataWorks.Results library provides:
 
 ## Key Types and Behavior
 
-### IFdwResult Interface
+### IGenericResult Interface
 
 Base interface for all result types with the following properties:
 
 ```csharp
-public interface IFdwResult : IGenericResult
+public interface IGenericResult : IGenericResult
 {
     bool IsEmpty { get; }    // Indicates if result has no messages
     bool Error { get; }      // Alias for IsFailure (!IsSuccess)
@@ -33,12 +33,12 @@ public interface IFdwResult : IGenericResult
 - `bool IsFailure` - True if operation failed (!IsSuccess)
 - `string Message` - First message or empty string; throws InvalidOperationException on successful results when accessed
 
-### IFdwResult&lt;T&gt; Generic Interface
+### IGenericResult&lt;T&gt; Generic Interface
 
 Generic result interface that combines value and message handling:
 
 ```csharp
-public interface IFdwResult<T> : IFdwResult, IGenericResult<T>
+public interface IGenericResult<T> : IGenericResult, IGenericResult<T>
 {
     // Inherits all base functionality plus:
     T Value { get; }  // Throws InvalidOperationException if IsSuccess is false
@@ -47,7 +47,7 @@ public interface IFdwResult<T> : IFdwResult, IGenericResult<T>
 }
 ```
 
-### FdwResult Implementation
+### GenericResult Implementation
 
 **Message Handling**:
 - Stores messages as `List<IFractalMessage>` internally
@@ -59,22 +59,22 @@ public interface IFdwResult<T> : IFdwResult, IGenericResult<T>
 **Factory Methods**:
 ```csharp
 // Success results
-FdwResult.Success()                                    // No message
-FdwResult.Success(string message)                      // With string message  
-FdwResult.Success(IFractalMessage message)                 // With IFractalMessage
-FdwResult.Success<TMessage>(TMessage message)          // With typed IFractalMessage
-FdwResult.Success(IEnumerable<IFractalMessage> messages)   // With message collection
-FdwResult.Success(params IFractalMessage[] messages)       // With message array
+GenericResult.Success()                                    // No message
+GenericResult.Success(string message)                      // With string message  
+GenericResult.Success(IFractalMessage message)                 // With IFractalMessage
+GenericResult.Success<TMessage>(TMessage message)          // With typed IFractalMessage
+GenericResult.Success(IEnumerable<IFractalMessage> messages)   // With message collection
+GenericResult.Success(params IFractalMessage[] messages)       // With message array
 
 // Failure results
-FdwResult.Failure(string message)                      // With string message
-FdwResult.Failure(IFractalMessage message)                 // With IFractalMessage
-FdwResult.Failure<TMessage>(TMessage message)          // With typed IFractalMessage  
-FdwResult.Failure(IEnumerable<IFractalMessage> messages)   // With message collection
-FdwResult.Failure(params IFractalMessage[] messages)       // With message array
+GenericResult.Failure(string message)                      // With string message
+GenericResult.Failure(IFractalMessage message)                 // With IFractalMessage
+GenericResult.Failure<TMessage>(TMessage message)          // With typed IFractalMessage  
+GenericResult.Failure(IEnumerable<IFractalMessage> messages)   // With message collection
+GenericResult.Failure(params IFractalMessage[] messages)       // With message array
 ```
 
-### FdwResult&lt;T&gt; Generic Implementation
+### GenericResult&lt;T&gt; Generic Implementation
 
 **Value Handling**:
 - `_hasValue` field tracks whether value is accessible (set to IsSuccess in constructors)
@@ -85,20 +85,20 @@ FdwResult.Failure(params IFractalMessage[] messages)       // With message array
 **Factory Methods**:
 ```csharp
 // Success results with values
-FdwResult<T>.Success(T value)                                    // Value only
-FdwResult<T>.Success(T value, string message)                   // Value + message
-FdwResult<T>.Success(T value, IFractalMessage message)              // Value + IFractalMessage
-FdwResult<T>.Success<TMessage>(T value, TMessage message)       // Value + typed message
-FdwResult<T>.Success(T value, IEnumerable<IFractalMessage> messages)// Value + collection
-FdwResult<T>.Success(T value, params IFractalMessage[] messages)    // Value + array
+GenericResult<T>.Success(T value)                                    // Value only
+GenericResult<T>.Success(T value, string message)                   // Value + message
+GenericResult<T>.Success(T value, IFractalMessage message)              // Value + IFractalMessage
+GenericResult<T>.Success<TMessage>(T value, TMessage message)       // Value + typed message
+GenericResult<T>.Success(T value, IEnumerable<IFractalMessage> messages)// Value + collection
+GenericResult<T>.Success(T value, params IFractalMessage[] messages)    // Value + array
 
 // Failure results (static methods with different signatures)
-FdwResult<T>.Failure<T>(string message)           // Generic static method
-FdwResult<T>.Failure(string message)              // Instance-type static method
-FdwResult<T>.Failure(IFractalMessage message)         // With IFractalMessage
-FdwResult<T>.Failure<TMessage>(TMessage message)  // With typed IFractalMessage
-FdwResult<T>.Failure(IEnumerable<IFractalMessage> messages) // With collection
-FdwResult<T>.Failure(params IFractalMessage[] messages)     // With array
+GenericResult<T>.Failure<T>(string message)           // Generic static method
+GenericResult<T>.Failure(string message)              // Instance-type static method
+GenericResult<T>.Failure(IFractalMessage message)         // With IFractalMessage
+GenericResult<T>.Failure<TMessage>(TMessage message)  // With typed IFractalMessage
+GenericResult<T>.Failure(IEnumerable<IFractalMessage> messages) // With collection
+GenericResult<T>.Failure(params IFractalMessage[] messages)     // With array
 ```
 
 **Functional Methods**:
@@ -107,8 +107,8 @@ FdwResult<T>.Failure(params IFractalMessage[] messages)     // With array
 IGenericResult<TNew> Map<TNew>(Func<T, TNew> mapper)
 {
     return IsSuccess 
-        ? FdwResult<TNew>.Success(mapper(Value))
-        : FdwResult<TNew>.Failure(Message);  // Only uses first message
+        ? GenericResult<TNew>.Success(mapper(Value))
+        : GenericResult<TNew>.Failure(Message);  // Only uses first message
 }
 
 // Match executes appropriate function based on result state  
@@ -144,21 +144,21 @@ public struct NonResult : IEquatable<NonResult>
 
 ```csharp
 // Simple success/failure
-IFdwResult result = FdwResult.Success("Operation completed");
+IGenericResult result = GenericResult.Success("Operation completed");
 if (result.IsSuccess)
 {
     Console.WriteLine($"Success: {result.Message}");
 }
 
 // Result with value
-IFdwResult<int> numberResult = FdwResult<int>.Success(42, "Number processed");
+IGenericResult<int> numberResult = GenericResult<int>.Success(42, "Number processed");
 if (numberResult.IsSuccess)
 {
     Console.WriteLine($"Value: {numberResult.Value}"); // 42
 }
 
 // Failure handling
-IFdwResult<string> failedResult = FdwResult<string>.Failure("Something went wrong");
+IGenericResult<string> failedResult = GenericResult<string>.Failure("Something went wrong");
 Console.WriteLine($"Failed: {failedResult.Message}");
 // Console.WriteLine(failedResult.Value); // Would throw InvalidOperationException
 ```
@@ -172,7 +172,7 @@ var messages = new List<IFractalMessage>
     new FractalMessage("First step completed"),  
     new FractalMessage("Second step completed")
 };
-IFdwResult result = FdwResult.Success(messages);
+IGenericResult result = GenericResult.Success(messages);
 
 // Access all messages
 foreach (var msg in result.Messages)
@@ -187,11 +187,11 @@ Console.WriteLine(result.Message); // "First step completed"
 ### Functional Composition
 
 ```csharp
-IFdwResult<int> GetNumber() => FdwResult<int>.Success(10);
-IFdwResult<string> ProcessNumber(int num) => FdwResult<string>.Success($"Processed: {num}");
+IGenericResult<int> GetNumber() => GenericResult<int>.Success(10);
+IGenericResult<string> ProcessNumber(int num) => GenericResult<string>.Success($"Processed: {num}");
 
 // Using Map to transform successful results
-IFdwResult<int> numberResult = GetNumber();
+IGenericResult<int> numberResult = GetNumber();
 IGenericResult<string> stringResult = numberResult.Map(x => $"Number is {x}");
 
 // Using Match for branching logic  
@@ -205,16 +205,16 @@ string output = numberResult.Match(
 
 ```csharp
 // For operations that don't return values but need result tracking
-IFdwResult<NonResult> LogOperation(string message)
+IGenericResult<NonResult> LogOperation(string message)
 {
     try
     {
         Console.WriteLine(message);
-        return FdwResult<NonResult>.Success(NonResult.Value, "Logged successfully");
+        return GenericResult<NonResult>.Success(NonResult.Value, "Logged successfully");
     }
     catch (Exception ex)
     {
-        return FdwResult<NonResult>.Failure(ex.Message);
+        return GenericResult<NonResult>.Failure(ex.Message);
     }
 }
 ```
@@ -227,16 +227,16 @@ IFdwResult<NonResult> LogOperation(string message)
 - Only the first message is used in Map/Match operations
 
 ### IsEmpty Behavior Differences
-- **FdwResult**: `IsEmpty` returns `true` when message collection is empty (regardless of success state)
-- **FdwResult&lt;T&gt;**: `IsEmpty` returns `true` when `!_hasValue` (i.e., when failed - overrides base behavior)
+- **GenericResult**: `IsEmpty` returns `true` when message collection is empty (regardless of success state)
+- **GenericResult&lt;T&gt;**: `IsEmpty` returns `true` when `!_hasValue` (i.e., when failed - overrides base behavior)
 
 ### Exception Throwing Behavior
 - `Value` property throws `InvalidOperationException` when accessed on failed results
-- `Message` property on `IGenericResult` throws `InvalidOperationException` when accessed on successful results (though FdwResult implementation returns empty string)
+- `Message` property on `IGenericResult` throws `InvalidOperationException` when accessed on successful results (though GenericResult implementation returns empty string)
 
 ### Generic Factory Method Overloads
-- `FdwResult<T>.Failure<T>(string message)` - Generic static method for any type
-- `FdwResult<T>.Failure(string message)` - Instance-type specific static method
+- `GenericResult<T>.Failure<T>(string message)` - Generic static method for any type
+- `GenericResult<T>.Failure(string message)` - Instance-type specific static method
 
 ## Code Coverage Exclusions
 
@@ -253,7 +253,7 @@ This library appears to be part of a recent refactor. Key observations:
 
 1. **Message Integration**: Heavy integration with FractalDataWorks.Messages framework for structured message handling
 2. **Enhanced Enum Dependency**: IFractalMessage extends IEnumOption, indicating integration with enhanced enum pattern  
-3. **Dual Interface Support**: Supports both IGenericResult (standard) and IFdwResult (enhanced) interfaces
+3. **Dual Interface Support**: Supports both IGenericResult (standard) and IGenericResult (enhanced) interfaces
 4. **Factory Pattern**: Extensive use of static factory methods rather than public constructors
 
 ## Dependencies

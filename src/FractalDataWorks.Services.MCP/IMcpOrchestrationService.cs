@@ -29,7 +29,7 @@ public interface IMcpOrchestrationService
     /// <summary>
     /// Executes a tool by name with the provided arguments.
     /// </summary>
-    Task<IFdwResult<object>> ExecuteToolAsync(string toolName, object? arguments, CancellationToken cancellationToken = default);
+    Task<IGenericResult<object>> ExecuteToolAsync(string toolName, object? arguments, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all available categories.

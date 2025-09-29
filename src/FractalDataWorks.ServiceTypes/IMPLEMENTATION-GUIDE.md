@@ -29,7 +29,7 @@ FractalDataWorks.DeveloperKit/
 │   │
 │   ├── FractalDataWorks.Services.Abstractions/                 # Service framework base
 │   │   ├── FractalDataWorks.Services.Abstractions.csproj
-│   │   ├── IFdwService.cs                                     # Base service interface
+│   │   ├── IGenericService.cs                                     # Base service interface
 │   │   ├── IServiceConfiguration.cs                          # Base configuration interface
 │   │   ├── IServiceFactory.cs                                # Base factory interface
 │   │   ├── ServiceLifetimeBase.cs                            # Service lifetime Enhanced Enum
@@ -41,7 +41,7 @@ FractalDataWorks.DeveloperKit/
 │   │   ├── ConnectionTypeBase.cs                             # Connection base implementation
 │   │   ├── ConnectionTypeCollectionBase.cs                   # Connection collection base
 │   │   ├── ConnectionTypesBase.cs                            # Concrete collection [ServiceTypeCollection]
-│   │   ├── IFdwConnection.cs                                 # Base connection interface
+│   │   ├── IGenericConnection.cs                                 # Base connection interface
 │   │   ├── IConnectionConfiguration.cs                       # Base connection config
 │   │   ├── IConnectionFactory.cs                             # Base connection factory
 │   │   ├── States/
@@ -127,7 +127,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 
 // Generic interface with connection-specific constraints
 public interface IConnectionType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
-    where TService : class, IFdwConnection
+    where TService : class, IGenericConnection
     where TConfiguration : class, IConnectionConfiguration
     where TFactory : class, IConnectionFactory<TService, TConfiguration>
 {
@@ -150,7 +150,7 @@ public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> :
     ServiceTypeBase<TService, TConfiguration, TFactory>,
     IConnectionType<TService, TConfiguration, TFactory>,
     IConnectionType
-    where TService : class, IFdwConnection
+    where TService : class, IGenericConnection
     where TConfiguration : class, IConnectionConfiguration
     where TFactory : class, IConnectionFactory<TService, TConfiguration>
 {
@@ -170,7 +170,7 @@ public abstract class ConnectionTypeCollectionBase<TBase, TGeneric, TService, TC
     ServiceTypeCollectionBase<TBase, TGeneric, TService, TConfiguration, TFactory>
     where TBase : ConnectionTypeBase<TService, TConfiguration, TFactory>
     where TGeneric : ConnectionTypeBase<TService, TConfiguration, TFactory>
-    where TService : class, IFdwConnection
+    where TService : class, IGenericConnection
     where TConfiguration : class, IConnectionConfiguration
     where TFactory : class, IConnectionFactory<TService, TConfiguration>
 {
@@ -188,11 +188,11 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 [ServiceTypeCollection("ConnectionTypeBase", "ConnectionTypes")]
 public partial class ConnectionTypesBase : 
     ConnectionTypeCollectionBase<
-        ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>,
-        ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>,
-        IFdwConnection,
+        ConnectionTypeBase<IGenericConnection, IConnectionConfiguration, IConnectionFactory<IGenericConnection, IConnectionConfiguration>>,
+        ConnectionTypeBase<IGenericConnection, IConnectionConfiguration, IConnectionFactory<IGenericConnection, IConnectionConfiguration>>,
+        IGenericConnection,
         IConnectionConfiguration,
-        IConnectionFactory<IFdwConnection, IConnectionConfiguration>>
+        IConnectionFactory<IGenericConnection, IConnectionConfiguration>>
 {
     // Source generator will populate:
     // - Static instances for each discovered connection type
@@ -224,9 +224,9 @@ public sealed class MsSqlConfiguration : IConnectionConfiguration
 // File: FractalDataWorks.Services.Connections.MsSql/IMsSqlConnectionFactory.cs
 namespace FractalDataWorks.Services.Connections.MsSql;
 
-public interface IMsSqlConnectionFactory : IConnectionFactory<IFdwConnection, MsSqlConfiguration>
+public interface IMsSqlConnectionFactory : IConnectionFactory<IGenericConnection, MsSqlConfiguration>
 {
-    Task<IFdwConnection> CreateConnectionAsync(MsSqlConfiguration configuration, CancellationToken cancellationToken = default);
+    Task<IGenericConnection> CreateConnectionAsync(MsSqlConfiguration configuration, CancellationToken cancellationToken = default);
     Task<bool> TestConnectionAsync(MsSqlConfiguration configuration, CancellationToken cancellationToken = default);
 }
 ```
@@ -237,7 +237,7 @@ public interface IMsSqlConnectionFactory : IConnectionFactory<IFdwConnection, Ms
 namespace FractalDataWorks.Services.Connections.MsSql;
 
 public sealed class MsSqlConnectionType : 
-    ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
+    ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
 {
     // Singleton pattern
     public static MsSqlConnectionType Instance { get; } = new();
@@ -474,7 +474,7 @@ public class ConnectionManagerService
     }
     
     // Create connection dynamically based on connection type
-    public async Task<IFdwConnection> CreateConnectionAsync(string connectionTypeName)
+    public async Task<IGenericConnection> CreateConnectionAsync(string connectionTypeName)
     {
         var connectionType = GetConnectionType(connectionTypeName);
         if (connectionType == null)
@@ -490,7 +490,7 @@ public class ConnectionManagerService
         var factory = _serviceProvider.GetRequiredService(factoryType);
         
         // Use reflection to call CreateConnectionAsync (or implement a common interface)
-        if (factory is IConnectionFactory<IFdwConnection, IConnectionConfiguration> genericFactory)
+        if (factory is IConnectionFactory<IGenericConnection, IConnectionConfiguration> genericFactory)
         {
             return await genericFactory.CreateConnectionAsync((IConnectionConfiguration)config);
         }
@@ -577,7 +577,7 @@ public class ConnectionTypeExamples
         var postgres = connectionTypes.GetByName("PostgreSql");
         
         // Filter by service type
-        var databaseConnections = connectionTypes.GetByServiceType(typeof(IFdwConnection));
+        var databaseConnections = connectionTypes.GetByServiceType(typeof(IGenericConnection));
         
         // Filter by category
         var databaseTypes = allConnections.Where(ct => ct.Category == "Database");

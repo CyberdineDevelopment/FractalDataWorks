@@ -9,7 +9,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// <summary>
 /// Base interface for all FractalDataWorks connections.
 /// </summary>
-public interface IFdwConnection : IDisposable
+public interface IGenericConnection : IDisposable
 {
     /// <summary>
     /// Gets the unique identifier for this connection instance.

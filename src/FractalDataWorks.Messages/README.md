@@ -4,7 +4,7 @@ This package provides the foundation for structured, type-safe messaging within 
 
 ## Overview
 
-The Messages package enables consistent, discoverable, and type-safe messaging across all FractalDataWorks components. Messages are used for structured result information in `FdwResult<T>` operations, not for logging.
+The Messages package enables consistent, discoverable, and type-safe messaging across all FractalDataWorks components. Messages are used for structured result information in `GenericResult<T>` operations, not for logging.
 
 ## Key Components
 
@@ -230,7 +230,7 @@ var messageByName = ValidationMessageCollection.GetByName("InvalidEmail");
 - **Thread-safe operations**: All message operations should be thread-safe
 
 ### Usage Guidelines
-- **For results, not logging**: Messages are for `FdwResult<T>` operations, not logging
+- **For results, not logging**: Messages are for `GenericResult<T>` operations, not logging
 - **Immutable design**: Prefer immutable message instances where possible
 - **Metadata support**: Use Details dictionary and Data property for structured additional information
 - **Timestamp tracking**: All MessageTemplate instances include automatic UTC timestamp creation
@@ -263,7 +263,7 @@ The following code should be excluded from coverage testing:
 
 Messages integrate seamlessly with other FractalDataWorks components:
 
-- **Results**: Used in `FdwResult<T>` for structured error/success information
+- **Results**: Used in `GenericResult<T>` for structured error/success information
 - **Services**: Service operations return messages for validation failures, errors
 - **Enhanced Enums**: Automatic collection generation and discovery
 - **Source Generation**: Compile-time code generation for collections and factory methods

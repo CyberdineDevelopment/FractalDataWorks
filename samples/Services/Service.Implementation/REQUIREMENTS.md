@@ -130,8 +130,8 @@ samples/Services/Service.Implementation/
 
 ### Core Interfaces
 
-#### IFdwConnection.cs
-**Location**: `src/FractalDataWorks.Services.Connections.Abstractions/IFdwConnection.cs`
+#### IGenericConnection.cs
+**Location**: `src/FractalDataWorks.Services.Connections.Abstractions/IGenericConnection.cs`
 
 ```csharp
 using System;
@@ -143,7 +143,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// <summary>
 /// Base interface for all FractalDataWorks connections.
 /// </summary>
-public interface IFdwConnection : IDisposable
+public interface IGenericConnection : IDisposable
 {
     /// <summary>
     /// Gets the unique identifier for this connection instance.
@@ -158,14 +158,14 @@ public interface IFdwConnection : IDisposable
     /// <summary>
     /// Executes a command on this connection.
     /// </summary>
-    Task<IFdwResult> Execute(
+    Task<IGenericResult> Execute(
         IDataCommand command,
         CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a command on this connection and returns a typed result.
     /// </summary>
-    Task<IFdwResult<TResult>> Execute<TResult>(
+    Task<IGenericResult<TResult>> Execute<TResult>(
         IDataCommand command,
         CancellationToken cancellationToken = default);
 }
@@ -228,7 +228,7 @@ public interface IConnectionFactory
     /// <summary>
     /// Creates a connection with the specified configuration.
     /// </summary>
-    Task<IFdwConnection> Create(
+    Task<IGenericConnection> Create(
         IConnectionConfiguration configuration,
         CancellationToken cancellationToken = default);
 }
@@ -237,7 +237,7 @@ public interface IConnectionFactory
 /// Generic factory interface for creating typed connections.
 /// </summary>
 public interface IConnectionFactory<TConnection, TConfiguration> : IConnectionFactory
-    where TConnection : IFdwConnection
+    where TConnection : IGenericConnection
     where TConfiguration : IConnectionConfiguration
 {
     /// <summary>
@@ -277,7 +277,7 @@ public interface IConnectionProvider
     /// <summary>
     /// Creates a connection using the appropriate factory.
     /// </summary>
-    Task<IFdwConnection> Create(
+    Task<IGenericConnection> Create(
         IConnectionConfiguration configuration,
         CancellationToken cancellationToken = default);
 
@@ -328,8 +328,8 @@ public interface IDataCommand
 }
 ```
 
-#### IFdwResult.cs
-**Location**: `src/FractalDataWorks.Services.Connections.Abstractions/IFdwResult.cs`
+#### IGenericResult.cs
+**Location**: `src/FractalDataWorks.Services.Connections.Abstractions/IGenericResult.cs`
 
 ```csharp
 namespace FractalDataWorks.Services.Connections.Abstractions;
@@ -337,7 +337,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// <summary>
 /// Represents the result of an operation.
 /// </summary>
-public interface IFdwResult
+public interface IGenericResult
 {
     /// <summary>
     /// Gets a value indicating whether the operation was successful.
@@ -358,7 +358,7 @@ public interface IFdwResult
 /// <summary>
 /// Represents the result of an operation with a return value.
 /// </summary>
-public interface IFdwResult<T> : IFdwResult
+public interface IGenericResult<T> : IGenericResult
 {
     /// <summary>
     /// Gets the value if the operation was successful.
@@ -367,18 +367,18 @@ public interface IFdwResult<T> : IFdwResult
 }
 ```
 
-#### FdwResult.cs
-**Location**: `src/FractalDataWorks.Services.Connections.Abstractions/FdwResult.cs`
+#### GenericResult.cs
+**Location**: `src/FractalDataWorks.Services.Connections.Abstractions/GenericResult.cs`
 
 ```csharp
 namespace FractalDataWorks.Services.Connections.Abstractions;
 
 /// <summary>
-/// Implementation of IFdwResult.
+/// Implementation of IGenericResult.
 /// </summary>
-public sealed class FdwResult : IFdwResult
+public sealed class GenericResult : IGenericResult
 {
-    private FdwResult(bool isSuccess, string error)
+    private GenericResult(bool isSuccess, string error)
     {
         IsSuccess = isSuccess;
         Error = error;
@@ -388,19 +388,19 @@ public sealed class FdwResult : IFdwResult
     public bool IsFailure => !IsSuccess;
     public string Error { get; }
 
-    public static IFdwResult Success() => new FdwResult(true, string.Empty);
-    public static IFdwResult Failure(string error) => new FdwResult(false, error);
+    public static IGenericResult Success() => new GenericResult(true, string.Empty);
+    public static IGenericResult Failure(string error) => new GenericResult(false, error);
 
-    public static IFdwResult<T> Success<T>(T value) => new FdwResult<T>(true, value, string.Empty);
-    public static IFdwResult<T> Failure<T>(string error) => new FdwResult<T>(false, default!, error);
+    public static IGenericResult<T> Success<T>(T value) => new GenericResult<T>(true, value, string.Empty);
+    public static IGenericResult<T> Failure<T>(string error) => new GenericResult<T>(false, default!, error);
 }
 
 /// <summary>
-/// Implementation of IFdwResult<T>.
+/// Implementation of IGenericResult<T>.
 /// </summary>
-public sealed class FdwResult<T> : IFdwResult<T>
+public sealed class GenericResult<T> : IGenericResult<T>
 {
-    internal FdwResult(bool isSuccess, T value, string error)
+    internal GenericResult(bool isSuccess, T value, string error)
     {
         IsSuccess = isSuccess;
         Value = value;
@@ -512,7 +512,7 @@ public sealed partial class ConnectionProvider : IConnectionProvider
         LogFactoryRegistered(factory.GetType().Name, factory.ConnectionTypeName);
     }
 
-    public async Task<IFdwConnection> Create(
+    public async Task<IGenericConnection> Create(
         IConnectionConfiguration configuration,
         CancellationToken cancellationToken = default)
     {
@@ -660,7 +660,7 @@ public sealed class MsSqlConnectionFactory : IConnectionFactory<MsSqlConnection,
     public string ConnectionTypeName => "MsSql";
 
     /// <inheritdoc />
-    public async Task<IFdwConnection> Create(
+    public async Task<IGenericConnection> Create(
         IConnectionConfiguration configuration,
         CancellationToken cancellationToken = default)
     {
@@ -714,9 +714,9 @@ using Microsoft.Extensions.Logging;
 namespace FractalDataWorks.Services.Connections.MsSql;
 
 /// <summary>
-/// SQL Server implementation of IFdwConnection.
+/// SQL Server implementation of IGenericConnection.
 /// </summary>
-public sealed class MsSqlConnection : IFdwConnection
+public sealed class MsSqlConnection : IGenericConnection
 {
     private readonly ILogger<MsSqlConnection> _logger;
     private readonly MsSqlConfiguration _configuration;
@@ -739,24 +739,24 @@ public sealed class MsSqlConnection : IFdwConnection
     public string ProviderName => "MsSql";
 
     /// <inheritdoc />
-    public async Task<IFdwResult> Execute(
+    public async Task<IGenericResult> Execute(
         IDataCommand command,
         CancellationToken cancellationToken = default)
     {
         var result = await Execute<object>(command, cancellationToken);
-        return result.IsSuccess ? FdwResult.Success() : FdwResult.Failure(result.Error);
+        return result.IsSuccess ? GenericResult.Success() : GenericResult.Failure(result.Error);
     }
 
     /// <inheritdoc />
-    public async Task<IFdwResult<TResult>> Execute<TResult>(
+    public async Task<IGenericResult<TResult>> Execute<TResult>(
         IDataCommand command,
         CancellationToken cancellationToken = default)
     {
         if (_disposed)
-            return FdwResult.Failure<TResult>("Connection has been disposed");
+            return GenericResult.Failure<TResult>("Connection has been disposed");
 
         if (command == null)
-            return FdwResult.Failure<TResult>("Command cannot be null");
+            return GenericResult.Failure<TResult>("Command cannot be null");
 
         try
         {
@@ -773,12 +773,12 @@ public sealed class MsSqlConnection : IFdwConnection
             AddParameters(sqlCommand, command);
 
             var result = await ExecuteCommand<TResult>(sqlCommand, command.CommandType, cancellationToken);
-            return FdwResult.Success(result);
+            return GenericResult.Success(result);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to execute command on connection {ConnectionId}", ConnectionId);
-            return FdwResult.Failure<TResult>(ex.Message);
+            return GenericResult.Failure<TResult>(ex.Message);
         }
     }
 
@@ -891,7 +891,7 @@ public sealed class MsSqlConnection : IFdwConnection
 This document provides the complete requirements with all the corrections we discussed:
 - Only `Execute` and `Execute<T>` methods (no Open/Close)
 - All method names without "Async" suffix
-- `FdwResult` instead of `FdwResult`
+- `GenericResult` instead of `GenericResult`
 - Source-generated logging with `partial` classes
 - No reflection - proper interface-based design
 - Factory methods named `Create` (not `CreateConnection`)

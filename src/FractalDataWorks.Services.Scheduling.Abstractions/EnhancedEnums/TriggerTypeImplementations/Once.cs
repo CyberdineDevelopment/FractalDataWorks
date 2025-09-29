@@ -120,7 +120,7 @@ public sealed class Once : TriggerTypeBase
     /// // Returns current time (executes immediately)
     /// </code>
     /// </example>
-    public override DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution)
+    public override DateTime? CalculateNextExecution(IGenericTrigger trigger, DateTime? lastExecution)
     {
         if (trigger?.Configuration == null)
         {
@@ -230,11 +230,11 @@ public sealed class Once : TriggerTypeBase
     /// // result.Error == true with timezone validation error
     /// </code>
     /// </example>
-    public override IFdwResult ValidateTrigger(IFdwTrigger trigger)
+    public override IGenericResult ValidateTrigger(IGenericTrigger trigger)
     {
         if (trigger?.Configuration == null)
         {
-            return FdwResult.Failure("Trigger configuration is required for Once trigger type");
+            return GenericResult.Failure("Trigger configuration is required for Once trigger type");
         }
 
         // Validate start time if provided
@@ -242,7 +242,7 @@ public sealed class Once : TriggerTypeBase
             startTimeObj != null &&
             !TryConvertToDateTime(startTimeObj, out var startTime))
         {
-            return FdwResult.Failure($"Start time must be a valid DateTime if provided in the '{StartTimeKey}' configuration key");
+            return GenericResult.Failure($"Start time must be a valid DateTime if provided in the '{StartTimeKey}' configuration key");
         }
 
         // Validate timezone if provided
@@ -256,11 +256,11 @@ public sealed class Once : TriggerTypeBase
             }
             catch (TimeZoneNotFoundException)
             {
-                return FdwResult.Failure($"Invalid timezone identifier: '{timeZoneId}'. Use standard timezone IDs like 'UTC', 'America/New_York', or 'Europe/London'");
+                return GenericResult.Failure($"Invalid timezone identifier: '{timeZoneId}'. Use standard timezone IDs like 'UTC', 'America/New_York', or 'Europe/London'");
             }
             catch (InvalidTimeZoneException ex)
             {
-                return FdwResult.Failure($"Invalid timezone configuration: {ex.Message}. Timezone: '{timeZoneId}'");
+                return GenericResult.Failure($"Invalid timezone configuration: {ex.Message}. Timezone: '{timeZoneId}'");
             }
         }
 
@@ -293,7 +293,7 @@ public sealed class Once : TriggerTypeBase
                 // Check if start time is too far in the past (more than 1 day)
                 if (utcStartTime < DateTime.UtcNow.AddDays(-1))
                 {
-                    return FdwResult.Failure($"Start time is more than 1 day in the past and may not execute as expected. Start time: {utcStartTime:yyyy-MM-dd HH:mm:ss} UTC");
+                    return GenericResult.Failure($"Start time is more than 1 day in the past and may not execute as expected. Start time: {utcStartTime:yyyy-MM-dd HH:mm:ss} UTC");
                 }
             }
             catch
@@ -302,7 +302,7 @@ public sealed class Once : TriggerTypeBase
             }
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <summary>

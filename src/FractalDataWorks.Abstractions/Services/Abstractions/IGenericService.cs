@@ -15,7 +15,7 @@ namespace FractalDataWorks.Services.Abstractions;
 /// behavior and integration with the service management infrastructure.
 /// The "Rec" prefix avoids namespace collisions with common service interfaces.
 /// </remarks>
-public interface IFdwService
+public interface IGenericService
 {
     /// <summary>
     /// Gets the unique identifier for this service instance.
@@ -59,7 +59,7 @@ public interface IFdwService
 /// Use this interface for services that require specific configuration objects
 /// to function properly. The configuration should be provided via constructor.
 /// </remarks>
-public interface IFdwService<TCommand>
+public interface IGenericService<TCommand>
     where TCommand : ICommand
 {
     /// <summary>
@@ -97,7 +97,7 @@ public interface IFdwService<TCommand>
     /// </summary>
     /// <param name="command"></param>
     /// <returns></returns>
-    Task<IFdwResult> Execute(TCommand command);
+    Task<IGenericResult> Execute(TCommand command);
 }
 
 /// <summary>
@@ -111,9 +111,9 @@ public interface IFdwService<TCommand>
 /// and access to strongly-typed configuration objects. It represents the contract
 /// that most service base classes implement.
 /// </remarks>
-public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
+public interface IGenericService<TCommand, TConfiguration> : IGenericService<TCommand>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
 {
     /// <summary>
     /// Gets the service name for display purposes.
@@ -141,7 +141,7 @@ public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
     /// <typeparam name="T">The expected return type.</typeparam>
     /// <param name="command">The command to execute.</param>
     /// <returns>A task containing the execution result.</returns>
-    Task<IFdwResult<T>> Execute<T>(TCommand command);
+    Task<IGenericResult<T>> Execute<T>(TCommand command);
 
     /// <summary>
     /// Executes a command with generic return type and cancellation support.
@@ -150,7 +150,7 @@ public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
     /// <param name="command">The command to execute.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>A task containing the execution result.</returns>
-    Task<IFdwResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
+    Task<IGenericResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
 
     /// <summary>
     /// Executes a command with cancellation support.
@@ -158,7 +158,7 @@ public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
     /// <param name="command">The command to execute.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>A task containing the execution result.</returns>
-    Task<IFdwResult> Execute(TCommand command, CancellationToken cancellationToken);
+    Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -173,9 +173,9 @@ public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
 /// configuration access, and service type identification. It matches the pattern
 /// used by ServiceBase and ConnectionServiceBase classes.
 /// </remarks>
-public interface IFdwService<TCommand, TConfiguration, TService> : IFdwService<TCommand, TConfiguration>
+public interface IGenericService<TCommand, TConfiguration, TService> : IGenericService<TCommand, TConfiguration>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
     where TService : class
 {
     // No additional members - the TService is used for type identification and logging

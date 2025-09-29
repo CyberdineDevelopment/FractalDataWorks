@@ -79,7 +79,7 @@ public interface IDataContainer
     /// This method performs validation without actually reading data.
     /// It checks for accessibility, permissions, schema compatibility, etc.
     /// </remarks>
-    Task<IFdwResult> ValidateReadAccessAsync(DataLocation location);
+    Task<IGenericResult> ValidateReadAccessAsync(DataLocation location);
 
     /// <summary>
     /// Validates that this container can be written to the specified location.
@@ -90,7 +90,7 @@ public interface IDataContainer
     /// This method performs validation without actually writing data.
     /// It checks for write permissions, schema compatibility, format support, etc.
     /// </remarks>
-    Task<IFdwResult> ValidateWriteAccessAsync(DataLocation location);
+    Task<IGenericResult> ValidateWriteAccessAsync(DataLocation location);
 
     /// <summary>
     /// Gets estimated metrics for reading from this container.
@@ -101,7 +101,7 @@ public interface IDataContainer
     /// This method provides estimates for query planning and optimization.
     /// Metrics might include record count, data size, read time, etc.
     /// </remarks>
-    Task<IFdwResult<ContainerMetrics>> GetReadMetricsAsync(DataLocation location);
+    Task<IGenericResult<ContainerMetrics>> GetReadMetricsAsync(DataLocation location);
 
     /// <summary>
     /// Creates a reader instance for accessing data from this container.
@@ -112,7 +112,7 @@ public interface IDataContainer
     /// The reader will be configured with the container's schema and format settings.
     /// Callers are responsible for disposing the reader when finished.
     /// </remarks>
-    Task<IFdwResult<IDataReader>> CreateReaderAsync(DataLocation location);
+    Task<IGenericResult<IDataReader>> CreateReaderAsync(DataLocation location);
 
     /// <summary>
     /// Creates a writer instance for writing data to this container.
@@ -124,7 +124,7 @@ public interface IDataContainer
     /// The writer will be configured with the container's schema and format settings.
     /// Callers are responsible for disposing the writer when finished.
     /// </remarks>
-    Task<IFdwResult<IDataWriter>> CreateWriterAsync(DataLocation location, ContainerWriteMode writeMode = ContainerWriteMode.Overwrite);
+    Task<IGenericResult<IDataWriter>> CreateWriterAsync(DataLocation location, ContainerWriteMode writeMode = ContainerWriteMode.Overwrite);
 
     /// <summary>
     /// Discovers the actual schema of data at the specified location.
@@ -137,5 +137,5 @@ public interface IDataContainer
     /// from the container's declared schema. Useful for schema validation and
     /// dynamic schema scenarios.
     /// </remarks>
-    Task<IFdwResult<IDataSchema>> DiscoverSchemaAsync(DataLocation location, int sampleSize = 1000);
+    Task<IGenericResult<IDataSchema>> DiscoverSchemaAsync(DataLocation location, int sampleSize = 1000);
 }

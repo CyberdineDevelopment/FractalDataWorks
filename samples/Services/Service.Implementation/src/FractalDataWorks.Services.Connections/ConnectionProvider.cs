@@ -75,7 +75,7 @@ public sealed partial class ConnectionProvider : IConnectionProvider
     }
 
     /// <inheritdoc />
-    public async Task<IFdwConnection> Create(
+    public async Task<IGenericConnection> Create(
         IConnectionConfiguration configuration,
         CancellationToken cancellationToken = default)
     {

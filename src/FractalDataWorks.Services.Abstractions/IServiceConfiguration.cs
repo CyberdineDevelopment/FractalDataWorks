@@ -5,7 +5,7 @@ namespace FractalDataWorks.Services.Abstractions;
 /// <summary>
 /// Base interface for service configurations.
 /// </summary>
-public interface IServiceConfiguration : IFdwConfiguration
+public interface IServiceConfiguration : IGenericConfiguration
 {
     /// <summary>
     /// Gets the service type this configuration is for.

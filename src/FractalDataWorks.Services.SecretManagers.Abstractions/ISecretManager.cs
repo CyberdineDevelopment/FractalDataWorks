@@ -17,7 +17,7 @@ namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 /// allowing different secret storage providers (AWS Secrets Manager, Azure Key Vault, etc.)
 /// to be used interchangeably through a consistent API.
 /// </remarks>
-public interface ISecretManager : IFdwService
+public interface ISecretManager : IGenericService
 {
     /// <summary>
     /// Executes a secret management managementCommand.
@@ -31,7 +31,7 @@ public interface ISecretManager : IFdwService
     /// allows for consistent handling of different operation types while maintaining
     /// flexibility for provider-specific implementations.
     /// </remarks>
-    Task<IFdwResult<object?>> Execute(ISecretManagerCommand managementCommand, CancellationToken cancellationToken = default);
+    Task<IGenericResult<object?>> Execute(ISecretManagerCommand managementCommand, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Executes a typed secret management managementCommand.
@@ -45,7 +45,7 @@ public interface ISecretManager : IFdwService
     /// This method provides compile-time type safety for secret operations when the
     /// expected result type is known. It eliminates the need for runtime type checking.
     /// </remarks>
-    Task<IFdwResult<TResult>> Execute<TResult>(ISecretManagerCommand<TResult> managementCommand, CancellationToken cancellationToken = default);
+    Task<IGenericResult<TResult>> Execute<TResult>(ISecretManagerCommand<TResult> managementCommand, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Executes multiple secret commands as a batch operation.
@@ -60,7 +60,7 @@ public interface ISecretManager : IFdwService
     /// and may provide transactional guarantees depending on the provider implementation.
     /// If one managementCommand fails, the behavior depends on the provider's batch handling strategy.
     /// </remarks>
-    Task<IFdwResult> ExecuteBatch(IReadOnlyList<ISecretManagerCommand> commands, CancellationToken cancellationToken = default);
+    Task<IGenericResult> ExecuteBatch(IReadOnlyList<ISecretManagerCommand> commands, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Validates a secret managementCommand before execution.
@@ -73,5 +73,5 @@ public interface ISecretManager : IFdwService
     /// access control verification, and provider capability assessment.
     /// It allows pre-flight validation without executing the actual operation.
     /// </remarks>
-    IFdwResult ValidateCommand(ISecretManagerCommand managementCommand);
+    IGenericResult ValidateCommand(ISecretManagerCommand managementCommand);
 }

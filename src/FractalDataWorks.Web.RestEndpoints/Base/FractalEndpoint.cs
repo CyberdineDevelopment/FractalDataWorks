@@ -67,8 +67,8 @@ public abstract class FractalEndpoint<TRequest, TResponse> : Endpoint<TRequest, 
             // Execute business logic
             var result = await ExecuteAsync(req, ct).ConfigureAwait(false);
             
-            // Handle IFdwResult conversion to FastEndpoints responses
-            if (result is IFdwResult<TResponse> recResult)
+            // Handle IGenericResult conversion to FastEndpoints responses
+            if (result is IGenericResult<TResponse> recResult)
             {
                 if (recResult.IsSuccess)
                     Response = recResult.Value; // FastEndpoints sends 200 OK
@@ -101,21 +101,21 @@ public abstract class FractalEndpoint<TRequest, TResponse> : Endpoint<TRequest, 
     /// Checks authorization for the current request.
     /// Override to implement custom authorization logic.
     /// </summary>
-    protected virtual Task<IFdwResult> CheckAuthorizationAsync(TRequest request, CancellationToken ct)
-        => Task.FromResult<IFdwResult>(FdwResult.Success());
+    protected virtual Task<IGenericResult> CheckAuthorizationAsync(TRequest request, CancellationToken ct)
+        => Task.FromResult<IGenericResult>(GenericResult.Success());
 
     /// <summary>
-    /// Creates error messages from an IFdwResult for FastEndpoints.
+    /// Creates error messages from an IGenericResult for FastEndpoints.
     /// </summary>
-    protected virtual string[] CreateErrorMessages(IFdwResult result)
+    protected virtual string[] CreateErrorMessages(IGenericResult result)
     {
         var messages = new List<string>();
         
         if (!string.IsNullOrEmpty(result.Message))
             messages.Add(result.Message);
             
-        // TODO: Extract detailed messages when FdwResult is available
-        // if (result is FdwResult recResult && recResult.Messages.Count > 0)
+        // TODO: Extract detailed messages when GenericResult is available
+        // if (result is GenericResult recResult && recResult.Messages.Count > 0)
         // {
         //     messages.AddRange(recResult.Messages.Select(m => m.Message));
         // }

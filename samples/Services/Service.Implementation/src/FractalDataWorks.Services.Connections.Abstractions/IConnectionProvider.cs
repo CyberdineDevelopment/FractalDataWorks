@@ -22,7 +22,7 @@ public interface IConnectionProvider
     /// <summary>
     /// Creates a connection using the appropriate factory.
     /// </summary>
-    Task<IFdwConnection> Create(
+    Task<IGenericConnection> Create(
         IConnectionConfiguration configuration,
         CancellationToken cancellationToken = default);
 

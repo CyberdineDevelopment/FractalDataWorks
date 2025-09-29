@@ -49,7 +49,7 @@ public sealed class MessageAttribute : Attribute
     /// </summary>
     public MessageAttribute()
     {
-        ReturnType = typeof(IFdwMessage);
+        ReturnType = typeof(IGenericMessage);
     }
 
     /// <summary>
@@ -59,6 +59,6 @@ public sealed class MessageAttribute : Attribute
     public MessageAttribute(string collectionName)
     {
         CollectionName = collectionName;
-        ReturnType = typeof(IFdwMessage);
+        ReturnType = typeof(IGenericMessage);
     }
 }

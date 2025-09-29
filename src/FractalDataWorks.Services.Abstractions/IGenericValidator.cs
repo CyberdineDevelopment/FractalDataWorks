@@ -8,7 +8,7 @@ namespace FractalDataWorks.Services.Abstractions;
 /// Defines the contract for validators in the FractalDataWorks framework.
 /// </summary>
 /// <typeparam name="T">The type of object to validate.</typeparam>
-public interface IFdwValidator<T>
+public interface IGenericValidator<T>
 {
     /// <summary>
     /// Validates the specified instance.
@@ -18,9 +18,9 @@ public interface IFdwValidator<T>
     Task<ValidationResult> Validate(T instance);
 
     /// <summary>
-    /// Validates the specified instance and returns a FdwResult.
+    /// Validates the specified instance and returns a GenericResult.
     /// </summary>
     /// <param name="instance">The instance to validate.</param>
     /// <returns>A successful result if valid; otherwise, a failure result with validation errors.</returns>
-    Task<IFdwResult<T>> ValidateToResult(T instance);
+    Task<IGenericResult<T>> ValidateToResult(T instance);
 }

@@ -24,13 +24,13 @@ public interface ICommand
     DateTimeOffset Timestamp { get; }
 
     // NOTE: Configuration property disabled due to circular dependency issues
-    // IFdwConfiguration? Configuration { get; }
+    // IGenericConfiguration? Configuration { get; }
 
     /// <summary>
     /// Validates this command.
     /// </summary>
-    /// <returns>A FdwResult containing the validation result.</returns>
-    IFdwResult Validate();
+    /// <returns>A GenericResult containing the validation result.</returns>
+    IGenericResult Validate();
 }
 
 

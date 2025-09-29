@@ -14,7 +14,7 @@ public abstract class HttpConnectionConfigurationBase<TConfiguration> : Configur
     where TConfiguration : HttpConnectionConfigurationBase<TConfiguration>, new()
 {
     /// <inheritdoc/>
-    public override string SectionName => "FdwConnections:Http";
+    public override string SectionName => "GenericConnections:Http";
 
     /// <summary>
     /// Gets or sets the base URL for the HTTP connection.

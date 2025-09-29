@@ -9,7 +9,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// Interface for scheduling service implementations.
 /// Provides task scheduling, execution monitoring, and lifecycle management capabilities.
 /// </summary>
-public interface ISchedulingService : IFdwService
+public interface ISchedulingService : IGenericService
 {
     /// <summary>
     /// Schedules a task for execution using the provided task configuration.
@@ -17,7 +17,7 @@ public interface ISchedulingService : IFdwService
     /// <param name="task">The scheduled task configuration.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
     /// <returns>A task that represents the asynchronous scheduling operation.</returns>
-    Task<IFdwResult<string>> ScheduleTask(IScheduledTask task, CancellationToken cancellationToken = default);
+    Task<IGenericResult<string>> ScheduleTask(IScheduledTask task, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Cancels a previously scheduled task.
@@ -25,7 +25,7 @@ public interface ISchedulingService : IFdwService
     /// <param name="taskId">The identifier of the task to cancel.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
     /// <returns>A task that represents the asynchronous cancellation operation.</returns>
-    Task<IFdwResult> CancelTask(string taskId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> CancelTask(string taskId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets the status of a scheduled task.
@@ -33,7 +33,7 @@ public interface ISchedulingService : IFdwService
     /// <param name="taskId">The identifier of the task to query.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
     /// <returns>A task that represents the asynchronous status query operation.</returns>
-    Task<IFdwResult<string>> GetTaskStatus(string taskId, CancellationToken cancellationToken = default);
+    Task<IGenericResult<string>> GetTaskStatus(string taskId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a scheduling command and returns a typed result.
@@ -43,7 +43,7 @@ public interface ISchedulingService : IFdwService
     /// <param name="command">The scheduling command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult<TResult>> Execute<TResult>(ISchedulingCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<TResult>> Execute<TResult>(ISchedulingCommand command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a scheduling command without returning a specific result type.
@@ -52,5 +52,5 @@ public interface ISchedulingService : IFdwService
     /// <param name="command">The scheduling command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult> Execute(ISchedulingCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult> Execute(ISchedulingCommand command, CancellationToken cancellationToken = default);
 }

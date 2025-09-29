@@ -95,7 +95,7 @@ public interface IDataTransaction : IDisposable
     /// atomicity guarantees. They will be committed or rolled back together with
     /// all other commands in the transaction.
     /// </remarks>
-    Task<IFdwResult<object?>> Execute(IDataCommand command);
+    Task<IGenericResult<object?>> Execute(IDataCommand command);
     
     /// <summary>
     /// Executes a typed data command within this transaction scope.
@@ -114,7 +114,7 @@ public interface IDataTransaction : IDisposable
     /// This method provides type-safe command execution within the transaction scope,
     /// eliminating the need for runtime type checking and casting.
     /// </remarks>
-    Task<IFdwResult<TResult>> Execute<TResult>(IDataCommand<TResult> command);
+    Task<IGenericResult<TResult>> Execute<TResult>(IDataCommand<TResult> command);
     
     /// <summary>
     /// Commits all changes made within this transaction.
@@ -131,7 +131,7 @@ public interface IDataTransaction : IDisposable
     /// held by the transaction. After committing, the transaction cannot be used
     /// for further operations.
     /// </remarks>
-    Task<IFdwResult> CommitAsync();
+    Task<IGenericResult> CommitAsync();
     
     /// <summary>
     /// Rolls back all changes made within this transaction.
@@ -148,7 +148,7 @@ public interface IDataTransaction : IDisposable
     /// and releases any locks held. After rollback, the transaction cannot be used
     /// for further operations. This method is idempotent and safe to call multiple times.
     /// </remarks>
-    Task<IFdwResult> RollbackAsync();
+    Task<IGenericResult> RollbackAsync();
     
     /// <summary>
     /// Creates a savepoint within this transaction.
@@ -167,7 +167,7 @@ public interface IDataTransaction : IDisposable
     /// Savepoints enable partial rollback within a transaction, allowing recovery
     /// from errors without losing all transaction work. Not all providers support savepoints.
     /// </remarks>
-    Task<IFdwResult<string>> CreateSavepointAsync(string savepointName);
+    Task<IGenericResult<string>> CreateSavepointAsync(string savepointName);
     
     /// <summary>
     /// Rolls back to a previously created savepoint.
@@ -186,5 +186,5 @@ public interface IDataTransaction : IDisposable
     /// Rolling back to a savepoint undoes all changes made after the savepoint was created
     /// while preserving changes made before the savepoint. The transaction remains active.
     /// </remarks>
-    Task<IFdwResult> RollbackToSavepointAsync(string savepointName);
+    Task<IGenericResult> RollbackToSavepointAsync(string savepointName);
 }

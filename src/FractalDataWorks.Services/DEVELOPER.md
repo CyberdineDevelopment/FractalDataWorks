@@ -17,7 +17,7 @@ The FractalDataWorks Services framework provides a comprehensive, type-safe, and
 The service architecture follows a layered inheritance pattern:
 
 ```
-IFdwService (Base Interface)
+IGenericService (Base Interface)
     ↓
 ServiceBase<TCommand, TConfiguration, TService> (Abstract Base)
     ↓
@@ -26,27 +26,27 @@ Domain-Specific Base (e.g., ConnectionServiceBase)
 Concrete Implementation (e.g., MsSqlService)
 ```
 
-#### Base Service Interface (`IFdwService`)
+#### Base Service Interface (`IGenericService`)
 
-Located in `FractalDataWorks.Abstractions/Services/Abstractions/IFdwService.cs`
+Located in `FractalDataWorks.Abstractions/Services/Abstractions/IGenericService.cs`
 
 **Note:** The interface location is split across two projects to manage dependencies:
-- `IFdwService` (base) - in FractalDataWorks.Abstractions (no FluentValidation dependency, supports netstandard2.0)
-- `IFdwService<T>` variants - also in FractalDataWorks.Abstractions
+- `IGenericService` (base) - in FractalDataWorks.Abstractions (no FluentValidation dependency, supports netstandard2.0)
+- `IGenericService<T>` variants - also in FractalDataWorks.Abstractions
 
 ```csharp
-public interface IFdwService
+public interface IGenericService
 {
     string Id { get; }
     string ServiceType { get; }  // Note: string, not IServiceType
     bool IsAvailable { get; }
 
-public interface IFdwService<TCommand, TConfiguration> : IFdwService
+public interface IGenericService<TCommand, TConfiguration> : IGenericService
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
 {
-    IFdwResult<ICommandResult> Execute(TCommand command);
-    Task<IFdwResult<ICommandResult>> ExecuteAsync(TCommand command);
+    IGenericResult<ICommandResult> Execute(TCommand command);
+    Task<IGenericResult<ICommandResult>> ExecuteAsync(TCommand command);
 }
 ```
 
@@ -79,15 +79,15 @@ IServiceFactory<TService, TConfiguration> (Fully typed)
 ```csharp
 public class GenericServiceFactory<TService, TConfiguration>
     : ServiceFactory<TService, TConfiguration>
-    where TService : class, IFdwService
-    where TConfiguration : class, IFdwConfiguration
+    where TService : class, IGenericService
+    where TConfiguration : class, IGenericConfiguration
 {
-    public override IFdwResult<TService> Create(TConfiguration configuration)
+    public override IGenericResult<TService> Create(TConfiguration configuration)
     {
         // Uses FastGenericNew for performance
         if (FastNew.TryCreateInstance<TService, TConfiguration>(configuration, out var service))
         {
-            return FdwResult<TService>.Success(service);
+            return GenericResult<TService>.Success(service);
         }
 
         // Fallback to Activator for edge cases
@@ -110,9 +110,9 @@ Providers orchestrate service creation by managing factory selection and configu
 #### Example: Connection Provider
 
 ```csharp
-public sealed class FdwConnectionProvider : IFdwConnectionProvider
+public sealed class GenericConnectionProvider : IGenericConnectionProvider
 {
-    public async Task<IFdwResult<IFdwConnection>> GetConnection(string configurationName)
+    public async Task<IGenericResult<IGenericConnection>> GetConnection(string configurationName)
     {
         // 1. Load configuration from appsettings
         var config = _configuration.GetSection($"Connections:{configurationName}");
@@ -254,7 +254,7 @@ The framework uses a deliberate two-project split to manage dependencies:
 ### FractalDataWorks.Abstractions
 - **Target Frameworks:** netstandard2.0, net10.0
 - **No FluentValidation dependency**
-- **Contains:** Base interfaces (IFdwService, ICommand)
+- **Contains:** Base interfaces (IGenericService, ICommand)
 - **RootNamespace:** FractalDataWorks
 - **Purpose:** Maximum compatibility with older frameworks
 
@@ -274,14 +274,14 @@ The framework implements increasingly specific constraints as you move from abst
 // No constraints or minimal constraints
 public interface IServiceFactory<TService> // No constraints
 public interface IServiceFactory<TService, TConfiguration>
-    where TConfiguration : IFdwConfiguration // Only config constrained
+    where TConfiguration : IGenericConfiguration // Only config constrained
 ```
 
 ### Level 2: Concrete Framework (Basic Constraints)
 ```csharp
 public abstract class ServiceBase<TCommand, TConfiguration, TService>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
     where TService : class  // Just reference type
 ```
 
@@ -313,7 +313,7 @@ This pattern provides:
 
 ```csharp
 // IMyDomainService.cs
-public interface IMyDomainService : IFdwService<MyCommand, MyConfiguration>
+public interface IMyDomainService : IGenericService<MyCommand, MyConfiguration>
 {
     // Domain-specific methods
 }
@@ -348,7 +348,7 @@ public sealed class ConcreteService : MyDomainServiceBase<MyCommand, MyConfigura
     {
     }
 
-    protected override IFdwResult<ICommandResult> ExecuteCore(MyCommand command)
+    protected override IGenericResult<ICommandResult> ExecuteCore(MyCommand command)
     {
         // Implementation
     }
@@ -424,10 +424,10 @@ Source generators provide:
 
 ### Railway-Oriented Programming
 
-All operations return `IFdwResult<T>` instead of throwing exceptions:
+All operations return `IGenericResult<T>` instead of throwing exceptions:
 
 ```csharp
-public IFdwResult<TService> Create(TConfiguration config)
+public IGenericResult<TService> Create(TConfiguration config)
 {
     return Validate(config)
         .Bind(c => CreateInstance(c))
@@ -501,13 +501,13 @@ public class HttpConnectionFactory : ConnectionFactoryBase<HttpConnection, HttpC
         _httpClientFactory = httpClientFactory;
     }
 
-    public override IFdwResult<HttpConnection> Create(HttpConfiguration configuration)
+    public override IGenericResult<HttpConnection> Create(HttpConfiguration configuration)
     {
         // Custom logic: HttpClient setup, connection pooling, etc.
         var httpClient = _httpClientFactory.CreateClient(configuration.ClientName);
 
         // Custom instantiation
-        return FdwResult<HttpConnection>.Success(new HttpConnection(configuration, httpClient));
+        return GenericResult<HttpConnection>.Success(new HttpConnection(configuration, httpClient));
     }
 }
 ```
@@ -606,10 +606,10 @@ public abstract class MyServiceMessageCollectionBase : MessageCollectionBase<MyS
 
 ### 4. Result Pattern (MANDATORY)
 
-**Services MUST return IFdwResult types, never throw exceptions for business logic:**
+**Services MUST return IGenericResult types, never throw exceptions for business logic:**
 
 ```csharp
-public override async Task<IFdwResult> Execute(MyCommand command)
+public override async Task<IGenericResult> Execute(MyCommand command)
 {
     try
     {
@@ -622,7 +622,7 @@ public override async Task<IFdwResult> Execute(MyCommand command)
         // 3. Log success and return structured message
         MyServiceLog.OperationCompleted(Logger, Name, result.RecordsProcessed);
         var successMessage = MyServiceMessages.OperationCompleted(result.RecordsProcessed);
-        return FdwResult.Success(successMessage);
+        return GenericResult.Success(successMessage);
     }
     catch (Exception ex)
     {
@@ -631,7 +631,7 @@ public override async Task<IFdwResult> Execute(MyCommand command)
 
         // 5. Return failure with structured message (never throw)
         var errorMessage = MyServiceMessages.OperationFailed(ex.Message);
-        return FdwResult.Failure(errorMessage);
+        return GenericResult.Failure(errorMessage);
     }
 }
 ```
@@ -740,9 +740,9 @@ public class SingletonServiceFactory : ServiceFactory<SingletonService, Singleto
     private static readonly Lazy<SingletonService> _instance =
         new(() => new SingletonService());
 
-    public override IFdwResult<SingletonService> Create(SingletonConfig config)
+    public override IGenericResult<SingletonService> Create(SingletonConfig config)
     {
-        return FdwResult<SingletonService>.Success(_instance.Value);
+        return GenericResult<SingletonService>.Success(_instance.Value);
     }
 }
 ```
@@ -771,7 +771,7 @@ public class ServiceWithDeps : ServiceBase<Command, Config, ServiceWithDeps>
 ### Async Command Execution
 
 ```csharp
-protected override async Task<IFdwResult<ICommandResult>> ExecuteCoreAsync(MyCommand command)
+protected override async Task<IGenericResult<ICommandResult>> ExecuteCoreAsync(MyCommand command)
 {
     var data = await _repository.GetAsync(command.Id);
 

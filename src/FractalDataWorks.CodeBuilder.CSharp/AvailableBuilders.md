@@ -352,8 +352,8 @@ Abstract base class providing common functionality for all builders.
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
-| `ParseAsync` | `string sourceCode, string? filePath = null, CancellationToken cancellationToken = default` | `Task<IFdwResult<ISyntaxTree>>` | Parses source code into syntax tree |
-| `ValidateAsync` | `string sourceCode, CancellationToken cancellationToken = default` | `Task<IFdwResult>` | Validates source code syntax |
+| `ParseAsync` | `string sourceCode, string? filePath = null, CancellationToken cancellationToken = default` | `Task<IGenericResult<ISyntaxTree>>` | Parses source code into syntax tree |
+| `ValidateAsync` | `string sourceCode, CancellationToken cancellationToken = default` | `Task<IGenericResult>` | Validates source code syntax |
 
 ### Syntax Tree Interfaces
 

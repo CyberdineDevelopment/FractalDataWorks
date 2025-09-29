@@ -109,7 +109,7 @@ public interface ISecretManagerCommand : ICommand
     bool IsSecretModifying { get; }
 
     // Note: Validate() method is inherited from ICommand base interface
-    // which returns IFdwResult<ValidationResult>
+    // which returns IGenericResult<ValidationResult>
 
     /// <summary>
     /// Creates a copy of this managementCommand with modified parameters.

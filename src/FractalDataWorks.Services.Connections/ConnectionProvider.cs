@@ -12,13 +12,13 @@ using FractalDataWorks.Services.Connections.Logging;
 namespace FractalDataWorks.Services.Connections;
 
 /// <summary>
-/// Implementation of IFdwConnectionProvider that uses ConnectionTypes for factory lookup.
+/// Implementation of IGenericConnectionProvider that uses ConnectionTypes for factory lookup.
 /// </summary>
-public sealed class FdwConnectionProvider : IFdwConnectionProvider
+public sealed class GenericConnectionProvider : IGenericConnectionProvider
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
-    private readonly ILogger<FdwConnectionProvider> _logger;
+    private readonly ILogger<GenericConnectionProvider> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConnectionProvider"/> class.
@@ -26,10 +26,10 @@ public sealed class FdwConnectionProvider : IFdwConnectionProvider
     /// <param name="serviceProvider">The service provider for resolving factories.</param>
     /// <param name="configuration">The configuration for loading connection settings.</param>
     /// <param name="logger">The logger for logging operations.</param>
-    public FdwConnectionProvider(
+    public GenericConnectionProvider(
         IServiceProvider serviceProvider,
         IConfiguration configuration,
-        ILogger<FdwConnectionProvider> logger)
+        ILogger<GenericConnectionProvider> logger)
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -42,24 +42,24 @@ public sealed class FdwConnectionProvider : IFdwConnectionProvider
     /// </summary>
     /// <param name="configuration">The configuration containing the connection type and settings.</param>
     /// <returns>A result containing the connection instance or failure information.</returns>
-    public async Task<IFdwResult<IFdwConnection>> GetConnection(IConnectionConfiguration configuration)
+    public async Task<IGenericResult<IGenericConnection>> GetConnection(IConnectionConfiguration configuration)
     {
         if (configuration == null)
         {
-            return FdwResult<IFdwConnection>.Failure(new ArgumentNullMessage(nameof(configuration)));
+            return GenericResult<IGenericConnection>.Failure(new ArgumentNullMessage(nameof(configuration)));
         }
 
         try
         {
-            FdwConnectionProviderLog.GettingConnection(_logger, configuration.ConnectionType);
+            GenericConnectionProviderLog.GettingConnection(_logger, configuration.ConnectionType);
 
             // Get the factory from DI using the configuration's ConnectionType
             // This assumes factories are registered by their connection type name
             var factory = _serviceProvider.GetService<IConnectionFactory>();
             if (factory == null)
             {
-                FdwConnectionProviderLog.NoFactoryRegistered(_logger, configuration.ConnectionType);
-                return FdwResult<IFdwConnection>.Failure(
+                GenericConnectionProviderLog.NoFactoryRegistered(_logger, configuration.ConnectionType);
+                return GenericResult<IGenericConnection>.Failure(
                     new NotFoundMessage($"No factory registered for connection type: {configuration.ConnectionType}"));
             }
 
@@ -68,19 +68,19 @@ public sealed class FdwConnectionProvider : IFdwConnectionProvider
             
             if (result.IsSuccess)
             {
-                FdwConnectionProviderLog.ConnectionCreated(_logger, configuration.ConnectionType);
+                GenericConnectionProviderLog.ConnectionCreated(_logger, configuration.ConnectionType);
             }
             else
             {
-                FdwConnectionProviderLog.ConnectionCreationFailed(_logger, configuration.ConnectionType, result.Error.ToString());
+                GenericConnectionProviderLog.ConnectionCreationFailed(_logger, configuration.ConnectionType, result.Error.ToString());
             }
 
             return result;
         }
         catch (Exception ex)
         {
-            FdwConnectionProviderLog.ConnectionCreationException(_logger, ex, configuration.ConnectionType);
-            return FdwResult<IFdwConnection>.Failure(new ErrorMessage(ex.Message));
+            GenericConnectionProviderLog.ConnectionCreationException(_logger, ex, configuration.ConnectionType);
+            return GenericResult<IGenericConnection>.Failure(new ErrorMessage(ex.Message));
         }
     }
 
@@ -90,12 +90,12 @@ public sealed class FdwConnectionProvider : IFdwConnectionProvider
     /// </summary>
     /// <param name="configurationId">The ID of the configuration to load.</param>
     /// <returns>A result containing the connection instance or failure information.</returns>
-    public async Task<IFdwResult<IFdwConnection>> GetConnection(int configurationId)
+    public async Task<IGenericResult<IGenericConnection>> GetConnection(int configurationId)
     {
         // This would typically load configuration from a database
         // For now, return a not implemented error
-        FdwConnectionProviderLog.GetConnectionByIdNotImplemented(_logger, configurationId);
-        return FdwResult<IFdwConnection>.Failure(new NotImplementedMessage($"Configuration loading by ID not implemented: {configurationId}"));
+        GenericConnectionProviderLog.GetConnectionByIdNotImplemented(_logger, configurationId);
+        return GenericResult<IGenericConnection>.Failure(new NotImplementedMessage($"Configuration loading by ID not implemented: {configurationId}"));
     }
 
     /// <summary>
@@ -103,31 +103,31 @@ public sealed class FdwConnectionProvider : IFdwConnectionProvider
     /// </summary>
     /// <param name="configurationName">The name of the configuration section.</param>
     /// <returns>A result containing the connection instance or failure information.</returns>
-    public async Task<IFdwResult<IFdwConnection>> GetConnection(string configurationName)
+    public async Task<IGenericResult<IGenericConnection>> GetConnection(string configurationName)
     {
         if (string.IsNullOrEmpty(configurationName))
         {
-            return FdwResult<IFdwConnection>.Failure(new ArgumentNullMessage("configurationName"));
+            return GenericResult<IGenericConnection>.Failure(new ArgumentNullMessage("configurationName"));
         }
 
         try
         {
-            FdwConnectionProviderLog.GettingConnectionByConfigurationName(_logger, configurationName);
+            GenericConnectionProviderLog.GettingConnectionByConfigurationName(_logger, configurationName);
 
             // Load configuration section
             var section = _configuration.GetSection($"Connections:{configurationName}");
             if (!section.Exists())
             {
-                FdwConnectionProviderLog.ConfigurationSectionNotFound(_logger, configurationName);
-                return FdwResult<IFdwConnection>.Failure(new NotFoundMessage($"Configuration section not found: Connections:{configurationName}"));
+                GenericConnectionProviderLog.ConfigurationSectionNotFound(_logger, configurationName);
+                return GenericResult<IGenericConnection>.Failure(new NotFoundMessage($"Configuration section not found: Connections:{configurationName}"));
             }
 
             // Get the connection type from the section
             var connectionTypeName = section["ConnectionType"];
             if (string.IsNullOrEmpty(connectionTypeName))
             {
-                FdwConnectionProviderLog.ConnectionTypeNotSpecified(_logger, configurationName);
-                return FdwResult<IFdwConnection>.Failure(new ValidationMessage($"ConnectionType not specified in configuration section: {configurationName}"));
+                GenericConnectionProviderLog.ConnectionTypeNotSpecified(_logger, configurationName);
+                return GenericResult<IGenericConnection>.Failure(new ValidationMessage($"ConnectionType not specified in configuration section: {configurationName}"));
             }
 
             // Create a minimal configuration placeholder since we don't have concrete binding
@@ -143,8 +143,8 @@ public sealed class FdwConnectionProvider : IFdwConnectionProvider
         }
         catch (Exception ex)
         {
-            FdwConnectionProviderLog.GetConnectionByNameException(_logger, ex, configurationName);
-            return FdwResult<IFdwConnection>.Failure(new ErrorMessage(ex.Message));
+            GenericConnectionProviderLog.GetConnectionByNameException(_logger, ex, configurationName);
+            return GenericResult<IGenericConnection>.Failure(new ErrorMessage(ex.Message));
         }
     }
 }
@@ -161,8 +161,8 @@ internal sealed class BasicConnectionConfiguration : IConnectionConfiguration
     public bool IsEnabled { get; set; } = true;
     public IServiceLifetime Lifetime { get; set; } = ServiceLifetimes.Scoped;
 
-    public IFdwResult<FluentValidation.Results.ValidationResult> Validate()
+    public IGenericResult<FluentValidation.Results.ValidationResult> Validate()
     {
-        return FdwResult<FluentValidation.Results.ValidationResult>.Success(new FluentValidation.Results.ValidationResult());
+        return GenericResult<FluentValidation.Results.ValidationResult>.Success(new FluentValidation.Results.ValidationResult());
     }
 }

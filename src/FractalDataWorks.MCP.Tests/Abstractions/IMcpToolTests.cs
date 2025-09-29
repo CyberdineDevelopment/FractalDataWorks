@@ -108,7 +108,7 @@ public class IMcpToolTests
         // Arrange
         var arguments = new { input = "test input" };
         var expectedResult = "test result";
-        var successResult = FdwResult.Success<object>(expectedResult);
+        var successResult = GenericResult.Success<object>(expectedResult);
 
         _mockTool.Setup(t => t.ExecuteAsync(arguments, _cancellationToken))
                 .ReturnsAsync(successResult);
@@ -128,7 +128,7 @@ public class IMcpToolTests
     {
         // Arrange
         var arguments = new { input = "invalid input" };
-        var failureResult = FdwResult.Failure<object>("Execution failed");
+        var failureResult = GenericResult.Failure<object>("Execution failed");
 
         _mockTool.Setup(t => t.ExecuteAsync(arguments, _cancellationToken))
                 .ReturnsAsync(failureResult);
@@ -148,7 +148,7 @@ public class IMcpToolTests
     {
         // Arrange
         var expectedResult = "handled null args";
-        var successResult = FdwResult.Success<object>(expectedResult);
+        var successResult = GenericResult.Success<object>(expectedResult);
 
         _mockTool.Setup(t => t.ExecuteAsync(null, _cancellationToken))
                 .ReturnsAsync(successResult);
@@ -176,7 +176,7 @@ public class IMcpToolTests
             ArrayProperty = new[] { "item1", "item2", "item3" }
         };
         var expectedResult = new { processed = true, count = 3 };
-        var successResult = FdwResult.Success<object>(expectedResult);
+        var successResult = GenericResult.Success<object>(expectedResult);
 
         _mockTool.Setup(t => t.ExecuteAsync(complexArgs, _cancellationToken))
                 .ReturnsAsync(successResult);
@@ -196,7 +196,7 @@ public class IMcpToolTests
     {
         // Arrange
         var arguments = new { input = "valid input" };
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
 
         _mockTool.Setup(t => t.ValidateArgumentsAsync(arguments, _cancellationToken))
                 .ReturnsAsync(successResult);
@@ -215,7 +215,7 @@ public class IMcpToolTests
     {
         // Arrange
         var arguments = new { input = "" };
-        var failureResult = FdwResult.Failure("Input cannot be empty");
+        var failureResult = GenericResult.Failure("Input cannot be empty");
 
         _mockTool.Setup(t => t.ValidateArgumentsAsync(arguments, _cancellationToken))
                 .ReturnsAsync(failureResult);
@@ -234,7 +234,7 @@ public class IMcpToolTests
     public async Task ValidateArgumentsAsync_WithNullArguments_HandlesGracefully()
     {
         // Arrange
-        var failureResult = FdwResult.Failure("Arguments cannot be null");
+        var failureResult = GenericResult.Failure("Arguments cannot be null");
 
         _mockTool.Setup(t => t.ValidateArgumentsAsync(null, _cancellationToken))
                 .ReturnsAsync(failureResult);
@@ -276,7 +276,7 @@ public class IMcpToolTests
                 .Returns(async (object args, CancellationToken ct) =>
                 {
                     await Task.Delay(1000, ct); // Will timeout
-                    return FdwResult.Success<object>("should not reach here");
+                    return GenericResult.Success<object>("should not reach here");
                 });
 
         // Act & Assert
@@ -312,7 +312,7 @@ public class IMcpToolTests
     {
         // Arrange
         var expectedResult = $"processed_{argument?.GetType().Name ?? "null"}";
-        var successResult = FdwResult.Success<object>(expectedResult);
+        var successResult = GenericResult.Success<object>(expectedResult);
 
         _mockTool.Setup(t => t.ExecuteAsync(argument, _cancellationToken))
                 .ReturnsAsync(successResult);
@@ -397,7 +397,7 @@ public class IMcpToolTests
                 .Returns(() =>
                 {
                     callCount++;
-                    return Task.FromResult(FdwResult.Success<object>($"call_{callCount}"));
+                    return Task.FromResult(GenericResult.Success<object>($"call_{callCount}"));
                 });
 
         // Act
@@ -427,7 +427,7 @@ public class IMcpToolTests
                 {
                     var currentCall = Interlocked.Increment(ref callCount);
                     await Task.Delay(50, _cancellationToken); // Simulate some work
-                    return FdwResult.Success<object>($"concurrent_call_{currentCall}");
+                    return GenericResult.Success<object>($"concurrent_call_{currentCall}");
                 });
 
         // Act
@@ -473,7 +473,7 @@ public class IMcpToolEdgeCaseTests
         var largeArguments = new { data = largeString };
 
         _mockTool.Setup(t => t.ExecuteAsync(largeArguments, _cancellationToken))
-                .ReturnsAsync(FdwResult.Success<object>("processed_large_data"));
+                .ReturnsAsync(GenericResult.Success<object>("processed_large_data"));
 
         // Act
         var result = await _mockTool.Object.ExecuteAsync(largeArguments, _cancellationToken);
@@ -507,7 +507,7 @@ public class IMcpToolEdgeCaseTests
         };
 
         _mockTool.Setup(t => t.ExecuteAsync(deeplyNested, _cancellationToken))
-                .ReturnsAsync(FdwResult.Success<object>("processed_nested"));
+                .ReturnsAsync(GenericResult.Success<object>("processed_nested"));
 
         // Act
         var result = await _mockTool.Object.ExecuteAsync(deeplyNested, _cancellationToken);
@@ -528,7 +528,7 @@ public class IMcpToolEdgeCaseTests
         var problematicArgs = new { type = "circular_reference_simulation" };
 
         _mockTool.Setup(t => t.ExecuteAsync(problematicArgs, _cancellationToken))
-                .ReturnsAsync(FdwResult.Failure<object>("Circular reference detected in arguments"));
+                .ReturnsAsync(GenericResult.Failure<object>("Circular reference detected in arguments"));
 
         // Act
         var result = await _mockTool.Object.ExecuteAsync(problematicArgs, _cancellationToken);
@@ -548,7 +548,7 @@ public class IMcpToolEdgeCaseTests
     {
         // Arrange
         var arguments = new { input = whitespaceValue };
-        var failureResult = FdwResult.Failure("Input cannot be empty or whitespace");
+        var failureResult = GenericResult.Failure("Input cannot be empty or whitespace");
 
         _mockTool.Setup(t => t.ValidateArgumentsAsync(arguments, _cancellationToken))
                 .ReturnsAsync(failureResult);
@@ -574,7 +574,7 @@ public class IMcpToolEdgeCaseTests
                 .Returns(async (object args, CancellationToken ct) =>
                 {
                     await Task.Delay(5000, ct); // 5 second delay, should timeout
-                    return FdwResult.Success<object>("should_not_reach");
+                    return GenericResult.Success<object>("should_not_reach");
                 });
 
         // Act & Assert
@@ -591,7 +591,7 @@ public class IMcpToolEdgeCaseTests
         var memoryIntensiveArgs = new { requestLargeMemoryAllocation = true };
 
         _mockTool.Setup(t => t.ExecuteAsync(memoryIntensiveArgs, _cancellationToken))
-                .ReturnsAsync(FdwResult.Failure<object>("Insufficient memory to complete operation"));
+                .ReturnsAsync(GenericResult.Failure<object>("Insufficient memory to complete operation"));
 
         // Act
         var result = await _mockTool.Object.ExecuteAsync(memoryIntensiveArgs, _cancellationToken);
@@ -615,7 +615,7 @@ public class IMcpToolEdgeCaseTests
         var expectedResult = $"processed_int_{boundaryValue}";
 
         _mockTool.Setup(t => t.ExecuteAsync(arguments, _cancellationToken))
-                .ReturnsAsync(FdwResult.Success<object>(expectedResult));
+                .ReturnsAsync(GenericResult.Success<object>(expectedResult));
 
         // Act
         var result = await _mockTool.Object.ExecuteAsync(arguments, _cancellationToken);
@@ -640,7 +640,7 @@ public class IMcpToolEdgeCaseTests
         var expectedResult = $"processed_double_{specialValue}";
 
         _mockTool.Setup(t => t.ExecuteAsync(arguments, _cancellationToken))
-                .ReturnsAsync(FdwResult.Success<object>(expectedResult));
+                .ReturnsAsync(GenericResult.Success<object>(expectedResult));
 
         // Act
         var result = await _mockTool.Object.ExecuteAsync(arguments, _cancellationToken);
@@ -665,7 +665,7 @@ public class IMcpToolEdgeCaseTests
         };
 
         _mockTool.Setup(t => t.ExecuteAsync(unicodeArgs, _cancellationToken))
-                .ReturnsAsync(FdwResult.Success<object>("unicode_processed"));
+                .ReturnsAsync(GenericResult.Success<object>("unicode_processed"));
 
         // Act
         var result = await _mockTool.Object.ExecuteAsync(unicodeArgs, _cancellationToken);
@@ -684,7 +684,7 @@ public class IMcpToolEdgeCaseTests
         var malformedArgs = new { malformedJson = @"{""incomplete"": ""json""" }; // Missing closing brace
 
         _mockTool.Setup(t => t.ValidateArgumentsAsync(malformedArgs, _cancellationToken))
-                .ReturnsAsync(FdwResult.Failure("Invalid argument format"));
+                .ReturnsAsync(GenericResult.Failure("Invalid argument format"));
 
         // Act
         var result = await _mockTool.Object.ValidateArgumentsAsync(malformedArgs, _cancellationToken);

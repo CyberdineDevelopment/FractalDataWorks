@@ -22,7 +22,7 @@ namespace FractalDataWorks.Services.Connections;
 /// All connection services should inherit from this class to ensure consistent
 /// behavior across different connection types (HTTP, SQL, REST, etc.).
 /// </remarks>
-public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> : IFdwService<TCommand, TConfiguration, TService>, IFdwConnection
+public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> : IGenericService<TCommand, TConfiguration, TService>, IGenericConnection
     where TCommand : IConnectionCommand
     where TConfiguration : class, IConnectionConfiguration
     where TService : class
@@ -62,23 +62,23 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
     public TConfiguration Configuration { get; }
 
     /// <inheritdoc/>
-    public abstract Task<IFdwResult<T>> Execute<T>(TCommand command);
+    public abstract Task<IGenericResult<T>> Execute<T>(TCommand command);
 
     /// <inheritdoc/>
-    public abstract Task<IFdwResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
+    public abstract Task<IGenericResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
 
     /// <inheritdoc/>
-    public abstract Task<IFdwResult> Execute(TCommand command, CancellationToken cancellationToken);
+    public abstract Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
 
     /// <inheritdoc/>
-    public virtual async Task<IFdwResult> Execute(TCommand command)
+    public virtual async Task<IGenericResult> Execute(TCommand command)
     {
         return await Execute(command, CancellationToken.None).ConfigureAwait(false);
     }
 
     #endregion
 
-    #region IFdwConnection Implementation
+    #region IGenericConnection Implementation
 
     /// <inheritdoc/>
     public string ConnectionId => _serviceId;
@@ -93,7 +93,7 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
     public virtual string ConnectionString => Configuration?.ToString() ?? "Connection";
 
     /// <inheritdoc/>
-    public virtual async Task<IFdwResult> OpenAsync()
+    public virtual async Task<IGenericResult> OpenAsync()
     {
         try
         {
@@ -112,12 +112,12 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
         catch (Exception ex)
         {
             _state = ConnectionStates.Broken;
-            return FdwResult.Failure($"Failed to open connection: {ex.Message}");
+            return GenericResult.Failure($"Failed to open connection: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public virtual async Task<IFdwResult> CloseAsync()
+    public virtual async Task<IGenericResult> CloseAsync()
     {
         try
         {
@@ -129,12 +129,12 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
         catch (Exception ex)
         {
             _state = ConnectionStates.Broken;
-            return FdwResult.Failure($"Failed to close connection: {ex.Message}");
+            return GenericResult.Failure($"Failed to close connection: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public virtual async Task<IFdwResult> TestConnectionAsync()
+    public virtual async Task<IGenericResult> TestConnectionAsync()
     {
         try
         {
@@ -142,12 +142,12 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
         }
         catch (Exception ex)
         {
-            return FdwResult.Failure($"Connection test failed: {ex.Message}");
+            return GenericResult.Failure($"Connection test failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public virtual async Task<IFdwResult<IConnectionMetadata>> GetMetadataAsync()
+    public virtual async Task<IGenericResult<IConnectionMetadata>> GetMetadataAsync()
     {
         try
         {
@@ -155,7 +155,7 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
         }
         catch (Exception ex)
         {
-            return FdwResult<IConnectionMetadata>.Failure($"Failed to retrieve metadata: {ex.Message}");
+            return GenericResult<IConnectionMetadata>.Failure($"Failed to retrieve metadata: {ex.Message}");
         }
     }
 
@@ -174,37 +174,37 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
     /// Core implementation of connection opening logic.
     /// </summary>
     /// <returns>A task containing the operation result.</returns>
-    protected virtual Task<IFdwResult> OpenCoreAsync()
+    protected virtual Task<IGenericResult> OpenCoreAsync()
     {
-        return Task.FromResult(FdwResult.Success());
+        return Task.FromResult(GenericResult.Success());
     }
 
     /// <summary>
     /// Core implementation of connection closing logic.
     /// </summary>
     /// <returns>A task containing the operation result.</returns>
-    protected virtual Task<IFdwResult> CloseCoreAsync()
+    protected virtual Task<IGenericResult> CloseCoreAsync()
     {
-        return Task.FromResult(FdwResult.Success());
+        return Task.FromResult(GenericResult.Success());
     }
 
     /// <summary>
     /// Core implementation of connection testing logic.
     /// </summary>
     /// <returns>A task containing the test result.</returns>
-    protected virtual Task<IFdwResult> TestConnectionCoreAsync()
+    protected virtual Task<IGenericResult> TestConnectionCoreAsync()
     {
-        return Task.FromResult(FdwResult.Success());
+        return Task.FromResult(GenericResult.Success());
     }
 
     /// <summary>
     /// Core implementation of metadata retrieval logic.
     /// </summary>
     /// <returns>A task containing the metadata retrieval result.</returns>
-    protected virtual Task<IFdwResult<IConnectionMetadata>> GetMetadataCoreAsync()
+    protected virtual Task<IGenericResult<IConnectionMetadata>> GetMetadataCoreAsync()
     {
         var metadata = new BasicConnectionMetadata(ServiceType);
-        return Task.FromResult<IFdwResult<IConnectionMetadata>>(FdwResult<IConnectionMetadata>.Success(metadata));
+        return Task.FromResult<IGenericResult<IConnectionMetadata>>(GenericResult<IConnectionMetadata>.Success(metadata));
     }
 
     /// <summary>

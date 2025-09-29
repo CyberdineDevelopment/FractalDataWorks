@@ -58,7 +58,7 @@ public sealed class DataGatewayService : IDataGateway
     }
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult<T>> Execute<T>(DataCommandBase command, CancellationToken cancellationToken)
+    public override async Task<IGenericResult<T>> Execute<T>(DataCommandBase command, CancellationToken cancellationToken)
     {
         var validationResult = ValidateCommand<T>(command);
         if (validationResult != null)
@@ -93,15 +93,15 @@ public sealed class DataGatewayService : IDataGateway
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult&lt;T&gt; with the command execution result or error information.
+    /// an IGenericResult&lt;T&gt; with the command execution result or error information.
     /// </returns>
-    Task<IFdwResult<T>> IDataGateway.Execute<T>(DataCommandBase command, CancellationToken cancellationToken)
+    Task<IGenericResult<T>> IDataGateway.Execute<T>(DataCommandBase command, CancellationToken cancellationToken)
     {
         return Execute<T>(command, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<IEnumerable<DataContainer>>> DiscoverSchema(
+    public async Task<IGenericResult<IEnumerable<DataContainer>>> DiscoverSchema(
         string connectionName, 
         DataPath? startPath = null, 
         CancellationToken cancellationToken = default)
@@ -110,7 +110,7 @@ public sealed class DataGatewayService : IDataGateway
         {
             var errorMessage = "Connection name cannot be null or empty";
             DataGatewayServiceLog.DiscoverSchemaInvalidConnectionName(Logger);
-            return FdwResult<IEnumerable<DataContainer>>.Failure(errorMessage);
+            return GenericResult<IEnumerable<DataContainer>>.Failure(errorMessage);
         }
 
         using (LogContext.PushProperty("Operation", nameof(DiscoverSchema)))
@@ -148,13 +148,13 @@ public sealed class DataGatewayService : IDataGateway
 
                 DataGatewayServiceLog.SchemaDiscoveryException(Logger, connectionName, ex);
 
-                return FdwResult<IEnumerable<DataContainer>>.Failure(errorMessage);
+                return GenericResult<IEnumerable<DataContainer>>.Failure(errorMessage);
             }
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<IDictionary<string, object>>> GetConnectionsInfo(CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<IDictionary<string, object>>> GetConnectionsInfo(CancellationToken cancellationToken = default)
     {
         using (LogContext.PushProperty("Operation", nameof(GetConnectionsInfo)))
         {
@@ -185,13 +185,13 @@ public sealed class DataGatewayService : IDataGateway
 
                 DataGatewayServiceLog.ConnectionsInfoRetrievalException(Logger, ex);
 
-                return FdwResult<IDictionary<string, object>>.Failure(errorMessage);
+                return GenericResult<IDictionary<string, object>>.Failure(errorMessage);
             }
         }
     }
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult<T>> Execute<T>(DataCommandBase command)
+    public override async Task<IGenericResult<T>> Execute<T>(DataCommandBase command)
     {
         return await Execute<T>(command, CancellationToken.None).ConfigureAwait(false);
     }
@@ -202,16 +202,16 @@ public sealed class DataGatewayService : IDataGateway
     /// <typeparam name="T">The expected result type.</typeparam>
     /// <param name="command">The command to validate.</param>
     /// <returns>An error result if validation fails, null if validation passes.</returns>
-    private static IFdwResult<T>? ValidateCommand<T>(DataCommandBase command)
+    private static IGenericResult<T>? ValidateCommand<T>(DataCommandBase command)
     {
         if (command == null)
         {
-            return FdwResult<T>.Failure("Command cannot be null");
+            return GenericResult<T>.Failure("Command cannot be null");
         }
 
         if (string.IsNullOrWhiteSpace(command.ConnectionName))
         {
-            return FdwResult<T>.Failure("Command must specify a valid connection name");
+            return GenericResult<T>.Failure("Command must specify a valid connection name");
         }
 
         return null;
@@ -241,7 +241,7 @@ public sealed class DataGatewayService : IDataGateway
     /// <param name="command">The command to execute.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The execution result.</returns>
-    private async Task<IFdwResult<T>> ExecuteCommandWithValidation<T>(DataCommandBase command, CancellationToken cancellationToken)
+    private async Task<IGenericResult<T>> ExecuteCommandWithValidation<T>(DataCommandBase command, CancellationToken cancellationToken)
     {
         var connectionAvailable = await _connectionProvider.IsConnectionAvailable(
             command.ConnectionName ?? string.Empty, 
@@ -256,7 +256,7 @@ public sealed class DataGatewayService : IDataGateway
 
             DataGatewayServiceLog.ConnectionNotAvailable(Logger, command.ConnectionName, command.GetType().Name);
 
-            return FdwResult<T>.Failure(errorMessage);
+            return GenericResult<T>.Failure(errorMessage);
         }
 
         var result = await _connectionProvider.ExecuteCommand<T>(command, cancellationToken).ConfigureAwait(false);
@@ -270,7 +270,7 @@ public sealed class DataGatewayService : IDataGateway
     /// <typeparam name="T">The result type.</typeparam>
     /// <param name="command">The executed command.</param>
     /// <param name="result">The execution result.</param>
-    private void LogExecutionResult<T>(DataCommandBase command, IFdwResult<T> result)
+    private void LogExecutionResult<T>(DataCommandBase command, IGenericResult<T> result)
     {
         if (result.IsSuccess)
         {
@@ -289,7 +289,7 @@ public sealed class DataGatewayService : IDataGateway
     /// <param name="command">The command that was being executed.</param>
     /// <param name="ex">The exception that occurred.</param>
     /// <returns>A failure result with the exception details.</returns>
-    private IFdwResult<T> HandleExecutionException<T>(DataCommandBase command, Exception ex)
+    private IGenericResult<T> HandleExecutionException<T>(DataCommandBase command, Exception ex)
     {
         var errorMessage = string.Format(
             CultureInfo.InvariantCulture,
@@ -300,13 +300,13 @@ public sealed class DataGatewayService : IDataGateway
 
         DataGatewayServiceLog.CommandExecutionException(Logger, command.GetType().Name, command.ConnectionName, ex);
 
-        return FdwResult<T>.Failure(errorMessage);
+        return GenericResult<T>.Failure(errorMessage);
     }
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult> Execute(DataCommandBase command, CancellationToken cancellationToken)
+    public override async Task<IGenericResult> Execute(DataCommandBase command, CancellationToken cancellationToken)
     {
         var result = await Execute<object>(command, cancellationToken).ConfigureAwait(false);
-        return result.IsSuccess ? FdwResult.Success() : FdwResult.Failure(result.Message!);
+        return result.IsSuccess ? GenericResult.Success() : GenericResult.Failure(result.Message!);
     }
 }

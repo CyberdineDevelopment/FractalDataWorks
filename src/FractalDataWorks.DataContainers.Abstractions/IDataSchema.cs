@@ -76,7 +76,7 @@ public interface IDataSchema
     /// This method performs comprehensive validation including type checking,
     /// constraint validation, required field checking, and custom validation rules.
     /// </remarks>
-    IFdwResult ValidateRecord(IReadOnlyDictionary<string, object> record);
+    IGenericResult ValidateRecord(IReadOnlyDictionary<string, object> record);
 
     /// <summary>
     /// Validates that a strongly-typed object conforms to this schema.
@@ -88,7 +88,7 @@ public interface IDataSchema
     /// This method performs validation by mapping object properties to schema fields
     /// and then applying the same validation rules as the dictionary-based method.
     /// </remarks>
-    IFdwResult ValidateRecord<T>(T record) where T : class;
+    IGenericResult ValidateRecord<T>(T record) where T : class;
 
     /// <summary>
     /// Checks if this schema is compatible with another schema.
@@ -101,7 +101,7 @@ public interface IDataSchema
     /// cross-system data exchange. Different compatibility modes provide
     /// different levels of strictness in the compatibility check.
     /// </remarks>
-    IFdwResult CheckCompatibility(IDataSchema otherSchema, SchemaCompatibilityMode compatibilityMode);
+    IGenericResult CheckCompatibility(IDataSchema otherSchema, SchemaCompatibilityMode compatibilityMode);
 
     /// <summary>
     /// Creates a new schema with additional fields.

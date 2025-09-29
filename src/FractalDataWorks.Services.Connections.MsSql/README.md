@@ -12,7 +12,7 @@ This project provides a complete implementation of the external connections abst
 
 #### `MsSqlService`
 - **Type**: `sealed class`
-- **Interfaces**: `ServiceBase<IFdwConnectionCommand, MsSqlConfiguration, MsSqlService>`, `IFdwConnectionDataService`, `IDisposable`
+- **Interfaces**: `ServiceBase<IGenericConnectionCommand, MsSqlConfiguration, MsSqlService>`, `IGenericConnectionDataService`, `IDisposable`
 - **Purpose**: Manages multiple SQL Server connections and handles external connection commands
 - **Key Features**:
   - Stateless connection management with automatic cleanup
@@ -20,9 +20,9 @@ This project provides a complete implementation of the external connections abst
   - Connection pooling and health checking
   - Comprehensive logging using high-performance LoggerMessage delegates
 
-#### `MsSqlFdwConnection`
+#### `MsSqlGenericConnection`
 - **Type**: `sealed class`
-- **Interfaces**: `IFdwConnection<MsSqlConfiguration>`, `IExternalDataConnection<MsSqlConfiguration>`
+- **Interfaces**: `IGenericConnection<MsSqlConfiguration>`, `IExternalDataConnection<MsSqlConfiguration>`
 - **Purpose**: Stateless SQL Server connection implementation
 - **Key Features**:
   - Per-execution connection creation (no persistent connections)
@@ -34,7 +34,7 @@ This project provides a complete implementation of the external connections abst
 #### `MsSqlConfiguration`
 - **Type**: `sealed class`
 - **Base Class**: `ConfigurationBase<MsSqlConfiguration>`
-- **Interfaces**: `IFdwConnectionConfiguration`
+- **Interfaces**: `IGenericConnectionConfiguration`
 - **Purpose**: Comprehensive configuration for SQL Server connections
 - **Key Properties**:
   - Connection string management with sanitization
@@ -74,9 +74,9 @@ This project provides a complete implementation of the external connections abst
 ### Command Implementations
 Located in the `Commands` namespace:
 - `MsSqlConnectionTestCommand`
-- `MsSqlFdwConnectionCreateCommand`
-- `MsSqlFdwConnectionDiscoveryCommand`
-- `MsSqlFdwConnectionManagementCommand`
+- `MsSqlGenericConnectionCreateCommand`
+- `MsSqlGenericConnectionDiscoveryCommand`
+- `MsSqlGenericConnectionManagementCommand`
 
 ## Dependencies
 
@@ -109,7 +109,7 @@ services.AddSingleton<MsSqlService>();
 var service = serviceProvider.GetRequiredService<MsSqlService>();
 
 // Create connection
-var createCommand = new MsSqlFdwConnectionCreateCommand
+var createCommand = new MsSqlGenericConnectionCreateCommand
 {
     ConnectionName = "main-db",
     ConnectionConfiguration = new MsSqlConfiguration
@@ -171,12 +171,12 @@ The implementation uses a stateless approach where:
 The following code should be excluded from coverage testing as it requires real SQL Server connections:
 
 ### Integration-Only Methods
-- `MsSqlFdwConnection.ExecuteWithConnection<T>()` - Real SQL execution
-- `MsSqlFdwConnection.CollectMetadataAsync()` - Server metadata collection
-- `MsSqlFdwConnection.MapDataReaderToResults<T>()` - SqlDataReader mapping
-- `MsSqlFdwConnection.MapReaderToDataRecord()` - Data record mapping
-- `MsSqlFdwConnection.MapReaderToObject()` - Object mapping via reflection
-- `MsSqlFdwConnection.DiscoverTablesAndViewsAsync()` - Schema discovery queries
+- `MsSqlGenericConnection.ExecuteWithConnection<T>()` - Real SQL execution
+- `MsSqlGenericConnection.CollectMetadataAsync()` - Server metadata collection
+- `MsSqlGenericConnection.MapDataReaderToResults<T>()` - SqlDataReader mapping
+- `MsSqlGenericConnection.MapReaderToDataRecord()` - Data record mapping
+- `MsSqlGenericConnection.MapReaderToObject()` - Object mapping via reflection
+- `MsSqlGenericConnection.DiscoverTablesAndViewsAsync()` - Schema discovery queries
 - `MsSqlCommandTranslator.CreateSingleEntityUpsertCommand()` - Placeholder throwing NotSupportedException
 
 These methods are marked with `[ExcludeFromCodeCoverage]` attributes and require integration testing with actual SQL Server instances.

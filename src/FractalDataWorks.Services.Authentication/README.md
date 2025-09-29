@@ -24,7 +24,7 @@ The Authentication framework provides ServiceType auto-discovery for authenticat
 
 ```csharp
 // Program.cs - Zero-configuration registration
-builder.Services.AddScoped<IFdwAuthenticationProvider, FdwAuthenticationProvider>();
+builder.Services.AddScoped<IGenericAuthenticationProvider, GenericAuthenticationProvider>();
 
 // Single line registers ALL discovered authentication types
 AuthenticationTypes.Register(builder.Services);
@@ -50,9 +50,9 @@ AuthenticationTypes.Register(builder.Services);
 ```csharp
 public class UserController : ControllerBase
 {
-    private readonly IFdwAuthenticationProvider _authProvider;
+    private readonly IGenericAuthenticationProvider _authProvider;
 
-    public UserController(IFdwAuthenticationProvider authProvider)
+    public UserController(IGenericAuthenticationProvider authProvider)
     {
         _authProvider = authProvider;
     }
@@ -93,7 +93,7 @@ public class UserController : ControllerBase
 
 ```csharp
 // 1. Create your authentication type (singleton pattern)
-public sealed class CustomAuthenticationType : AuthenticationTypeBase<IFdwAuthenticator, CustomAuthenticationConfiguration, ICustomAuthenticationFactory>
+public sealed class CustomAuthenticationType : AuthenticationTypeBase<IGenericAuthenticator, CustomAuthenticationConfiguration, ICustomAuthenticationFactory>
 {
     public static CustomAuthenticationType Instance { get; } = new();
 

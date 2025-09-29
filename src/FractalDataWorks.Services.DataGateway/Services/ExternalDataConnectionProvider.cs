@@ -268,20 +268,20 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<T>> ExecuteCommand<T>(DataCommandBase command, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<T>> ExecuteCommand<T>(DataCommandBase command, CancellationToken cancellationToken = default)
     {
         if (command == null)
         {
             const string errorMessage = "Command cannot be null";
             LogNullCommandError(_logger, null);
-            return FdwResult<T>.Failure(errorMessage);
+            return GenericResult<T>.Failure(errorMessage);
         }
 
         if (string.IsNullOrWhiteSpace(command.ConnectionName))
         {
             const string errorMessage = "Command must specify a valid connection name";
             LogEmptyConnectionNameError(_logger, null);
-            return FdwResult<T>.Failure(errorMessage);
+            return GenericResult<T>.Failure(errorMessage);
         }
 
         // Validate the command first
@@ -299,7 +299,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                 string.Join("; ", validationResult.Value.Errors.Select(e => e.ErrorMessage)),
                 null);
             
-            return FdwResult<T>.Failure(errorMessage);
+            return GenericResult<T>.Failure(errorMessage);
         }
 
         using (_logger.BeginScope(new Dictionary<string, object>(StringComparer.Ordinal)
@@ -331,7 +331,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                         command.GetType().Name,
                         null);
 
-                    return FdwResult<T>.Failure(errorMessage);
+                    return GenericResult<T>.Failure(errorMessage);
                 }
                 
                 // Check if connection is null (interface cast failed during registration)
@@ -346,7 +346,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                         command.ConnectionName,
                         null);
 
-                    return FdwResult<T>.Failure(errorMessage);
+                    return GenericResult<T>.Failure(errorMessage);
                 }
 
                 // Try to cast to the expected interface
@@ -361,7 +361,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                         command.ConnectionName,
                         null);
 
-                    return FdwResult<T>.Failure(errorMessage);
+                    return GenericResult<T>.Failure(errorMessage);
                 }
 
                 // Test connection availability before executing
@@ -380,7 +380,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                         connectionTest.Message ?? "Unknown reason",
                         null);
 
-                    return FdwResult<T>.Failure(errorMessage);
+                    return GenericResult<T>.Failure(errorMessage);
                 }
 
                 var result = await connection.Execute<T>(command, cancellationToken).ConfigureAwait(false);
@@ -417,13 +417,13 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                     command.ConnectionName,
                     ex);
 
-                return FdwResult<T>.Failure(errorMessage);
+                return GenericResult<T>.Failure(errorMessage);
             }
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<IEnumerable<DataContainer>>> DiscoverConnectionSchema(
+    public async Task<IGenericResult<IEnumerable<DataContainer>>> DiscoverConnectionSchema(
         string connectionName, 
         DataPath? startPath = null, 
         CancellationToken cancellationToken = default)
@@ -432,7 +432,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
         {
             const string errorMessage = "Connection name cannot be null or empty";
             LogSchemaDiscoveryEmptyConnectionName(_logger, null);
-            return FdwResult<IEnumerable<DataContainer>>.Failure(errorMessage);
+            return GenericResult<IEnumerable<DataContainer>>.Failure(errorMessage);
         }
 
         using (_logger.BeginScope(new Dictionary<string, object>(StringComparer.Ordinal)
@@ -461,7 +461,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                         connectionName,
                         null);
 
-                    return FdwResult<IEnumerable<DataContainer>>.Failure(errorMessage);
+                    return GenericResult<IEnumerable<DataContainer>>.Failure(errorMessage);
                 }
 
                 // Try to cast to the expected interface
@@ -476,7 +476,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                         connectionName,
                         null);
 
-                    return FdwResult<IEnumerable<DataContainer>>.Failure(errorMessage);
+                    return GenericResult<IEnumerable<DataContainer>>.Failure(errorMessage);
                 }
 
                 var result = await connection.DiscoverSchema(startPath, cancellationToken).ConfigureAwait(false);
@@ -511,13 +511,13 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                     connectionName,
                     ex);
 
-                return FdwResult<IEnumerable<DataContainer>>.Failure(errorMessage);
+                return GenericResult<IEnumerable<DataContainer>>.Failure(errorMessage);
             }
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<IDictionary<string, object>>> GetConnectionsMetadata(CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<IDictionary<string, object>>> GetConnectionsMetadata(CancellationToken cancellationToken = default)
     {
         using (_logger.BeginScope(new Dictionary<string, object>(StringComparer.Ordinal)
         {
@@ -599,7 +599,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                     metadata.Count,
                     null);
 
-                return FdwResult<IDictionary<string, object>>.Success(metadata);
+                return GenericResult<IDictionary<string, object>>.Success(metadata);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
@@ -610,19 +610,19 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
 
                 LogMetadataRetrievalException(_logger, ex);
 
-                return FdwResult<IDictionary<string, object>>.Failure(errorMessage);
+                return GenericResult<IDictionary<string, object>>.Failure(errorMessage);
             }
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<bool>> IsConnectionAvailable(string connectionName, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<bool>> IsConnectionAvailable(string connectionName, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(connectionName))
         {
             const string errorMessage = "Connection name cannot be null or empty";
             LogAvailabilityCheckEmptyConnectionName(_logger, null);
-            return FdwResult<bool>.Failure(errorMessage);
+            return GenericResult<bool>.Failure(errorMessage);
         }
 
         using (_logger.BeginScope(new Dictionary<string, object>(StringComparer.Ordinal)
@@ -642,7 +642,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                         connectionName,
                         null);
 
-                    return FdwResult<bool>.Success(false);
+                    return GenericResult<bool>.Success(false);
                 }
 
                 // Try to cast to the expected interface
@@ -652,7 +652,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                         connectionName,
                         null);
 
-                    return FdwResult<bool>.Success(false);
+                    return GenericResult<bool>.Success(false);
                 }
 
                 var result = await connection.TestConnection(cancellationToken).ConfigureAwait(false);
@@ -664,7 +664,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                     isAvailable,
                     null);
 
-                return FdwResult<bool>.Success(isAvailable);
+                return GenericResult<bool>.Success(isAvailable);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
@@ -678,7 +678,7 @@ public sealed class ExternalDataConnectionProvider : IExternalDataConnectionProv
                     connectionName,
                     ex);
 
-                return FdwResult<bool>.Failure(errorMessage);
+                return GenericResult<bool>.Failure(errorMessage);
             }
         }
     }

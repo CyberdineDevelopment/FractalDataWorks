@@ -24,7 +24,7 @@ The DataStores framework provides ServiceType auto-discovery for data storage ab
 
 ```csharp
 // Program.cs - Zero-configuration registration
-builder.Services.AddScoped<IFdwDataStoreProvider, FdwDataStoreProvider>();
+builder.Services.AddScoped<IGenericDataStoreProvider, GenericDataStoreProvider>();
 
 // Single line registers ALL discovered data store types
 DataStoreTypes.Register(builder.Services);
@@ -55,18 +55,18 @@ DataStoreTypes.Register(builder.Services);
 ```csharp
 public class DocumentService
 {
-    private readonly IFdwDataStoreProvider _dataStoreProvider;
+    private readonly IGenericDataStoreProvider _dataStoreProvider;
 
-    public DocumentService(IFdwDataStoreProvider dataStoreProvider)
+    public DocumentService(IGenericDataStoreProvider dataStoreProvider)
     {
         _dataStoreProvider = dataStoreProvider;
     }
 
-    public async Task<IFdwResult<string>> StoreDocumentAsync(string documentId, byte[] content)
+    public async Task<IGenericResult<string>> StoreDocumentAsync(string documentId, byte[] content)
     {
         var storeResult = await _dataStoreProvider.GetDataStore("DocumentStore");
         if (!storeResult.IsSuccess)
-            return FdwResult<string>.Failure(storeResult.Error);
+            return GenericResult<string>.Failure(storeResult.Error);
 
         using var store = storeResult.Value;
 
@@ -75,15 +75,15 @@ public class DocumentService
         var result = await store.StoreAsync(storageKey, content);
 
         return result.IsSuccess
-            ? FdwResult<string>.Success(storageKey)
-            : FdwResult<string>.Failure(result.Error);
+            ? GenericResult<string>.Success(storageKey)
+            : GenericResult<string>.Failure(result.Error);
     }
 
-    public async Task<IFdwResult<byte[]>> RetrieveDocumentAsync(string documentId)
+    public async Task<IGenericResult<byte[]>> RetrieveDocumentAsync(string documentId)
     {
         var storeResult = await _dataStoreProvider.GetDataStore("DocumentStore");
         if (!storeResult.IsSuccess)
-            return FdwResult<byte[]>.Failure(storeResult.Error);
+            return GenericResult<byte[]>.Failure(storeResult.Error);
 
         using var store = storeResult.Value;
 
@@ -93,11 +93,11 @@ public class DocumentService
         return result;
     }
 
-    public async Task<IFdwResult> DeleteDocumentAsync(string documentId)
+    public async Task<IGenericResult> DeleteDocumentAsync(string documentId)
     {
         var storeResult = await _dataStoreProvider.GetDataStore("DocumentStore");
         if (!storeResult.IsSuccess)
-            return FdwResult.Failure(storeResult.Error);
+            return GenericResult.Failure(storeResult.Error);
 
         using var store = storeResult.Value;
 
@@ -127,7 +127,7 @@ public class DocumentService
 
 ```csharp
 // 1. Create your data store type (singleton pattern)
-public sealed class CustomDataStoreType : DataStoreTypeBase<IFdwDataStore, CustomDataStoreConfiguration, ICustomDataStoreFactory>
+public sealed class CustomDataStoreType : DataStoreTypeBase<IGenericDataStore, CustomDataStoreConfiguration, ICustomDataStoreFactory>
 {
     public static CustomDataStoreType Instance { get; } = new();
 
@@ -154,18 +154,18 @@ public sealed class CustomDataStoreType : DataStoreTypeBase<IFdwDataStore, Custo
 ```csharp
 public class AssetManagementService
 {
-    private readonly IFdwDataStoreProvider _dataStoreProvider;
+    private readonly IGenericDataStoreProvider _dataStoreProvider;
 
-    public AssetManagementService(IFdwDataStoreProvider dataStoreProvider)
+    public AssetManagementService(IGenericDataStoreProvider dataStoreProvider)
     {
         _dataStoreProvider = dataStoreProvider;
     }
 
-    public async Task<IFdwResult<string>> StoreAssetAsync(string category, string assetName, Stream assetData)
+    public async Task<IGenericResult<string>> StoreAssetAsync(string category, string assetName, Stream assetData)
     {
         var storeResult = await _dataStoreProvider.GetDataStore("DocumentStore");
         if (!storeResult.IsSuccess)
-            return FdwResult<string>.Failure(storeResult.Error);
+            return GenericResult<string>.Failure(storeResult.Error);
 
         using var store = storeResult.Value;
 
@@ -179,15 +179,15 @@ public class AssetManagementService
 
         var result = await store.StoreAsync(storageKey, content);
         return result.IsSuccess
-            ? FdwResult<string>.Success(storageKey)
-            : FdwResult<string>.Failure(result.Error);
+            ? GenericResult<string>.Success(storageKey)
+            : GenericResult<string>.Failure(result.Error);
     }
 
-    public async Task<IFdwResult<List<string>>> ListAssetsAsync(string category)
+    public async Task<IGenericResult<List<string>>> ListAssetsAsync(string category)
     {
         var storeResult = await _dataStoreProvider.GetDataStore("DocumentStore");
         if (!storeResult.IsSuccess)
-            return FdwResult<List<string>>.Failure(storeResult.Error);
+            return GenericResult<List<string>>.Failure(storeResult.Error);
 
         using var store = storeResult.Value;
 
@@ -204,21 +204,21 @@ public class AssetManagementService
 ```csharp
 public class CachedDataService
 {
-    private readonly IFdwDataStoreProvider _dataStoreProvider;
+    private readonly IGenericDataStoreProvider _dataStoreProvider;
 
-    public CachedDataService(IFdwDataStoreProvider dataStoreProvider)
+    public CachedDataService(IGenericDataStoreProvider dataStoreProvider)
     {
         _dataStoreProvider = dataStoreProvider;
     }
 
-    public async Task<IFdwResult<T>> GetCachedDataAsync<T>(string cacheKey, Func<Task<T>> dataFactory, TimeSpan? expiration = null)
+    public async Task<IGenericResult<T>> GetCachedDataAsync<T>(string cacheKey, Func<Task<T>> dataFactory, TimeSpan? expiration = null)
     {
         var cacheResult = await _dataStoreProvider.GetDataStore("CacheStore");
         if (!cacheResult.IsSuccess)
         {
             // Cache unavailable, get data directly
             var data = await dataFactory();
-            return FdwResult<T>.Success(data);
+            return GenericResult<T>.Success(data);
         }
 
         using var cache = cacheResult.Value;
@@ -236,14 +236,14 @@ public class CachedDataService
         };
 
         await cache.StoreAsync(cacheKey, freshData, cacheOptions);
-        return FdwResult<T>.Success(freshData);
+        return GenericResult<T>.Success(freshData);
     }
 
-    public async Task<IFdwResult> InvalidateCacheAsync(string cacheKey)
+    public async Task<IGenericResult> InvalidateCacheAsync(string cacheKey)
     {
         var cacheResult = await _dataStoreProvider.GetDataStore("CacheStore");
         if (!cacheResult.IsSuccess)
-            return FdwResult.Success(); // Cache unavailable, consider it invalidated
+            return GenericResult.Success(); // Cache unavailable, consider it invalidated
 
         using var cache = cacheResult.Value;
         return await cache.DeleteAsync(cacheKey);
@@ -256,14 +256,14 @@ public class CachedDataService
 ```csharp
 public class TieredStorageService
 {
-    private readonly IFdwDataStoreProvider _dataStoreProvider;
+    private readonly IGenericDataStoreProvider _dataStoreProvider;
 
-    public TieredStorageService(IFdwDataStoreProvider dataStoreProvider)
+    public TieredStorageService(IGenericDataStoreProvider dataStoreProvider)
     {
         _dataStoreProvider = dataStoreProvider;
     }
 
-    public async Task<IFdwResult<T>> GetDataAsync<T>(string key)
+    public async Task<IGenericResult<T>> GetDataAsync<T>(string key)
     {
         // Try hot cache first
         var hotCacheResult = await _dataStoreProvider.GetDataStore("HotCache");
@@ -296,7 +296,7 @@ public class TieredStorageService
         // Try cold storage
         var coldStorageResult = await _dataStoreProvider.GetDataStore("ColdStorage");
         if (!coldStorageResult.IsSuccess)
-            return FdwResult<T>.Failure("No storage tier available");
+            return GenericResult<T>.Failure("No storage tier available");
 
         using var coldStorage = coldStorageResult.Value;
         var coldResult = await coldStorage.RetrieveAsync<T>(key);

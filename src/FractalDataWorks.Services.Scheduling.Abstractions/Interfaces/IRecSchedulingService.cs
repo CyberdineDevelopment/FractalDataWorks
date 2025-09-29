@@ -22,7 +22,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// </para>
 /// <para>
 /// The service follows the standard FractalDataWorks service patterns by inheriting from IFractalService and returning
-/// IFdwResult types for consistent error handling and result management across the framework.
+/// IGenericResult types for consistent error handling and result management across the framework.
 /// </para>
 /// </remarks>
 /// <example>
@@ -61,7 +61,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// }
 /// </code>
 /// </example>
-public interface IFdwSchedulingService : IFdwService
+public interface IGenericSchedulingService : IGenericService
 {
     /// <summary>
     /// Gets the underlying scheduler instance used by this service.
@@ -72,7 +72,7 @@ public interface IFdwSchedulingService : IFdwService
     /// scheduler interaction is needed. Most applications should use the service methods instead
     /// of accessing the scheduler directly.
     /// </remarks>
-    IFdwScheduler Scheduler { get; }
+    IGenericScheduler Scheduler { get; }
 
     /// <summary>
     /// Creates a new schedule and registers it with the scheduling system.
@@ -92,7 +92,7 @@ public interface IFdwSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="schedule"/> is null.</exception>
-    Task<IFdwResult> CreateScheduleAsync(IFdwSchedule schedule, CancellationToken cancellationToken = default);
+    Task<IGenericResult> CreateScheduleAsync(IGenericSchedule schedule, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates an existing schedule with new configuration.
@@ -112,7 +112,7 @@ public interface IFdwSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="schedule"/> is null.</exception>
-    Task<IFdwResult> UpdateScheduleAsync(IFdwSchedule schedule, CancellationToken cancellationToken = default);
+    Task<IGenericResult> UpdateScheduleAsync(IGenericSchedule schedule, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a schedule and removes it from the scheduling system.
@@ -132,7 +132,7 @@ public interface IFdwSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentException">Thrown when <paramref name="scheduleId"/> is null or empty.</exception>
-    Task<IFdwResult> DeleteScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> DeleteScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Pauses a schedule, preventing it from triggering new executions.
@@ -152,7 +152,7 @@ public interface IFdwSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentException">Thrown when <paramref name="scheduleId"/> is null or empty.</exception>
-    Task<IFdwResult> PauseScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> PauseScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Resumes a previously paused schedule, allowing it to trigger executions again.
@@ -170,7 +170,7 @@ public interface IFdwSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentException">Thrown when <paramref name="scheduleId"/> is null or empty.</exception>
-    Task<IFdwResult> ResumeScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> ResumeScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Triggers immediate execution of a scheduled process, bypassing normal schedule timing.
@@ -190,7 +190,7 @@ public interface IFdwSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentException">Thrown when <paramref name="scheduleId"/> is null or empty.</exception>
-    Task<IFdwResult> TriggerScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> TriggerScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a specific schedule by its identifier.
@@ -210,7 +210,7 @@ public interface IFdwSchedulingService : IFdwService
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentException">Thrown when <paramref name="scheduleId"/> is null or empty.</exception>
-    Task<IFdwResult<IFdwSchedule?>> GetScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IGenericSchedule?>> GetScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all schedules currently managed by the scheduling system.
@@ -229,7 +229,7 @@ public interface IFdwSchedulingService : IFdwService
     /// at the time of the query.
     /// </para>
     /// </remarks>
-    Task<IFdwResult<IReadOnlyCollection<IFdwSchedule>>> GetSchedulesAsync(bool includeInactive = true, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IReadOnlyCollection<IGenericSchedule>>> GetSchedulesAsync(bool includeInactive = true, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves the execution history for a specific schedule.
@@ -252,7 +252,7 @@ public interface IFdwSchedulingService : IFdwService
     /// </remarks>
     /// <exception cref="ArgumentException">Thrown when <paramref name="scheduleId"/> is null or empty.</exception>
     /// <exception cref="ArgumentException">Thrown when <paramref name="startDate"/> is greater than <paramref name="endDate"/>.</exception>
-    Task<IFdwResult<IReadOnlyCollection<IFdwScheduleExecutionHistory>>> GetScheduleHistoryAsync(
+    Task<IGenericResult<IReadOnlyCollection<IGenericScheduleExecutionHistory>>> GetScheduleHistoryAsync(
         string scheduleId,
         DateTime? startDate = null,
         DateTime? endDate = null,

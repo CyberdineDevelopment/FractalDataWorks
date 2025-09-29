@@ -17,7 +17,7 @@ namespace FractalDataWorks;
 /// overridden to implement custom validation and initialization logic.
 /// The "Rec" prefix avoids namespace collisions with common configuration types.
 /// </remarks>
-public abstract class fdwConfigurationBase : IFdwConfiguration
+public abstract class GenericConfigurationBase : IGenericConfiguration
 {
     /// <summary>
     /// Gets or sets the unique identifier for this configuration instance.
@@ -42,16 +42,16 @@ public abstract class fdwConfigurationBase : IFdwConfiguration
     /// <summary>
     /// Validates the configuration settings.
     /// </summary>
-    /// <returns>A FdwResult containing the FluentValidation ValidationResult.</returns>
+    /// <returns>A GenericResult containing the FluentValidation ValidationResult.</returns>
     /// <remarks>
     /// Override this method in derived classes to implement custom validation logic.
     /// The framework will call this method before using the configuration to ensure
     /// all required settings are properly configured.
     /// </remarks>
-    public virtual IFdwResult<ValidationResult> Validate()
+    public virtual IGenericResult<ValidationResult> Validate()
     {
         // Default implementation returns success - derived classes should override
-        return FdwResult<ValidationResult>.Success(new ValidationResult());
+        return GenericResult<ValidationResult>.Success(new ValidationResult());
     }
 
 

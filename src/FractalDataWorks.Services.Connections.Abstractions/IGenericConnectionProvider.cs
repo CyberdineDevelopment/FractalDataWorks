@@ -8,7 +8,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// The provider uses ConnectionTypes to lookup configuration types and factories.
 /// Follows Railway-Oriented Programming - all operations return Results.
 /// </summary>
-public interface IFdwConnectionProvider
+public interface IGenericConnectionProvider
 {
     /// <summary>
     /// Gets a connection using the provided configuration.
@@ -16,19 +16,19 @@ public interface IFdwConnectionProvider
     /// </summary>
     /// <param name="configuration">The configuration containing the connection type and settings.</param>
     /// <returns>A result containing the connection instance or failure information.</returns>
-    Task<IFdwResult<IFdwConnection>> GetConnection(IConnectionConfiguration configuration);
+    Task<IGenericResult<IGenericConnection>> GetConnection(IConnectionConfiguration configuration);
     
     /// <summary>
     /// Gets a connection by configuration ID.
     /// </summary>
     /// <param name="configurationId">The ID of the configuration to load.</param>
     /// <returns>A result containing the connection instance or failure information.</returns>
-    Task<IFdwResult<IFdwConnection>> GetConnection(int configurationId);
+    Task<IGenericResult<IGenericConnection>> GetConnection(int configurationId);
     
     /// <summary>
     /// Gets a connection by configuration name from appsettings.
     /// </summary>
     /// <param name="configurationName">The name of the configuration section.</param>
     /// <returns>A result containing the connection instance or failure information.</returns>
-    Task<IFdwResult<IFdwConnection>> GetConnection(string configurationName);
+    Task<IGenericResult<IGenericConnection>> GetConnection(string configurationName);
 }

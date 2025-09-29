@@ -19,7 +19,7 @@ namespace FractalDataWorks.Messages;
 /// The source generator will populate the static collection in the static constructor.
 /// </summary>
 /// <typeparam name="T">The message type that must derive from MessageTemplate</typeparam>
-public abstract class MessageCollectionBase<T> where T : class, IFdwMessage, IEnumOption
+public abstract class MessageCollectionBase<T> where T : class, IGenericMessage, IEnumOption
 {
     /// <summary>
     /// Static collection of all message options. Populated by the source generator.

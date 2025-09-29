@@ -7,7 +7,7 @@ This test project provides comprehensive test coverage for the MCP (Model Contex
 ### 1. Plugin Interface Tests (`Abstractions/`)
 
 #### IToolPluginTests.cs
-- **Interface Contract Tests**: Validates IToolPlugin inherits from IFdwService
+- **Interface Contract Tests**: Validates IToolPlugin inherits from IGenericService
 - **Property Tests**: Id, Name, Description, Category, Priority, IsEnabled
 - **Method Tests**: GetTools(), InitializeAsync(), ValidateConfigurationAsync(), GetHealthAsync(), ShutdownAsync()
 - **Generic Plugin Tests**: IToolPlugin<TConfiguration> with typed configuration
@@ -123,9 +123,9 @@ This test project provides comprehensive test coverage for the MCP (Model Contex
 
 All tests validate the Railway-oriented programming patterns used throughout the codebase:
 
-### IFdwResult Pattern Testing
-- **Success Results**: FdwResult.Success() and FdwResult.Success<T>(value)
-- **Failure Results**: FdwResult.Failure() and FdwResult.Failure<T>(errorMessage)
+### IGenericResult Pattern Testing
+- **Success Results**: GenericResult.Success() and GenericResult.Success<T>(value)
+- **Failure Results**: GenericResult.Failure() and GenericResult.Failure<T>(errorMessage)
 - **Result Chaining**: Proper result composition and error propagation
 - **Error Messages**: Meaningful error descriptions for debugging
 

@@ -28,7 +28,7 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
     /// </summary>
     /// <param name="configuration">The REST connection configuration.</param>
     /// <returns>A result containing the created REST service instance.</returns>
-    public async Task<IFdwResult<RestService>> CreateAsync(RestConnectionConfiguration configuration)
+    public async Task<IGenericResult<RestService>> CreateAsync(RestConnectionConfiguration configuration)
     {
         try
         {
@@ -36,13 +36,13 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
             var validationResult = configuration.Validate();
             if (!validationResult.IsSuccess)
             {
-                return FdwResult.Failure<RestService>($"Configuration validation failed: {validationResult.Error}");
+                return GenericResult.Failure<RestService>($"Configuration validation failed: {validationResult.Error}");
             }
 
             if (!validationResult.Value.IsValid)
             {
                 var errors = string.Join(", ", validationResult.Value.Errors);
-                return FdwResult.Failure<RestService>($"Configuration is invalid: {errors}");
+                return GenericResult.Failure<RestService>($"Configuration is invalid: {errors}");
             }
 
             // Create HTTP client
@@ -58,11 +58,11 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
             // Create the REST service
             var service = new RestService(httpClient, configuration);
             
-            return FdwResult.Success(service);
+            return GenericResult.Success(service);
         }
         catch (Exception ex)
         {
-            return FdwResult.Failure<RestService>($"Failed to create REST connection: {ex.Message}");
+            return GenericResult.Failure<RestService>($"Failed to create REST connection: {ex.Message}");
         }
     }
 
@@ -71,19 +71,19 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
     /// </summary>
     /// <param name="configuration">The configuration object.</param>
     /// <returns>A result containing the connection instance.</returns>
-    public async Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFdwConfiguration configuration)
+    public async Task<IGenericResult<IGenericConnection>> CreateConnectionAsync(IGenericConfiguration configuration)
     {
         if (configuration is RestConnectionConfiguration restConfig)
         {
             var result = await CreateAsync(restConfig);
             if (result.IsSuccess)
             {
-                return FdwResult.Success<IFdwConnection>(result.Value);
+                return GenericResult.Success<IGenericConnection>(result.Value);
             }
-            return FdwResult.Failure<IFdwConnection>(result.Error);
+            return GenericResult.Failure<IGenericConnection>(result.Error);
         }
 
-        return FdwResult.Failure<IFdwConnection>($"Invalid configuration type. Expected {nameof(RestConnectionConfiguration)}, got {configuration?.GetType().Name}");
+        return GenericResult.Failure<IGenericConnection>($"Invalid configuration type. Expected {nameof(RestConnectionConfiguration)}, got {configuration?.GetType().Name}");
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
     /// <param name="configuration">The configuration object.</param>
     /// <param name="connectionType">The connection type name.</param>
     /// <returns>A result containing the connection instance.</returns>
-    public async Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IFdwConfiguration configuration, string connectionType)
+    public async Task<IGenericResult<IGenericConnection>> CreateConnectionAsync(IGenericConfiguration configuration, string connectionType)
     {
         return await CreateConnectionAsync(configuration);
     }
@@ -102,7 +102,7 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
     /// </summary>
     /// <param name="configuration">The configuration to validate.</param>
     /// <returns>A result indicating whether the configuration is valid.</returns>
-    public IFdwResult ValidateConfiguration(IFdwConfiguration configuration)
+    public IGenericResult ValidateConfiguration(IGenericConfiguration configuration)
     {
         if (configuration is RestConnectionConfiguration restConfig)
         {
@@ -115,12 +115,12 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
             if (!validationResult.Value.IsValid)
             {
                 var errors = string.Join(", ", validationResult.Value.Errors);
-                return FdwResult.Failure(errors);
+                return GenericResult.Failure(errors);
             }
 
-            return FdwResult.Success();
+            return GenericResult.Success();
         }
 
-        return FdwResult.Failure($"Invalid configuration type. Expected {nameof(RestConnectionConfiguration)}, got {configuration?.GetType().Name}");
+        return GenericResult.Failure($"Invalid configuration type. Expected {nameof(RestConnectionConfiguration)}, got {configuration?.GetType().Name}");
     }
 }

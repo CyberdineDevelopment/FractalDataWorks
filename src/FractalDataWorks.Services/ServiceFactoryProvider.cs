@@ -29,7 +29,7 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
     }
 
     /// <inheritdoc/>
-    public IFdwResult RegisterFactory(string typeName, IServiceFactory factory)
+    public IGenericResult RegisterFactory(string typeName, IServiceFactory factory)
     {
         // Use default Scoped lifetime for backward compatibility
         return RegisterFactory(typeName, factory, ServiceLifetimes.Scoped);
@@ -42,22 +42,22 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
     /// <param name="factory">The factory instance to register.</param>
     /// <param name="lifetime">The service lifetime for DI container registration.</param>
     /// <returns>A result indicating success or failure.</returns>
-    public IFdwResult RegisterFactory(string typeName, IServiceFactory factory, IServiceLifetime lifetime)
+    public IGenericResult RegisterFactory(string typeName, IServiceFactory factory, IServiceLifetime lifetime)
     {
         if (string.IsNullOrWhiteSpace(typeName))
-            return FdwResult.Failure("Service type name cannot be null or empty");
+            return GenericResult.Failure("Service type name cannot be null or empty");
 
         if (factory == null)
-            return FdwResult.Failure("Factory cannot be null");
+            return GenericResult.Failure("Factory cannot be null");
 
         if (lifetime == null)
-            return FdwResult.Failure("Lifetime cannot be null");
+            return GenericResult.Failure("Lifetime cannot be null");
 
         lock (_lock)
         {
             if (_registrations.ContainsKey(typeName))
             {
-                return FdwResult.Failure($"Factory for service type '{typeName}' is already registered");
+                return GenericResult.Failure($"Factory for service type '{typeName}' is already registered");
             }
 
             _registrations[typeName] = new FactoryRegistration
@@ -68,45 +68,45 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
             };
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <inheritdoc/>
-    public IFdwResult<IServiceFactory> GetFactory(string typeName)
+    public IGenericResult<IServiceFactory> GetFactory(string typeName)
     {
         if (string.IsNullOrWhiteSpace(typeName))
-            return FdwResult<IServiceFactory>.Failure("Service type name cannot be null or empty");
+            return GenericResult<IServiceFactory>.Failure("Service type name cannot be null or empty");
 
         lock (_lock)
         {
             if (_registrations.TryGetValue(typeName, out var registration))
             {
-                return FdwResult<IServiceFactory>.Success(registration.Factory);
+                return GenericResult<IServiceFactory>.Success(registration.Factory);
             }
         }
 
         var availableTypes = string.Join(", ", GetRegisteredTypeNames());
-        return FdwResult<IServiceFactory>.Failure(
+        return GenericResult<IServiceFactory>.Failure(
             $"No factory registered for service type '{typeName}'. Available types: {availableTypes}");
     }
 
     /// <inheritdoc/>
-    public IFdwResult<IServiceFactory<TService, TConfiguration>> GetFactory<TService, TConfiguration>(string typeName)
+    public IGenericResult<IServiceFactory<TService, TConfiguration>> GetFactory<TService, TConfiguration>(string typeName)
         where TService : class
-        where TConfiguration : IFdwConfiguration
+        where TConfiguration : IGenericConfiguration
     {
         var factoryResult = GetFactory(typeName);
         if (factoryResult.IsFailure)
         {
-            return FdwResult<IServiceFactory<TService, TConfiguration>>.Failure(factoryResult.Message ?? "Failed to get factory");
+            return GenericResult<IServiceFactory<TService, TConfiguration>>.Failure(factoryResult.Message ?? "Failed to get factory");
         }
 
         if (factoryResult.Value is IServiceFactory<TService, TConfiguration> typedFactory)
         {
-            return FdwResult<IServiceFactory<TService, TConfiguration>>.Success(typedFactory);
+            return GenericResult<IServiceFactory<TService, TConfiguration>>.Success(typedFactory);
         }
 
-        return FdwResult<IServiceFactory<TService, TConfiguration>>.Failure(
+        return GenericResult<IServiceFactory<TService, TConfiguration>>.Failure(
             $"Factory for service type '{typeName}' does not implement IServiceFactory<{typeof(TService).Name}, {typeof(TConfiguration).Name}>");
     }
 
@@ -140,21 +140,21 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
     /// This method provides access to the complete registration information including
     /// factory, lifetime, and metadata. Useful for DI container configuration.
     /// </remarks>
-    public IFdwResult<FactoryRegistration> GetRegistration(string typeName)
+    public IGenericResult<FactoryRegistration> GetRegistration(string typeName)
     {
         if (string.IsNullOrWhiteSpace(typeName))
-            return FdwResult<FactoryRegistration>.Failure("Service type name cannot be null or empty");
+            return GenericResult<FactoryRegistration>.Failure("Service type name cannot be null or empty");
 
         lock (_lock)
         {
             if (_registrations.TryGetValue(typeName, out var registration))
             {
-                return FdwResult<FactoryRegistration>.Success(registration);
+                return GenericResult<FactoryRegistration>.Success(registration);
             }
         }
 
         var availableTypes = string.Join(", ", GetRegisteredTypeNames());
-        return FdwResult<FactoryRegistration>.Failure(
+        return GenericResult<FactoryRegistration>.Failure(
             $"No registration found for service type '{typeName}'. Available types: {availableTypes}");
     }
 

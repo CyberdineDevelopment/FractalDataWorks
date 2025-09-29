@@ -13,15 +13,15 @@ namespace FractalDataWorks.Services.Connections.MsSql.Commands;
 /// <summary>
 /// Command for discovering SQL Server connection schemas and metadata.
 /// </summary>
-public sealed class MsSqlFdwConnectionDiscoveryCommand : IConnectionCommand, IConnectionDiscoveryCommand
+public sealed class MsSqlGenericConnectionDiscoveryCommand : IConnectionCommand, IConnectionDiscoveryCommand
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MsSqlFdwConnectionDiscoveryCommand"/> class.
+    /// Initializes a new instance of the <see cref="MsSqlGenericConnectionDiscoveryCommand"/> class.
     /// </summary>
     /// <param name="connectionName">The name of the connection to discover.</param>
     /// <param name="startPath">The starting path for schema discovery.</param>
     /// <param name="options">The discovery options.</param>
-    public MsSqlFdwConnectionDiscoveryCommand(
+    public MsSqlGenericConnectionDiscoveryCommand(
         string connectionName, 
         string? startPath = null, 
         ConnectionDiscoveryOptions? options = null)
@@ -45,7 +45,7 @@ public sealed class MsSqlFdwConnectionDiscoveryCommand : IConnectionCommand, ICo
     /// Validates this command using FluentValidation.
     /// </summary>
     /// <returns>The validation result.</returns>
-    public IFdwResult<ValidationResult> Validate()
+    public IGenericResult<ValidationResult> Validate()
     {
         var result = new ValidationResult();
 
@@ -61,11 +61,11 @@ public sealed class MsSqlFdwConnectionDiscoveryCommand : IConnectionCommand, ICo
 
         if (result.IsValid)
         {
-            return FdwResult<ValidationResult>.Success(result);
+            return GenericResult<ValidationResult>.Success(result);
         }
         
         var errorMessage = string.Join("; ", result.Errors.Select(e => e.ErrorMessage));
-        return FdwResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errorMessage, "ValidationFailed", "MsSqlFdwConnectionDiscoveryCommand"));
+        return GenericResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errorMessage, "ValidationFailed", "MsSqlGenericConnectionDiscoveryCommand"));
     }
 
     /// <summary>
@@ -86,5 +86,5 @@ public sealed class MsSqlFdwConnectionDiscoveryCommand : IConnectionCommand, ICo
     /// <summary>
     /// Gets the configuration associated with this command.
     /// </summary>
-    public IFdwConfiguration? Configuration => null; // Discovery commands don't have associated configuration
+    public IGenericConfiguration? Configuration => null; // Discovery commands don't have associated configuration
 }

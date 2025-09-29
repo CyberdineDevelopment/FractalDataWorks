@@ -23,7 +23,7 @@ namespace FractalDataWorks.Services.DataGateway.Services;
 /// provides a unified interface for data operations across different data stores such as
 /// SQL databases, NoSQL databases, file systems, REST APIs, and other external systems.
 /// </remarks>
-public interface IDataGateway : IFdwService<DataCommandBase>
+public interface IDataGateway : IGenericService<DataCommandBase>
 {
     /// <summary>
     /// Executes a data command against the specified connection and returns a typed result.
@@ -33,9 +33,9 @@ public interface IDataGateway : IFdwService<DataCommandBase>
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult&lt;T&gt; with the command execution result or error information.
+    /// an IGenericResult&lt;T&gt; with the command execution result or error information.
     /// </returns>
-    Task<IFdwResult<T>> Execute<T>(DataCommandBase command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<T>> Execute<T>(DataCommandBase command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Discovers the schema structure of a data store starting from an optional path.
@@ -45,9 +45,9 @@ public interface IDataGateway : IFdwService<DataCommandBase>
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult with a collection of discovered data containers and their metadata.
+    /// an IGenericResult with a collection of discovered data containers and their metadata.
     /// </returns>
-    Task<IFdwResult<IEnumerable<DataContainer>>> DiscoverSchema(
+    Task<IGenericResult<IEnumerable<DataContainer>>> DiscoverSchema(
         string connectionName,
         DataPath? startPath = null,
         CancellationToken cancellationToken = default);
@@ -58,9 +58,9 @@ public interface IDataGateway : IFdwService<DataCommandBase>
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult with a dictionary of connection names and their metadata.
+    /// an IGenericResult with a dictionary of connection names and their metadata.
     /// </returns>
-    Task<IFdwResult<IDictionary<string, object>>> GetConnectionsInfo(CancellationToken cancellationToken = default);
+    Task<IGenericResult<IDictionary<string, object>>> GetConnectionsInfo(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a data command and returns a typed result.
@@ -70,7 +70,7 @@ public interface IDataGateway : IFdwService<DataCommandBase>
     /// <param name="command">The data command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult<TResult>> Execute<TResult>(IDataCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<TResult>> Execute<TResult>(IDataCommand command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a data command without returning a specific result type.
@@ -79,5 +79,5 @@ public interface IDataGateway : IFdwService<DataCommandBase>
     /// <param name="command">The data command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult> Execute(IDataCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult> Execute(IDataCommand command, CancellationToken cancellationToken = default);
 }

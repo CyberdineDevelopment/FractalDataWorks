@@ -16,7 +16,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// and any relevant context. The handler is responsible for locating and executing the
 /// appropriate process implementation.
 /// </remarks>
-public interface IFdwScheduledExecutionHandler
+public interface IGenericScheduledExecutionHandler
 {
     /// <summary>
     /// Executes a process that was triggered by a schedule.
@@ -28,7 +28,7 @@ public interface IFdwScheduledExecutionHandler
     /// <param name="metadata">Optional metadata from the schedule or execution context.</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>A task representing the result of the process execution.</returns>
-    Task<IFdwResult<IProcessResult>> ExecuteScheduledProcessAsync(
+    Task<IGenericResult<IProcessResult>> ExecuteScheduledProcessAsync(
         string processId, 
         string scheduleId,
         DateTime scheduledTime,
@@ -42,7 +42,7 @@ public interface IFdwScheduledExecutionHandler
     /// <param name="processId">The identifier of the process to check.</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>A task representing whether the process can be handled.</returns>
-    Task<IFdwResult<bool>> CanHandleProcessAsync(string processId, CancellationToken cancellationToken = default);
+    Task<IGenericResult<bool>> CanHandleProcessAsync(string processId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets information about a process without executing it.
@@ -50,5 +50,5 @@ public interface IFdwScheduledExecutionHandler
     /// <param name="processId">The identifier of the process to get information about.</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>A task representing the process information, or null if the process is not found.</returns>
-    Task<IFdwResult<IProcess?>> GetProcessInfoAsync(string processId, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IProcess?>> GetProcessInfoAsync(string processId, CancellationToken cancellationToken = default);
 }

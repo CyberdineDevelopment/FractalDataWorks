@@ -89,7 +89,7 @@ public interface ISchemaField
     /// This method performs comprehensive field-level validation including
     /// type checking, constraint validation, and format validation.
     /// </remarks>
-    IFdwResult ValidateValue(object? value);
+    IGenericResult ValidateValue(object? value);
 
     /// <summary>
     /// Attempts to convert a value to the field's data type.
@@ -100,5 +100,5 @@ public interface ISchemaField
     /// This method handles type conversion with appropriate error handling.
     /// It considers the field's data type and any format-specific conversion rules.
     /// </remarks>
-    IFdwResult<object?> ConvertValue(object? value);
+    IGenericResult<object?> ConvertValue(object? value);
 }

@@ -409,7 +409,7 @@ Enhanced enums use source generators to create:
 The library uses FluentValidation throughout:
 - Commands validate themselves before execution
 - Configurations have dedicated validator classes
-- Validation results use `IFdwResult<ValidationResult>` pattern
+- Validation results use `IGenericResult<ValidationResult>` pattern
 
 ### Provider Agnostic Design
 All abstractions are designed to work across different providers:

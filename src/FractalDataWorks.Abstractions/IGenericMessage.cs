@@ -5,7 +5,7 @@ namespace FractalDataWorks.Messages;
 /// <summary>
 /// Interface for framework messages that provide structured information about operations.
 /// </summary>
-public interface IFdwMessage
+public interface IGenericMessage
 {
     /// <summary>
     /// Gets the message text.
@@ -30,7 +30,7 @@ public interface IFdwMessage
 /// Generic interface for framework messages with strongly typed severity.
 /// </summary>
 /// <typeparam name="TSeverity">The type of severity enum.</typeparam>
-public interface IFdwMessage<TSeverity> : IFdwMessage where TSeverity : Enum
+public interface IGenericMessage<TSeverity> : IGenericMessage where TSeverity : Enum
 {
     /// <summary>
     /// Gets the severity level of the message.

@@ -75,12 +75,12 @@ graph TB
 
 **Key Components**:
 
-#### IFdwService Interface Hierarchy
+#### IGenericService Interface Hierarchy
 ```csharp
-IFdwService                                    // Base service interface
-├── IFdwService<TCommand>                     // Command-aware service
-    └── IFdwService<TCommand, TConfiguration> // Configuration-aware service
-        └── IFdwService<TCommand, TConfiguration, TService> // Fully typed service
+IGenericService                                    // Base service interface
+├── IGenericService<TCommand>                     // Command-aware service
+    └── IGenericService<TCommand, TConfiguration> // Configuration-aware service
+        └── IGenericService<TCommand, TConfiguration, TService> // Fully typed service
 ```
 
 #### Command Pattern Implementation
@@ -99,12 +99,12 @@ IFdwService                                    // Base service interface
 ```csharp
 public interface IServiceFactory
 {
-    IFdwResult<IFdwService> Create(IFdwConfiguration configuration);
+    IGenericResult<IGenericService> Create(IGenericConfiguration configuration);
 }
 
 public interface IServiceFactory<TService> : IServiceFactory
 {
-    IFdwResult<TService> Create(IFdwConfiguration configuration);
+    IGenericResult<TService> Create(IGenericConfiguration configuration);
 }
 ```
 
@@ -129,8 +129,8 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService>
     public TConfiguration Configuration { get; }
     public string Id { get; } = Guid.NewGuid().ToString();
 
-    public abstract Task<IFdwResult> Execute(TCommand command);
-    public abstract Task<IFdwResult<TOut>> Execute<TOut>(TCommand command);
+    public abstract Task<IGenericResult> Execute(TCommand command);
+    public abstract Task<IGenericResult<TOut>> Execute<TOut>(TCommand command);
 }
 ```
 
@@ -630,7 +630,7 @@ public class DataProcessor : ServiceBase<ProcessCommand, DataConfig, DataProcess
     public DataProcessor(ILogger<DataProcessor> logger, DataConfig config)
         : base(logger, config) { }
 
-    public override async Task<IFdwResult> Execute(ProcessCommand command)
+    public override async Task<IGenericResult> Execute(ProcessCommand command)
     {
         // Implementation with automatic logging and error handling
     }
@@ -680,19 +680,19 @@ public class ConsumerService
 ## Configuration Management
 
 ### Configuration Validation
-All configurations implement `IFdwConfiguration` with FluentValidation:
+All configurations implement `IGenericConfiguration` with FluentValidation:
 
 ```csharp
-public class DataConfig : IFdwConfiguration
+public class DataConfig : IGenericConfiguration
 {
     public string ConnectionString { get; set; }
     public int Timeout { get; set; }
 
-    public IFdwResult<ValidationResult> Validate()
+    public IGenericResult<ValidationResult> Validate()
     {
         var validator = new DataConfigValidator();
         var result = validator.Validate(this);
-        return FdwResult<ValidationResult>.From(result);
+        return GenericResult<ValidationResult>.From(result);
     }
 }
 
@@ -765,10 +765,10 @@ Command → Service → Validation → Execution → Result → Messages → Log
 ## Error Handling
 
 ### Railway-Oriented Programming
-All operations return `IFdwResult<T>`:
+All operations return `IGenericResult<T>`:
 
 ```csharp
-public async Task<IFdwResult<Data>> ProcessData(Request request)
+public async Task<IGenericResult<Data>> ProcessData(Request request)
 {
     return await ValidateRequest(request)
         .Bind(GetConfiguration)
@@ -791,9 +791,9 @@ public async Task<IFdwResult<Data>> ProcessData(Request request)
 All components use structured logging with Microsoft.Extensions.Logging:
 
 ```csharp
-FdwConnectionProviderLog.GettingConnection(_logger, configuration.ConnectionType);
-FdwConnectionProviderLog.ConnectionCreated(_logger, configuration.ConnectionType);
-FdwConnectionProviderLog.ConnectionCreationFailed(_logger, type, error);
+GenericConnectionProviderLog.GettingConnection(_logger, configuration.ConnectionType);
+GenericConnectionProviderLog.ConnectionCreated(_logger, configuration.ConnectionType);
+GenericConnectionProviderLog.ConnectionCreationFailed(_logger, type, error);
 ```
 
 ### Log Levels
@@ -963,7 +963,7 @@ public async Task ServiceFactory_Should_Create_Valid_Service()
 ### Community
 - GitHub Issues: Bug reports and feature requests
 - Discussions: Architecture and design topics
-- Stack Overflow: Tag with 'fractaldataworks'
+- Stack Overflow: Tag with 'FractalDataWorks'
 - Discord: Real-time support
 
 ## License and Credits

@@ -481,8 +481,8 @@ The collection base class enforces full interface compliance:
 public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConfiguration, TFactory>
     where TBase : class, IServiceType<TService, TConfiguration, TFactory>
     where TGeneric : IServiceType<TService, TConfiguration, TFactory>
-    where TService : class, IFdwService                              // Must be a service
-    where TConfiguration : class, IFdwConfiguration                  // Must be config
+    where TService : class, IGenericService                              // Must be a service
+    where TConfiguration : class, IGenericConfiguration                  // Must be config
     where TFactory : class, IServiceFactory<TService, TConfiguration> // Must be factory
 ```
 
@@ -496,7 +496,7 @@ Domain implementations add their specific constraints:
 // Connection domain example
 public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory>
     : ServiceTypeBase<TService, TConfiguration, TFactory>
-    where TService : class, IFdwConnection  // Domain-specific interface
+    where TService : class, IGenericConnection  // Domain-specific interface
     where TConfiguration : class, IConnectionConfiguration
     where TFactory : class, IConnectionFactory<TService, TConfiguration>
 ```

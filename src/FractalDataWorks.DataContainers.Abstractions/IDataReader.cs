@@ -60,7 +60,7 @@ public interface IDataReader : IDisposable
     /// compile-time knowledge of the record structure. Field values are returned
     /// as objects and may need casting to their actual types.
     /// </remarks>
-    Task<IFdwResult<IReadOnlyDictionary<string, object>?>> ReadRecordAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult<IReadOnlyDictionary<string, object>?>> ReadRecordAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Reads the next record and maps it to a strongly-typed object.
@@ -75,7 +75,7 @@ public interface IDataReader : IDisposable
     /// type conversion and mapping. The mapping is based on property names and
     /// the container's schema information.
     /// </remarks>
-    Task<IFdwResult<T?>> ReadRecordAsync<T>(CancellationToken cancellationToken = default) where T : class;
+    Task<IGenericResult<T?>> ReadRecordAsync<T>(CancellationToken cancellationToken = default) where T : class;
 
     /// <summary>
     /// Reads multiple records as dictionaries.
@@ -87,7 +87,7 @@ public interface IDataReader : IDisposable
     /// This method is optimized for bulk reading operations. It may be more
     /// efficient than calling ReadRecordAsync repeatedly for large datasets.
     /// </remarks>
-    Task<IFdwResult<IEnumerable<IReadOnlyDictionary<string, object>>>> ReadRecordsAsync(
+    Task<IGenericResult<IEnumerable<IReadOnlyDictionary<string, object>>>> ReadRecordsAsync(
         int maxRecords, 
         CancellationToken cancellationToken = default);
 
@@ -102,7 +102,7 @@ public interface IDataReader : IDisposable
     /// This method is optimized for bulk reading operations with type mapping.
     /// It provides better performance than individual record reading for large datasets.
     /// </remarks>
-    Task<IFdwResult<IEnumerable<T>>> ReadRecordsAsync<T>(
+    Task<IGenericResult<IEnumerable<T>>> ReadRecordsAsync<T>(
         int maxRecords, 
         CancellationToken cancellationToken = default) where T : class;
 
@@ -115,7 +115,7 @@ public interface IDataReader : IDisposable
     /// Use this method with caution on large datasets as it loads all data into memory.
     /// Consider using ReadRecordsAsync with batching for better memory management.
     /// </remarks>
-    Task<IFdwResult<IEnumerable<IReadOnlyDictionary<string, object>>>> ReadAllRecordsAsync(
+    Task<IGenericResult<IEnumerable<IReadOnlyDictionary<string, object>>>> ReadAllRecordsAsync(
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -128,7 +128,7 @@ public interface IDataReader : IDisposable
     /// Use this method with caution on large datasets as it loads all data into memory.
     /// Consider using ReadRecordsAsync with batching for better memory management.
     /// </remarks>
-    Task<IFdwResult<IEnumerable<T>>> ReadAllRecordsAsync<T>(
+    Task<IGenericResult<IEnumerable<T>>> ReadAllRecordsAsync<T>(
         CancellationToken cancellationToken = default) where T : class;
 
     /// <summary>
@@ -141,7 +141,7 @@ public interface IDataReader : IDisposable
     /// This method is only supported if SupportsSeek returns true. The position
     /// is 0-based, where position 0 represents the first record.
     /// </remarks>
-    Task<IFdwResult> SeekAsync(long position, CancellationToken cancellationToken = default);
+    Task<IGenericResult> SeekAsync(long position, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Resets the reader to the beginning of the data stream.
@@ -152,7 +152,7 @@ public interface IDataReader : IDisposable
     /// This method is equivalent to SeekAsync(0) but may be more efficient for
     /// some container types. It's only supported if SupportsSeek returns true.
     /// </remarks>
-    Task<IFdwResult> ResetAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult> ResetAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets statistics about the reading operation so far.

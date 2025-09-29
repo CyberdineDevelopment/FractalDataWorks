@@ -28,7 +28,7 @@ namespace FractalDataWorks.Services.Authentication.Abstractions.Security;
 /// databases, LDAP directories, cloud identity providers, and custom role stores.
 /// </para>
 /// <para>
-/// All operations return IFdwResult to provide consistent error handling and
+/// All operations return IGenericResult to provide consistent error handling and
 /// success/failure semantics across the FractalDataWorks framework.
 /// </para>
 /// <para>
@@ -50,7 +50,7 @@ public interface IRoleProvider
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous role retrieval operation.
-    /// The task result contains an IFdwResult with an enumerable collection of role names
+    /// The task result contains an IGenericResult with an enumerable collection of role names
     /// assigned to the user, or an empty collection if no roles are assigned.
     /// </returns>
     /// <remarks>
@@ -84,7 +84,7 @@ public interface IRoleProvider
     /// <exception cref="System.ArgumentException">
     /// Thrown when <paramref name="userId"/> is empty or whitespace.
     /// </exception>
-    Task<IFdwResult<IEnumerable<string>>> GetUserRolesAsync(string userId, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IEnumerable<string>>> GetUserRolesAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Assigns the specified role to the user.
@@ -102,7 +102,7 @@ public interface IRoleProvider
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous role assignment operation.
-    /// The task result contains an IFdwResult indicating success or failure of the assignment.
+    /// The task result contains an IGenericResult indicating success or failure of the assignment.
     /// </returns>
     /// <remarks>
     /// <para>
@@ -138,7 +138,7 @@ public interface IRoleProvider
     /// <exception cref="System.ArgumentException">
     /// Thrown when <paramref name="userId"/> or <paramref name="role"/> is empty or whitespace.
     /// </exception>
-    Task<IFdwResult> AssignRoleAsync(string userId, string role, CancellationToken cancellationToken = default);
+    Task<IGenericResult> AssignRoleAsync(string userId, string role, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes the specified role assignment from the user.
@@ -156,7 +156,7 @@ public interface IRoleProvider
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous role removal operation.
-    /// The task result contains an IFdwResult indicating success or failure of the removal.
+    /// The task result contains an IGenericResult indicating success or failure of the removal.
     /// </returns>
     /// <remarks>
     /// <para>
@@ -196,7 +196,7 @@ public interface IRoleProvider
     /// <exception cref="System.ArgumentException">
     /// Thrown when <paramref name="userId"/> or <paramref name="role"/> is empty or whitespace.
     /// </exception>
-    Task<IFdwResult> RemoveRoleAsync(string userId, string role, CancellationToken cancellationToken = default);
+    Task<IGenericResult> RemoveRoleAsync(string userId, string role, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all permissions associated with the specified role.
@@ -210,7 +210,7 @@ public interface IRoleProvider
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous permission retrieval operation.
-    /// The task result contains an IFdwResult with an enumerable collection of permission names
+    /// The task result contains an IGenericResult with an enumerable collection of permission names
     /// associated with the role, or an empty collection if no permissions are assigned.
     /// </returns>
     /// <remarks>
@@ -254,5 +254,5 @@ public interface IRoleProvider
     /// <exception cref="System.ArgumentException">
     /// Thrown when <paramref name="role"/> is empty or whitespace.
     /// </exception>
-    Task<IFdwResult<IEnumerable<string>>> GetRolePermissionsAsync(string role, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IEnumerable<string>>> GetRolePermissionsAsync(string role, CancellationToken cancellationToken = default);
 }

@@ -6,7 +6,7 @@ using FractalDataWorks.Results;
 namespace FractalDataWorks.Services.Scheduling.Abstractions.Models;
 
 /// <summary>
-/// Default implementation of <see cref="IFdwSchedule"/> that represents a schedule definition 
+/// Default implementation of <see cref="IGenericSchedule"/> that represents a schedule definition 
 /// defining WHEN and HOW a process should be executed.
 /// </summary>
 /// <remarks>
@@ -52,7 +52,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions.Models;
 /// );
 /// </code>
 /// </example>
-public sealed class Schedule : IFdwSchedule
+public sealed class Schedule : IGenericSchedule
 {
     private readonly Dictionary<string, object> _metadata;
 
@@ -88,7 +88,7 @@ public sealed class Schedule : IFdwSchedule
         string name,
         string processType,
         object processConfiguration,
-        IFdwTrigger trigger,
+        IGenericTrigger trigger,
         DateTime createdAt,
         DateTime updatedAt,
         string? description)
@@ -182,7 +182,7 @@ public sealed class Schedule : IFdwSchedule
     /// Gets the trigger that defines when this schedule should execute.
     /// </summary>
     /// <value>The trigger configuration that determines execution timing.</value>
-    public IFdwTrigger Trigger { get; }
+    public IGenericTrigger Trigger { get; }
 
     /// <summary>
     /// Gets the time when this schedule was created.
@@ -246,7 +246,7 @@ public sealed class Schedule : IFdwSchedule
         string name,
         string processType,
         object processConfiguration,
-        IFdwTrigger trigger,
+        IGenericTrigger trigger,
         string? description = null,
         bool isActive = true,
         IReadOnlyDictionary<string, object>? metadata = null)
@@ -331,7 +331,7 @@ public sealed class Schedule : IFdwSchedule
         string name,
         string processType,
         object processConfiguration,
-        IFdwTrigger trigger,
+        IGenericTrigger trigger,
         DateTime createdAt,
         DateTime updatedAt,
         string? description = null,
@@ -419,49 +419,49 @@ public sealed class Schedule : IFdwSchedule
     /// // Schedule is valid and ready to use
     /// </code>
     /// </example>
-    public IFdwResult Validate()
+    public IGenericResult Validate()
     {
         // Validate basic identity information
         if (string.IsNullOrWhiteSpace(Id))
         {
-            return FdwResult.Failure("Schedule ID cannot be null or empty");
+            return GenericResult.Failure("Schedule ID cannot be null or empty");
         }
 
         if (string.IsNullOrWhiteSpace(Name))
         {
-            return FdwResult.Failure("Schedule name cannot be null or empty");
+            return GenericResult.Failure("Schedule name cannot be null or empty");
         }
 
         if (string.IsNullOrWhiteSpace(ScheduleId))
         {
-            return FdwResult.Failure("Schedule ID (IFractalSchedule) cannot be null or empty");
+            return GenericResult.Failure("Schedule ID (IFractalSchedule) cannot be null or empty");
         }
 
         if (string.IsNullOrWhiteSpace(ScheduleName))
         {
-            return FdwResult.Failure("Schedule name (IFractalSchedule) cannot be null or empty");
+            return GenericResult.Failure("Schedule name (IFractalSchedule) cannot be null or empty");
         }
 
         if (string.IsNullOrWhiteSpace(ProcessId))
         {
-            return FdwResult.Failure("Process ID cannot be null or empty");
+            return GenericResult.Failure("Process ID cannot be null or empty");
         }
 
         // Validate process information
         if (string.IsNullOrWhiteSpace(ProcessType))
         {
-            return FdwResult.Failure("Process type cannot be null or empty");
+            return GenericResult.Failure("Process type cannot be null or empty");
         }
 
         if (ProcessConfiguration == null)
         {
-            return FdwResult.Failure("Process configuration cannot be null");
+            return GenericResult.Failure("Process configuration cannot be null");
         }
 
         // Validate trigger
         if (Trigger == null)
         {
-            return FdwResult.Failure("Trigger cannot be null");
+            return GenericResult.Failure("Trigger cannot be null");
         }
 
         // Delegate trigger validation to the appropriate trigger type
@@ -474,10 +474,10 @@ public sealed class Schedule : IFdwSchedule
         // Validate timestamps
         if (UpdatedAt < CreatedAt)
         {
-            return FdwResult.Failure("Updated timestamp cannot be earlier than created timestamp");
+            return GenericResult.Failure("Updated timestamp cannot be earlier than created timestamp");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     #endregion
@@ -522,7 +522,7 @@ public sealed class Schedule : IFdwSchedule
     /// <param name="trigger">The trigger to extract from.</param>
     /// <returns>The cron expression or a default if not found.</returns>
     [ExcludeFromCodeCoverage] // Helper method - tested through factory methods
-    private static string ExtractCronExpression(IFdwTrigger trigger)
+    private static string ExtractCronExpression(IGenericTrigger trigger)
     {
         if (trigger?.Configuration?.TryGetValue("CronExpression", out var cronObj) == true &&
             cronObj is string cronExpression &&
@@ -541,7 +541,7 @@ public sealed class Schedule : IFdwSchedule
     /// <param name="trigger">The trigger to extract from.</param>
     /// <returns>The timezone ID or UTC as default.</returns>
     [ExcludeFromCodeCoverage] // Helper method - tested through factory methods
-    private static string ExtractTimeZoneId(IFdwTrigger trigger)
+    private static string ExtractTimeZoneId(IGenericTrigger trigger)
     {
         if (trigger?.Configuration?.TryGetValue("TimeZoneId", out var timezoneObj) == true &&
             timezoneObj is string timeZoneId &&
@@ -558,32 +558,32 @@ public sealed class Schedule : IFdwSchedule
     /// </summary>
     /// <returns>Validation result from the trigger type.</returns>
     [ExcludeFromCodeCoverage] // Helper method - complex trigger validation tested in trigger type tests
-    private IFdwResult ValidateTriggerConfiguration()
+    private IGenericResult ValidateTriggerConfiguration()
     {
         // Note: This would typically look up the trigger type from a registry
         // and call its ValidateTrigger method. For now, we'll do basic validation.
         
         if (string.IsNullOrWhiteSpace(Trigger.TriggerId))
         {
-            return FdwResult.Failure("Trigger ID cannot be null or empty");
+            return GenericResult.Failure("Trigger ID cannot be null or empty");
         }
 
         if (string.IsNullOrWhiteSpace(Trigger.TriggerName))
         {
-            return FdwResult.Failure("Trigger name cannot be null or empty");
+            return GenericResult.Failure("Trigger name cannot be null or empty");
         }
 
         if (string.IsNullOrWhiteSpace(Trigger.TriggerType))
         {
-            return FdwResult.Failure("Trigger type cannot be null or empty");
+            return GenericResult.Failure("Trigger type cannot be null or empty");
         }
 
         if (Trigger.Configuration == null)
         {
-            return FdwResult.Failure("Trigger configuration cannot be null");
+            return GenericResult.Failure("Trigger configuration cannot be null");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     #endregion

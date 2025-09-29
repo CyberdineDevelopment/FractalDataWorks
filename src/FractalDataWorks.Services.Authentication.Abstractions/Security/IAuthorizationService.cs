@@ -23,7 +23,7 @@ namespace FractalDataWorks.Services.Authentication.Abstractions.Security;
 /// - Custom authorization policies
 /// </para>
 /// <para>
-/// All operations return IFdwResult to provide consistent error handling and
+/// All operations return IGenericResult to provide consistent error handling and
 /// success/failure semantics across the FractalDataWorks framework.
 /// </para>
 /// <para>
@@ -55,7 +55,7 @@ public interface IAuthorizationService
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous authorization operation.
-    /// The task result contains an IFdwResult with a boolean value indicating
+    /// The task result contains an IGenericResult with a boolean value indicating
     /// whether the user is authorized (true) or not authorized (false) for the specified action.
     /// </returns>
     /// <remarks>
@@ -89,7 +89,7 @@ public interface IAuthorizationService
     /// <exception cref="System.InvalidOperationException">
     /// Thrown when <paramref name="context"/> represents an unauthenticated user.
     /// </exception>
-    Task<IFdwResult<bool>> AuthorizeAsync(IAuthenticationContext context, string resource, string action, CancellationToken cancellationToken = default);
+    Task<IGenericResult<bool>> AuthorizeAsync(IAuthenticationContext context, string resource, string action, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Determines whether the authenticated user has the specified role assigned.
@@ -107,7 +107,7 @@ public interface IAuthorizationService
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous role check operation.
-    /// The task result contains an IFdwResult with a boolean value indicating
+    /// The task result contains an IGenericResult with a boolean value indicating
     /// whether the user has the specified role (true) or not (false).
     /// </returns>
     /// <remarks>
@@ -138,7 +138,7 @@ public interface IAuthorizationService
     /// <exception cref="System.InvalidOperationException">
     /// Thrown when <paramref name="context"/> represents an unauthenticated user.
     /// </exception>
-    Task<IFdwResult<bool>> HasRoleAsync(IAuthenticationContext context, string role, CancellationToken cancellationToken = default);
+    Task<IGenericResult<bool>> HasRoleAsync(IAuthenticationContext context, string role, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Determines whether the authenticated user has the specified permission.
@@ -156,7 +156,7 @@ public interface IAuthorizationService
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous permission check operation.
-    /// The task result contains an IFdwResult with a boolean value indicating
+    /// The task result contains an IGenericResult with a boolean value indicating
     /// whether the user has the specified permission (true) or not (false).
     /// </returns>
     /// <remarks>
@@ -192,7 +192,7 @@ public interface IAuthorizationService
     /// <exception cref="System.InvalidOperationException">
     /// Thrown when <paramref name="context"/> represents an unauthenticated user.
     /// </exception>
-    Task<IFdwResult<bool>> HasPermissionAsync(IAuthenticationContext context, string permission, CancellationToken cancellationToken = default);
+    Task<IGenericResult<bool>> HasPermissionAsync(IAuthenticationContext context, string permission, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all roles assigned to the authenticated user.
@@ -206,7 +206,7 @@ public interface IAuthorizationService
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous role retrieval operation.
-    /// The task result contains an IFdwResult with an enumerable collection of role names
+    /// The task result contains an IGenericResult with an enumerable collection of role names
     /// assigned to the user, or an empty collection if no roles are assigned.
     /// </returns>
     /// <remarks>
@@ -237,5 +237,5 @@ public interface IAuthorizationService
     /// <exception cref="System.InvalidOperationException">
     /// Thrown when <paramref name="context"/> represents an unauthenticated user.
     /// </exception>
-    Task<IFdwResult<IEnumerable<string>>> GetRolesAsync(IAuthenticationContext context, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IEnumerable<string>>> GetRolesAsync(IAuthenticationContext context, CancellationToken cancellationToken = default);
 }

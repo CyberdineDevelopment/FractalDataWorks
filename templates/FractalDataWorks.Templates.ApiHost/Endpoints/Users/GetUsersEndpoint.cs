@@ -24,7 +24,7 @@ public class GetUsersEndpoint : QueryEndpoint<GetUsersRequest, UserResponse>
         });
     }
 
-    protected override async Task<IFdwResult<PagedResponse<UserResponse>>> ExecuteQueryAsync(GetUsersRequest query, CancellationToken ct)
+    protected override async Task<IGenericResult<PagedResponse<UserResponse>>> ExecuteQueryAsync(GetUsersRequest query, CancellationToken ct)
     {
         try
         {
@@ -62,12 +62,12 @@ public class GetUsersEndpoint : QueryEndpoint<GetUsersRequest, UserResponse>
                                  .ToList();
 
             var response = PagedResponse<UserResponse>.Create(pagedUsers, query, totalCount);
-            return FdwResult<PagedResponse<UserResponse>>.Success(response);
+            return GenericResult<PagedResponse<UserResponse>>.Success(response);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error retrieving users");
-            return FdwResult<PagedResponse<UserResponse>>.Failure("Failed to retrieve users");
+            return GenericResult<PagedResponse<UserResponse>>.Failure("Failed to retrieve users");
         }
     }
 }

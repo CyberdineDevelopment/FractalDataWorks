@@ -13,7 +13,7 @@ namespace FractalDataWorks.Services.DataGateway;
 /// </summary>
 [ServiceTypeOption(typeof(DataGatewayTypes), "SqlDataGateway")]
 public sealed class SqlDataGatewayServiceType :
-    DataGatewayTypeBase<IFdwService, IDataGatewaysConfiguration, IServiceFactory<IFdwService, IDataGatewaysConfiguration>>
+    DataGatewayTypeBase<IGenericService, IDataGatewaysConfiguration, IServiceFactory<IGenericService, IDataGatewaysConfiguration>>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlDataGatewayServiceType"/> class.

@@ -3,7 +3,7 @@ namespace FractalDataWorks.Web.RestEndpoints.Extensions;
 /// <summary>
 /// Options for configuring the FractalDataWorks Web Framework middleware.
 /// </summary>
-public sealed class FdwWebMiddlewareOptions
+public sealed class GenericWebMiddlewareOptions
 {
     /// <summary>
     /// Gets or sets a value indicating whether request validation is enabled.

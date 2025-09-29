@@ -9,7 +9,7 @@ namespace FractalDataWorks.Messages;
 /// Base class for framework messages that provides structured message functionality.
 /// Provides structured message types with severity, code, source information, and formatting capabilities.
 /// </summary>
-public abstract class MessageTemplate<TSeverity> : IMessageIdentifier, IFdwMessage<TSeverity>, IEnumOption
+public abstract class MessageTemplate<TSeverity> : IMessageIdentifier, IGenericMessage<TSeverity>, IEnumOption
 where TSeverity : Enum
 {
     /// <summary>

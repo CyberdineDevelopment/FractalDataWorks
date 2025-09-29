@@ -7,7 +7,7 @@ namespace FractalDataWorks.Messages;
 /// <summary>
 /// Implementation of IFractalMessage for framework messages.
 /// </summary>
-public class FractalMessage : IFdwMessage, IEnumOption
+public class FractalMessage : IGenericMessage, IEnumOption
 {
 
     /// <inheritdoc/>

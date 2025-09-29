@@ -18,11 +18,11 @@ using FractalDataWorks.ServiceTypes;
 
 [ServiceTypeCollection(typeof(ConnectionTypeBase<,,>), typeof(IConnectionType), typeof(ConnectionTypes))]
 public partial class ConnectionTypes : ServiceTypeCollectionBase<
-    ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>,
+    ConnectionTypeBase<IGenericConnection, IConnectionConfiguration, IConnectionFactory<IGenericConnection, IConnectionConfiguration>>,
     IConnectionType,
-    IFdwConnection,
+    IGenericConnection,
     IConnectionConfiguration,
-    IConnectionFactory<IFdwConnection, IConnectionConfiguration>>
+    IConnectionFactory<IGenericConnection, IConnectionConfiguration>>
 {
 }
 ```
@@ -33,14 +33,14 @@ Use the `[ServiceTypeOption]` attribute to explicitly target specific collection
 
 ```csharp
 [ServiceTypeOption(typeof(ConnectionTypes), "SqlServer")]
-public sealed class SqlServerConnectionType : ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>
+public sealed class SqlServerConnectionType : ConnectionTypeBase<IGenericConnection, IConnectionConfiguration, IConnectionFactory<IGenericConnection, IConnectionConfiguration>>
 {
     public SqlServerConnectionType() : base(1, "SqlServer", "Database") { }
     // Implementation...
 }
 
 [ServiceTypeOption(typeof(ConnectionTypes), "PostgreSQL")]
-public sealed class PostgreSqlConnectionType : ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory<IFdwConnection, IConnectionConfiguration>>
+public sealed class PostgreSqlConnectionType : ConnectionTypeBase<IGenericConnection, IConnectionConfiguration, IConnectionFactory<IGenericConnection, IConnectionConfiguration>>
 {
     public PostgreSqlConnectionType() : base(2, "PostgreSQL", "Database") { }
     // Implementation...
@@ -117,7 +117,7 @@ public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConf
 **Generic Parameters:**
 - `TBase`: The concrete base type (e.g., `ConnectionTypeBase<,,>`)
 - `TGeneric`: The generic interface or return type (e.g., `IConnectionType`)
-- `TService`: The service interface (e.g., `IFdwConnection`)
+- `TService`: The service interface (e.g., `IGenericConnection`)
 - `TConfiguration`: The configuration type (e.g., `IConnectionConfiguration`)
 - `TFactory`: The factory type (e.g., `IConnectionFactory<,>`)
 
@@ -162,7 +162,7 @@ public IEnumerable<ConnectionTypeBase> GetByProtocol(string protocol) { /* gener
 The generator automatically creates factory method overloads for all public constructors:
 
 ```csharp
-public class CustomConnectionType : ConnectionTypeBase<IFdwConnection, IConnectionConfiguration, IConnectionFactory>
+public class CustomConnectionType : ConnectionTypeBase<IGenericConnection, IConnectionConfiguration, IConnectionFactory>
 {
     public CustomConnectionType() : base(1, "Custom", "Network") { }
     public CustomConnectionType(string endpoint) : base(1, "Custom", "Network") { /* implementation */ }

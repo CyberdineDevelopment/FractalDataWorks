@@ -138,7 +138,7 @@ This directory contains comprehensive examples demonstrating the capabilities an
 1. **SimpleApi** - Basic Web Framework patterns
    - EndpointBase implementation patterns
    - Enhanced Enum integration (EndpointType, SecurityMethod)
-   - IFdwResult pattern for responses
+   - IGenericResult pattern for responses
    - Service integration examples
 
 2. **AuthenticatedApi** - Authentication patterns
@@ -311,14 +311,14 @@ public class EmailService : IFractalService<SendEmailCommand>
     public string ServiceType => nameof(EmailService);
     public bool IsAvailable => _configuration?.IsEnabled ?? false;
     
-    public async Task<IFdwResult> Execute(SendEmailCommand command)
+    public async Task<IGenericResult> Execute(SendEmailCommand command)
     {
         var validation = command.Validate();
         if (!validation.IsValid)
-            return FdwResult.Failure("Validation failed");
+            return GenericResult.Failure("Validation failed");
             
         await ProcessEmailAsync(command);
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 }
 ```

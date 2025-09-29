@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// Interface for connection data services that handle data operations across external systems.
 /// Extends IFractalService with connection-specific data operations.
 /// </summary>
-public interface IConnectionDataService : IFdwService
+public interface IConnectionDataService : IGenericService
 {
     /// <summary>
     /// Gets the unique identifier for this service instance.
@@ -23,7 +23,7 @@ public interface IConnectionDataService : IFdwService
     /// <param name="configuration">The connection configuration.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing the connection creation result.</returns>
-    Task<IFdwResult<string>> CreateConnectionAsync(IConnectionConfiguration configuration, CancellationToken cancellationToken = default);
+    Task<IGenericResult<string>> CreateConnectionAsync(IConnectionConfiguration configuration, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets an existing connection by ID.
@@ -31,14 +31,14 @@ public interface IConnectionDataService : IFdwService
     /// <param name="connectionId">The connection identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing the connection retrieval result.</returns>
-    Task<IFdwResult<IFdwConnection>> GetConnectionAsync(string connectionId, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IGenericConnection>> GetConnectionAsync(string connectionId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Lists all active connections managed by this service.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing the list of connection IDs.</returns>
-    Task<IFdwResult<IEnumerable<string>>> ListConnectionsAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult<IEnumerable<string>>> ListConnectionsAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes a connection from the service.
@@ -46,14 +46,14 @@ public interface IConnectionDataService : IFdwService
     /// <param name="connectionId">The connection identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing the removal result.</returns>
-    Task<IFdwResult> RemoveConnectionAsync(string connectionId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> RemoveConnectionAsync(string connectionId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Tests connectivity for all managed connections.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task containing the health check results.</returns>
-    Task<IFdwResult<IDictionary<string, bool>>> HealthCheckAsync(CancellationToken cancellationToken = default);
+    Task<IGenericResult<IDictionary<string, bool>>> HealthCheckAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a connection command and returns a typed result.
@@ -63,7 +63,7 @@ public interface IConnectionDataService : IFdwService
     /// <param name="command">The connection command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult<TResult>> Execute<TResult>(IConnectionCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<TResult>> Execute<TResult>(IConnectionCommand command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a connection command without returning a specific result type.
@@ -72,5 +72,5 @@ public interface IConnectionDataService : IFdwService
     /// <param name="command">The connection command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult> Execute(IConnectionCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult> Execute(IConnectionCommand command, CancellationToken cancellationToken = default);
 }

@@ -200,10 +200,10 @@ FractalDataWorks.MCP.Tests/
 ✅ **Edge Case Mocking**: Timeout, cancellation, exception scenarios
 
 ### Railway-Oriented Programming
-✅ **Success Results**: FdwResult.Success() pattern testing
-✅ **Failure Results**: FdwResult.Failure() with meaningful errors
+✅ **Success Results**: GenericResult.Success() pattern testing
+✅ **Failure Results**: GenericResult.Failure() with meaningful errors
 ✅ **Result Chaining**: Proper error propagation testing
-✅ **Type Safety**: IFdwResult<T> generic result validation
+✅ **Type Safety**: IGenericResult<T> generic result validation
 
 ## Performance Testing Coverage
 

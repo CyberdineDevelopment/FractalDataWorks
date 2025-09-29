@@ -12,7 +12,7 @@ internal static partial class MsSqlExternalConnectionLog
         EventId = 1,
         Level = LogLevel.Information,
         Message = "External connection created with ID: {ConnectionId}")]
-    public static partial void FdwConnectionCreated(ILogger logger, string connectionId);
+    public static partial void GenericConnectionCreated(ILogger logger, string connectionId);
 
     [LoggerMessage(
         EventId = 2,

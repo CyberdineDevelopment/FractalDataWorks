@@ -132,7 +132,7 @@ using FractalDataWorks.Configuration.Abstractions;
 
 namespace MyCompany.Services.Abstractions.Configuration;
 
-public class EmailConfiguration : IFdwConfiguration
+public class EmailConfiguration : IGenericConfiguration
 {
     public string Name { get; set; } = "EmailService";
     public string SmtpServer { get; set; }
@@ -143,11 +143,11 @@ public class EmailConfiguration : IFdwConfiguration
     public string DefaultFrom { get; set; }
     public int TimeoutSeconds { get; set; } = 30;
 
-    public IFdwResult<ValidationResult> Validate()
+    public IGenericResult<ValidationResult> Validate()
     {
         var validator = new EmailConfigurationValidator();
         var result = validator.Validate(this);
-        return FdwResult<ValidationResult>.Success(result);
+        return GenericResult<ValidationResult>.Success(result);
     }
 }
 
@@ -204,13 +204,13 @@ public class EmailService : ServiceBase<IEmailCommand, EmailConfiguration, Email
     {
     }
 
-    public override async Task<IFdwResult> Execute(IEmailCommand command)
+    public override async Task<IGenericResult> Execute(IEmailCommand command)
     {
         try
         {
             if (command is not SendEmailCommand sendCommand)
             {
-                return FdwResult.Failure("Invalid command type");
+                return GenericResult.Failure("Invalid command type");
             }
 
             using var client = new SmtpClient(Configuration.SmtpServer, Configuration.Port)
@@ -238,18 +238,18 @@ public class EmailService : ServiceBase<IEmailCommand, EmailConfiguration, Email
             await client.SendMailAsync(message);
 
             Logger.LogInformation("Email sent successfully to {Recipient}", sendCommand.To);
-            return FdwResult.Success("Email sent successfully");
+            return GenericResult.Success("Email sent successfully");
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to send email");
-            return FdwResult.Failure($"Failed to send email: {ex.Message}");
+            return GenericResult.Failure($"Failed to send email: {ex.Message}");
         }
     }
 
-    public override Task<IFdwResult<TOut>> Execute<TOut>(IEmailCommand command)
+    public override Task<IGenericResult<TOut>> Execute<TOut>(IEmailCommand command)
     {
-        return Task.FromResult(FdwResult<TOut>.Failure("This service does not return values"));
+        return Task.FromResult(GenericResult<TOut>.Failure("This service does not return values"));
     }
 }
 ```
@@ -282,7 +282,7 @@ public class EmailServiceFactory : ServiceFactoryBase<EmailService, EmailConfigu
         _serviceLogger = serviceLogger;
     }
 
-    public override IFdwResult<EmailService> Create(EmailConfiguration configuration)
+    public override IGenericResult<EmailService> Create(EmailConfiguration configuration)
     {
         try
         {
@@ -290,19 +290,19 @@ public class EmailServiceFactory : ServiceFactoryBase<EmailService, EmailConfigu
             var validationResult = configuration.Validate();
             if (validationResult.Error || !validationResult.Value.IsValid)
             {
-                return FdwResult<EmailService>.Failure("Configuration validation failed");
+                return GenericResult<EmailService>.Failure("Configuration validation failed");
             }
 
             // Create service instance
             var service = new EmailService(_serviceLogger, configuration);
 
             Logger.LogInformation("Email service created successfully");
-            return FdwResult<EmailService>.Success(service);
+            return GenericResult<EmailService>.Success(service);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to create email service");
-            return FdwResult<EmailService>.Failure($"Service creation failed: {ex.Message}");
+            return GenericResult<EmailService>.Failure($"Service creation failed: {ex.Message}");
         }
     }
 }
@@ -391,7 +391,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MyCompany.Services.Connections;
 
-public sealed class ApiConnectionType : ConnectionTypeBase<IFdwConnection, ApiConfiguration, IApiConnectionFactory>
+public sealed class ApiConnectionType : ConnectionTypeBase<IGenericConnection, ApiConfiguration, IApiConnectionFactory>
 {
     public static ApiConnectionType Instance { get; } = new();
 
@@ -433,23 +433,23 @@ public class ApiConnection : ConnectionServiceBase<IApiCommand, ApiConfiguration
         _httpClient.Timeout = TimeSpan.FromSeconds(configuration.TimeoutSeconds);
     }
 
-    protected override async Task<IFdwResult> OpenCoreAsync()
+    protected override async Task<IGenericResult> OpenCoreAsync()
     {
         try
         {
             // Test connection with a health check endpoint
             var response = await _httpClient.GetAsync("/health");
             return response.IsSuccessStatusCode
-                ? FdwResult.Success()
-                : FdwResult.Failure($"API returned {response.StatusCode}");
+                ? GenericResult.Success()
+                : GenericResult.Failure($"API returned {response.StatusCode}");
         }
         catch (Exception ex)
         {
-            return FdwResult.Failure($"Connection failed: {ex.Message}");
+            return GenericResult.Failure($"Connection failed: {ex.Message}");
         }
     }
 
-    public override async Task<IFdwResult<T>> Execute<T>(IApiCommand command)
+    public override async Task<IGenericResult<T>> Execute<T>(IApiCommand command)
     {
         try
         {
@@ -459,14 +459,14 @@ public class ApiConnection : ConnectionServiceBase<IApiCommand, ApiConfiguration
             if (response.IsSuccessStatusCode)
             {
                 var result = JsonSerializer.Deserialize<T>(content);
-                return FdwResult<T>.Success(result);
+                return GenericResult<T>.Success(result);
             }
 
-            return FdwResult<T>.Failure($"API error: {response.StatusCode}");
+            return GenericResult<T>.Failure($"API error: {response.StatusCode}");
         }
         catch (Exception ex)
         {
-            return FdwResult<T>.Failure($"Request failed: {ex.Message}");
+            return GenericResult<T>.Failure($"Request failed: {ex.Message}");
         }
     }
 }
@@ -574,7 +574,7 @@ ServiceTypes.RegisterAll(builder.Services);
 ConnectionTypes.Register(builder.Services);
 
 // Register the connection provider
-builder.Services.AddSingleton<IFdwConnectionProvider, FdwConnectionProvider>();
+builder.Services.AddSingleton<IGenericConnectionProvider, GenericConnectionProvider>();
 
 // Configure services from appsettings
 var configuration = builder.Configuration;
@@ -646,7 +646,7 @@ app.Run();
 - **Single Responsibility**: Each service should have one clear purpose
 - **Command Pattern**: Use specific command types for different operations
 - **Configuration Validation**: Always validate configuration in factories
-- **Result Pattern**: Return IFdwResult instead of throwing exceptions
+- **Result Pattern**: Return IGenericResult instead of throwing exceptions
 - **Logging**: Use structured logging with appropriate log levels
 
 ### 2. Dependency Injection
@@ -659,13 +659,13 @@ app.Run();
 ### 3. Error Handling
 
 ```csharp
-public override async Task<IFdwResult> Execute(ICommand command)
+public override async Task<IGenericResult> Execute(ICommand command)
 {
     try
     {
         // Validate command
         if (command == null)
-            return FdwResult.Failure("Command cannot be null");
+            return GenericResult.Failure("Command cannot be null");
 
         // Execute operation
         var result = await PerformOperation(command);
@@ -674,21 +674,21 @@ public override async Task<IFdwResult> Execute(ICommand command)
         if (result.Success)
         {
             Logger.LogInformation("Operation completed successfully");
-            return FdwResult.Success("Operation completed");
+            return GenericResult.Success("Operation completed");
         }
 
         Logger.LogWarning("Operation failed: {Reason}", result.Reason);
-        return FdwResult.Failure(result.Reason);
+        return GenericResult.Failure(result.Reason);
     }
     catch (OperationCanceledException)
     {
         Logger.LogInformation("Operation was cancelled");
-        return FdwResult.Failure("Operation cancelled");
+        return GenericResult.Failure("Operation cancelled");
     }
     catch (Exception ex)
     {
         Logger.LogError(ex, "Unexpected error during operation");
-        return FdwResult.Failure($"Unexpected error: {ex.Message}");
+        return GenericResult.Failure($"Unexpected error: {ex.Message}");
     }
 }
 ```
@@ -807,11 +807,11 @@ Create unit tests for individual services before integration
 - [Connections Pattern Documentation](Connections.md)
 - [Collections and TypeOptions Guide](Collections.md)
 - [ServiceTypes Pattern Guide](ServiceTypes.md)
-- [API Reference Documentation](https://docs.fractaldataworks.com/api/)
+- [API Reference Documentation](https://docs.FractalDataWorks.com/api/)
 
 ## Support
 
 For questions or issues:
-- GitHub Issues: https://github.com/fractaldataworks/developerkit/issues
-- Documentation: https://docs.fractaldataworks.com/
-- Email: support@fractaldataworks.com
+- GitHub Issues: https://github.com/FractalDataWorks/developerkit/issues
+- Documentation: https://docs.FractalDataWorks.com/
+- Email: support@FractalDataWorks.com

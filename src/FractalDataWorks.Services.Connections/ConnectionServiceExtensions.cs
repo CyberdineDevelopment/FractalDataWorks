@@ -33,7 +33,7 @@ public static class ConnectionServiceExtensions
         }
 
         // Register the connection provider
-        services.AddSingleton<IFdwConnectionProvider, FdwConnectionProvider>();
+        services.AddSingleton<IGenericConnectionProvider, GenericConnectionProvider>();
 
         return services;
     }
@@ -46,7 +46,7 @@ public static class ConnectionServiceExtensions
     /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddConnectionProviderOnly(this IServiceCollection services)
     {
-        services.AddSingleton<IFdwConnectionProvider, FdwConnectionProvider>();
+        services.AddSingleton<IGenericConnectionProvider, GenericConnectionProvider>();
         return services;
     }
 }

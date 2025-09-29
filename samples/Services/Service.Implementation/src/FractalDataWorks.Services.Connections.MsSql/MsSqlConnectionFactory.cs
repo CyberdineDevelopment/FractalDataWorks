@@ -26,7 +26,7 @@ public sealed class MsSqlConnectionFactory : IConnectionFactory<MsSqlConnection,
     public string ConnectionTypeName => "MsSql";
 
     /// <inheritdoc />
-    public async Task<IFdwConnection> Create(
+    public async Task<IGenericConnection> Create(
         IConnectionConfiguration configuration,
         CancellationToken cancellationToken = default)
     {

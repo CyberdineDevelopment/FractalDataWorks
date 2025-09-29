@@ -39,15 +39,15 @@ internal sealed class SqlServerResultMapper
     };
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<IEnumerable<TResult>>> MapAsync<TResult>(
+    public async Task<IGenericResult<IEnumerable<TResult>>> MapAsync<TResult>(
         object connectionResult,
         IDataSetType dataSet,
         string containerType) where TResult : class
     {
         if (connectionResult == null)
-            return FdwResult<IEnumerable<TResult>>.Failure("Connection result cannot be null");
+            return GenericResult<IEnumerable<TResult>>.Failure("Connection result cannot be null");
         if (dataSet == null)
-            return FdwResult<IEnumerable<TResult>>.Failure("DataSet cannot be null");
+            return GenericResult<IEnumerable<TResult>>.Failure("DataSet cannot be null");
 
         try
         {
@@ -55,7 +55,7 @@ internal sealed class SqlServerResultMapper
             var validation = await ValidateResultAsync(connectionResult, dataSet, containerType, typeof(TResult)).ConfigureAwait(false);
             if (!validation.IsSuccess)
             {
-                return FdwResult<IEnumerable<TResult>>.Failure(validation.ErrorMessage!);
+                return GenericResult<IEnumerable<TResult>>.Failure(validation.ErrorMessage!);
             }
 
             var results = connectionResult switch
@@ -67,16 +67,16 @@ internal sealed class SqlServerResultMapper
                 _ => throw new NotSupportedException($"Result type '{connectionResult.GetType().Name}' is not supported")
             };
 
-            return FdwResult<IEnumerable<TResult>>.Success(results);
+            return GenericResult<IEnumerable<TResult>>.Success(results);
         }
         catch (Exception ex)
         {
-            return FdwResult<IEnumerable<TResult>>.Failure($"Mapping failed: {ex.Message}");
+            return GenericResult<IEnumerable<TResult>>.Failure($"Mapping failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<IEnumerable<object>>> MapAsync(
+    public async Task<IGenericResult<IEnumerable<object>>> MapAsync(
         object connectionResult,
         IDataSetType dataSet,
         string containerType,
@@ -92,7 +92,7 @@ internal sealed class SqlServerResultMapper
             var validation = await ValidateResultAsync(connectionResult, dataSet, containerType, targetType).ConfigureAwait(false);
             if (!validation.IsSuccess)
             {
-                return FdwResult<IEnumerable<object>>.Failure(validation.ErrorMessage!);
+                return GenericResult<IEnumerable<object>>.Failure(validation.ErrorMessage!);
             }
 
             var results = connectionResult switch
@@ -104,16 +104,16 @@ internal sealed class SqlServerResultMapper
                 _ => throw new NotSupportedException($"Result type '{connectionResult.GetType().Name}' is not supported")
             };
 
-            return FdwResult<IEnumerable<object>>.Success(results);
+            return GenericResult<IEnumerable<object>>.Success(results);
         }
         catch (Exception ex)
         {
-            return FdwResult<IEnumerable<object>>.Failure($"Dynamic mapping failed: {ex.Message}");
+            return GenericResult<IEnumerable<object>>.Failure($"Dynamic mapping failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult> ValidateResultAsync(
+    public async Task<IGenericResult> ValidateResultAsync(
         object connectionResult,
         IDataSetType dataSet,
         string containerType,
@@ -129,29 +129,29 @@ internal sealed class SqlServerResultMapper
             var resultTypeName = connectionResult.GetType().Name;
             if (!SupportedResultTypes.Contains(resultTypeName))
             {
-                return FdwResult.Failure($"Result type '{resultTypeName}' is not supported by SQL Server mapper");
+                return GenericResult.Failure($"Result type '{resultTypeName}' is not supported by SQL Server mapper");
             }
 
             // Validate target type has default constructor or can be instantiated
             if (!CanInstantiate(targetType))
             {
-                return FdwResult.Failure($"Target type '{targetType.Name}' cannot be instantiated - it must have a parameterless constructor");
+                return GenericResult.Failure($"Target type '{targetType.Name}' cannot be instantiated - it must have a parameterless constructor");
             }
 
             // For DataReader, check if it's readable
             if (connectionResult is SqlDataReader reader && reader.IsClosed)
             {
-                return FdwResult.Failure("SqlDataReader is closed and cannot be read");
+                return GenericResult.Failure("SqlDataReader is closed and cannot be read");
             }
 
             // Basic schema validation would go here
             // In a full implementation, we'd check column types vs target properties
 
-            return await Task.FromResult(FdwResult.Success()).ConfigureAwait(false);
+            return await Task.FromResult(GenericResult.Success()).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            return FdwResult.Failure($"Result validation failed: {ex.Message}");
+            return GenericResult.Failure($"Result validation failed: {ex.Message}");
         }
     }
 

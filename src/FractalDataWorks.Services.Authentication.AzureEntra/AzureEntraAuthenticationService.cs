@@ -35,11 +35,11 @@ public sealed class AzureEntraAuthenticationService :
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<IAuthenticationContext>> AuthenticateAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<IAuthenticationContext>> AuthenticateAsync(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            return FdwResult<IAuthenticationContext>.Failure(
+            return GenericResult<IAuthenticationContext>.Failure(
                 new InvalidTokenMessage("Token cannot be null or empty"));
         }
 
@@ -49,23 +49,23 @@ public sealed class AzureEntraAuthenticationService :
             // This would use Microsoft.Identity.Client (MSAL) library
             
             // For now, return a placeholder failure
-            return FdwResult<IAuthenticationContext>.Failure(
+            return GenericResult<IAuthenticationContext>.Failure(
                 "Azure Entra authentication not yet implemented");
         }
         catch (Exception ex)
         {
             Logging.AzureEntraAuthenticationServiceLog.AuthenticationFailed(Logger, ex);
-            return FdwResult<IAuthenticationContext>.Failure(
+            return GenericResult<IAuthenticationContext>.Failure(
                 ex.Message);
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<bool>> ValidateTokenAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<bool>> ValidateTokenAsync(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            return FdwResult<bool>.Failure(
+            return GenericResult<bool>.Failure(
                 "Token cannot be null or empty");
         }
 
@@ -75,22 +75,22 @@ public sealed class AzureEntraAuthenticationService :
             // This would validate the JWT signature, expiration, issuer, audience, etc.
             
             // For now, return a placeholder
-            return FdwResult<bool>.Success(false);
+            return GenericResult<bool>.Success(false);
         }
         catch (Exception ex)
         {
             Logging.AzureEntraAuthenticationServiceLog.TokenValidationFailed(Logger, ex);
-            return FdwResult<bool>.Failure(
+            return GenericResult<bool>.Failure(
                 ex.Message);
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<string>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<string>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
-            return FdwResult<string>.Failure(
+            return GenericResult<string>.Failure(
                 "Refresh token is invalid");
         }
 
@@ -99,23 +99,23 @@ public sealed class AzureEntraAuthenticationService :
             // TODO: Implement actual token refresh logic using MSAL
             
             // For now, return a placeholder failure
-            return FdwResult<string>.Failure(
+            return GenericResult<string>.Failure(
                 "Refresh token is invalid");
         }
         catch (Exception ex)
         {
             Logging.AzureEntraAuthenticationServiceLog.TokenRefreshFailed(Logger, ex);
-            return FdwResult<string>.Failure(
+            return GenericResult<string>.Failure(
                 "Refresh token is invalid");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult> RevokeTokenAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult> RevokeTokenAsync(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            return FdwResult.Failure(
+            return GenericResult.Failure(
                 "Token cannot be null or empty");
         }
 
@@ -126,35 +126,35 @@ public sealed class AzureEntraAuthenticationService :
             // but we can implement local blacklisting or session management
             
             Logging.AzureEntraAuthenticationServiceLog.TokenRevocationRequested(Logger);
-            return FdwResult.Success();
+            return GenericResult.Success();
         }
         catch (Exception ex)
         {
             Logging.AzureEntraAuthenticationServiceLog.TokenRevocationFailed(Logger, ex);
-            return FdwResult.Failure(
+            return GenericResult.Failure(
                 $"Failed to revoke token: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult<T>> Execute<T>(IAuthenticationCommand command)
+    public override async Task<IGenericResult<T>> Execute<T>(IAuthenticationCommand command)
     {
         // Authentication service doesn't use command pattern
         // Direct method calls are preferred
-        return FdwResult<T>.Failure("Authentication service does not support command-based execution. Use direct methods instead.");
+        return GenericResult<T>.Failure("Authentication service does not support command-based execution. Use direct methods instead.");
     }
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult<TOut>> Execute<TOut>(IAuthenticationCommand command, CancellationToken cancellationToken)
+    public override async Task<IGenericResult<TOut>> Execute<TOut>(IAuthenticationCommand command, CancellationToken cancellationToken)
     {
         // Authentication doesn't use command pattern
-        return FdwResult<TOut>.Failure("Authentication service does not support command-based execution. Use direct methods instead.");
+        return GenericResult<TOut>.Failure("Authentication service does not support command-based execution. Use direct methods instead.");
     }
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken)
+    public override async Task<IGenericResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken)
     {
         // Authentication doesn't use command pattern
-        return FdwResult.Failure("Authentication service does not support command-based execution. Use direct methods instead.");
+        return GenericResult.Failure("Authentication service does not support command-based execution. Use direct methods instead.");
     }
 }

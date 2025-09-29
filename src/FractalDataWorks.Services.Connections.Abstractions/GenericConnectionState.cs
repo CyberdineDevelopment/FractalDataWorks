@@ -3,7 +3,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// <summary>
 /// Represents the state of a connection.
 /// </summary>
-public enum FdwConnectionState
+public enum GenericConnectionState
 {
     /// <summary>
     /// The connection has been created but not yet opened.

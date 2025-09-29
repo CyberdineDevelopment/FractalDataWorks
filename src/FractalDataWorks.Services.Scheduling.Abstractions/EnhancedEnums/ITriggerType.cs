@@ -86,7 +86,7 @@ public interface ITriggerType
     /// </code>
     /// </example>
     // Abstract method - implementation coverage tested in derived classes
-    DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution);
+    DateTime? CalculateNextExecution(IGenericTrigger trigger, DateTime? lastExecution);
 
     /// <summary>
     /// Validates that the trigger configuration is valid for this trigger type.
@@ -131,5 +131,5 @@ public interface ITriggerType
     /// </code>
     /// </example>
     // Abstract method - implementation coverage tested in derived classes
-    IFdwResult ValidateTrigger(IFdwTrigger trigger);
+    IGenericResult ValidateTrigger(IGenericTrigger trigger);
 }

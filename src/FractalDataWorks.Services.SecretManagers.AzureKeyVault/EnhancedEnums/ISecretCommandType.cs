@@ -42,7 +42,7 @@ public interface ISecretCommandType
     /// <param name="command">The managementCommand to execute.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation with the result.</returns>
-    Task<IFdwResult> Execute(AzureKeyVaultService service, ISecretCommand command, CancellationToken cancellationToken);
+    Task<IGenericResult> Execute(AzureKeyVaultService service, ISecretCommand command, CancellationToken cancellationToken);
 
     /// <summary>
     /// Validates that the managementCommand has required parameters for this operation.

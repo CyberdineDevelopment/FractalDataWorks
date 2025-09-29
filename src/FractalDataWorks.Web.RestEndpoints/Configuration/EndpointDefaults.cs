@@ -69,7 +69,7 @@ public static class EndpointDefaults
     /// <summary>
     /// Default HTTP status code for validation errors.
     /// </summary>
-    public const int DefaultFdwValidationErrorStatusCode = 400;
+    public const int DefaultGenericValidationErrorStatusCode = 400;
 
     /// <summary>
     /// Default HTTP status code for authentication failures.

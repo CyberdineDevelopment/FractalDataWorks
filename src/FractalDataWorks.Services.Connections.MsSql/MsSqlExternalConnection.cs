@@ -18,24 +18,24 @@ using FractalDataWorks.Services.DataGateway.Abstractions.Models;
 namespace FractalDataWorks.Services.Connections.MsSql;
 
 /// <summary>
-/// Stateless SQL Server implementation of IFdwConnection.
+/// Stateless SQL Server implementation of IGenericConnection.
 /// </summary>
 /// <remarks>
 /// This implementation provides a clean, stateless interface for SQL Server connectivity.
 /// Each Execute call creates its own connection, executes the command, and automatically
 /// cleans up resources. All connection lifecycle management is handled internally.
 /// </remarks>
-public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IExternalDataConnection<MsSqlConfiguration>
+public sealed class MsSqlGenericConnection : IGenericConnection<MsSqlConfiguration>, IExternalDataConnection<MsSqlConfiguration>
 {
-    private readonly ILogger<MsSqlFdwConnection> _logger;
+    private readonly ILogger<MsSqlGenericConnection> _logger;
     private readonly MsSqlConfiguration _configuration;
     private readonly MsSqlCommandTranslator _commandTranslator;
 
     // LoggerMessage.Define delegates for high-performance logging
-    private static readonly Action<ILogger, string, Exception?> LogFdwConnectionCreated =
+    private static readonly Action<ILogger, string, Exception?> LogGenericConnectionCreated =
         LoggerMessage.Define<string>(
             LogLevel.Information,
-            new EventId(1, "FdwConnectionCreated"),
+            new EventId(1, "GenericConnectionCreated"),
             "External connection created with ID: {ConnectionId}");
 
     private static readonly Action<ILogger, string, string, Exception?> LogExecutingCommand =
@@ -117,13 +117,13 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
             "Server info retrieval failed");
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MsSqlFdwConnection"/> class.
+    /// Initializes a new instance of the <see cref="MsSqlGenericConnection"/> class.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
     /// <param name="configuration">The SQL Server configuration.</param>
     /// <exception cref="ArgumentNullException">Thrown when logger or configuration is null.</exception>
     /// <exception cref="ArgumentException">Thrown when configuration is invalid.</exception>
-    public MsSqlFdwConnection(ILogger<MsSqlFdwConnection> logger, MsSqlConfiguration configuration)
+    public MsSqlGenericConnection(ILogger<MsSqlGenericConnection> logger, MsSqlConfiguration configuration)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         
@@ -145,7 +145,7 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
         var translatorLogger = Microsoft.Extensions.Logging.Abstractions.NullLogger<MsSqlCommandTranslator>.Instance;
         _commandTranslator = new MsSqlCommandTranslator(_configuration, translatorLogger);
         
-        LogFdwConnectionCreated(_logger, ConnectionId, null);
+        LogGenericConnectionCreated(_logger, ConnectionId, null);
     }
 
     /// <inheritdoc/>
@@ -155,7 +155,7 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
     public string ProviderName => nameof(MsSql);
 
     /// <inheritdoc/>
-    public FdwConnectionState State => FdwConnectionState.Created; // Stateless design - always ready
+    public GenericConnectionState State => GenericConnectionState.Created; // Stateless design - always ready
 
     /// <inheritdoc/>
     public string ConnectionString => _configuration.GetSanitizedConnectionString();
@@ -172,7 +172,7 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
     public string ServiceType => "MsSql External Connection";
 
     /// <inheritdoc/>
-    public bool IsAvailable => State == FdwConnectionState.Created || State == FdwConnectionState.Open;
+    public bool IsAvailable => State == GenericConnectionState.Created || State == GenericConnectionState.Open;
 
     #endregion
 
@@ -182,13 +182,13 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
     /// <param name="command">The data command to execute.</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>The execution result.</returns>
-    public async Task<IFdwResult> Execute(IDataCommand command, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult> Execute(IDataCommand command, CancellationToken cancellationToken = default)
     {
         var result = await Execute<int>(command, cancellationToken).ConfigureAwait(false);
         if (result.IsSuccess)
-            return FdwResult.Success();
+            return GenericResult.Success();
         
-        return FdwResult.Failure(result.Message);
+        return GenericResult.Failure(result.Message);
     }
 
     /// <summary>
@@ -198,7 +198,7 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
     /// <param name="command">The data command to execute.</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>The execution result.</returns>
-    public async Task<IFdwResult<T>> Execute<T>(IDataCommand command, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<T>> Execute<T>(IDataCommand command, CancellationToken cancellationToken = default)
     {
         if (command == null)
             throw new ArgumentNullException(nameof(command));
@@ -248,7 +248,7 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
         catch (Exception ex)
         {
             LogCommandExecutionFailed(_logger, command.CommandType, ConnectionId, ex);
-            return FdwResult<T>.Failure($"Command execution failed: {ex.Message}");
+            return GenericResult<T>.Failure($"Command execution failed: {ex.Message}");
         }
     }
 
@@ -258,7 +258,7 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
     /// <param name="startPath">Optional starting path for schema discovery.</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>A collection of DataContainer objects representing the database schema.</returns>
-    public async Task<IFdwResult<IEnumerable<DataContainer>>> DiscoverSchema(DataPath? startPath = null, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<IEnumerable<DataContainer>>> DiscoverSchema(DataPath? startPath = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -271,17 +271,17 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
 
             LogSchemaDiscoveryCompleted(_logger, ConnectionId, containers.Count(), null);
 
-            return FdwResult<IEnumerable<DataContainer>>.Success(containers);
+            return GenericResult<IEnumerable<DataContainer>>.Success(containers);
         }
         catch (Exception ex)
         {
             LogSchemaDiscoveryFailed(_logger, ConnectionId, ex);
-            return FdwResult<IEnumerable<DataContainer>>.Failure($"Schema discovery failed: {ex.Message}");
+            return GenericResult<IEnumerable<DataContainer>>.Failure($"Schema discovery failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<bool>> TestConnection(CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<bool>> TestConnection(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -297,17 +297,17 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
             var result = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
 
             LogConnectionTestSuccessful(_logger, ConnectionId, null);
-            return FdwResult<bool>.Success(true);
+            return GenericResult<bool>.Success(true);
         }
         catch (Exception ex)
         {
             LogConnectionTestFailed(_logger, ConnectionId, ex);
-            return FdwResult<bool>.Success(false);
+            return GenericResult<bool>.Success(false);
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<IDictionary<string, object>>> GetConnectionInfo(CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<IDictionary<string, object>>> GetConnectionInfo(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -338,12 +338,12 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
                 connectionInfo[$"Property_{property.Key}"] = property.Value;
             }
 
-            return FdwResult<IDictionary<string, object>>.Success(connectionInfo);
+            return GenericResult<IDictionary<string, object>>.Success(connectionInfo);
         }
         catch (Exception ex)
         {
             LogGetConnectionInfoFailed(_logger, ConnectionId, ex);
-            return FdwResult<IDictionary<string, object>>.Failure($"Get connection info failed: {ex.Message}");
+            return GenericResult<IDictionary<string, object>>.Failure($"Get connection info failed: {ex.Message}");
         }
     }
 
@@ -357,7 +357,7 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The execution result.</returns>
     [ExcludeFromCodeCoverage(Justification = "Command execution with real SQL connection requires integration testing. Core logic tested via unit tests.")]
-    private async Task<IFdwResult<T>> ExecuteWithConnection<T>(SqlConnection connection, SqlTransaction? transaction, DataCommandBase dataCommand, CancellationToken cancellationToken)
+    private async Task<IGenericResult<T>> ExecuteWithConnection<T>(SqlConnection connection, SqlTransaction? transaction, DataCommandBase dataCommand, CancellationToken cancellationToken)
     {
         // Translate command to SQL
         var translation = _commandTranslator.Translate(dataCommand);
@@ -376,24 +376,24 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
             if (typeof(T) == typeof(int))
             {
                 var rowsAffected = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-                return FdwResult<T>.Success((T)(object)rowsAffected);
+                return GenericResult<T>.Success((T)(object)rowsAffected);
             }
             
             if (typeof(T) == typeof(bool))
             {
                 var scalar = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
                 var boolResult = Convert.ToBoolean(scalar, CultureInfo.InvariantCulture);
-                return FdwResult<T>.Success((T)(object)boolResult);
+                return GenericResult<T>.Success((T)(object)boolResult);
             }
 
             // For other types, assume it's a collection query
             using var reader = await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
             var results = await MapDataReaderToResults<T>(reader, cancellationToken).ConfigureAwait(false);
-            return FdwResult<T>.Success(results);
+            return GenericResult<T>.Success(results);
         }
         catch (SqlException ex)
         {
-            return FdwResult<T>.Failure($"SQL execution failed: {ex.Message} (Error {ex.Number})");
+            return GenericResult<T>.Failure($"SQL execution failed: {ex.Message} (Error {ex.Number})");
         }
     }
 
@@ -645,57 +645,57 @@ public sealed class MsSqlFdwConnection : IFdwConnection<MsSqlConfiguration>, IEx
 
     /// <inheritdoc/>
     /// <remarks>In stateless design, this is a no-op since connections are managed per Execute call.</remarks>
-    public static Task<IFdwResult> OpenAsync()
+    public static Task<IGenericResult> OpenAsync()
     {
-        return Task.FromResult(FdwResult.Success());
+        return Task.FromResult(GenericResult.Success());
     }
 
-    Task<IFdwResult> IFdwConnection.OpenAsync() => OpenAsync();
+    Task<IGenericResult> IGenericConnection.OpenAsync() => OpenAsync();
 
     /// <inheritdoc/>
     /// <remarks>In stateless design, this is a no-op since connections are auto-disposed after use.</remarks>
-    public static Task<IFdwResult> CloseAsync()
+    public static Task<IGenericResult> CloseAsync()
     {
-        return Task.FromResult(FdwResult.Success());
+        return Task.FromResult(GenericResult.Success());
     }
 
-    Task<IFdwResult> IFdwConnection.CloseAsync() => CloseAsync();
+    Task<IGenericResult> IGenericConnection.CloseAsync() => CloseAsync();
 
     /// <inheritdoc/>
     /// <remarks>Redirects to the stateless TestConnection method.</remarks>
-    public async Task<IFdwResult> TestConnectionAsync()
+    public async Task<IGenericResult> TestConnectionAsync()
     {
         var testResult = await TestConnection().ConfigureAwait(false);
         return testResult.IsSuccess 
-            ? FdwResult.Success() 
-            : FdwResult.Failure(testResult.Message);
+            ? GenericResult.Success() 
+            : GenericResult.Failure(testResult.Message);
     }
 
     /// <inheritdoc/>
     /// <remarks>Provides connection metadata via stateless call.</remarks>
-    public async Task<IFdwResult<IConnectionMetadata>> GetMetadataAsync()
+    public async Task<IGenericResult<IConnectionMetadata>> GetMetadataAsync()
     {
         try
         {
             using var connection = new SqlConnection(_configuration.ConnectionString);
             await connection.OpenAsync().ConfigureAwait(false);
             var metadata = await CollectMetadataAsync(connection, CancellationToken.None).ConfigureAwait(false);
-            return FdwResult<IConnectionMetadata>.Success(metadata);
+            return GenericResult<IConnectionMetadata>.Success(metadata);
         }
         catch (Exception ex)
         {
-            return FdwResult<IConnectionMetadata>.Failure($"Failed to get metadata: {ex.Message}");
+            return GenericResult<IConnectionMetadata>.Failure($"Failed to get metadata: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
     /// <remarks>Not needed in stateless design - configuration is validated in constructor.</remarks>
-    public static Task<IFdwResult> InitializeAsync(MsSqlConfiguration configuration)
+    public static Task<IGenericResult> InitializeAsync(MsSqlConfiguration configuration)
     {
-        return Task.FromResult(FdwResult.Success());
+        return Task.FromResult(GenericResult.Success());
     }
 
-    Task<IFdwResult> IFdwConnection<MsSqlConfiguration>.InitializeAsync(MsSqlConfiguration configuration) => InitializeAsync(configuration);
+    Task<IGenericResult> IGenericConnection<MsSqlConfiguration>.InitializeAsync(MsSqlConfiguration configuration) => InitializeAsync(configuration);
 
     #endregion
 

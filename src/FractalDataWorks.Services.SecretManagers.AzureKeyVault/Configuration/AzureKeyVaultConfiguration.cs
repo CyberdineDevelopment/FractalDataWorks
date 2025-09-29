@@ -227,17 +227,17 @@ public sealed class AzureKeyVaultConfiguration : ISecretManagerConfiguration
     }
 
     /// <inheritdoc/>
-    public IFdwResult<ValidationResult> Validate()
+    public IGenericResult<ValidationResult> Validate()
     {
         var validator = new AzureKeyVaultConfigurationValidator();
         var validationResult = validator.Validate(this);
         
         if (validationResult.IsValid)
         {
-            return FdwResult<ValidationResult>.Success(validationResult);
+            return GenericResult<ValidationResult>.Success(validationResult);
         }
         
         var errors = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
-        return FdwResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errors, "ValidationFailed", "AzureKeyVaultConfiguration"));
+        return GenericResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errors, "ValidationFailed", "AzureKeyVaultConfiguration"));
     }
 }

@@ -60,7 +60,7 @@ public interface IScheduledTask
     /// Validates that the task can be executed with the current configuration.
     /// </summary>
     /// <returns>A result indicating whether the task is valid and can be executed.</returns>
-    IFdwResult Validate();
+    IGenericResult Validate();
 
     /// <summary>
     /// Executes the task within the provided execution context.
@@ -68,5 +68,5 @@ public interface IScheduledTask
     /// <param name="context">The task execution context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the execution operation.</returns>
-    Task<IFdwResult> ExecuteAsync(ITaskExecutionContext context, CancellationToken cancellationToken = default);
+    Task<IGenericResult> ExecuteAsync(ITaskExecutionContext context, CancellationToken cancellationToken = default);
 }

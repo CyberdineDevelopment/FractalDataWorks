@@ -270,7 +270,7 @@ public class MyCustomProcess : IProcess
         _serviceProvider = serviceProvider;
     }
     
-    public async Task<IFdwResult<IProcessResult>> ExecuteAsync(
+    public async Task<IGenericResult<IProcessResult>> ExecuteAsync(
         string operationName, 
         CancellationToken cancellationToken = default)
     {
@@ -285,7 +285,7 @@ public class MyCustomProcess : IProcess
             var endTime = DateTimeOffset.UtcNow;
             TransitionState("Completed");
             
-            return FdwResult<IProcessResult>.Success(new ProcessResult
+            return GenericResult<IProcessResult>.Success(new ProcessResult
             {
                 IsSuccess = true,
                 ProcessId = ProcessId,
@@ -298,7 +298,7 @@ public class MyCustomProcess : IProcess
         catch (Exception ex)
         {
             TransitionState("Failed");
-            return FdwResult<IProcessResult>.Failure(ex.Message);
+            return GenericResult<IProcessResult>.Failure(ex.Message);
         }
     }
     

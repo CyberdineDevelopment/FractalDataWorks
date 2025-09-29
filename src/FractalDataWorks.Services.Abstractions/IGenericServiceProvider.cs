@@ -8,7 +8,7 @@ namespace FractalDataWorks.Services.Abstractions;
 /// Defines the contract for service providers in the FractalDataWorks framework.
 /// Follows Railway-Oriented Programming - all operations return Results.
 /// </summary>
-public interface IFdwServiceProvider
+public interface IGenericServiceProvider
 {
     /// <summary>
     /// Gets a service instance by configuration.
@@ -16,8 +16,8 @@ public interface IFdwServiceProvider
     /// <typeparam name="TService">The type of service to retrieve.</typeparam>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
-    IFdwResult<TService> Get<TService>(IFdwConfiguration configuration)
-        where TService : IFdwService;
+    IGenericResult<TService> Get<TService>(IGenericConfiguration configuration)
+        where TService : IGenericService;
 
     /// <summary>
     /// Gets a service instance by configuration ID.
@@ -25,8 +25,8 @@ public interface IFdwServiceProvider
     /// <typeparam name="TService">The type of service to retrieve.</typeparam>
     /// <param name="configurationId">The ID of the configuration.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
-    IFdwResult<TService> Get<TService>(int configurationId)
-        where TService : IFdwService;
+    IGenericResult<TService> Get<TService>(int configurationId)
+        where TService : IGenericService;
     
     /// <summary>
     /// Gets a service instance by service type name.
@@ -34,8 +34,8 @@ public interface IFdwServiceProvider
     /// <typeparam name="TService">The type of service to retrieve.</typeparam>
     /// <param name="serviceTypeName">The name of the service type.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
-    Task<IFdwResult<TService>> Get<TService>(string serviceTypeName)
-        where TService : IFdwService;
+    Task<IGenericResult<TService>> Get<TService>(string serviceTypeName)
+        where TService : IGenericService;
 }
 
 /// <summary>
@@ -43,28 +43,28 @@ public interface IFdwServiceProvider
 /// Follows Railway-Oriented Programming - all operations return Results.
 /// </summary>
 /// <typeparam name="TService">The type of service this provider manages.</typeparam>
-public interface IFdwServiceProvider<TService>
-    where TService : IFdwService
+public interface IGenericServiceProvider<TService>
+    where TService : IGenericService
 {
     /// <summary>
     /// Gets a service instance by configuration.
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
-    IFdwResult<TService> Get(IFdwConfiguration configuration);
+    IGenericResult<TService> Get(IGenericConfiguration configuration);
 
     /// <summary>
     /// Gets a service instance by configuration ID.
     /// </summary>
     /// <param name="configurationId">The ID of the configuration.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
-    IFdwResult<TService> Get(int configurationId);
+    IGenericResult<TService> Get(int configurationId);
     
     /// <summary>
     /// Gets a service instance by service type name.
     /// </summary>
     /// <param name="serviceTypeName">The name of the service type.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
-    Task<IFdwResult<TService>> Get(string serviceTypeName);
+    Task<IGenericResult<TService>> Get(string serviceTypeName);
 }
 

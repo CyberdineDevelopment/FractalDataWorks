@@ -19,8 +19,8 @@ namespace FractalDataWorks.ServiceTypes;
 public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConfiguration, TFactory>
     where TBase : class, IServiceType<TService, TConfiguration, TFactory>
     where TGeneric : IServiceType<TService, TConfiguration, TFactory>
-    where TService : class,IFdwService
-    where TConfiguration : class, IFdwConfiguration
+    where TService : class,IGenericService
+    where TConfiguration : class, IGenericConfiguration
     where TFactory : class , IServiceFactory<TService, TConfiguration>
 {
     /// <summary>

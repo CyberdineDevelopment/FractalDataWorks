@@ -11,7 +11,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// to calculate execution times and validate scheduling rules. This separates the trigger
 /// logic (in TriggerTypeBase) from the trigger data/configuration.
 /// </remarks>
-public interface IFdwTrigger
+public interface IGenericTrigger
 {
     /// <summary>
     /// Gets the unique identifier for this trigger instance.

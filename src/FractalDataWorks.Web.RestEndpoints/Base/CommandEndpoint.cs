@@ -41,7 +41,7 @@ public abstract class CommandEndpoint<TCommand, TResult> : FractalEndpoint<TComm
     /// <summary>
     /// Enhanced authorization check for commands with role-based access control.
     /// </summary>
-    protected override async Task<IFdwResult> CheckAuthorizationAsync(TCommand request, CancellationToken ct)
+    protected override async Task<IGenericResult> CheckAuthorizationAsync(TCommand request, CancellationToken ct)
     {
         // Base authorization check
         var baseResult = await base.CheckAuthorizationAsync(request, ct).ConfigureAwait(false);
@@ -58,7 +58,7 @@ public abstract class CommandEndpoint<TCommand, TResult> : FractalEndpoint<TComm
     /// <param name="command">The validated command request.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The result of the command execution.</returns>
-    protected abstract Task<IFdwResult<TResult>> ExecuteCommandAsync(TCommand command, CancellationToken ct);
+    protected abstract Task<IGenericResult<TResult>> ExecuteCommandAsync(TCommand command, CancellationToken ct);
 
     /// <summary>
     /// Executes the command with additional error handling for command-specific scenarios.
@@ -72,12 +72,12 @@ public abstract class CommandEndpoint<TCommand, TResult> : FractalEndpoint<TComm
         catch (InvalidOperationException ex)
         {
             FractalEndpointLog.InvalidOperation(Logger, typeof(TCommand).Name, ex);
-            return FdwResult<TResult>.Failure($"Invalid operation: {ex.Message}");
+            return GenericResult<TResult>.Failure($"Invalid operation: {ex.Message}");
         }
         catch (ArgumentException ex)
         {
             FractalEndpointLog.InvalidArgument(Logger, typeof(TCommand).Name, ex);
-            return FdwResult<TResult>.Failure($"Invalid request: {ex.Message}");
+            return GenericResult<TResult>.Failure($"Invalid request: {ex.Message}");
         }
     }
 
@@ -85,8 +85,8 @@ public abstract class CommandEndpoint<TCommand, TResult> : FractalEndpoint<TComm
     /// Performs command-specific authorization checks.
     /// Override this to implement business-specific authorization rules.
     /// </summary>
-    protected virtual Task<IFdwResult> CheckCommandAuthorizationAsync(TCommand command, CancellationToken ct)
-        => Task.FromResult<IFdwResult>(FdwResult.Success());
+    protected virtual Task<IGenericResult> CheckCommandAuthorizationAsync(TCommand command, CancellationToken ct)
+        => Task.FromResult<IGenericResult>(GenericResult.Success());
 
     /// <summary>
     /// Gets the roles required to execute this command.
@@ -122,16 +122,16 @@ public abstract class CommandEndpoint<TCommand> : CommandEndpoint<TCommand, obje
     /// <summary>
     /// Executes a void command that returns success/failure without data.
     /// </summary>
-    protected abstract Task<IFdwResult> ExecuteVoidCommandAsync(TCommand command, CancellationToken ct);
+    protected abstract Task<IGenericResult> ExecuteVoidCommandAsync(TCommand command, CancellationToken ct);
 
     /// <summary>
     /// Wraps the void command execution to match the base class signature.
     /// </summary>
-    protected override async Task<IFdwResult<object>> ExecuteCommandAsync(TCommand command, CancellationToken ct)
+    protected override async Task<IGenericResult<object>> ExecuteCommandAsync(TCommand command, CancellationToken ct)
     {
         var result = await ExecuteVoidCommandAsync(command, ct).ConfigureAwait(false);
         return result.IsSuccess 
-            ? FdwResult<object>.Success(new { Success = true })
-            : FdwResult<object>.Failure(result.Message);
+            ? GenericResult<object>.Success(new { Success = true })
+            : GenericResult<object>.Failure(result.Message);
     }
 }

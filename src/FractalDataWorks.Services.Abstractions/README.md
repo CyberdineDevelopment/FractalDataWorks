@@ -70,12 +70,12 @@ MyCompany.Services.UserManagement/                 (net10.0+)
 The **DomainServiceProvider** enables the "any implementation" pattern:
 
 ```csharp
-public interface IUserManagementServiceProvider : IFdwServiceProvider
+public interface IUserManagementServiceProvider : IGenericServiceProvider
 {
     // Get ANY user management service - don't care which implementation
-    Task<IFdwResult<IUserManagementService>> GetService();
-    Task<IFdwResult<IUserManagementService>> GetService(string configurationName);
-    Task<IFdwResult<TService>> GetService<TService>() where TService : IUserManagementService;
+    Task<IGenericResult<IUserManagementService>> GetService();
+    Task<IGenericResult<IUserManagementService>> GetService(string configurationName);
+    Task<IGenericResult<TService>> GetService<TService>() where TService : IUserManagementService;
 }
 ```
 
@@ -127,7 +127,7 @@ public static class UserManagementMessages
 ```
 
 **Integration Points:**
-- Messages integrate with `IFdwResult` for structured error handling
+- Messages integrate with `IGenericResult` for structured error handling
 - Source-generated factory methods ensure consistent message creation
 - Automatic message ID allocation prevents conflicts
 - Integrated with logging for structured telemetry
@@ -162,7 +162,7 @@ The three systems work together to create a unified development experience:
 ```csharp
 public class UserManagementServiceBase : ServiceBase<UserManagementCommand, UserManagementConfiguration, UserManagementServiceBase>
 {
-    public override async Task<IFdwResult> Execute(UserManagementCommand command)
+    public override async Task<IGenericResult> Execute(UserManagementCommand command)
     {
         // 1. Logging integration
         UserManagementServiceLog.CommandExecutionStarted(Logger, command.GetType().Name);
@@ -176,7 +176,7 @@ public class UserManagementServiceBase : ServiceBase<UserManagementCommand, User
             var successMessage = UserManagementMessages.CommandExecuted(command.GetType().Name);
             UserManagementServiceLog.CommandExecutionCompleted(Logger, command.GetType().Name);
 
-            return FdwResult.Success(successMessage);
+            return GenericResult.Success(successMessage);
         }
         catch (Exception ex)
         {
@@ -184,7 +184,7 @@ public class UserManagementServiceBase : ServiceBase<UserManagementCommand, User
             var errorMessage = UserManagementMessages.CommandExecutionFailed(ex.Message);
             UserManagementServiceLog.CommandExecutionFailed(Logger, command.GetType().Name, ex.Message, ex);
 
-            return FdwResult.Failure(errorMessage);
+            return GenericResult.Failure(errorMessage);
         }
     }
 }
@@ -226,21 +226,21 @@ namespace MyCompany.Services.UserManagement.Abstractions.Services;
 /// <summary>
 /// Defines user management operations for any implementation.
 /// </summary>
-public interface IUserManagementService : IFdwService<UserManagementCommand, IUserManagementConfiguration>
+public interface IUserManagementService : IGenericService<UserManagementCommand, IUserManagementConfiguration>
 {
     /// <summary>
     /// Creates a new user account.
     /// </summary>
-    Task<IFdwResult<UserCreatedResult>> CreateUser(CreateUserCommand command);
+    Task<IGenericResult<UserCreatedResult>> CreateUser(CreateUserCommand command);
 
     /// <summary>
     /// Authenticates user credentials.
     /// </summary>
-    Task<IFdwResult<AuthenticationResult>> Authenticate(AuthenticateUserCommand command);
+    Task<IGenericResult<AuthenticationResult>> Authenticate(AuthenticateUserCommand command);
 }
 
 // ❌ Incorrect: Generic constraints missing
-public interface IUserManagementService : IFdwService
+public interface IUserManagementService : IGenericService
 // ❌ Incorrect: Wrong namespace
 namespace MyCompany.Services.UserManagement.Services;
 ```
@@ -298,7 +298,7 @@ The framework provides a progressive interface hierarchy that adds capabilities:
 
 ```csharp
 // Level 1: Basic service identification
-public interface IFdwService
+public interface IGenericService
 {
     string Id { get; }           // Unique instance identifier
     string ServiceType { get; }  // Service type name for logging
@@ -306,30 +306,30 @@ public interface IFdwService
 }
 
 // Level 2: Command execution capability
-public interface IFdwService<TCommand> : IFdwService
+public interface IGenericService<TCommand> : IGenericService
     where TCommand : ICommand
 {
-    Task<IFdwResult> Execute(TCommand command);
+    Task<IGenericResult> Execute(TCommand command);
 }
 
 // Level 3: Configuration access and typed execution
-public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
+public interface IGenericService<TCommand, TConfiguration> : IGenericService<TCommand>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
 {
     string Name { get; }                    // Display name from configuration
     TConfiguration Configuration { get; }   // Strongly-typed configuration access
 
     // Generic execution with typed results
-    Task<IFdwResult<T>> Execute<T>(TCommand command);
-    Task<IFdwResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
-    Task<IFdwResult> Execute(TCommand command, CancellationToken cancellationToken);
+    Task<IGenericResult<T>> Execute<T>(TCommand command);
+    Task<IGenericResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
+    Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
 }
 
 // Level 4: Type identification for logging and DI
-public interface IFdwService<TCommand, TConfiguration, TService> : IFdwService<TCommand, TConfiguration>
+public interface IGenericService<TCommand, TConfiguration, TService> : IGenericService<TCommand, TConfiguration>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
     where TService : class
 {
     // TService provides compile-time type information for:
@@ -440,7 +440,7 @@ namespace MyCompany.Services.UserManagement.Abstractions.Configuration;
 /// Configuration contract for user management services.
 /// Defines all settings required by any implementation.
 /// </summary>
-public interface IUserManagementConfiguration : IFdwConfiguration
+public interface IUserManagementConfiguration : IGenericConfiguration
 {
     /// <summary>
     /// Primary data store connection string.
@@ -504,23 +504,23 @@ namespace MyCompany.Services.UserManagement.Abstractions;
 /// <summary>
 /// Provides access to user management services without knowing specific implementations.
 /// </summary>
-public interface IUserManagementServiceProvider : IFdwServiceProvider
+public interface IUserManagementServiceProvider : IGenericServiceProvider
 {
     /// <summary>
     /// Gets the default user management service.
     /// Implementation selected based on configuration priority.
     /// </summary>
-    Task<IFdwResult<IUserManagementService>> GetService();
+    Task<IGenericResult<IUserManagementService>> GetService();
 
     /// <summary>
     /// Gets a user management service using a named configuration.
     /// </summary>
-    Task<IFdwResult<IUserManagementService>> GetService(string configurationName);
+    Task<IGenericResult<IUserManagementService>> GetService(string configurationName);
 
     /// <summary>
     /// Gets a specific user management service implementation.
     /// </summary>
-    Task<IFdwResult<TService>> GetService<TService>() where TService : class, IUserManagementService;
+    Task<IGenericResult<TService>> GetService<TService>() where TService : class, IUserManagementService;
 }
 ```
 
@@ -556,21 +556,21 @@ public abstract class UserManagementMessage : MessageTemplate<MessageSeverity>, 
 
 ```csharp
 // ✅ Correct: Progressive constraint addition
-public interface IFdwService
+public interface IGenericService
 // No constraints - basic service contract
 
-public interface IFdwService<TCommand> : IFdwService
+public interface IGenericService<TCommand> : IGenericService
     where TCommand : ICommand
 // TCommand must implement ICommand - ensures command pattern compliance
 
-public interface IFdwService<TCommand, TConfiguration> : IFdwService<TCommand>
+public interface IGenericService<TCommand, TConfiguration> : IGenericService<TCommand>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
-// TConfiguration must implement IFdwConfiguration - ensures validation and binding support
+    where TConfiguration : IGenericConfiguration
+// TConfiguration must implement IGenericConfiguration - ensures validation and binding support
 
-public interface IFdwService<TCommand, TConfiguration, TService> : IFdwService<TCommand, TConfiguration>
+public interface IGenericService<TCommand, TConfiguration, TService> : IGenericService<TCommand, TConfiguration>
     where TCommand : ICommand
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
     where TService : class
 // TService must be a reference type - enables logging and DI type identification
 ```
@@ -585,8 +585,8 @@ public interface IServiceFactory<TService> : IServiceFactory
 
 public interface IServiceFactory<TService, TConfiguration> : IServiceFactory<TService>
     where TService : class
-    where TConfiguration : class, IFdwConfiguration
-// TConfiguration must be reference type AND implement IFdwConfiguration
+    where TConfiguration : class, IGenericConfiguration
+// TConfiguration must be reference type AND implement IGenericConfiguration
 // class constraint required for configuration binding and caching
 ```
 
@@ -606,12 +606,12 @@ public interface IServiceFactory<TService, TConfiguration> : IServiceFactory<TSe
 - Ensures Execute method compatibility
 - Enables command pattern infrastructure
 
-**IFdwService Constraint:**
+**IGenericService Constraint:**
 - Required on service type parameters
 - Ensures service contract compliance
 - Enables service infrastructure integration
 
-**IFdwConfiguration Constraint:**
+**IGenericConfiguration Constraint:**
 - Required on configuration type parameters
 - Ensures validation and binding support
 - Enables configuration infrastructure integration

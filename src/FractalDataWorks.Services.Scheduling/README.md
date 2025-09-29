@@ -24,7 +24,7 @@ The Scheduling framework provides ServiceType auto-discovery for job scheduling 
 
 ```csharp
 // Program.cs - Zero-configuration registration
-builder.Services.AddScoped<IFdwSchedulingProvider, FdwSchedulingProvider>();
+builder.Services.AddScoped<IGenericSchedulingProvider, GenericSchedulingProvider>();
 
 // Single line registers ALL discovered scheduling types
 SchedulingTypes.Register(builder.Services);
@@ -51,18 +51,18 @@ SchedulingTypes.Register(builder.Services);
 ```csharp
 public class ReportService
 {
-    private readonly IFdwSchedulingProvider _schedulingProvider;
+    private readonly IGenericSchedulingProvider _schedulingProvider;
 
-    public ReportService(IFdwSchedulingProvider schedulingProvider)
+    public ReportService(IGenericSchedulingProvider schedulingProvider)
     {
         _schedulingProvider = schedulingProvider;
     }
 
-    public async Task<IFdwResult> ScheduleDailyReportAsync()
+    public async Task<IGenericResult> ScheduleDailyReportAsync()
     {
         var schedulerResult = await _schedulingProvider.GetScheduler("QuartzScheduler");
         if (!schedulerResult.IsSuccess)
-            return FdwResult.Failure(schedulerResult.Error);
+            return GenericResult.Failure(schedulerResult.Error);
 
         using var scheduler = schedulerResult.Value;
 
@@ -84,11 +84,11 @@ public class ReportService
         return result;
     }
 
-    public async Task<IFdwResult> ScheduleOneTimeTaskAsync(DateTime executeAt)
+    public async Task<IGenericResult> ScheduleOneTimeTaskAsync(DateTime executeAt)
     {
         var schedulerResult = await _schedulingProvider.GetScheduler("QuartzScheduler");
         if (!schedulerResult.IsSuccess)
-            return FdwResult.Failure(schedulerResult.Error);
+            return GenericResult.Failure(schedulerResult.Error);
 
         using var scheduler = schedulerResult.Value;
 
@@ -129,7 +129,7 @@ public class ReportService
 
 ```csharp
 // 1. Create your scheduling type (singleton pattern)
-public sealed class CustomSchedulingType : SchedulingTypeBase<IFdwScheduler, CustomSchedulingConfiguration, ICustomSchedulingFactory>
+public sealed class CustomSchedulingType : SchedulingTypeBase<IGenericScheduler, CustomSchedulingConfiguration, ICustomSchedulingFactory>
 {
     public static CustomSchedulingType Instance { get; } = new();
 
@@ -156,18 +156,18 @@ public sealed class CustomSchedulingType : SchedulingTypeBase<IFdwScheduler, Cus
 ```csharp
 public class MaintenanceService
 {
-    private readonly IFdwSchedulingProvider _schedulingProvider;
+    private readonly IGenericSchedulingProvider _schedulingProvider;
 
-    public MaintenanceService(IFdwSchedulingProvider schedulingProvider)
+    public MaintenanceService(IGenericSchedulingProvider schedulingProvider)
     {
         _schedulingProvider = schedulingProvider;
     }
 
-    public async Task<IFdwResult> ScheduleMaintenanceJobsAsync()
+    public async Task<IGenericResult> ScheduleMaintenanceJobsAsync()
     {
         var schedulerResult = await _schedulingProvider.GetScheduler("QuartzScheduler");
         if (!schedulerResult.IsSuccess)
-            return FdwResult.Failure(schedulerResult.Error);
+            return GenericResult.Failure(schedulerResult.Error);
 
         using var scheduler = schedulerResult.Value;
 
@@ -203,25 +203,25 @@ public class MaintenanceService
 ```csharp
 public class JobManagementService
 {
-    private readonly IFdwSchedulingProvider _schedulingProvider;
+    private readonly IGenericSchedulingProvider _schedulingProvider;
 
-    public JobManagementService(IFdwSchedulingProvider schedulingProvider)
+    public JobManagementService(IGenericSchedulingProvider schedulingProvider)
     {
         _schedulingProvider = schedulingProvider;
     }
 
-    public async Task<IFdwResult<List<JobStatus>>> GetJobStatusAsync()
+    public async Task<IGenericResult<List<JobStatus>>> GetJobStatusAsync()
     {
         var schedulerResult = await _schedulingProvider.GetScheduler("QuartzScheduler");
         if (!schedulerResult.IsSuccess)
-            return FdwResult<List<JobStatus>>.Failure(schedulerResult.Error);
+            return GenericResult<List<JobStatus>>.Failure(schedulerResult.Error);
 
         using var scheduler = schedulerResult.Value;
 
         // Get all scheduled jobs
         var jobsResult = await scheduler.GetAllJobsAsync();
         if (!jobsResult.IsSuccess)
-            return FdwResult<List<JobStatus>>.Failure(jobsResult.Error);
+            return GenericResult<List<JobStatus>>.Failure(jobsResult.Error);
 
         var statuses = new List<JobStatus>();
         foreach (var job in jobsResult.Value)
@@ -231,24 +231,24 @@ public class JobManagementService
                 statuses.Add(statusResult.Value);
         }
 
-        return FdwResult<List<JobStatus>>.Success(statuses);
+        return GenericResult<List<JobStatus>>.Success(statuses);
     }
 
-    public async Task<IFdwResult> PauseJobAsync(string jobName, string jobGroup)
+    public async Task<IGenericResult> PauseJobAsync(string jobName, string jobGroup)
     {
         var schedulerResult = await _schedulingProvider.GetScheduler("QuartzScheduler");
         if (!schedulerResult.IsSuccess)
-            return FdwResult.Failure(schedulerResult.Error);
+            return GenericResult.Failure(schedulerResult.Error);
 
         using var scheduler = schedulerResult.Value;
         return await scheduler.PauseJobAsync(jobName, jobGroup);
     }
 
-    public async Task<IFdwResult> ResumeJobAsync(string jobName, string jobGroup)
+    public async Task<IGenericResult> ResumeJobAsync(string jobName, string jobGroup)
     {
         var schedulerResult = await _schedulingProvider.GetScheduler("QuartzScheduler");
         if (!schedulerResult.IsSuccess)
-            return FdwResult.Failure(schedulerResult.Error);
+            return GenericResult.Failure(schedulerResult.Error);
 
         using var scheduler = schedulerResult.Value;
         return await scheduler.ResumeJobAsync(jobName, jobGroup);
@@ -261,18 +261,18 @@ public class JobManagementService
 ```csharp
 public class DynamicJobService
 {
-    private readonly IFdwSchedulingProvider _schedulingProvider;
+    private readonly IGenericSchedulingProvider _schedulingProvider;
 
-    public DynamicJobService(IFdwSchedulingProvider schedulingProvider)
+    public DynamicJobService(IGenericSchedulingProvider schedulingProvider)
     {
         _schedulingProvider = schedulingProvider;
     }
 
-    public async Task<IFdwResult> ScheduleDataProcessingJobAsync(int dataSetId, TimeSpan delay)
+    public async Task<IGenericResult> ScheduleDataProcessingJobAsync(int dataSetId, TimeSpan delay)
     {
         var schedulerResult = await _schedulingProvider.GetScheduler("QuartzScheduler");
         if (!schedulerResult.IsSuccess)
-            return FdwResult.Failure(schedulerResult.Error);
+            return GenericResult.Failure(schedulerResult.Error);
 
         using var scheduler = schedulerResult.Value;
 

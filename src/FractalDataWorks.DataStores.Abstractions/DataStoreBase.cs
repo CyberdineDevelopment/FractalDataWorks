@@ -79,7 +79,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     public IEnumerable<IDataPath> AvailablePaths => _paths.Values;
 
     /// <inheritdoc/>
-    public virtual async Task<IFdwResult> TestConnectionAsync()
+    public virtual async Task<IGenericResult> TestConnectionAsync()
     {
         try
         {
@@ -87,12 +87,12 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return FdwResult.Failure($"Connection test failed: {ex.Message}");
+            return GenericResult.Failure($"Connection test failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public virtual async Task<IFdwResult<IEnumerable<IDataPath>>> DiscoverPathsAsync()
+    public virtual async Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverPathsAsync()
     {
         try
         {
@@ -112,7 +112,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return FdwResult<IEnumerable<IDataPath>>.Failure($"Path discovery failed: {ex.Message}");
+            return GenericResult<IEnumerable<IDataPath>>.Failure($"Path discovery failed: {ex.Message}");
         }
     }
 
@@ -127,26 +127,26 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     }
 
     /// <inheritdoc/>
-    public virtual IFdwResult ValidateConnectionCompatibility(string connectionType)
+    public virtual IGenericResult ValidateConnectionCompatibility(string connectionType)
     {
         if (string.IsNullOrWhiteSpace(connectionType))
-            return FdwResult.Failure("Connection type cannot be null or empty");
+            return GenericResult.Failure("Connection type cannot be null or empty");
 
         var compatibleTypes = GetCompatibleConnectionTypes();
         
         if (compatibleTypes.Contains(connectionType, StringComparer.OrdinalIgnoreCase))
-            return FdwResult.Success();
+            return GenericResult.Success();
 
-        return FdwResult.Failure(
+        return GenericResult.Failure(
             $"Store type '{StoreType}' is not compatible with connection type '{connectionType}'. " +
             $"Compatible types: {string.Join(", ", compatibleTypes)}");
     }
 
     /// <inheritdoc/>
-    public virtual async Task<IFdwResult> UpdateConfigurationAsync(TConfiguration configuration)
+    public virtual async Task<IGenericResult> UpdateConfigurationAsync(TConfiguration configuration)
     {
         if (configuration == null)
-            return FdwResult.Failure("Configuration cannot be null");
+            return GenericResult.Failure("Configuration cannot be null");
 
         try
         {
@@ -164,7 +164,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return FdwResult.Failure($"Configuration update failed: {ex.Message}");
+            return GenericResult.Failure($"Configuration update failed: {ex.Message}");
         }
     }
 
@@ -177,7 +177,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// connectivity testing. It should validate that the store location is reachable
     /// and any required credentials are valid.
     /// </remarks>
-    protected abstract Task<IFdwResult> TestConnectionCoreAsync();
+    protected abstract Task<IGenericResult> TestConnectionCoreAsync();
 
     /// <summary>
     /// Performs the core path discovery logic specific to the store type.
@@ -188,7 +188,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// data paths within the store. For example, listing tables in a database,
     /// endpoints in an API, or files in a directory.
     /// </remarks>
-    protected abstract Task<IFdwResult<IEnumerable<IDataPath>>> DiscoverPathsCoreAsync();
+    protected abstract Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverPathsCoreAsync();
 
     /// <summary>
     /// Gets the connection types that are compatible with this store type.
@@ -210,9 +210,9 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// The default implementation returns success. Override this method to add
     /// store-specific configuration validation.
     /// </remarks>
-    protected virtual Task<IFdwResult> ValidateConfigurationAsync(TConfiguration configuration)
+    protected virtual Task<IGenericResult> ValidateConfigurationAsync(TConfiguration configuration)
     {
-        return Task.FromResult(FdwResult.Success());
+        return Task.FromResult(GenericResult.Success());
     }
 
     /// <summary>
@@ -225,9 +225,9 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// store-specific update logic such as re-establishing connections or
     /// clearing caches.
     /// </remarks>
-    protected virtual Task<IFdwResult> UpdateConfigurationCoreAsync(TConfiguration configuration)
+    protected virtual Task<IGenericResult> UpdateConfigurationCoreAsync(TConfiguration configuration)
     {
-        return Task.FromResult(FdwResult.Success());
+        return Task.FromResult(GenericResult.Success());
     }
 
     /// <summary>

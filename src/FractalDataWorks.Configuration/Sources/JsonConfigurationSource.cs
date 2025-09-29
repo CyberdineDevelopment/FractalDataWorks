@@ -52,7 +52,7 @@ public class JsonConfigurationSource : ConfigurationSourceBase
     public override bool SupportsReload => false;
 
     /// <inheritdoc/>
-    public override Task<IFdwResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
+    public override Task<IGenericResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
     {
         var typeName = typeof(TConfiguration).Name;
         var pattern = $"{typeName}_*.json";
@@ -79,7 +79,7 @@ public class JsonConfigurationSource : ConfigurationSourceBase
             }
         }
 
-        return Task.FromResult(FdwResult<IEnumerable<TConfiguration>>.Success(configurations));
+        return Task.FromResult(GenericResult<IEnumerable<TConfiguration>>.Success(configurations));
     }
 
     /// <summary>
@@ -88,15 +88,15 @@ public class JsonConfigurationSource : ConfigurationSourceBase
     /// <typeparam name="TConfiguration">The type of configuration to load.</typeparam>
     /// <param name="id">The ID of the configuration to load.</param>
     /// <returns>A task containing the loaded configuration.</returns>
-    public Task<IFdwResult<TConfiguration>> Load<TConfiguration>(int id)
-        where TConfiguration : IFdwConfiguration
+    public Task<IGenericResult<TConfiguration>> Load<TConfiguration>(int id)
+        where TConfiguration : IGenericConfiguration
     {
         var fileName = GetFileName<TConfiguration>(id);
         var filePath = Path.Combine(_basePath, fileName);
 
         if (!File.Exists(filePath))
         {
-            return Task.FromResult(FdwResult<TConfiguration>.Failure($"Configuration file not found: {fileName}"));
+            return Task.FromResult(GenericResult<TConfiguration>.Failure($"Configuration file not found: {fileName}"));
         }
 
         try
@@ -106,19 +106,19 @@ public class JsonConfigurationSource : ConfigurationSourceBase
 
             if (config == null)
             {
-                return Task.FromResult(FdwResult<TConfiguration>.Failure("Failed to deserialize configuration"));
+                return Task.FromResult(GenericResult<TConfiguration>.Failure("Failed to deserialize configuration"));
             }
 
-            return Task.FromResult(FdwResult<TConfiguration>.Success(config));
+            return Task.FromResult(GenericResult<TConfiguration>.Success(config));
         }
         catch (Exception ex)
         {
-            return Task.FromResult(FdwResult<TConfiguration>.Failure($"Error loading configuration: {ex.Message}"));
+            return Task.FromResult(GenericResult<TConfiguration>.Failure($"Error loading configuration: {ex.Message}"));
         }
     }
 
     /// <inheritdoc/>
-    protected override Task<IFdwResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
+    protected override Task<IGenericResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
     {
         var fileName = GetFileName(configuration);
         var filePath = Path.Combine(_basePath, fileName);
@@ -136,23 +136,23 @@ public class JsonConfigurationSource : ConfigurationSourceBase
             }
             ConfigurationSourceBaseLog.ConfigurationSaved(Logger, Name, configId);
 
-            return Task.FromResult(FdwResult<TConfiguration>.Success(configuration));
+            return Task.FromResult(GenericResult<TConfiguration>.Success(configuration));
         }
         catch (Exception ex)
         {
-            return Task.FromResult(FdwResult<TConfiguration>.Failure($"Error saving configuration: {ex.Message}"));
+            return Task.FromResult(GenericResult<TConfiguration>.Failure($"Error saving configuration: {ex.Message}"));
         }
     }
 
     /// <inheritdoc/>
-    protected override async Task<IFdwResult<NonResult>> DeleteCore<TConfiguration>(int id)
+    protected override async Task<IGenericResult<NonResult>> DeleteCore<TConfiguration>(int id)
     {
         var fileName = GetFileName<TConfiguration>(id);
         var filePath = Path.Combine(_basePath, fileName);
 
         if (!File.Exists(filePath))
         {
-            return FdwResult<NonResult>.Failure($"Configuration file not found: {fileName}");
+            return GenericResult<NonResult>.Failure($"Configuration file not found: {fileName}");
         }
 
         try
@@ -161,16 +161,16 @@ public class JsonConfigurationSource : ConfigurationSourceBase
 
             ConfigurationSourceBaseLog.ConfigurationDeleted(Logger, Name, id);
 
-            return FdwResult<NonResult>.Success(NonResult.Value);
+            return GenericResult<NonResult>.Success(NonResult.Value);
         }
         catch (Exception ex)
         {
-            return FdwResult<NonResult>.Failure($"Error deleting configuration: {ex.Message}");
+            return GenericResult<NonResult>.Failure($"Error deleting configuration: {ex.Message}");
         }
     }
 
     private static string GetFileName<TConfiguration>(TConfiguration configuration)
-        where TConfiguration : IFdwConfiguration
+        where TConfiguration : IGenericConfiguration
     {
         // Try to get ID if configuration has it
         int configId = 0;
@@ -182,7 +182,7 @@ public class JsonConfigurationSource : ConfigurationSourceBase
     }
 
     private static string GetFileName<TConfiguration>(int id)
-        where TConfiguration : IFdwConfiguration
+        where TConfiguration : IGenericConfiguration
     {
         var typeName = typeof(TConfiguration).Name;
         return $"{typeName}_{id}.json";

@@ -35,7 +35,7 @@ public interface IContainerConfiguration
     /// Validates that the configuration is valid for the container type.
     /// </summary>
     /// <returns>A result indicating whether the configuration is valid.</returns>
-    IFdwResult Validate();
+    IGenericResult Validate();
 
     /// <summary>
     /// Gets a configuration value as a specific type.

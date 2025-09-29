@@ -9,7 +9,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Defines the contract for configuration providers in the Rec framework.
 /// </summary>
-public interface IFdwConfigurationProvider
+public interface IGenericConfigurationProvider
 {
     /// <summary>
     /// Gets a configuration by its ID.
@@ -17,8 +17,8 @@ public interface IFdwConfigurationProvider
     /// <typeparam name="TConfiguration">The type of configuration to retrieve.</typeparam>
     /// <param name="id">The ID of the configuration.</param>
     /// <returns>A task containing the configuration result.</returns>
-    Task<IFdwResult<TConfiguration>> Get<TConfiguration>(int id)
-        where TConfiguration : IFdwConfiguration;
+    Task<IGenericResult<TConfiguration>> Get<TConfiguration>(int id)
+        where TConfiguration : IGenericConfiguration;
 
     /// <summary>
     /// Gets a configuration by its name.
@@ -26,82 +26,82 @@ public interface IFdwConfigurationProvider
     /// <typeparam name="TConfiguration">The type of configuration to retrieve.</typeparam>
     /// <param name="name">The name of the configuration.</param>
     /// <returns>A task containing the configuration result.</returns>
-    Task<IFdwResult<TConfiguration>> Get<TConfiguration>(string name)
-        where TConfiguration : IFdwConfiguration;
+    Task<IGenericResult<TConfiguration>> Get<TConfiguration>(string name)
+        where TConfiguration : IGenericConfiguration;
 
     /// <summary>
     /// Gets all configurations of a specific type.
     /// </summary>
     /// <typeparam name="TConfiguration">The type of configurations to retrieve.</typeparam>
     /// <returns>A task containing the collection of configurations.</returns>
-    Task<IFdwResult<IEnumerable<TConfiguration>>> GetAll<TConfiguration>()
-        where TConfiguration : IFdwConfiguration;
+    Task<IGenericResult<IEnumerable<TConfiguration>>> GetAll<TConfiguration>()
+        where TConfiguration : IGenericConfiguration;
 
     /// <summary>
     /// Gets all enabled configurations of a specific type.
     /// </summary>
     /// <typeparam name="TConfiguration">The type of configurations to retrieve.</typeparam>
     /// <returns>A task containing the collection of enabled configurations.</returns>
-    Task<IFdwResult<IEnumerable<TConfiguration>>> GetEnabled<TConfiguration>()
-        where TConfiguration : IFdwConfiguration;
+    Task<IGenericResult<IEnumerable<TConfiguration>>> GetEnabled<TConfiguration>()
+        where TConfiguration : IGenericConfiguration;
 
     /// <summary>
     /// Reloads configurations from the source.
     /// </summary>
     /// <returns>A task representing the reload operation.</returns>
-    Task<IFdwResult<NonResult>> Reload();
+    Task<IGenericResult<NonResult>> Reload();
 
     /// <summary>
     /// Gets the configuration source associated with this provider.
     /// </summary>
-    IFdwConfigurationSource Source { get; }
+    IGenericConfigurationSource Source { get; }
 }
 
 /// <summary>
 /// Defines the contract for typed configuration providers in the Rec framework.
 /// </summary>
 /// <typeparam name="TConfiguration">The type of configuration this provider manages.</typeparam>
-public interface IFdwConfigurationProvider<TConfiguration>
-    where TConfiguration : IFdwConfiguration
+public interface IGenericConfigurationProvider<TConfiguration>
+    where TConfiguration : IGenericConfiguration
 {
     /// <summary>
     /// Gets a configuration by its ID.
     /// </summary>
     /// <param name="id">The ID of the configuration.</param>
     /// <returns>A task containing the configuration result.</returns>
-    Task<IFdwResult<TConfiguration>> Get(int id);
+    Task<IGenericResult<TConfiguration>> Get(int id);
 
     /// <summary>
     /// Gets a configuration by its name.
     /// </summary>
     /// <param name="name">The name of the configuration.</param>
     /// <returns>A task containing the configuration result.</returns>
-    Task<IFdwResult<TConfiguration>> Get(string name);
+    Task<IGenericResult<TConfiguration>> Get(string name);
 
     /// <summary>
     /// Gets all configurations.
     /// </summary>
     /// <returns>A task containing the collection of configurations.</returns>
-    Task<IFdwResult<IEnumerable<TConfiguration>>> GetAll();
+    Task<IGenericResult<IEnumerable<TConfiguration>>> GetAll();
 
     /// <summary>
     /// Gets all enabled configurations.
     /// </summary>
     /// <returns>A task containing the collection of enabled configurations.</returns>
-    Task<IFdwResult<IEnumerable<TConfiguration>>> GetEnabled();
+    Task<IGenericResult<IEnumerable<TConfiguration>>> GetEnabled();
 
     /// <summary>
     /// Saves a configuration.
     /// </summary>
     /// <param name="configuration">The configuration to save.</param>
     /// <returns>A task containing the saved configuration result.</returns>
-    Task<IFdwResult<TConfiguration>> Save(TConfiguration configuration);
+    Task<IGenericResult<TConfiguration>> Save(TConfiguration configuration);
 
     /// <summary>
     /// Deletes a configuration by its ID.
     /// </summary>
     /// <param name="id">The ID of the configuration to delete.</param>
     /// <returns>A task containing the delete operation result.</returns>
-    Task<IFdwResult<NonResult>> Delete(int id);
+    Task<IGenericResult<NonResult>> Delete(int id);
 
 }

@@ -11,16 +11,16 @@ namespace FractalDataWorks.SourceGenerators.Services;
 /// and manages the building process for different collection scenarios.
 /// Generalized from enum-specific to work with any collection type.
 /// </summary>
-public sealed class FdwCollectionDirector
+public sealed class GenericCollectionDirector
 {
-    private readonly IFdwCollectionBuilder _builder;
+    private readonly IGenericCollectionBuilder _builder;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FdwCollectionDirector"/> class.
+    /// Initializes a new instance of the <see cref="GenericCollectionDirector"/> class.
     /// </summary>
     /// <param name="builder">The collection builder to orchestrate.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="builder"/> is null.</exception>
-    public FdwCollectionDirector(IFdwCollectionBuilder builder)
+    public GenericCollectionDirector(IGenericCollectionBuilder builder)
     {
         _builder = builder ?? throw new ArgumentNullException(nameof(builder));
     }
@@ -39,8 +39,8 @@ public sealed class FdwCollectionDirector
     /// <exception cref="ArgumentException">Thrown when <paramref name="returnType"/> is null or empty.</exception>
     /// <exception cref="InvalidOperationException">Thrown when the builder configuration is invalid.</exception>
     public string ConstructFullCollection(
-        FdwTypeInfoModel definition,
-        IList<FdwValueInfoModel> values,
+        GenericTypeInfoModel definition,
+        IList<GenericValueInfoModel> values,
         string returnType,
         Compilation compilation)
     {
@@ -73,8 +73,8 @@ public sealed class FdwCollectionDirector
     /// Thrown when the definition does not inherit from collection base or when the builder configuration is invalid.
     /// </exception>
     public string ConstructSimplifiedCollection(
-        FdwTypeInfoModel definition,
-        IList<FdwValueInfoModel> values,
+        GenericTypeInfoModel definition,
+        IList<GenericValueInfoModel> values,
         string returnType,
         Compilation compilation)
     {
@@ -98,8 +98,8 @@ public sealed class FdwCollectionDirector
     }
 
     private static void ValidateParameters(
-        FdwTypeInfoModel definition,
-        IList<FdwValueInfoModel> values,
+        GenericTypeInfoModel definition,
+        IList<GenericValueInfoModel> values,
         string returnType,
         Compilation compilation)
     {
@@ -124,7 +124,7 @@ public sealed class FdwCollectionDirector
         }
     }
 
-    private static CollectionGenerationMode DetermineGenerationMode(FdwTypeInfoModel definition)
+    private static CollectionGenerationMode DetermineGenerationMode(GenericTypeInfoModel definition)
     {
         if (definition == null)
         {

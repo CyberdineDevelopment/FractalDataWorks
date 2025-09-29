@@ -283,7 +283,7 @@ The `Cron.ValidateTrigger()` method validates:
 - Future execution possibility (expression not expired)
 
 ### Error Result Patterns
-All operations use `IFdwResult` for consistent error handling:
+All operations use `IGenericResult` for consistent error handling:
 - Success/failure indication
 - Detailed error messages
 - Exception wrapping where appropriate

@@ -46,7 +46,7 @@ public class PluginLoaderTests
         // Arrange
         var pluginDirectory = @"C:\Plugins\TestPlugins";
         var loadedPlugins = new List<IToolPlugin> { _mockPlugin1.Object, _mockPlugin2.Object };
-        var successResult = FdwResult.Success(loadedPlugins.AsEnumerable());
+        var successResult = GenericResult.Success(loadedPlugins.AsEnumerable());
 
         _mockLoader.Setup(l => l.LoadPluginsFromDirectoryAsync(pluginDirectory, _cancellationToken))
                   .ReturnsAsync(successResult);
@@ -68,7 +68,7 @@ public class PluginLoaderTests
     {
         // Arrange
         var nonExistentDirectory = @"C:\NonExistent\PluginDirectory";
-        var failureResult = FdwResult.Failure<IEnumerable<IToolPlugin>>($"Directory not found: {nonExistentDirectory}");
+        var failureResult = GenericResult.Failure<IEnumerable<IToolPlugin>>($"Directory not found: {nonExistentDirectory}");
 
         _mockLoader.Setup(l => l.LoadPluginsFromDirectoryAsync(nonExistentDirectory, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -90,7 +90,7 @@ public class PluginLoaderTests
     public async Task LoadPluginsFromDirectoryAsync_WithInvalidPath_ReturnsFailure(string invalidPath)
     {
         // Arrange
-        var failureResult = FdwResult.Failure<IEnumerable<IToolPlugin>>("Plugin directory path cannot be null or empty");
+        var failureResult = GenericResult.Failure<IEnumerable<IToolPlugin>>("Plugin directory path cannot be null or empty");
 
         _mockLoader.Setup(l => l.LoadPluginsFromDirectoryAsync(invalidPath, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -111,7 +111,7 @@ public class PluginLoaderTests
         // Arrange
         var assemblyPath = @"C:\Plugins\TestPlugin.dll";
         var loadedPlugins = new List<IToolPlugin> { _mockPlugin1.Object };
-        var successResult = FdwResult.Success(loadedPlugins.AsEnumerable());
+        var successResult = GenericResult.Success(loadedPlugins.AsEnumerable());
 
         _mockLoader.Setup(l => l.LoadPluginFromAssemblyAsync(assemblyPath, _cancellationToken))
                   .ReturnsAsync(successResult);
@@ -132,7 +132,7 @@ public class PluginLoaderTests
     {
         // Arrange
         var invalidAssemblyPath = @"C:\Plugins\InvalidAssembly.dll";
-        var failureResult = FdwResult.Failure<IEnumerable<IToolPlugin>>("Failed to load assembly: Invalid format");
+        var failureResult = GenericResult.Failure<IEnumerable<IToolPlugin>>("Failed to load assembly: Invalid format");
 
         _mockLoader.Setup(l => l.LoadPluginFromAssemblyAsync(invalidAssemblyPath, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -152,7 +152,7 @@ public class PluginLoaderTests
     {
         // Arrange
         var assemblyPath = @"C:\Plugins\NoPluginsAssembly.dll";
-        var emptyResult = FdwResult.Success(Enumerable.Empty<IToolPlugin>());
+        var emptyResult = GenericResult.Success(Enumerable.Empty<IToolPlugin>());
 
         _mockLoader.Setup(l => l.LoadPluginFromAssemblyAsync(assemblyPath, _cancellationToken))
                   .ReturnsAsync(emptyResult);
@@ -172,7 +172,7 @@ public class PluginLoaderTests
     {
         // Arrange
         var pluginType = typeof(TestToolPlugin);
-        var successResult = FdwResult.Success(_mockPlugin1.Object);
+        var successResult = GenericResult.Success(_mockPlugin1.Object);
 
         _mockLoader.Setup(l => l.LoadPluginFromTypeAsync(pluginType, _cancellationToken))
                   .ReturnsAsync(successResult);
@@ -191,7 +191,7 @@ public class PluginLoaderTests
     public async Task LoadPluginFromTypeAsync_WithNullType_ReturnsFailure()
     {
         // Arrange
-        var failureResult = FdwResult.Failure<IToolPlugin>("Plugin type cannot be null");
+        var failureResult = GenericResult.Failure<IToolPlugin>("Plugin type cannot be null");
 
         _mockLoader.Setup(l => l.LoadPluginFromTypeAsync(null, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -211,7 +211,7 @@ public class PluginLoaderTests
     {
         // Arrange
         var nonPluginType = typeof(string);
-        var failureResult = FdwResult.Failure<IToolPlugin>($"Type {nonPluginType.Name} does not implement IToolPlugin");
+        var failureResult = GenericResult.Failure<IToolPlugin>($"Type {nonPluginType.Name} does not implement IToolPlugin");
 
         _mockLoader.Setup(l => l.LoadPluginFromTypeAsync(nonPluginType, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -232,7 +232,7 @@ public class PluginLoaderTests
         // Arrange
         var assemblyPath = @"C:\Plugins\TestPlugin.dll";
         var discoveredTypes = new List<Type> { typeof(TestToolPlugin), typeof(AnotherTestToolPlugin) };
-        var successResult = FdwResult.Success(discoveredTypes.AsEnumerable());
+        var successResult = GenericResult.Success(discoveredTypes.AsEnumerable());
 
         _mockLoader.Setup(l => l.DiscoverPluginTypesInAssemblyAsync(assemblyPath, _cancellationToken))
                   .ReturnsAsync(successResult);
@@ -254,7 +254,7 @@ public class PluginLoaderTests
     {
         // Arrange
         var assemblyPath = @"C:\Plugins\NoPluginsAssembly.dll";
-        var emptyResult = FdwResult.Success(Enumerable.Empty<Type>());
+        var emptyResult = GenericResult.Success(Enumerable.Empty<Type>());
 
         _mockLoader.Setup(l => l.DiscoverPluginTypesInAssemblyAsync(assemblyPath, _cancellationToken))
                   .ReturnsAsync(emptyResult);
@@ -273,7 +273,7 @@ public class PluginLoaderTests
     public async Task ValidatePluginAsync_WithValidPlugin_ReturnsSuccess()
     {
         // Arrange
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
 
         _mockLoader.Setup(l => l.ValidatePluginAsync(_mockPlugin1.Object, _cancellationToken))
                   .ReturnsAsync(successResult);
@@ -295,7 +295,7 @@ public class PluginLoaderTests
         invalidPlugin.Setup(p => p.Id).Returns((string)null); // Invalid - null ID
         invalidPlugin.Setup(p => p.Name).Returns("Invalid Plugin");
 
-        var failureResult = FdwResult.Failure("Plugin validation failed: ID cannot be null");
+        var failureResult = GenericResult.Failure("Plugin validation failed: ID cannot be null");
 
         _mockLoader.Setup(l => l.ValidatePluginAsync(invalidPlugin.Object, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -314,7 +314,7 @@ public class PluginLoaderTests
     public async Task ValidatePluginAsync_WithNullPlugin_ReturnsFailure()
     {
         // Arrange
-        var failureResult = FdwResult.Failure("Plugin cannot be null");
+        var failureResult = GenericResult.Failure("Plugin cannot be null");
 
         _mockLoader.Setup(l => l.ValidatePluginAsync(null, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -421,7 +421,7 @@ public class PluginLoaderTests
                   .Returns(async (string path, CancellationToken ct) =>
                   {
                       await Task.Delay(1000, ct); // Will timeout
-                      return FdwResult.Success(Enumerable.Empty<IToolPlugin>());
+                      return GenericResult.Success(Enumerable.Empty<IToolPlugin>());
                   });
 
         // Act & Assert
@@ -436,11 +436,11 @@ public class PluginLoaderTests
     /// </summary>
     private interface IPluginLoader
     {
-        Task<IFdwResult<IEnumerable<IToolPlugin>>> LoadPluginsFromDirectoryAsync(string pluginDirectory, CancellationToken cancellationToken = default);
-        Task<IFdwResult<IEnumerable<IToolPlugin>>> LoadPluginFromAssemblyAsync(string assemblyPath, CancellationToken cancellationToken = default);
-        Task<IFdwResult<IToolPlugin>> LoadPluginFromTypeAsync(Type pluginType, CancellationToken cancellationToken = default);
-        Task<IFdwResult<IEnumerable<Type>>> DiscoverPluginTypesInAssemblyAsync(string assemblyPath, CancellationToken cancellationToken = default);
-        Task<IFdwResult> ValidatePluginAsync(IToolPlugin plugin, CancellationToken cancellationToken = default);
+        Task<IGenericResult<IEnumerable<IToolPlugin>>> LoadPluginsFromDirectoryAsync(string pluginDirectory, CancellationToken cancellationToken = default);
+        Task<IGenericResult<IEnumerable<IToolPlugin>>> LoadPluginFromAssemblyAsync(string assemblyPath, CancellationToken cancellationToken = default);
+        Task<IGenericResult<IToolPlugin>> LoadPluginFromTypeAsync(Type pluginType, CancellationToken cancellationToken = default);
+        Task<IGenericResult<IEnumerable<Type>>> DiscoverPluginTypesInAssemblyAsync(string assemblyPath, CancellationToken cancellationToken = default);
+        Task<IGenericResult> ValidatePluginAsync(IToolPlugin plugin, CancellationToken cancellationToken = default);
         string[] GetSupportedPluginExtensions();
         bool IsPluginAssembly(string assemblyPath);
     }
@@ -458,10 +458,10 @@ public class PluginLoaderTests
         public bool IsEnabled => true;
 
         public IReadOnlyCollection<IMcpTool> GetTools() => new List<IMcpTool>();
-        public Task<IFdwResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
-        public Task<IFdwResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
-        public Task<IFdwResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success(new PluginHealth { Status = HealthStatus.Healthy }));
-        public Task<IFdwResult> ShutdownAsync(CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
+        public Task<IGenericResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
+        public Task<IGenericResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
+        public Task<IGenericResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success(new PluginHealth { Status = HealthStatus.Healthy }));
+        public Task<IGenericResult> ShutdownAsync(CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
     }
 
     /// <summary>
@@ -477,10 +477,10 @@ public class PluginLoaderTests
         public bool IsEnabled => true;
 
         public IReadOnlyCollection<IMcpTool> GetTools() => new List<IMcpTool>();
-        public Task<IFdwResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
-        public Task<IFdwResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
-        public Task<IFdwResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success(new PluginHealth { Status = HealthStatus.Healthy }));
-        public Task<IFdwResult> ShutdownAsync(CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
+        public Task<IGenericResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
+        public Task<IGenericResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
+        public Task<IGenericResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success(new PluginHealth { Status = HealthStatus.Healthy }));
+        public Task<IGenericResult> ShutdownAsync(CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
     }
 }
 
@@ -507,7 +507,7 @@ public class PluginLoaderEdgeCaseTests
             Enumerable.Range(1, 100).Select(i => $"Level{i}"));
         var deepPath = Path.Combine(@"C:\Plugins", deepDirectory);
 
-        var failureResult = FdwResult.Failure<IEnumerable<IToolPlugin>>("Path too long");
+        var failureResult = GenericResult.Failure<IEnumerable<IToolPlugin>>("Path too long");
         _mockLoader.Setup(l => l.LoadPluginsFromDirectoryAsync(deepPath, _cancellationToken))
                   .ReturnsAsync(failureResult);
 
@@ -526,7 +526,7 @@ public class PluginLoaderEdgeCaseTests
     {
         // Arrange
         var specialCharPath = @"C:\Plugins\测试\Ελληνικά\العربية\🚀\@#$%^&()";
-        var successResult = FdwResult.Success(Enumerable.Empty<IToolPlugin>());
+        var successResult = GenericResult.Success(Enumerable.Empty<IToolPlugin>());
 
         _mockLoader.Setup(l => l.LoadPluginsFromDirectoryAsync(specialCharPath, _cancellationToken))
                   .ReturnsAsync(successResult);
@@ -551,7 +551,7 @@ public class PluginLoaderEdgeCaseTests
                   .Returns(async (string path, CancellationToken ct) =>
                   {
                       await Task.Delay(100, ct); // Simulate loading time
-                      return FdwResult.Success(Enumerable.Empty<IToolPlugin>());
+                      return GenericResult.Success(Enumerable.Empty<IToolPlugin>());
                   });
 
         // Act
@@ -570,7 +570,7 @@ public class PluginLoaderEdgeCaseTests
     {
         // Arrange
         var corruptedAssemblyPath = @"C:\Plugins\CorruptedAssembly.dll";
-        var failureResult = FdwResult.Failure<IEnumerable<IToolPlugin>>("Assembly is corrupted or invalid format");
+        var failureResult = GenericResult.Failure<IEnumerable<IToolPlugin>>("Assembly is corrupted or invalid format");
 
         _mockLoader.Setup(l => l.LoadPluginFromAssemblyAsync(corruptedAssemblyPath, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -590,7 +590,7 @@ public class PluginLoaderEdgeCaseTests
     {
         // Arrange
         var abstractType = typeof(AbstractTestPlugin);
-        var failureResult = FdwResult.Failure<IToolPlugin>($"Cannot instantiate abstract type: {abstractType.Name}");
+        var failureResult = GenericResult.Failure<IToolPlugin>($"Cannot instantiate abstract type: {abstractType.Name}");
 
         _mockLoader.Setup(l => l.LoadPluginFromTypeAsync(abstractType, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -610,7 +610,7 @@ public class PluginLoaderEdgeCaseTests
     {
         // Arrange
         var interfaceType = typeof(IToolPlugin);
-        var failureResult = FdwResult.Failure<IToolPlugin>($"Cannot instantiate interface type: {interfaceType.Name}");
+        var failureResult = GenericResult.Failure<IToolPlugin>($"Cannot instantiate interface type: {interfaceType.Name}");
 
         _mockLoader.Setup(l => l.LoadPluginFromTypeAsync(interfaceType, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -630,7 +630,7 @@ public class PluginLoaderEdgeCaseTests
     {
         // Arrange
         var genericType = typeof(GenericTestPlugin<>);
-        var failureResult = FdwResult.Failure<IToolPlugin>($"Cannot instantiate open generic type: {genericType.Name}");
+        var failureResult = GenericResult.Failure<IToolPlugin>($"Cannot instantiate open generic type: {genericType.Name}");
 
         _mockLoader.Setup(l => l.LoadPluginFromTypeAsync(genericType, _cancellationToken))
                   .ReturnsAsync(failureResult);
@@ -651,7 +651,7 @@ public class PluginLoaderEdgeCaseTests
         // Arrange
         var assemblyPath = @"C:\Plugins\MixedTypesAssembly.dll";
         var pluginTypes = new List<Type> { typeof(ValidTestPlugin) }; // Only valid plugin types
-        var successResult = FdwResult.Success(pluginTypes.AsEnumerable());
+        var successResult = GenericResult.Success(pluginTypes.AsEnumerable());
 
         _mockLoader.Setup(l => l.DiscoverPluginTypesInAssemblyAsync(assemblyPath, _cancellationToken))
                   .ReturnsAsync(successResult);
@@ -675,7 +675,7 @@ public class PluginLoaderEdgeCaseTests
         circularDependencyPlugin.Setup(p => p.Id).Returns("CircularPlugin");
         circularDependencyPlugin.Setup(p => p.Name).Returns("Circular Dependency Plugin");
 
-        var failureResult = FdwResult.Failure("Plugin has circular dependencies");
+        var failureResult = GenericResult.Failure("Plugin has circular dependencies");
         _mockLoader.Setup(l => l.ValidatePluginAsync(circularDependencyPlugin.Object, _cancellationToken))
                   .ReturnsAsync(failureResult);
 
@@ -750,7 +750,7 @@ public class PluginLoaderEdgeCaseTests
             return mockPlugin.Object;
         });
 
-        var successResult = FdwResult.Success(validPlugins);
+        var successResult = GenericResult.Success(validPlugins);
         _mockLoader.Setup(l => l.LoadPluginsFromDirectoryAsync(mixedDirectory, _cancellationToken))
                   .ReturnsAsync(successResult);
 
@@ -769,11 +769,11 @@ public class PluginLoaderEdgeCaseTests
     /// </summary>
     private interface IPluginLoader
     {
-        Task<IFdwResult<IEnumerable<IToolPlugin>>> LoadPluginsFromDirectoryAsync(string pluginDirectory, CancellationToken cancellationToken = default);
-        Task<IFdwResult<IEnumerable<IToolPlugin>>> LoadPluginFromAssemblyAsync(string assemblyPath, CancellationToken cancellationToken = default);
-        Task<IFdwResult<IToolPlugin>> LoadPluginFromTypeAsync(Type pluginType, CancellationToken cancellationToken = default);
-        Task<IFdwResult<IEnumerable<Type>>> DiscoverPluginTypesInAssemblyAsync(string assemblyPath, CancellationToken cancellationToken = default);
-        Task<IFdwResult> ValidatePluginAsync(IToolPlugin plugin, CancellationToken cancellationToken = default);
+        Task<IGenericResult<IEnumerable<IToolPlugin>>> LoadPluginsFromDirectoryAsync(string pluginDirectory, CancellationToken cancellationToken = default);
+        Task<IGenericResult<IEnumerable<IToolPlugin>>> LoadPluginFromAssemblyAsync(string assemblyPath, CancellationToken cancellationToken = default);
+        Task<IGenericResult<IToolPlugin>> LoadPluginFromTypeAsync(Type pluginType, CancellationToken cancellationToken = default);
+        Task<IGenericResult<IEnumerable<Type>>> DiscoverPluginTypesInAssemblyAsync(string assemblyPath, CancellationToken cancellationToken = default);
+        Task<IGenericResult> ValidatePluginAsync(IToolPlugin plugin, CancellationToken cancellationToken = default);
         string[] GetSupportedPluginExtensions();
         bool IsPluginAssembly(string assemblyPath);
     }
@@ -790,10 +790,10 @@ public class PluginLoaderEdgeCaseTests
         public abstract int Priority { get; }
         public abstract bool IsEnabled { get; }
         public abstract IReadOnlyCollection<IMcpTool> GetTools();
-        public abstract Task<IFdwResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default);
-        public abstract Task<IFdwResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default);
-        public abstract Task<IFdwResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default);
-        public abstract Task<IFdwResult> ShutdownAsync(CancellationToken cancellationToken = default);
+        public abstract Task<IGenericResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default);
+        public abstract Task<IGenericResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default);
+        public abstract Task<IGenericResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default);
+        public abstract Task<IGenericResult> ShutdownAsync(CancellationToken cancellationToken = default);
     }
 
     private class GenericTestPlugin<T> : IToolPlugin
@@ -805,10 +805,10 @@ public class PluginLoaderEdgeCaseTests
         public int Priority => 1;
         public bool IsEnabled => true;
         public IReadOnlyCollection<IMcpTool> GetTools() => new List<IMcpTool>();
-        public Task<IFdwResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
-        public Task<IFdwResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
-        public Task<IFdwResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success(new PluginHealth { Status = HealthStatus.Healthy }));
-        public Task<IFdwResult> ShutdownAsync(CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
+        public Task<IGenericResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
+        public Task<IGenericResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
+        public Task<IGenericResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success(new PluginHealth { Status = HealthStatus.Healthy }));
+        public Task<IGenericResult> ShutdownAsync(CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
     }
 
     private class ValidTestPlugin : IToolPlugin
@@ -820,9 +820,9 @@ public class PluginLoaderEdgeCaseTests
         public int Priority => 1;
         public bool IsEnabled => true;
         public IReadOnlyCollection<IMcpTool> GetTools() => new List<IMcpTool>();
-        public Task<IFdwResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
-        public Task<IFdwResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
-        public Task<IFdwResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success(new PluginHealth { Status = HealthStatus.Healthy }));
-        public Task<IFdwResult> ShutdownAsync(CancellationToken cancellationToken = default) => Task.FromResult(FdwResult.Success());
+        public Task<IGenericResult> InitializeAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
+        public Task<IGenericResult> ValidateConfigurationAsync(IToolPluginConfiguration configuration, CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
+        public Task<IGenericResult<PluginHealth>> GetHealthAsync(CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success(new PluginHealth { Status = HealthStatus.Healthy }));
+        public Task<IGenericResult> ShutdownAsync(CancellationToken cancellationToken = default) => Task.FromResult(GenericResult.Success());
     }
 }

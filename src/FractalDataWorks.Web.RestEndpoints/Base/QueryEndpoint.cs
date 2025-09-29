@@ -50,7 +50,7 @@ public abstract class QueryEndpoint<TQuery, TResult> : FractalEndpoint<TQuery, P
     /// <param name="query">The validated query with normalized pagination.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A paginated response containing the query results.</returns>
-    protected abstract Task<IFdwResult<PagedResponse<TResult>>> ExecuteQueryAsync(TQuery query, CancellationToken ct);
+    protected abstract Task<IGenericResult<PagedResponse<TResult>>> ExecuteQueryAsync(TQuery query, CancellationToken ct);
     
     /// <summary>
     /// Gets the default page size when not specified in the request.

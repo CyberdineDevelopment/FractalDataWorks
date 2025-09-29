@@ -24,7 +24,7 @@ public class DeleteSecret : SecretCommandTypeBase
     /// <summary>
     /// Executes the delete secret operation.
     /// </summary>
-    public override async Task<IFdwResult> Execute(
+    public override async Task<IGenericResult> Execute(
         AzureKeyVaultService service, 
         ISecretManagerCommand managementCommand, 
         CancellationToken cancellationToken)

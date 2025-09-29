@@ -16,7 +16,7 @@ public interface IConnectionFactory
     /// <summary>
     /// Creates a connection with the specified configuration.
     /// </summary>
-    Task<IFdwConnection> Create(
+    Task<IGenericConnection> Create(
         IConnectionConfiguration configuration,
         CancellationToken cancellationToken = default);
 }
@@ -25,7 +25,7 @@ public interface IConnectionFactory
 /// Generic factory interface for creating typed connections.
 /// </summary>
 public interface IConnectionFactory<TConnection, TConfiguration> : IConnectionFactory
-    where TConnection : IFdwConnection
+    where TConnection : IGenericConnection
     where TConfiguration : IConnectionConfiguration
 {
     /// <summary>

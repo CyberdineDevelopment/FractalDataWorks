@@ -9,7 +9,7 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// Interface for transformation service implementations.
 /// Provides data transformation, mapping, and processing capabilities.
 /// </summary>
-public interface ITransformationsService : IFdwService
+public interface ITransformationsService : IGenericService
 {
     /// <summary>
     /// Executes a transformation request using the specified transformation context.
@@ -19,7 +19,7 @@ public interface ITransformationsService : IFdwService
     /// <param name="context">The transformation execution context.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
     /// <returns>A task that represents the asynchronous transformation operation.</returns>
-    Task<IFdwResult<TOutput>> Transform<TOutput>(
+    Task<IGenericResult<TOutput>> Transform<TOutput>(
         ITransformationRequest request,
         ITransformationContext context,
         CancellationToken cancellationToken = default);
@@ -29,7 +29,7 @@ public interface ITransformationsService : IFdwService
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
     /// <returns>A task that represents the asynchronous metrics retrieval operation.</returns>
-    Task<IFdwResult<ITransformationMetrics>> GetTransformationMetrics(CancellationToken cancellationToken = default);
+    Task<IGenericResult<ITransformationMetrics>> GetTransformationMetrics(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a transformation command and returns a typed result.
@@ -39,7 +39,7 @@ public interface ITransformationsService : IFdwService
     /// <param name="command">The transformation command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult<TResult>> Execute<TResult>(ITransformationsCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<TResult>> Execute<TResult>(ITransformationsCommand command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes a transformation command without returning a specific result type.
@@ -48,5 +48,5 @@ public interface ITransformationsService : IFdwService
     /// <param name="command">The transformation command to execute.</param>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
     /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IFdwResult> Execute(ITransformationsCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult> Execute(ITransformationsCommand command, CancellationToken cancellationToken = default);
 }

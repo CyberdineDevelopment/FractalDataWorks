@@ -574,7 +574,7 @@ public class TypeScriptParser : ICodeParser
 {
     public string Language => "typescript";
     
-    public async Task<IFdwResult<ISyntaxTree>> ParseAsync(
+    public async Task<IGenericResult<ISyntaxTree>> ParseAsync(
         string sourceCode, 
         string? filePath = null, 
         CancellationToken cancellationToken = default)

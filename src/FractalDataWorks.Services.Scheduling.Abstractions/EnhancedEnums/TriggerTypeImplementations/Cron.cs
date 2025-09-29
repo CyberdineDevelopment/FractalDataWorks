@@ -112,7 +112,7 @@ public sealed class Cron : TriggerTypeBase
     /// var nextExecution = cronTrigger.CalculateNextExecution(trigger, null);
     /// </code>
     /// </example>
-    public override DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution)
+    public override DateTime? CalculateNextExecution(IGenericTrigger trigger, DateTime? lastExecution)
     {
         if (trigger?.Configuration == null)
         {
@@ -222,11 +222,11 @@ public sealed class Cron : TriggerTypeBase
     /// // result.Error == true with timezone validation error
     /// </code>
     /// </example>
-    public override IFdwResult ValidateTrigger(IFdwTrigger trigger)
+    public override IGenericResult ValidateTrigger(IGenericTrigger trigger)
     {
         if (trigger?.Configuration == null)
         {
-            return FdwResult.Failure("Trigger configuration is required for Cron trigger type");
+            return GenericResult.Failure("Trigger configuration is required for Cron trigger type");
         }
 
         // Validate cron expression is present
@@ -234,7 +234,7 @@ public sealed class Cron : TriggerTypeBase
             cronExpressionObj is not string cronExpression ||
             string.IsNullOrWhiteSpace(cronExpression))
         {
-            return FdwResult.Failure($"Cron expression is required and must be provided in the '{CronExpressionKey}' configuration key");
+            return GenericResult.Failure($"Cron expression is required and must be provided in the '{CronExpressionKey}' configuration key");
         }
 
         // Validate cron expression format
@@ -244,11 +244,11 @@ public sealed class Cron : TriggerTypeBase
         }
         catch (CronFormatException ex)
         {
-            return FdwResult.Failure($"Invalid cron expression format: {ex.Message}. Expression: '{cronExpression}'");
+            return GenericResult.Failure($"Invalid cron expression format: {ex.Message}. Expression: '{cronExpression}'");
         }
         catch (ArgumentException ex)
         {
-            return FdwResult.Failure($"Invalid cron expression: {ex.Message}. Expression: '{cronExpression}'");
+            return GenericResult.Failure($"Invalid cron expression: {ex.Message}. Expression: '{cronExpression}'");
         }
 
         // Validate timezone if provided
@@ -262,11 +262,11 @@ public sealed class Cron : TriggerTypeBase
             }
             catch (TimeZoneNotFoundException)
             {
-                return FdwResult.Failure($"Invalid timezone identifier: '{timeZoneId}'. Use standard timezone IDs like 'UTC', 'America/New_York', or 'Europe/London'");
+                return GenericResult.Failure($"Invalid timezone identifier: '{timeZoneId}'. Use standard timezone IDs like 'UTC', 'America/New_York', or 'Europe/London'");
             }
             catch (InvalidTimeZoneException ex)
             {
-                return FdwResult.Failure($"Invalid timezone configuration: {ex.Message}. Timezone: '{timeZoneId}'");
+                return GenericResult.Failure($"Invalid timezone configuration: {ex.Message}. Timezone: '{timeZoneId}'");
             }
         }
 
@@ -286,14 +286,14 @@ public sealed class Cron : TriggerTypeBase
             var nextOccurrence = cronExpr.GetNextOccurrence(DateTime.UtcNow, timeZone);
             if (!nextOccurrence.HasValue)
             {
-                return FdwResult.Failure($"Cron expression '{cronExpression}' will never execute. Verify the expression is not in the past or misconfigured");
+                return GenericResult.Failure($"Cron expression '{cronExpression}' will never execute. Verify the expression is not in the past or misconfigured");
             }
         }
         catch (Exception ex)
         {
-            return FdwResult.Failure($"Cron expression validation failed: {ex.Message}. Expression: '{cronExpression}'");
+            return GenericResult.Failure($"Cron expression validation failed: {ex.Message}. Expression: '{cronExpression}'");
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 }

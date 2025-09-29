@@ -38,15 +38,15 @@ internal sealed class TSqlQueryTranslator : IQueryTranslator
     };
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<IConnectionCommand>> TranslateAsync(
+    public async Task<IGenericResult<IConnectionCommand>> TranslateAsync(
         IDataQuery query,
         IDataSetType dataSet,
         string containerType)
     {
         if (query == null)
-            return FdwResult<IConnectionCommand>.Failure("Query cannot be null");
+            return GenericResult<IConnectionCommand>.Failure("Query cannot be null");
         if (dataSet == null)
-            return FdwResult<IConnectionCommand>.Failure("DataSet cannot be null");
+            return GenericResult<IConnectionCommand>.Failure("DataSet cannot be null");
 
         try
         {
@@ -54,7 +54,7 @@ internal sealed class TSqlQueryTranslator : IQueryTranslator
             var validation = await ValidateQueryAsync(query, dataSet, containerType).ConfigureAwait(false);
             if (!validation.IsSuccess)
             {
-                return FdwResult<IConnectionCommand>.Failure(validation.ErrorMessage!);
+                return GenericResult<IConnectionCommand>.Failure(validation.ErrorMessage!);
             }
 
             // Build T-SQL command
@@ -63,43 +63,43 @@ internal sealed class TSqlQueryTranslator : IQueryTranslator
 
             if (!sqlCommand.IsSuccess)
             {
-                return FdwResult<IConnectionCommand>.Failure($"Failed to build T-SQL command: {sqlCommand.ErrorMessage}");
+                return GenericResult<IConnectionCommand>.Failure($"Failed to build T-SQL command: {sqlCommand.ErrorMessage}");
             }
 
             // Create connection command wrapper
             var connectionCommand = new SqlConnectionCommand(sqlCommand.Value!);
-            return FdwResult<IConnectionCommand>.Success(connectionCommand);
+            return GenericResult<IConnectionCommand>.Success(connectionCommand);
         }
         catch (Exception ex)
         {
-            return FdwResult<IConnectionCommand>.Failure($"Translation failed: {ex.Message}");
+            return GenericResult<IConnectionCommand>.Failure($"Translation failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult> ValidateQueryAsync(
+    public async Task<IGenericResult> ValidateQueryAsync(
         IDataQuery query,
         IDataSetType dataSet,
         string containerType)
     {
         if (query == null)
-            return FdwResult.Failure("Query cannot be null");
+            return GenericResult.Failure("Query cannot be null");
         if (dataSet == null)
-            return FdwResult.Failure("DataSet cannot be null");
+            return GenericResult.Failure("DataSet cannot be null");
 
         try
         {
             // Check container type support
             if (!SupportedContainerTypes.Contains(containerType))
             {
-                return FdwResult.Failure($"Container type '{containerType}' is not supported by T-SQL translator");
+                return GenericResult.Failure($"Container type '{containerType}' is not supported by T-SQL translator");
             }
 
             // Validate query expression complexity
             var complexity = CalculateQueryComplexity(query.Expression);
             if (complexity > DefaultComplexityLimit)
             {
-                return FdwResult.Failure($"Query complexity ({complexity}) exceeds maximum allowed ({DefaultComplexityLimit})");
+                return GenericResult.Failure($"Query complexity ({complexity}) exceeds maximum allowed ({DefaultComplexityLimit})");
             }
 
             // Check for unsupported operations
@@ -109,21 +109,21 @@ internal sealed class TSqlQueryTranslator : IQueryTranslator
             if (visitor.UnsupportedOperations.Count > 0)
             {
                 var operations = string.Join(", ", visitor.UnsupportedOperations);
-                return FdwResult.Failure($"Query contains unsupported operations: {operations}");
+                return GenericResult.Failure($"Query contains unsupported operations: {operations}");
             }
 
             // Estimate parameter count
             var parameterCount = EstimateParameterCount(query.Expression);
             if (parameterCount > MaxParameterCount)
             {
-                return FdwResult.Failure($"Query would generate too many parameters ({parameterCount}), maximum allowed is {MaxParameterCount}");
+                return GenericResult.Failure($"Query would generate too many parameters ({parameterCount}), maximum allowed is {MaxParameterCount}");
             }
 
-            return await Task.FromResult(FdwResult.Success()).ConfigureAwait(false);
+            return await Task.FromResult(GenericResult.Success()).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            return FdwResult.Failure($"Query validation failed: {ex.Message}");
+            return GenericResult.Failure($"Query validation failed: {ex.Message}");
         }
     }
 
@@ -260,7 +260,7 @@ internal sealed class TSqlCommandBuilder
         _containerType = containerType ?? throw new ArgumentNullException(nameof(containerType));
     }
 
-    public async Task<IFdwResult<SqlCommand>> BuildAsync(IDataQuery query)
+    public async Task<IGenericResult<SqlCommand>> BuildAsync(IDataQuery query)
     {
         try
         {
@@ -272,11 +272,11 @@ internal sealed class TSqlCommandBuilder
                 command.Parameters.Add(parameter);
             }
 
-            return FdwResult<SqlCommand>.Success(command);
+            return GenericResult<SqlCommand>.Success(command);
         }
         catch (Exception ex)
         {
-            return FdwResult<SqlCommand>.Failure($"Failed to build SQL command: {ex.Message}");
+            return GenericResult<SqlCommand>.Failure($"Failed to build SQL command: {ex.Message}");
         }
     }
 

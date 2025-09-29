@@ -8,7 +8,7 @@ namespace FractalDataWorks.Configuration.Abstractions;
 /// <summary>
 /// Defines the contract for configuration sources in the Rec framework.
 /// </summary>
-public interface IFdwConfigurationSource
+public interface IGenericConfigurationSource
 {
     /// <summary>
     /// Gets the name of this configuration source.
@@ -30,8 +30,8 @@ public interface IFdwConfigurationSource
     /// </summary>
     /// <typeparam name="TConfiguration">The type of configuration to load.</typeparam>
     /// <returns>A task containing the loaded configurations.</returns>
-    Task<IFdwResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
-        where TConfiguration : IFdwConfiguration;
+    Task<IGenericResult<IEnumerable<TConfiguration>>> Load<TConfiguration>()
+        where TConfiguration : IGenericConfiguration;
 
     /// <summary>
     /// Saves a configuration to this source.
@@ -39,8 +39,8 @@ public interface IFdwConfigurationSource
     /// <typeparam name="TConfiguration">The type of configuration to save.</typeparam>
     /// <param name="configuration">The configuration to save.</param>
     /// <returns>A task containing the save operation result.</returns>
-    Task<IFdwResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration)
-        where TConfiguration : IFdwConfiguration;
+    Task<IGenericResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration)
+        where TConfiguration : IGenericConfiguration;
 
     /// <summary>
     /// Deletes a configuration from this source.
@@ -48,8 +48,8 @@ public interface IFdwConfigurationSource
     /// <typeparam name="TConfiguration">The type of configuration to delete.</typeparam>
     /// <param name="id">The ID of the configuration to delete.</param>
     /// <returns>A task containing the delete operation result.</returns>
-    Task<IFdwResult<NonResult>> Delete<TConfiguration>(int id)
-        where TConfiguration : IFdwConfiguration;
+    Task<IGenericResult<NonResult>> Delete<TConfiguration>(int id)
+        where TConfiguration : IGenericConfiguration;
 
     /// <summary>
     /// Occurs when the configuration source changes.

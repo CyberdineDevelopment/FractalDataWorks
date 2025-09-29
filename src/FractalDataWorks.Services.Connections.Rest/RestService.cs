@@ -69,7 +69,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
     public HttpClient HttpClient => _httpClient;
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult<TOut>> Execute<TOut>(IConnectionCommand command, CancellationToken cancellationToken)
+    public override async Task<IGenericResult<TOut>> Execute<TOut>(IConnectionCommand command, CancellationToken cancellationToken)
     {
         try
         {
@@ -87,17 +87,17 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
         catch (HttpRequestException ex)
         {
             RestServiceLog.HttpRequestFailed(_logger, ex);
-            return FdwResult<TOut>.Failure($"REST request failed: {ex.Message}");
+            return GenericResult<TOut>.Failure($"REST request failed: {ex.Message}");
         }
         catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
         {
             RestServiceLog.RequestTimeout(_logger, ex);
-            return FdwResult<TOut>.Failure("REST request timeout");
+            return GenericResult<TOut>.Failure("REST request timeout");
         }
         catch (Exception ex)
         {
             RestServiceLog.UnexpectedError(_logger, ex);
-            return FdwResult<TOut>.Failure($"REST command execution failed: {ex.Message}");
+            return GenericResult<TOut>.Failure($"REST command execution failed: {ex.Message}");
         }
     }
 
@@ -108,7 +108,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
     /// <param name="command">The command to process.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result of the REST command execution.</returns>
-    private async Task<IFdwResult<TOut>> ProcessRestCommand<TOut>(IConnectionCommand command, CancellationToken cancellationToken)
+    private async Task<IGenericResult<TOut>> ProcessRestCommand<TOut>(IConnectionCommand command, CancellationToken cancellationToken)
     {
         try
         {
@@ -132,7 +132,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
             
             if (!httpResponse.IsSuccessStatusCode)
             {
-                return FdwResult<TOut>.Failure($"HTTP request failed: {httpResponse.StatusCode} {httpResponse.ReasonPhrase}");
+                return GenericResult<TOut>.Failure($"HTTP request failed: {httpResponse.StatusCode} {httpResponse.ReasonPhrase}");
             }
             
             // Simulate mapper usage - will be fully implemented when IDataSet infrastructure is ready
@@ -140,22 +140,22 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
             
             if (typeof(TOut) == typeof(string))
             {
-                return FdwResult<TOut>.Success((TOut)(object)responseContent);
+                return GenericResult<TOut>.Success((TOut)(object)responseContent);
             }
             
-            return FdwResult<TOut>.Success(default(TOut)!);
+            return GenericResult<TOut>.Success(default(TOut)!);
         }
         catch (HttpRequestException ex)
         {
-            return FdwResult<TOut>.Failure($"HTTP request failed: {ex.Message}");
+            return GenericResult<TOut>.Failure($"HTTP request failed: {ex.Message}");
         }
         catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
         {
-            return FdwResult<TOut>.Failure("Request timeout");
+            return GenericResult<TOut>.Failure("Request timeout");
         }
         catch (Exception ex)
         {
-            return FdwResult<TOut>.Failure($"Command processing failed: {ex.Message}");
+            return GenericResult<TOut>.Failure($"Command processing failed: {ex.Message}");
         }
     }
 
@@ -166,7 +166,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
     /// <param name="dataQuery">The data query command to process.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>The query execution result.</returns>
-    private async Task<IFdwResult<TOut>> ProcessDataQueryCommand<TOut>(DataQueryCommand dataQuery, CancellationToken cancellationToken)
+    private async Task<IGenericResult<TOut>> ProcessDataQueryCommand<TOut>(DataQueryCommand dataQuery, CancellationToken cancellationToken)
     {
         try
         {
@@ -177,7 +177,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
             var restRequest = await TranslateDataQuery(dataQuery);
             if (!restRequest.IsSuccess)
             {
-                return FdwResult<TOut>.Failure($"Query translation failed: {restRequest.ErrorMessage}");
+                return GenericResult<TOut>.Failure($"Query translation failed: {restRequest.ErrorMessage}");
             }
             
             // Execute the translated REST request
@@ -185,14 +185,14 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
             
             if (!httpResponse.IsSuccessStatusCode)
             {
-                return FdwResult<TOut>.Failure($"REST request failed: {httpResponse.StatusCode} {httpResponse.ReasonPhrase}");
+                return GenericResult<TOut>.Failure($"REST request failed: {httpResponse.StatusCode} {httpResponse.ReasonPhrase}");
             }
             
             // Step 14: Use mapper to convert REST response to expected result type  
             var mappedResult = await MapRestResponse<TOut>(httpResponse, dataQuery.DataSet);
             if (!mappedResult.IsSuccess)
             {
-                return FdwResult<TOut>.Failure($"Result mapping failed: {mappedResult.ErrorMessage}");
+                return GenericResult<TOut>.Failure($"Result mapping failed: {mappedResult.ErrorMessage}");
             }
             
             RestServiceLog.DataQuerySuccess(_logger, dataQuery.CommandId);
@@ -201,7 +201,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
         catch (Exception ex)
         {
             RestServiceLog.DataQueryFailed(_logger, dataQuery.CommandId, ex.Message);
-            return FdwResult<TOut>.Failure($"DataQuery processing failed: {ex.Message}");
+            return GenericResult<TOut>.Failure($"DataQuery processing failed: {ex.Message}");
         }
     }
 
@@ -210,7 +210,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
     /// </summary>
     /// <param name="dataQuery">The data query to translate.</param>
     /// <returns>The translated HTTP request.</returns>
-    private async Task<IFdwResult<HttpRequestMessage>> TranslateDataQuery(DataQueryCommand dataQuery)
+    private async Task<IGenericResult<HttpRequestMessage>> TranslateDataQuery(DataQueryCommand dataQuery)
     {
         try
         {
@@ -229,11 +229,11 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
             // Simulate async operation
             await Task.Delay(1);
             
-            return FdwResult<HttpRequestMessage>.Success(request);
+            return GenericResult<HttpRequestMessage>.Success(request);
         }
         catch (Exception ex)
         {
-            return FdwResult<HttpRequestMessage>.Failure($"Translation failed: {ex.Message}");
+            return GenericResult<HttpRequestMessage>.Failure($"Translation failed: {ex.Message}");
         }
     }
 
@@ -244,7 +244,7 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
     /// <param name="response">The HTTP response to map.</param>
     /// <param name="dataSet">The dataset schema for mapping guidance.</param>
     /// <returns>The mapped result.</returns>
-    private async Task<IFdwResult<TOut>> MapRestResponse<TOut>(HttpResponseMessage response, IDataSetType dataSet)
+    private async Task<IGenericResult<TOut>> MapRestResponse<TOut>(HttpResponseMessage response, IDataSetType dataSet)
     {
         try
         {
@@ -254,16 +254,16 @@ public sealed partial class RestService : HttpServiceBase<RestConnectionConfigur
             // For string types, return the raw content
             if (typeof(TOut) == typeof(string))
             {
-                return FdwResult<TOut>.Success((TOut)(object)responseContent);
+                return GenericResult<TOut>.Success((TOut)(object)responseContent);
             }
             
             // For other types, would use JsonResultMapper to deserialize
             // For now, return a placeholder result indicating successful mapping
-            return FdwResult<TOut>.Success(default(TOut)!);
+            return GenericResult<TOut>.Success(default(TOut)!);
         }
         catch (Exception ex)
         {
-            return FdwResult<TOut>.Failure($"Mapping failed: {ex.Message}");
+            return GenericResult<TOut>.Failure($"Mapping failed: {ex.Message}");
         }
     }
 

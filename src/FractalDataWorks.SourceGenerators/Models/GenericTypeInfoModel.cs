@@ -4,16 +4,16 @@ namespace FractalDataWorks.SourceGenerators.Models;
 
 /// <summary>
 /// Generalized type alias for CollectionTypeInfoModel used across source generators.
-/// Renamed from EnumTypeInfoModel to FdwTypeInfoModel for consistency.
+/// Renamed from EnumTypeInfoModel to GenericTypeInfoModel for consistency.
 /// </summary>
-public class FdwTypeInfoModel : CollectionTypeInfoModel, IEquatable<FdwTypeInfoModel>
+public class GenericTypeInfoModel : CollectionTypeInfoModel, IEquatable<GenericTypeInfoModel>
 {
     /// <summary>
-    /// Determines whether the specified <see cref="FdwTypeInfoModel"/> is equal to the current instance.
+    /// Determines whether the specified <see cref="GenericTypeInfoModel"/> is equal to the current instance.
     /// </summary>
-    /// <param name="other">The FdwTypeInfoModel to compare with the current instance.</param>
-    /// <returns>true if the specified FdwTypeInfoModel is equal to the current instance; otherwise, false.</returns>
-    public bool Equals(FdwTypeInfoModel? other)
+    /// <param name="other">The GenericTypeInfoModel to compare with the current instance.</param>
+    /// <returns>true if the specified GenericTypeInfoModel is equal to the current instance; otherwise, false.</returns>
+    public bool Equals(GenericTypeInfoModel? other)
     {
         return base.Equals(other);
     }
@@ -25,7 +25,7 @@ public class FdwTypeInfoModel : CollectionTypeInfoModel, IEquatable<FdwTypeInfoM
     /// <returns>true if the specified object is equal to the current instance; otherwise, false.</returns>
     public override bool Equals(object? obj)
     {
-        return obj is FdwTypeInfoModel other && Equals(other);
+        return obj is GenericTypeInfoModel other && Equals(other);
     }
 
     /// <summary>

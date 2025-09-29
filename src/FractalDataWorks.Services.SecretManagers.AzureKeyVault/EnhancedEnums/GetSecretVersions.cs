@@ -24,7 +24,7 @@ public class GetSecretVersions : SecretCommandTypeBase
     /// <summary>
     /// Executes the get secret versions operation.
     /// </summary>
-    public override async Task<IFdwResult> Execute(
+    public override async Task<IGenericResult> Execute(
         AzureKeyVaultService service, 
         ISecretManagerCommand managementCommand, 
         CancellationToken cancellationToken)

@@ -15,7 +15,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// ExecutionHandler when schedules trigger. The scheduler is concerned only with timing and
 /// schedule management, not with the actual execution of processes.
 /// </remarks>
-public interface IFdwScheduler
+public interface IGenericScheduler
 {
     /// <summary>
     /// Gets or sets the execution handler that processes triggered schedules.
@@ -25,7 +25,7 @@ public interface IFdwScheduler
     /// This property provides the bridge between scheduling and execution. When a schedule
     /// triggers, the scheduler calls the ExecutionHandler to perform the actual work.
     /// </remarks>
-    IFdwScheduledExecutionHandler ExecutionHandler { get; set; }
+    IGenericScheduledExecutionHandler ExecutionHandler { get; set; }
 
     /// <summary>
     /// Registers a new schedule with the scheduling engine.
@@ -38,7 +38,7 @@ public interface IFdwScheduler
     /// according to its cron expression. The schedule must have a valid cron expression
     /// and reference a process that the ExecutionHandler can handle.
     /// </remarks>
-    Task<IFdwResult> ScheduleAsync(IFdwSchedule schedule, CancellationToken cancellationToken = default);
+    Task<IGenericResult> ScheduleAsync(IGenericSchedule schedule, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes a schedule from the scheduling engine.
@@ -50,7 +50,7 @@ public interface IFdwScheduler
     /// Once unscheduled, the schedule will no longer trigger automatic executions.
     /// Any currently executing instance triggered by this schedule will continue to run.
     /// </remarks>
-    Task<IFdwResult> UnscheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> UnscheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Temporarily pauses a schedule, preventing it from triggering.
@@ -62,7 +62,7 @@ public interface IFdwScheduler
     /// A paused schedule remains registered but will not trigger execution until resumed.
     /// The schedule's next execution time continues to be calculated but is not acted upon.
     /// </remarks>
-    Task<IFdwResult> PauseScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> PauseScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Resumes a previously paused schedule.
@@ -74,7 +74,7 @@ public interface IFdwScheduler
     /// A resumed schedule will immediately recalculate its next execution time and
     /// begin triggering according to its cron expression.
     /// </remarks>
-    Task<IFdwResult> ResumeScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> ResumeScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves all schedules currently registered with the scheduler.
@@ -87,7 +87,7 @@ public interface IFdwScheduler
     /// The results can be filtered to show only active schedules or include all schedules
     /// regardless of their state.
     /// </remarks>
-    Task<IFdwResult<IReadOnlyCollection<IFdwSchedule>>> GetSchedulesAsync(bool includeInactive = true, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IReadOnlyCollection<IGenericSchedule>>> GetSchedulesAsync(bool includeInactive = true, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a specific schedule by its identifier.
@@ -99,7 +99,7 @@ public interface IFdwScheduler
     /// This method allows lookup of individual schedules for inspection or management.
     /// Returns null if no schedule with the specified identifier exists.
     /// </remarks>
-    Task<IFdwResult<IFdwSchedule?>> GetScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IGenericSchedule?>> GetScheduleAsync(string scheduleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Immediately triggers a scheduled process, bypassing the normal schedule timing.
@@ -112,5 +112,5 @@ public interface IFdwScheduler
     /// its next scheduled time. The schedule itself remains unchanged and will continue
     /// to trigger at its normal intervals. The execution is handled by the ExecutionHandler.
     /// </remarks>
-    Task<IFdwResult> TriggerNowAsync(string scheduleId, CancellationToken cancellationToken = default);
+    Task<IGenericResult> TriggerNowAsync(string scheduleId, CancellationToken cancellationToken = default);
 }

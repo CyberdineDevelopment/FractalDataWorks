@@ -42,11 +42,11 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
     /// </summary>
     /// <param name="configuration">The configuration containing the authentication type and settings.</param>
     /// <returns>A result containing the authentication service instance or failure information.</returns>
-    public async Task<IFdwResult<IAuthenticationService>> GetAuthenticationService(IAuthenticationConfiguration configuration)
+    public async Task<IGenericResult<IAuthenticationService>> GetAuthenticationService(IAuthenticationConfiguration configuration)
     {
         if (configuration == null)
         {
-            return FdwResult.Failure<IAuthenticationService>("Configuration cannot be null");
+            return GenericResult.Failure<IAuthenticationService>("Configuration cannot be null");
         }
 
         try
@@ -59,7 +59,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             if (authenticationType.IsEmpty)
             {
                 AuthenticationProviderLog.UnknownAuthenticationType(_logger, configuration.AuthenticationType);
-                return FdwResult.Failure<IAuthenticationService>(
+                return GenericResult.Failure<IAuthenticationService>(
                     $"Unknown authentication type: {configuration.AuthenticationType}");
             }
 
@@ -68,7 +68,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             if (factory == null)
             {
                 AuthenticationProviderLog.NoFactoryRegistered(_logger, configuration.AuthenticationType);
-                return FdwResult.Failure<IAuthenticationService>(
+                return GenericResult.Failure<IAuthenticationService>(
                     $"No factory registered for authentication type: {configuration.AuthenticationType}");
             }
 
@@ -89,7 +89,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
         catch (Exception ex)
         {
             AuthenticationProviderLog.AuthenticationServiceCreationException(_logger, ex, configuration.AuthenticationType);
-            return FdwResult.Failure<IAuthenticationService>(ex.Message);
+            return GenericResult.Failure<IAuthenticationService>(ex.Message);
         }
     }
 
@@ -98,11 +98,11 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
     /// </summary>
     /// <param name="configurationName">The name of the configuration section.</param>
     /// <returns>A result containing the authentication service instance or failure information.</returns>
-    public async Task<IFdwResult<IAuthenticationService>> GetAuthenticationService(string configurationName)
+    public async Task<IGenericResult<IAuthenticationService>> GetAuthenticationService(string configurationName)
     {
         if (string.IsNullOrEmpty(configurationName))
         {
-            return FdwResult.Failure<IAuthenticationService>("Configuration name cannot be null or empty");
+            return GenericResult.Failure<IAuthenticationService>("Configuration name cannot be null or empty");
         }
 
         try
@@ -114,7 +114,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             if (!section.Exists())
             {
                 AuthenticationProviderLog.ConfigurationSectionNotFound(_logger, configurationName);
-                return FdwResult.Failure<IAuthenticationService>($"Configuration section not found: Authentication:{configurationName}");
+                return GenericResult.Failure<IAuthenticationService>($"Configuration section not found: Authentication:{configurationName}");
             }
 
             // Get the authentication type from the section
@@ -122,7 +122,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             if (string.IsNullOrEmpty(authenticationTypeName))
             {
                 AuthenticationProviderLog.AuthenticationTypeNotSpecified(_logger, configurationName);
-                return FdwResult.Failure<IAuthenticationService>($"AuthenticationType not specified in configuration section: {configurationName}");
+                return GenericResult.Failure<IAuthenticationService>($"AuthenticationType not specified in configuration section: {configurationName}");
             }
 
             // Look up the authentication type
@@ -130,7 +130,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             if (authenticationType.IsEmpty)
             {
                 AuthenticationProviderLog.UnknownAuthenticationTypeInConfiguration(_logger, authenticationTypeName);
-                return FdwResult.Failure<IAuthenticationService>($"Unknown authentication type: {authenticationTypeName}");
+                return GenericResult.Failure<IAuthenticationService>($"Unknown authentication type: {authenticationTypeName}");
             }
 
             // Bind to the appropriate configuration type
@@ -138,7 +138,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             if (config == null)
             {
                 AuthenticationProviderLog.ConfigurationBindingFailed(_logger, authenticationType.ConfigurationType?.Name);
-                return FdwResult.Failure<IAuthenticationService>($"Failed to bind configuration to {authenticationType.ConfigurationType?.Name}");
+                return GenericResult.Failure<IAuthenticationService>($"Failed to bind configuration to {authenticationType.ConfigurationType?.Name}");
             }
 
             // Use the main method to create the authentication service
@@ -147,7 +147,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
         catch (Exception ex)
         {
             AuthenticationProviderLog.GetAuthenticationServiceByNameException(_logger, ex, configurationName);
-            return FdwResult.Failure<IAuthenticationService>(ex.Message);
+            return GenericResult.Failure<IAuthenticationService>(ex.Message);
         }
     }
 }

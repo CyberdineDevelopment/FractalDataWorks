@@ -25,16 +25,16 @@ namespace FractalDataWorks.ServiceTypes;
 /// </list>
 /// </remarks>
 public interface IServiceType<TService, TConfiguration, TFactory> : IServiceType<TService,TConfiguration>
-    where TService : IFdwService
+    where TService : IGenericService
     where TFactory : IServiceFactory<TService, TConfiguration>
-    where TConfiguration : IFdwConfiguration
+    where TConfiguration : IGenericConfiguration
 {
     /// <summary>
     /// Creates a factory instance for this service type.
     /// Follows Railway-Oriented Programming - returns Result instead of throwing.
     /// </summary>
     /// <returns>A result containing the factory instance or failure information.</returns>
-    IFdwResult<Type> Factory();
+    IGenericResult<Type> Factory();
 
 }
 
@@ -54,8 +54,8 @@ public interface IServiceType<TService, TConfiguration, TFactory> : IServiceType
 /// </list>
 /// </remarks>
 public interface IServiceType<TService, TConfiguration> : IServiceType<TService>
-    where TService : IFdwService
-    where TConfiguration : IFdwConfiguration
+    where TService : IGenericService
+    where TConfiguration : IGenericConfiguration
 {
 
 }
@@ -75,7 +75,7 @@ public interface IServiceType<TService, TConfiguration> : IServiceType<TService>
 /// </list>
 /// </remarks>
 public interface IServiceType<TService> : IServiceType
-    where TService : IFdwService
+    where TService : IGenericService
 {
 
 }

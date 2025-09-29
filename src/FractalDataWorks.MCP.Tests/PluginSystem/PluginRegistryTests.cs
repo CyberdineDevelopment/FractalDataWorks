@@ -44,7 +44,7 @@ public class PluginRegistryTests
     public async Task RegisterPluginAsync_WithValidPlugin_ReturnsSuccess()
     {
         // Arrange
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
         _mockRegistry.Setup(r => r.RegisterPluginAsync(_mockPlugin1.Object, _cancellationToken))
                     .ReturnsAsync(successResult);
 
@@ -61,7 +61,7 @@ public class PluginRegistryTests
     public async Task RegisterPluginAsync_WithNullPlugin_ReturnsFailure()
     {
         // Arrange
-        var failureResult = FdwResult.Failure("Plugin cannot be null");
+        var failureResult = GenericResult.Failure("Plugin cannot be null");
         _mockRegistry.Setup(r => r.RegisterPluginAsync(null, _cancellationToken))
                     .ReturnsAsync(failureResult);
 
@@ -79,7 +79,7 @@ public class PluginRegistryTests
     public async Task RegisterPluginAsync_WithDuplicatePlugin_ReturnsFailure()
     {
         // Arrange
-        var failureResult = FdwResult.Failure($"Plugin with ID '{_mockPlugin1.Object.Id}' is already registered");
+        var failureResult = GenericResult.Failure($"Plugin with ID '{_mockPlugin1.Object.Id}' is already registered");
         _mockRegistry.Setup(r => r.RegisterPluginAsync(_mockPlugin1.Object, _cancellationToken))
                     .ReturnsAsync(failureResult);
 
@@ -97,7 +97,7 @@ public class PluginRegistryTests
     public async Task UnregisterPluginAsync_WithValidPluginId_ReturnsSuccess()
     {
         // Arrange
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
         _mockRegistry.Setup(r => r.UnregisterPluginAsync(_mockPlugin1.Object.Id, _cancellationToken))
                     .ReturnsAsync(successResult);
 
@@ -115,7 +115,7 @@ public class PluginRegistryTests
     {
         // Arrange
         var nonExistentId = "NonExistentPlugin";
-        var failureResult = FdwResult.Failure($"Plugin with ID '{nonExistentId}' not found");
+        var failureResult = GenericResult.Failure($"Plugin with ID '{nonExistentId}' not found");
         _mockRegistry.Setup(r => r.UnregisterPluginAsync(nonExistentId, _cancellationToken))
                     .ReturnsAsync(failureResult);
 
@@ -136,7 +136,7 @@ public class PluginRegistryTests
     public async Task UnregisterPluginAsync_WithInvalidPluginId_ReturnsFailure(string invalidId)
     {
         // Arrange
-        var failureResult = FdwResult.Failure("Plugin ID cannot be null or empty");
+        var failureResult = GenericResult.Failure("Plugin ID cannot be null or empty");
         _mockRegistry.Setup(r => r.UnregisterPluginAsync(invalidId, _cancellationToken))
                     .ReturnsAsync(failureResult);
 
@@ -366,7 +366,7 @@ public class PluginRegistryTests
     public async Task ClearPluginsAsync_RemovesAllPlugins_ReturnsSuccess()
     {
         // Arrange
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
         _mockRegistry.Setup(r => r.ClearPluginsAsync(_cancellationToken)).ReturnsAsync(successResult);
 
         // Act
@@ -412,8 +412,8 @@ public class PluginRegistryTests
     /// </summary>
     private interface IPluginRegistry
     {
-        Task<IFdwResult> RegisterPluginAsync(IToolPlugin plugin, CancellationToken cancellationToken = default);
-        Task<IFdwResult> UnregisterPluginAsync(string pluginId, CancellationToken cancellationToken = default);
+        Task<IGenericResult> RegisterPluginAsync(IToolPlugin plugin, CancellationToken cancellationToken = default);
+        Task<IGenericResult> UnregisterPluginAsync(string pluginId, CancellationToken cancellationToken = default);
         IEnumerable<IToolPlugin> GetAllPlugins();
         IEnumerable<IToolPlugin> GetEnabledPlugins();
         IEnumerable<IToolPlugin> GetPluginsByCategory(ToolCategoryBase category);
@@ -421,7 +421,7 @@ public class PluginRegistryTests
         IToolPlugin GetPluginById(string pluginId);
         bool IsPluginRegistered(string pluginId);
         int GetPluginCount();
-        Task<IFdwResult> ClearPluginsAsync(CancellationToken cancellationToken = default);
+        Task<IGenericResult> ClearPluginsAsync(CancellationToken cancellationToken = default);
     }
 }
 
@@ -447,9 +447,9 @@ public class PluginRegistryEdgeCaseTests
         var mockPlugin = new Mock<IToolPlugin>();
         mockPlugin.Setup(p => p.Id).Returns("FailingPlugin");
         mockPlugin.Setup(p => p.InitializeAsync(It.IsAny<IToolPluginConfiguration>(), It.IsAny<CancellationToken>()))
-                  .ReturnsAsync(FdwResult.Failure("Plugin initialization failed"));
+                  .ReturnsAsync(GenericResult.Failure("Plugin initialization failed"));
 
-        var failureResult = FdwResult.Failure("Plugin registration failed due to initialization error");
+        var failureResult = GenericResult.Failure("Plugin registration failed due to initialization error");
         _mockRegistry.Setup(r => r.RegisterPluginAsync(mockPlugin.Object, _cancellationToken))
                     .ReturnsAsync(failureResult);
 
@@ -471,7 +471,7 @@ public class PluginRegistryEdgeCaseTests
         var mockPlugin = new Mock<IToolPlugin>();
         mockPlugin.Setup(p => p.Id).Returns(longId);
 
-        var failureResult = FdwResult.Failure("Plugin ID exceeds maximum length");
+        var failureResult = GenericResult.Failure("Plugin ID exceeds maximum length");
         _mockRegistry.Setup(r => r.RegisterPluginAsync(mockPlugin.Object, _cancellationToken))
                     .ReturnsAsync(failureResult);
 
@@ -493,7 +493,7 @@ public class PluginRegistryEdgeCaseTests
         var mockPlugin = new Mock<IToolPlugin>();
         mockPlugin.Setup(p => p.Id).Returns(specialId);
 
-        var successResult = FdwResult.Success(); // Assuming special characters are allowed
+        var successResult = GenericResult.Success(); // Assuming special characters are allowed
         _mockRegistry.Setup(r => r.RegisterPluginAsync(mockPlugin.Object, _cancellationToken))
                     .ReturnsAsync(successResult);
 
@@ -514,7 +514,7 @@ public class PluginRegistryEdgeCaseTests
         var mockPlugin = new Mock<IToolPlugin>();
         mockPlugin.Setup(p => p.Id).Returns(unicodeId);
 
-        var successResult = FdwResult.Success();
+        var successResult = GenericResult.Success();
         _mockRegistry.Setup(r => r.RegisterPluginAsync(mockPlugin.Object, _cancellationToken))
                     .ReturnsAsync(successResult);
 
@@ -609,7 +609,7 @@ public class PluginRegistryEdgeCaseTests
     {
         // Arrange
         var pluginId = "FailingShutdownPlugin";
-        var partialFailureResult = FdwResult.Failure("Plugin unregistered but shutdown failed");
+        var partialFailureResult = GenericResult.Failure("Plugin unregistered but shutdown failed");
         _mockRegistry.Setup(r => r.UnregisterPluginAsync(pluginId, _cancellationToken))
                     .ReturnsAsync(partialFailureResult);
 
@@ -655,7 +655,7 @@ public class PluginRegistryEdgeCaseTests
     public async Task ClearPluginsAsync_WithActivePlugins_ShutdownsAllPlugins()
     {
         // Arrange
-        var shutdownResult = FdwResult.Success();
+        var shutdownResult = GenericResult.Success();
         _mockRegistry.Setup(r => r.ClearPluginsAsync(_cancellationToken))
                     .ReturnsAsync(shutdownResult);
 
@@ -680,7 +680,7 @@ public class PluginRegistryEdgeCaseTests
                     .Returns(async (IToolPlugin plugin, CancellationToken ct) =>
                     {
                         await Task.Delay(1000, ct); // Will timeout
-                        return FdwResult.Success();
+                        return GenericResult.Success();
                     });
 
         // Act & Assert
@@ -695,8 +695,8 @@ public class PluginRegistryEdgeCaseTests
     /// </summary>
     private interface IPluginRegistry
     {
-        Task<IFdwResult> RegisterPluginAsync(IToolPlugin plugin, CancellationToken cancellationToken = default);
-        Task<IFdwResult> UnregisterPluginAsync(string pluginId, CancellationToken cancellationToken = default);
+        Task<IGenericResult> RegisterPluginAsync(IToolPlugin plugin, CancellationToken cancellationToken = default);
+        Task<IGenericResult> UnregisterPluginAsync(string pluginId, CancellationToken cancellationToken = default);
         IEnumerable<IToolPlugin> GetAllPlugins();
         IEnumerable<IToolPlugin> GetEnabledPlugins();
         IEnumerable<IToolPlugin> GetPluginsByCategory(ToolCategoryBase category);
@@ -704,6 +704,6 @@ public class PluginRegistryEdgeCaseTests
         IToolPlugin GetPluginById(string pluginId);
         bool IsPluginRegistered(string pluginId);
         int GetPluginCount();
-        Task<IFdwResult> ClearPluginsAsync(CancellationToken cancellationToken = default);
+        Task<IGenericResult> ClearPluginsAsync(CancellationToken cancellationToken = default);
     }
 }

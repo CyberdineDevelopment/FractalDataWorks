@@ -9,9 +9,9 @@ namespace FractalDataWorks.Web.Demo.Endpoints;
 /// </summary>
 public class ConnectionsEndpoint : EndpointWithoutRequest<ConnectionsResponse>
 {
-    private readonly IFdwConnectionProvider _connectionProvider;
+    private readonly IGenericConnectionProvider _connectionProvider;
 
-    public ConnectionsEndpoint(IFdwConnectionProvider connectionProvider)
+    public ConnectionsEndpoint(IGenericConnectionProvider connectionProvider)
     {
         _connectionProvider = connectionProvider;
     }

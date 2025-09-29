@@ -5,7 +5,7 @@ namespace FractalDataWorks.Results;
 /// <summary>
 /// Represents a result that can be either success or failure.
 /// </summary>
-public interface IFdwResult
+public interface IGenericResult
 {
     /// <summary>
     /// Gets a value indicating whether the operation succeeded.
@@ -37,7 +37,7 @@ public interface IFdwResult
 /// Represents a result that can be either success or failure with a value.
 /// </summary>
 /// <typeparam name="T">The type of the value.</typeparam>
-public interface IFdwResult<out T> : IFdwResult
+public interface IGenericResult<out T> : IGenericResult
 {
     /// <summary>
     /// Gets the result value if successful.

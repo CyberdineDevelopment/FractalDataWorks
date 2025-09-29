@@ -244,11 +244,11 @@ namespace MyCompany.Services.UserManagement.Abstractions.Services;
 /// Service interface for user management operations.
 /// All implementations provide the same command execution interface.
 /// </summary>
-public interface IUserManagementService : IFdwService<IUserManagementCommand, IUserManagementConfiguration>
+public interface IUserManagementService : IGenericService<IUserManagementCommand, IUserManagementConfiguration>
 {
     // CRITICAL: No domain-specific methods!
     // Everything goes through Execute(TCommand) - this enables implementation abstraction
-    // Execute methods are inherited from IFdwService
+    // Execute methods are inherited from IGenericService
 }
 ```
 
@@ -265,7 +265,7 @@ namespace MyCompany.Services.UserManagement.Abstractions.Configuration;
 /// Configuration interface for user management services.
 /// Defines settings contract that all implementations must support.
 /// </summary>
-public interface IUserManagementConfiguration : IFdwConfiguration
+public interface IUserManagementConfiguration : IGenericConfiguration
 {
     /// <summary>
     /// Gets the user data store connection string.
@@ -323,23 +323,23 @@ namespace MyCompany.Services.UserManagement.Abstractions;
 /// Provider interface for user management services.
 /// Enables "any implementation" resolution pattern.
 /// </summary>
-public interface IUserManagementProvider : IFdwServiceProvider
+public interface IUserManagementProvider : IGenericServiceProvider
 {
     /// <summary>
     /// Gets a user management service using the provided configuration.
     /// Implementation is selected based on configuration type.
     /// </summary>
-    Task<IFdwResult<IUserManagementService>> GetService(IUserManagementConfiguration configuration);
+    Task<IGenericResult<IUserManagementService>> GetService(IUserManagementConfiguration configuration);
 
     /// <summary>
     /// Gets a user management service by configuration name from appsettings.
     /// </summary>
-    Task<IFdwResult<IUserManagementService>> GetService(string configurationName);
+    Task<IGenericResult<IUserManagementService>> GetService(string configurationName);
 
     /// <summary>
     /// Gets a specific user management service implementation.
     /// </summary>
-    Task<IFdwResult<TService>> GetService<TService>() where TService : class, IUserManagementService;
+    Task<IGenericResult<TService>> GetService<TService>() where TService : class, IUserManagementService;
 }
 ```
 
@@ -495,11 +495,11 @@ public sealed class UserManagementProvider : IUserManagementProvider
     /// Gets a user management service using the provided configuration.
     /// Uses UserManagementTypes for dynamic service lookup.
     /// </summary>
-    public async Task<IFdwResult<IUserManagementService>> GetService(IUserManagementConfiguration configuration)
+    public async Task<IGenericResult<IUserManagementService>> GetService(IUserManagementConfiguration configuration)
     {
         if (configuration == null)
         {
-            return FdwResult.Failure<IUserManagementService>("Configuration cannot be null");
+            return GenericResult.Failure<IUserManagementService>("Configuration cannot be null");
         }
 
         try
@@ -508,7 +508,7 @@ public sealed class UserManagementProvider : IUserManagementProvider
             var serviceType = UserManagementTypes.Name(configuration.UserManagementType);
             if (serviceType.IsEmpty)
             {
-                return FdwResult.Failure<IUserManagementService>(
+                return GenericResult.Failure<IUserManagementService>(
                     $"Unknown user management type: {configuration.UserManagementType}");
             }
 
@@ -516,7 +516,7 @@ public sealed class UserManagementProvider : IUserManagementProvider
             var factory = _serviceProvider.GetService(serviceType.FactoryType) as IUserManagementServiceFactory;
             if (factory == null)
             {
-                return FdwResult.Failure<IUserManagementService>(
+                return GenericResult.Failure<IUserManagementService>(
                     $"No factory registered for user management type: {configuration.UserManagementType}");
             }
 
@@ -525,18 +525,18 @@ public sealed class UserManagementProvider : IUserManagementProvider
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to create user management service");
-            return FdwResult.Failure<IUserManagementService>(ex.Message);
+            return GenericResult.Failure<IUserManagementService>(ex.Message);
         }
     }
 
     /// <summary>
     /// Gets a user management service by configuration name from appsettings.
     /// </summary>
-    public async Task<IFdwResult<IUserManagementService>> GetService(string configurationName)
+    public async Task<IGenericResult<IUserManagementService>> GetService(string configurationName)
     {
         if (string.IsNullOrEmpty(configurationName))
         {
-            return FdwResult.Failure<IUserManagementService>("Configuration name cannot be null or empty");
+            return GenericResult.Failure<IUserManagementService>("Configuration name cannot be null or empty");
         }
 
         try
@@ -545,7 +545,7 @@ public sealed class UserManagementProvider : IUserManagementProvider
             var section = _configuration.GetSection($"Services:UserManagement:{configurationName}");
             if (!section.Exists())
             {
-                return FdwResult.Failure<IUserManagementService>(
+                return GenericResult.Failure<IUserManagementService>(
                     $"Configuration section not found: Services:UserManagement:{configurationName}");
             }
 
@@ -553,7 +553,7 @@ public sealed class UserManagementProvider : IUserManagementProvider
             var userManagementTypeName = section["UserManagementType"];
             if (string.IsNullOrEmpty(userManagementTypeName))
             {
-                return FdwResult.Failure<IUserManagementService>(
+                return GenericResult.Failure<IUserManagementService>(
                     $"UserManagementType not specified in configuration section: {configurationName}");
             }
 
@@ -561,14 +561,14 @@ public sealed class UserManagementProvider : IUserManagementProvider
             var serviceType = UserManagementTypes.Name(userManagementTypeName);
             if (serviceType.IsEmpty)
             {
-                return FdwResult.Failure<IUserManagementService>(
+                return GenericResult.Failure<IUserManagementService>(
                     $"Unknown user management type: {userManagementTypeName}");
             }
 
             var config = section.Get(serviceType.ConfigurationType) as IUserManagementConfiguration;
             if (config == null)
             {
-                return FdwResult.Failure<IUserManagementService>(
+                return GenericResult.Failure<IUserManagementService>(
                     $"Failed to bind configuration to {serviceType.ConfigurationType?.Name}");
             }
 
@@ -577,29 +577,29 @@ public sealed class UserManagementProvider : IUserManagementProvider
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get user management service by name: {ConfigurationName}", configurationName);
-            return FdwResult.Failure<IUserManagementService>(ex.Message);
+            return GenericResult.Failure<IUserManagementService>(ex.Message);
         }
     }
 
     /// <summary>
     /// Gets a specific user management service implementation.
     /// </summary>
-    public async Task<IFdwResult<TService>> GetService<TService>() where TService : class, IUserManagementService
+    public async Task<IGenericResult<TService>> GetService<TService>() where TService : class, IUserManagementService
     {
         try
         {
             var service = _serviceProvider.GetService<TService>();
             if (service == null)
             {
-                return FdwResult.Failure<TService>($"Service not registered: {typeof(TService).Name}");
+                return GenericResult.Failure<TService>($"Service not registered: {typeof(TService).Name}");
             }
 
-            return FdwResult.Success(service);
+            return GenericResult.Success(service);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get specific user management service: {ServiceType}", typeof(TService).Name);
-            return FdwResult.Failure<TService>(ex.Message);
+            return GenericResult.Failure<TService>(ex.Message);
         }
     }
 }
@@ -724,7 +724,7 @@ public sealed class DatabaseUserManagementService : ServiceBase<IUserManagementC
     /// Executes domain commands by translating them to SQL operations.
     /// CRITICAL: This is the ONLY method - no domain-specific methods!
     /// </summary>
-    public override async Task<IFdwResult> Execute(IUserManagementCommand command, CancellationToken cancellationToken = default)
+    public override async Task<IGenericResult> Execute(IUserManagementCommand command, CancellationToken cancellationToken = default)
     {
         var commandType = command.GetType().Name;
         var commandId = Guid.NewGuid().ToString();
@@ -738,7 +738,7 @@ public sealed class DatabaseUserManagementService : ServiceBase<IUserManagementC
             {
                 ICreateUserCommand createCmd => await _translator.TranslateCreateUser(createCmd, cancellationToken),
                 IAuthenticateUserCommand authCmd => await _translator.TranslateAuthenticate(authCmd, cancellationToken),
-                _ => FdwResult.Failure($"Unknown command type: {commandType}")
+                _ => GenericResult.Failure($"Unknown command type: {commandType}")
             };
 
             if (result.IsSuccess)
@@ -755,28 +755,28 @@ public sealed class DatabaseUserManagementService : ServiceBase<IUserManagementC
         catch (Exception ex)
         {
             UserManagementServiceLog.CommandExecutionFailed(Logger, commandType, ex.Message, ex);
-            return FdwResult.Failure($"Command execution failed: {ex.Message}");
+            return GenericResult.Failure($"Command execution failed: {ex.Message}");
         }
     }
 
     /// <summary>
     /// Executes domain commands with typed results.
     /// </summary>
-    public override async Task<IFdwResult<T>> Execute<T>(IUserManagementCommand command, CancellationToken cancellationToken = default)
+    public override async Task<IGenericResult<T>> Execute<T>(IUserManagementCommand command, CancellationToken cancellationToken = default)
     {
         var result = await Execute(command, cancellationToken);
 
         if (!result.IsSuccess)
         {
-            return FdwResult<T>.Failure(result.Error);
+            return GenericResult<T>.Failure(result.Error);
         }
 
         if (result.Value is T typedValue)
         {
-            return FdwResult<T>.Success(typedValue);
+            return GenericResult<T>.Success(typedValue);
         }
 
-        return FdwResult<T>.Failure($"Result type mismatch. Expected {typeof(T).Name}, got {result.Value?.GetType().Name ?? "null"}");
+        return GenericResult<T>.Failure($"Result type mismatch. Expected {typeof(T).Name}, got {result.Value?.GetType().Name ?? "null"}");
     }
 }
 ```
@@ -819,7 +819,7 @@ public sealed class UserManagementCommandTranslator
     /// <summary>
     /// Translates domain CreateUser command to SQL INSERT operation.
     /// </summary>
-    public async Task<IFdwResult> TranslateCreateUser(ICreateUserCommand command, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult> TranslateCreateUser(ICreateUserCommand command, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -847,24 +847,24 @@ public sealed class UserManagementCommandTranslator
             });
 
             UserManagementServiceLog.UserCreated(_logger, command.Username, userId.ToString());
-            return FdwResult.Success($"User created with ID: {userId}");
+            return GenericResult.Success($"User created with ID: {userId}");
         }
         catch (SqlException ex) when (ex.Number == 2627) // Unique constraint violation
         {
             UserManagementServiceLog.UserCreationFailed(_logger, command.Username, "Username or email already exists");
-            return FdwResult.Failure("Username or email already exists");
+            return GenericResult.Failure("Username or email already exists");
         }
         catch (Exception ex)
         {
             UserManagementServiceLog.UserCreationFailed(_logger, command.Username, ex.Message);
-            return FdwResult.Failure($"Failed to create user: {ex.Message}");
+            return GenericResult.Failure($"Failed to create user: {ex.Message}");
         }
     }
 
     /// <summary>
     /// Translates domain Authenticate command to SQL SELECT operation.
     /// </summary>
-    public async Task<IFdwResult> TranslateAuthenticate(IAuthenticateUserCommand command, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult> TranslateAuthenticate(IAuthenticateUserCommand command, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -885,23 +885,23 @@ public sealed class UserManagementCommandTranslator
             if (user == null || !user.IsActive)
             {
                 UserManagementServiceLog.AuthenticationFailed(_logger, command.Username, "User not found or inactive");
-                return FdwResult.Failure("Authentication failed");
+                return GenericResult.Failure("Authentication failed");
             }
 
             // Verify password (implementation-specific)
             if (!VerifyPassword(command.Password, user.PasswordHash))
             {
                 UserManagementServiceLog.AuthenticationFailed(_logger, command.Username, "Invalid password");
-                return FdwResult.Failure("Authentication failed");
+                return GenericResult.Failure("Authentication failed");
             }
 
             UserManagementServiceLog.AuthenticationSucceeded(_logger, command.Username);
-            return FdwResult.Success($"Authentication successful for user: {user.UserId}");
+            return GenericResult.Success($"Authentication successful for user: {user.UserId}");
         }
         catch (Exception ex)
         {
             UserManagementServiceLog.AuthenticationFailed(_logger, command.Username, ex.Message);
-            return FdwResult.Failure($"Authentication error: {ex.Message}");
+            return GenericResult.Failure($"Authentication error: {ex.Message}");
         }
     }
 
@@ -1206,7 +1206,7 @@ public static class UserManagementMessages
 **Results Integration:**
 ```csharp
 // Services return Results with Messages
-public async Task<IFdwResult> Execute(ICreateUserCommand command)
+public async Task<IGenericResult> Execute(ICreateUserCommand command)
 {
     try
     {
@@ -1214,13 +1214,13 @@ public async Task<IFdwResult> Execute(ICreateUserCommand command)
 
         // Success with structured message
         var message = UserManagementMessages.UserCreated(userId, command.Username);
-        return FdwResult.Success(message);
+        return GenericResult.Success(message);
     }
     catch (Exception ex)
     {
         // Failure with structured message
         var message = UserManagementMessages.UserCreationFailed(command.Username, ex.Message);
-        return FdwResult.Failure(message);
+        return GenericResult.Failure(message);
     }
 }
 ```
@@ -1242,7 +1242,7 @@ public static partial void UserCreated(ILogger logger, string username, string u
 
 **Logging-Message Integration:**
 ```csharp
-public async Task<IFdwResult> TranslateCreateUser(ICreateUserCommand command)
+public async Task<IGenericResult> TranslateCreateUser(ICreateUserCommand command)
 {
     // Log start with structured data
     UserManagementServiceLog.UserCreationStarted(_logger, command.Username, command.Email);
@@ -1255,7 +1255,7 @@ public async Task<IFdwResult> TranslateCreateUser(ICreateUserCommand command)
         UserManagementServiceLog.UserCreated(_logger, command.Username, userId);
         var message = UserManagementMessages.UserCreated(userId, command.Username);
 
-        return FdwResult.Success(message);
+        return GenericResult.Success(message);
     }
     catch (Exception ex)
     {
@@ -1263,7 +1263,7 @@ public async Task<IFdwResult> TranslateCreateUser(ICreateUserCommand command)
         UserManagementServiceLog.UserCreationFailed(_logger, command.Username, ex.Message);
         var message = UserManagementMessages.UserCreationFailed(command.Username, ex.Message);
 
-        return FdwResult.Failure(message);
+        return GenericResult.Failure(message);
     }
 }
 ```
@@ -1554,7 +1554,7 @@ public class UsersController : ControllerBase
 
 **Structured Error Responses:**
 ```csharp
-public async Task<IFdwResult> Execute(IUserManagementCommand command)
+public async Task<IGenericResult> Execute(IUserManagementCommand command)
 {
     try
     {
@@ -1562,7 +1562,7 @@ public async Task<IFdwResult> Execute(IUserManagementCommand command)
         {
             ICreateUserCommand createCmd => await ProcessCreateUser(createCmd),
             IAuthenticateUserCommand authCmd => await ProcessAuthenticate(authCmd),
-            _ => FdwResult.Failure(UserManagementMessages.UnknownCommand(command.GetType().Name))
+            _ => GenericResult.Failure(UserManagementMessages.UnknownCommand(command.GetType().Name))
         };
 
         return result;
@@ -1570,18 +1570,18 @@ public async Task<IFdwResult> Execute(IUserManagementCommand command)
     catch (ValidationException ex)
     {
         var message = UserManagementMessages.ValidationFailed(ex.Message);
-        return FdwResult.Failure(message);
+        return GenericResult.Failure(message);
     }
     catch (SecurityException ex)
     {
         var message = UserManagementMessages.SecurityViolation(ex.Message);
-        return FdwResult.Failure(message);
+        return GenericResult.Failure(message);
     }
     catch (Exception ex)
     {
         Logger.LogError(ex, "Unexpected error executing command: {CommandType}", command.GetType().Name);
         var message = UserManagementMessages.UnexpectedError(command.GetType().Name);
-        return FdwResult.Failure(message);
+        return GenericResult.Failure(message);
     }
 }
 ```
@@ -1595,13 +1595,13 @@ public sealed class CachedUserManagementService : IUserManagementService
     private readonly IUserManagementService _innerService;
     private readonly IMemoryCache _cache;
 
-    public async Task<IFdwResult> Execute(IUserManagementCommand command)
+    public async Task<IGenericResult> Execute(IUserManagementCommand command)
     {
         // Cache read operations
         if (command is IUserManagementQueryCommand queryCmd && queryCmd.AllowCachedResults)
         {
             var cacheKey = GenerateCacheKey(command);
-            if (_cache.TryGetValue(cacheKey, out IFdwResult cachedResult))
+            if (_cache.TryGetValue(cacheKey, out IGenericResult cachedResult))
             {
                 return cachedResult;
             }
@@ -1684,13 +1684,13 @@ Error: "Unknown command type: CreateUserCommand"
 public sealed class CreateUserCommand : ICreateUserCommand // Must implement interface
 
 // Ensure service handles command type
-public override async Task<IFdwResult> Execute(IUserManagementCommand command)
+public override async Task<IGenericResult> Execute(IUserManagementCommand command)
 {
     return command switch
     {
         ICreateUserCommand createCmd => await ProcessCreate(createCmd),  // Must match interface
         IAuthenticateUserCommand authCmd => await ProcessAuth(authCmd),
-        _ => FdwResult.Failure($"Unknown command type: {command.GetType().Name}")
+        _ => GenericResult.Failure($"Unknown command type: {command.GetType().Name}")
     };
 }
 ```
@@ -1797,11 +1797,11 @@ Dictionary<string, object> properties = new Dictionary<string, object>();
 **No Async Suffix:**
 ```csharp
 // ✅ Correct - Task return type makes it obvious
-public async Task<IFdwResult> Execute(ICommand command)
-public async Task<IFdwResult<T>> Execute<T>(ICommand command)
+public async Task<IGenericResult> Execute(ICommand command)
+public async Task<IGenericResult<T>> Execute<T>(ICommand command)
 
 // ❌ Wrong - Redundant Async suffix
-public async Task<IFdwResult> ExecuteAsync(ICommand command)
+public async Task<IGenericResult> ExecuteAsync(ICommand command)
 ```
 
 **Init-Only Properties:**

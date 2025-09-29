@@ -42,5 +42,5 @@ public interface IFieldConstraint
     /// This method performs the actual constraint validation logic.
     /// The field name is provided for context in error messages.
     /// </remarks>
-    IFdwResult ValidateValue(object? value, string fieldName);
+    IGenericResult ValidateValue(object? value, string fieldName);
 }

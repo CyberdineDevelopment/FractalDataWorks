@@ -28,19 +28,19 @@ public class CreateUserEndpoint : CommandEndpoint<CreateUserRequest, CreateUserR
         });
     }
 
-    protected override async Task<IFdwResult<CreateUserResponse>> ExecuteCommandAsync(CreateUserRequest command, CancellationToken ct)
+    protected override async Task<IGenericResult<CreateUserResponse>> ExecuteCommandAsync(CreateUserRequest command, CancellationToken ct)
     {
         try
         {
             // Validate the request
             if (string.IsNullOrWhiteSpace(command.Name))
             {
-                return FdwResult<CreateUserResponse>.Failure("Name is required");
+                return GenericResult<CreateUserResponse>.Failure("Name is required");
             }
 
             if (string.IsNullOrWhiteSpace(command.Email))
             {
-                return FdwResult<CreateUserResponse>.Failure("Email is required");
+                return GenericResult<CreateUserResponse>.Failure("Email is required");
             }
 
             // Example implementation - replace with actual data access
@@ -48,14 +48,14 @@ public class CreateUserEndpoint : CommandEndpoint<CreateUserRequest, CreateUserR
             // var existingUser = await DataGateway.Execute(new GetUserByEmailCommand(command.Email), ct);
             // if (existingUser.IsSuccess)
             // {
-            //     return FdwResult<CreateUserResponse>.Failure("User with this email already exists");
+            //     return GenericResult<CreateUserResponse>.Failure("User with this email already exists");
             // }
 
             // Create new user
             // var createResult = await DataGateway.Execute(new CreateUserCommand(command.Name, command.Email), ct);
             // if (!createResult.IsSuccess)
             // {
-            //     return FdwResult<CreateUserResponse>.Failure(createResult.Message);
+            //     return GenericResult<CreateUserResponse>.Failure(createResult.Message);
             // }
 
             // For demo purposes, simulate user creation
@@ -69,12 +69,12 @@ public class CreateUserEndpoint : CommandEndpoint<CreateUserRequest, CreateUserR
 
             Logger.LogInformation("User created: {UserId} - {UserName}", newUser.Id, newUser.Name);
 
-            return FdwResult<CreateUserResponse>.Success(newUser);
+            return GenericResult<CreateUserResponse>.Success(newUser);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error creating user: {UserName} - {UserEmail}", command.Name, command.Email);
-            return FdwResult<CreateUserResponse>.Failure("Failed to create user");
+            return GenericResult<CreateUserResponse>.Failure("Failed to create user");
         }
     }
 

@@ -51,10 +51,10 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
     }
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult> Execute(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
+    public override async Task<IGenericResult> Execute(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
     {
         if (managementCommand == null)
-            return FdwResult.Failure("ManagementCommand cannot be null.");
+            return GenericResult.Failure("ManagementCommand cannot be null.");
 
         try
         {
@@ -64,13 +64,13 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
             var commandType = SecretCommandTypeCollectionBase.All().FirstOrDefault(ct => ct.Name == managementCommand.CommandType);
             if (commandType == null)
             {
-                return FdwResult.Failure($"Unsupported managementCommand type: {managementCommand.CommandType}");
+                return GenericResult.Failure($"Unsupported managementCommand type: {managementCommand.CommandType}");
             }
 
             // Validate managementCommand before execution
             if (!commandType.Validate(managementCommand))
             {
-                return FdwResult.Failure($"ManagementCommand validation failed for {managementCommand.CommandType}");
+                return GenericResult.Failure($"ManagementCommand validation failed for {managementCommand.CommandType}");
             }
 
             // Execute using Enhanced Enum pattern
@@ -84,26 +84,26 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
         {
             AzureKeyVaultServiceLog.AzureRequestFailed(Logger, managementCommand.CommandId, ex.ErrorCode, ex.Message, ex);
             
-            return FdwResult.Failure($"Azure Key Vault error: {ex.Message}");
+            return GenericResult.Failure($"Azure Key Vault error: {ex.Message}");
         }
         catch (Exception ex)
         {
             AzureKeyVaultServiceLog.UnexpectedError(Logger, managementCommand.CommandId, ex);
-            return FdwResult.Failure($"Unexpected error: {ex.Message}");
+            return GenericResult.Failure($"Unexpected error: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult<TOut>> Execute<TOut>(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
+    public override async Task<IGenericResult<TOut>> Execute<TOut>(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
     {
         if (managementCommand == null)
-            return FdwResult<TOut>.Failure("ManagementCommand cannot be null.");
+            return GenericResult<TOut>.Failure("ManagementCommand cannot be null.");
 
         var validationResult = managementCommand.Validate();
         if (!validationResult.Value.IsValid)
         {
             var errors = string.Join("; ", validationResult.Value.Errors.Select(e => e.ErrorMessage));
-            return FdwResult<TOut>.Failure($"ManagementCommand validation failed: {errors}");
+            return GenericResult<TOut>.Failure($"ManagementCommand validation failed: {errors}");
         }
 
         try
@@ -114,13 +114,13 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
             var commandType = SecretCommandTypeCollectionBase.All().FirstOrDefault(ct => ct.Name == managementCommand.CommandType);
             if (commandType == null)
             {
-                return FdwResult<TOut>.Failure($"Unsupported managementCommand type: {managementCommand.CommandType}");
+                return GenericResult<TOut>.Failure($"Unsupported managementCommand type: {managementCommand.CommandType}");
             }
 
             // Validate managementCommand before execution
             if (!commandType.Validate(managementCommand))
             {
-                return FdwResult<TOut>.Failure($"ManagementCommand validation failed for {managementCommand.CommandType}");
+                return GenericResult<TOut>.Failure($"ManagementCommand validation failed for {managementCommand.CommandType}");
             }
 
             // Execute using Enhanced Enum pattern
@@ -130,37 +130,37 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
             
             if (!result.IsSuccess)
             {
-                return FdwResult<TOut>.Failure(result.Message ?? "ManagementCommand execution failed");
+                return GenericResult<TOut>.Failure(result.Message ?? "ManagementCommand execution failed");
             }
 
             // For non-generic results, we need to handle the return differently
             // This is a design issue that needs architectural review
-            return FdwResult<TOut>.Success(default!);
+            return GenericResult<TOut>.Success(default!);
         }
         catch (RequestFailedException ex)
         {
             AzureKeyVaultServiceLog.AzureRequestFailed(Logger, managementCommand.CommandId, ex.ErrorCode, ex.Message, ex);
             
-            return FdwResult<TOut>.Failure($"Azure Key Vault error: {ex.Message}");
+            return GenericResult<TOut>.Failure($"Azure Key Vault error: {ex.Message}");
         }
         catch (Exception ex)
         {
             AzureKeyVaultServiceLog.UnexpectedError(Logger, managementCommand.CommandId, ex);
-            return FdwResult<TOut>.Failure($"Unexpected error: {ex.Message}");
+            return GenericResult<TOut>.Failure($"Unexpected error: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public override async Task<IFdwResult<T>> Execute<T>(ISecretManagerCommand managementCommand)
+    public override async Task<IGenericResult<T>> Execute<T>(ISecretManagerCommand managementCommand)
     {
         return await Execute<T>(managementCommand, CancellationToken.None).ConfigureAwait(false);
     }
 
 
-    private async Task<IFdwResult> ExecuteGetSecret(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
+    private async Task<IGenericResult> ExecuteGetSecret(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(managementCommand.SecretKey))
-            return FdwResult.Failure("SecretKey is required for GetSecret operation.");
+            return GenericResult.Failure("SecretKey is required for GetSecret operation.");
 
         try
         {
@@ -187,24 +187,24 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
             
             AzureKeyVaultServiceLog.SecretRetrieved(Logger, secretName, secret.Properties.Version);
 
-            return FdwResult.Success();
+            return GenericResult.Success();
         }
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
             AzureKeyVaultServiceLog.SecretNotFound(Logger, managementCommand.SecretKey);
-            return FdwResult.Failure($"Secret '{managementCommand.SecretKey}' not found.");
+            return GenericResult.Failure($"Secret '{managementCommand.SecretKey}' not found.");
         }
     }
 
-    private async Task<IFdwResult> ExecuteSetSecret(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
+    private async Task<IGenericResult> ExecuteSetSecret(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(managementCommand.SecretKey))
-            return FdwResult.Failure("SecretKey is required for SetSecret operation.");
+            return GenericResult.Failure("SecretKey is required for SetSecret operation.");
 
         if (!managementCommand.Parameters.TryGetValue(nameof(SecretValue), out var secretValueObj) || 
             secretValueObj?.ToString() is not string secretValue)
         {
-            return FdwResult.Failure("SecretValue parameter is required for SetSecret operation.");
+            return GenericResult.Failure("SecretValue parameter is required for SetSecret operation.");
         }
 
         try
@@ -239,19 +239,19 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
             
             AzureKeyVaultServiceLog.SecretSet(Logger, secretName, response.Value.Properties.Version);
 
-            return FdwResult.Success();
+            return GenericResult.Success();
         }
         catch (RequestFailedException ex) when (ex.Status == 403)
         {
             AzureKeyVaultServiceLog.SecretSetAccessDenied(Logger, managementCommand.SecretKey, ex.Message);
-            return FdwResult.Failure($"Access denied setting secret '{managementCommand.SecretKey}': {ex.Message}");
+            return GenericResult.Failure($"Access denied setting secret '{managementCommand.SecretKey}': {ex.Message}");
         }
     }
 
-    private async Task<IFdwResult> ExecuteDeleteSecret(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
+    private async Task<IGenericResult> ExecuteDeleteSecret(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(managementCommand.SecretKey))
-            return FdwResult.Failure("SecretKey is required for DeleteSecret operation.");
+            return GenericResult.Failure("SecretKey is required for DeleteSecret operation.");
 
         try
         {
@@ -278,21 +278,21 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
                 AzureKeyVaultServiceLog.SecretDeleted(Logger, secretName);
             }
 
-            return FdwResult.Success();
+            return GenericResult.Success();
         }
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
             AzureKeyVaultServiceLog.SecretNotFoundForDeletion(Logger, managementCommand.SecretKey);
-            return FdwResult.Failure($"Secret '{managementCommand.SecretKey}' not found.");
+            return GenericResult.Failure($"Secret '{managementCommand.SecretKey}' not found.");
         }
         catch (RequestFailedException ex) when (ex.Status == 403)
         {
             AzureKeyVaultServiceLog.SecretDeleteAccessDenied(Logger, managementCommand.SecretKey, ex.Message);
-            return FdwResult.Failure($"Access denied deleting secret '{managementCommand.SecretKey}': {ex.Message}");
+            return GenericResult.Failure($"Access denied deleting secret '{managementCommand.SecretKey}': {ex.Message}");
         }
     }
 
-    private async Task<IFdwResult> ExecuteListSecrets(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
+    private async Task<IGenericResult> ExecuteListSecrets(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
     {
         try
         {
@@ -325,19 +325,19 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
 
             AzureKeyVaultServiceLog.SecretsListed(Logger, secretMetadataList.Count);
 
-            return FdwResult<IReadOnlyList<ISecretMetadata>>.Success(secretMetadataList.AsReadOnly());
+            return GenericResult<IReadOnlyList<ISecretMetadata>>.Success(secretMetadataList.AsReadOnly());
         }
         catch (RequestFailedException ex) when (ex.Status == 403)
         {
             AzureKeyVaultServiceLog.SecretsListAccessDenied(Logger, ex.Message);
-            return FdwResult.Failure($"Access denied listing secrets: {ex.Message}");
+            return GenericResult.Failure($"Access denied listing secrets: {ex.Message}");
         }
     }
 
-    private async Task<IFdwResult> ExecuteGetSecretVersions(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
+    private async Task<IGenericResult> ExecuteGetSecretVersions(ISecretManagerCommand managementCommand, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(managementCommand.SecretKey))
-            return FdwResult.Failure("SecretKey is required for GetSecretVersions operation.");
+            return GenericResult.Failure("SecretKey is required for GetSecretVersions operation.");
 
         try
         {
@@ -352,12 +352,12 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
 
             AzureKeyVaultServiceLog.SecretVersionsRetrieved(Logger, versionMetadataList.Count, secretName);
 
-            return FdwResult<IReadOnlyList<ISecretMetadata>>.Success(versionMetadataList.AsReadOnly());
+            return GenericResult<IReadOnlyList<ISecretMetadata>>.Success(versionMetadataList.AsReadOnly());
         }
         catch (RequestFailedException ex) when (ex.Status == 404)
         {
             AzureKeyVaultServiceLog.SecretNotFoundForVersionListing(Logger, managementCommand.SecretKey);
-            return FdwResult.Failure($"Secret '{managementCommand.SecretKey}' not found.");
+            return GenericResult.Failure($"Secret '{managementCommand.SecretKey}' not found.");
         }
     }
 

@@ -88,13 +88,13 @@ public sealed class AzureKeyVaultManagementCommand : ISecretManagerCommand
     /// <summary>
     /// Gets the configuration for this managementCommand.
     /// </summary>
-    public IFdwConfiguration? Configuration { get; set; }
+    public IGenericConfiguration? Configuration { get; set; }
 
     /// <summary>
     /// Validates the managementCommand parameters.
     /// </summary>
     /// <returns>A validation result indicating whether the managementCommand is valid.</returns>
-    public IFdwResult<ValidationResult> Validate()
+    public IGenericResult<ValidationResult> Validate()
     {
         // Basic validation for key and managementCommand type
         var validator = new AzureKeyVaultCommandValidator();
@@ -102,11 +102,11 @@ public sealed class AzureKeyVaultManagementCommand : ISecretManagerCommand
         
         if (result.IsValid)
         {
-            return FdwResult<ValidationResult>.Success(result);
+            return GenericResult<ValidationResult>.Success(result);
         }
         
         var errorMessage = string.Join("; ", result.Errors.Select(e => e.ErrorMessage));
-        return FdwResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errorMessage, "ValidationFailed", "AzureKeyVaultManagementCommand"));
+        return GenericResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errorMessage, "ValidationFailed", "AzureKeyVaultManagementCommand"));
     }
 
     /// <summary>

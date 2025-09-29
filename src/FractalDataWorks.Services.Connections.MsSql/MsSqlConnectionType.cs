@@ -9,7 +9,7 @@ namespace FractalDataWorks.Services.Connections.MsSql;
 /// Service type definition for Microsoft SQL Server connections.
 /// Provides metadata, factory creation, and query translation capabilities for SQL Server connections.
 /// </summary>
-public sealed class MsSqlConnectionType : ConnectionTypeBase<IFdwConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
+public sealed class MsSqlConnectionType : ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
 {
     /// <summary>
     /// Gets the singleton instance of the SQL Server connection type.

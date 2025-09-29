@@ -18,8 +18,8 @@ namespace FractalDataWorks.Services;
 /// <typeparam name="TService">The service type to create.</typeparam>
 /// <typeparam name="TConfiguration">The configuration type for the service.</typeparam>
 public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TService, TConfiguration>
-    where TService : class, IFdwService
-    where TConfiguration : class, IFdwConfiguration
+    where TService : class, IGenericService
+    where TConfiguration : class, IGenericConfiguration
 {
     private readonly ILogger<GenericServiceFactory<TService, TConfiguration>> _logger;
 
@@ -48,7 +48,7 @@ public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TS
     /// </summary>
     /// <param name="configuration">The configuration for the service.</param>
     /// <returns>A result containing the service instance or failure information.</returns>
-    public override IFdwResult<TService> Create(TConfiguration configuration)
+    public override IGenericResult<TService> Create(TConfiguration configuration)
     {
         var serviceTypeName = typeof(TService).Name;
         
@@ -63,7 +63,7 @@ public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TS
         if (FastNew.TryCreateInstance<TService, ILogger<TService>, TConfiguration>(serviceLogger, configuration, out var service))
         {
             ServiceFactoryLog.ServiceCreatedWithFastNew(_logger, serviceTypeName);
-            return FdwResult<TService>.Success(service, $"Service created successfully: {serviceTypeName}");
+            return GenericResult<TService>.Success(service, $"Service created successfully: {serviceTypeName}");
         }
 
 
@@ -76,20 +76,20 @@ public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TS
             if (Activator.CreateInstance(typeof(TService), constructorParams) is TService activatorServiceWithLogger)
             {
                 ServiceFactoryLog.ServiceCreatedWithActivator(_logger, serviceTypeName);
-                return FdwResult<TService>.Success(activatorServiceWithLogger, $"Service created successfully: {serviceTypeName}");
+                return GenericResult<TService>.Success(activatorServiceWithLogger, $"Service created successfully: {serviceTypeName}");
             }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {
             // These are anticipated constructor failures, not exceptional
             ServiceFactoryLog.ServiceCreationFailed(_logger, serviceTypeName, ex.Message);
-            return FdwResult<TService>.Failure(
+            return GenericResult<TService>.Failure(
                 new ServiceCreationFailedMessage(serviceTypeName, ex.Message));
         }
 
         // If we get here, we couldn't create the service
         ServiceFactoryLog.ServiceCreationFailed(_logger, serviceTypeName, "No suitable constructor found");
-        return FdwResult<TService>.Failure(
+        return GenericResult<TService>.Failure(
             new ServiceCreationFailedMessage(serviceTypeName, "No suitable constructor found"));
     }
 

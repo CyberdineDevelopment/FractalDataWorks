@@ -53,16 +53,16 @@ public sealed class MsSqlConnectionTestCommand : IConnectionCommand
     /// <summary>
     /// Gets the configuration associated with this command.
     /// </summary>
-    public IFdwConfiguration? Configuration { get; }
+    public IGenericConfiguration? Configuration { get; }
 
     /// <summary>
     /// Validates this command.
     /// </summary>
     /// <returns>A task containing the validation result.</returns>
-    public IFdwResult<ValidationResult> Validate()
+    public IGenericResult<ValidationResult> Validate()
     {
         var result = new ValidationResult();
-        return FdwResult<ValidationResult>.Success(result);
+        return GenericResult<ValidationResult>.Success(result);
     }
 
     #endregion

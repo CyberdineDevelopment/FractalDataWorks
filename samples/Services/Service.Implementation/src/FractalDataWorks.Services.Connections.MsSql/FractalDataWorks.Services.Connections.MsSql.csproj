@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>FractalDataWorks.Services.Connections.MsSql</RootNamespace>
     <AssemblyName>FractalDataWorks.Services.Connections.MsSql</AssemblyName>

@@ -24,7 +24,7 @@ The DataGateway framework provides ServiceType auto-discovery for data access ga
 
 ```csharp
 // Program.cs - Zero-configuration registration
-builder.Services.AddScoped<IFdwDataGatewayProvider, FdwDataGatewayProvider>();
+builder.Services.AddScoped<IGenericDataGatewayProvider, GenericDataGatewayProvider>();
 
 // Single line registers ALL discovered data gateway types
 DataGatewayTypes.Register(builder.Services);
@@ -50,18 +50,18 @@ DataGatewayTypes.Register(builder.Services);
 ```csharp
 public class UserRepository
 {
-    private readonly IFdwDataGatewayProvider _gatewayProvider;
+    private readonly IGenericDataGatewayProvider _gatewayProvider;
 
-    public UserRepository(IFdwDataGatewayProvider gatewayProvider)
+    public UserRepository(IGenericDataGatewayProvider gatewayProvider)
     {
         _gatewayProvider = gatewayProvider;
     }
 
-    public async Task<IFdwResult<List<User>>> GetActiveUsersAsync()
+    public async Task<IGenericResult<List<User>>> GetActiveUsersAsync()
     {
         var gatewayResult = await _gatewayProvider.GetDataGateway("EntityFramework");
         if (!gatewayResult.IsSuccess)
-            return FdwResult<List<User>>.Failure(gatewayResult.Error);
+            return GenericResult<List<User>>.Failure(gatewayResult.Error);
 
         using var gateway = gatewayResult.Value;
 
@@ -74,11 +74,11 @@ public class UserRepository
         return result;
     }
 
-    public async Task<IFdwResult<User>> CreateUserAsync(User user)
+    public async Task<IGenericResult<User>> CreateUserAsync(User user)
     {
         var gatewayResult = await _gatewayProvider.GetDataGateway("EntityFramework");
         if (!gatewayResult.IsSuccess)
-            return FdwResult<User>.Failure(gatewayResult.Error);
+            return GenericResult<User>.Failure(gatewayResult.Error);
 
         using var gateway = gatewayResult.Value;
 
@@ -107,7 +107,7 @@ public class UserRepository
 
 ```csharp
 // 1. Create your data gateway type (singleton pattern)
-public sealed class CustomDataGatewayType : DataGatewayTypeBase<IFdwDataGateway, CustomDataGatewayConfiguration, ICustomDataGatewayFactory>
+public sealed class CustomDataGatewayType : DataGatewayTypeBase<IGenericDataGateway, CustomDataGatewayConfiguration, ICustomDataGatewayFactory>
 {
     public static CustomDataGatewayType Instance { get; } = new();
 
@@ -134,28 +134,28 @@ public sealed class CustomDataGatewayType : DataGatewayTypeBase<IFdwDataGateway,
 ```csharp
 public class ProductRepository : IProductRepository
 {
-    private readonly IFdwDataGatewayProvider _gatewayProvider;
+    private readonly IGenericDataGatewayProvider _gatewayProvider;
 
-    public ProductRepository(IFdwDataGatewayProvider gatewayProvider)
+    public ProductRepository(IGenericDataGatewayProvider gatewayProvider)
     {
         _gatewayProvider = gatewayProvider;
     }
 
-    public async Task<IFdwResult<Product>> GetByIdAsync(int id)
+    public async Task<IGenericResult<Product>> GetByIdAsync(int id)
     {
         var gatewayResult = await _gatewayProvider.GetDataGateway("EntityFramework");
         if (!gatewayResult.IsSuccess)
-            return FdwResult<Product>.Failure(gatewayResult.Error);
+            return GenericResult<Product>.Failure(gatewayResult.Error);
 
         using var gateway = gatewayResult.Value;
         return await gateway.GetByIdAsync<Product>(id);
     }
 
-    public async Task<IFdwResult<List<Product>>> SearchAsync(string searchTerm)
+    public async Task<IGenericResult<List<Product>>> SearchAsync(string searchTerm)
     {
         var gatewayResult = await _gatewayProvider.GetDataGateway("EntityFramework");
         if (!gatewayResult.IsSuccess)
-            return FdwResult<List<Product>>.Failure(gatewayResult.Error);
+            return GenericResult<List<Product>>.Failure(gatewayResult.Error);
 
         using var gateway = gatewayResult.Value;
 
@@ -173,18 +173,18 @@ public class ProductRepository : IProductRepository
 ```csharp
 public class OrderService
 {
-    private readonly IFdwDataGatewayProvider _gatewayProvider;
+    private readonly IGenericDataGatewayProvider _gatewayProvider;
 
-    public OrderService(IFdwDataGatewayProvider gatewayProvider)
+    public OrderService(IGenericDataGatewayProvider gatewayProvider)
     {
         _gatewayProvider = gatewayProvider;
     }
 
-    public async Task<IFdwResult<Order>> CreateOrderAsync(CreateOrderRequest request)
+    public async Task<IGenericResult<Order>> CreateOrderAsync(CreateOrderRequest request)
     {
         var gatewayResult = await _gatewayProvider.GetDataGateway("EntityFramework");
         if (!gatewayResult.IsSuccess)
-            return FdwResult<Order>.Failure(gatewayResult.Error);
+            return GenericResult<Order>.Failure(gatewayResult.Error);
 
         using var gateway = gatewayResult.Value;
 
@@ -197,7 +197,7 @@ public class OrderService
             var order = new Order { CustomerId = request.CustomerId, OrderDate = DateTimeOffset.UtcNow };
             var orderResult = await gateway.CreateAsync(order);
             if (!orderResult.IsSuccess)
-                return FdwResult<Order>.Failure(orderResult.Error);
+                return GenericResult<Order>.Failure(orderResult.Error);
 
             // Create order items
             foreach (var item in request.Items)
@@ -207,7 +207,7 @@ public class OrderService
                 if (!itemResult.IsSuccess)
                 {
                     await transaction.RollbackAsync();
-                    return FdwResult<Order>.Failure(itemResult.Error);
+                    return GenericResult<Order>.Failure(itemResult.Error);
                 }
             }
 
@@ -217,7 +217,7 @@ public class OrderService
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return FdwResult<Order>.Failure($"Order creation failed: {ex.Message}");
+            return GenericResult<Order>.Failure($"Order creation failed: {ex.Message}");
         }
     }
 }

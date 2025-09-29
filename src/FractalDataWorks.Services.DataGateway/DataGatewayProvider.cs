@@ -51,7 +51,7 @@ public sealed class DataGatewayProvider : IDataGateway
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<T>> Execute<T>(IDataQuery query, string connectionName, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<T>> Execute<T>(IDataQuery query, string connectionName, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -61,7 +61,7 @@ public sealed class DataGatewayProvider : IDataGateway
             var connectionConfig = await ResolveConnectionConfiguration(connectionName);
             if (!connectionConfig.IsSuccess)
             {
-                return FdwResult<T>.Failure($"Failed to resolve connection configuration: {connectionConfig.Message}");
+                return GenericResult<T>.Failure($"Failed to resolve connection configuration: {connectionConfig.Message}");
             }
 
             // Execute using the resolved configuration
@@ -70,12 +70,12 @@ public sealed class DataGatewayProvider : IDataGateway
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error executing data query with connection name: {ConnectionName}", connectionName);
-            return FdwResult<T>.Failure($"Data query execution failed: {ex.Message}");
+            return GenericResult<T>.Failure($"Data query execution failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<T>> Execute<T>(IDataQuery query, IConnectionConfiguration connectionConfig, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<T>> Execute<T>(IDataQuery query, IConnectionConfiguration connectionConfig, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -86,24 +86,24 @@ public sealed class DataGatewayProvider : IDataGateway
             var validationResult = await ValidateQueryCompatibility(query, connectionConfig);
             if (!validationResult.IsSuccess)
             {
-                return FdwResult<T>.Failure(validationResult.Message!);
+                return GenericResult<T>.Failure(validationResult.Message!);
             }
 
             // 2. Get connection factory from provider
             var factoryResult = _factoryProvider.GetFactory(connectionConfig.ConnectionType);
             if (!factoryResult.IsSuccess)
             {
-                return FdwResult<T>.Failure($"Failed to get connection factory: {factoryResult.Message}");
+                return GenericResult<T>.Failure($"Failed to get connection factory: {factoryResult.Message}");
             }
 
             // 3. Create connection using factory
             var connectionResult = factoryResult.Value!.Create(connectionConfig);
             if (!connectionResult.IsSuccess)
             {
-                return FdwResult<T>.Failure($"Failed to create connection: {connectionResult.Message}");
+                return GenericResult<T>.Failure($"Failed to create connection: {connectionResult.Message}");
             }
 
-            using var connection = connectionResult.Value! as IFdwConnection;
+            using var connection = connectionResult.Value! as IGenericConnection;
 
             // 3. Execute query through connection
             // Note: Full query translation will be implemented in Step 14
@@ -115,12 +115,12 @@ public sealed class DataGatewayProvider : IDataGateway
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error executing data query with connection type: {ConnectionType}", connectionConfig.ConnectionType);
-            return FdwResult<T>.Failure($"Data query execution failed: {ex.Message}");
+            return GenericResult<T>.Failure($"Data query execution failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<T>> Execute<T>(IDataQuery query, int configurationId, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<T>> Execute<T>(IDataQuery query, int configurationId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -130,7 +130,7 @@ public sealed class DataGatewayProvider : IDataGateway
             var connectionConfig = await ResolveConnectionConfigurationById(configurationId);
             if (!connectionConfig.IsSuccess)
             {
-                return FdwResult<T>.Failure($"Failed to resolve connection configuration by ID: {connectionConfig.Message}");
+                return GenericResult<T>.Failure($"Failed to resolve connection configuration by ID: {connectionConfig.Message}");
             }
 
             // Execute using the resolved configuration
@@ -139,12 +139,12 @@ public sealed class DataGatewayProvider : IDataGateway
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error executing data query with configuration ID: {ConfigurationId}", configurationId);
-            return FdwResult<T>.Failure($"Data query execution failed: {ex.Message}");
+            return GenericResult<T>.Failure($"Data query execution failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<string[]>> GetAvailableConnections(string dataSetName)
+    public async Task<IGenericResult<string[]>> GetAvailableConnections(string dataSetName)
     {
         try
         {
@@ -154,7 +154,7 @@ public sealed class DataGatewayProvider : IDataGateway
             var dataSet = _dataSetProvider.GetByName(dataSetName);
             if (dataSet == null)
             {
-                return FdwResult<string[]>.Failure($"Dataset '{dataSetName}' not found");
+                return GenericResult<string[]>.Failure($"Dataset '{dataSetName}' not found");
             }
 
             // Get all available connection types that support this dataset's requirements
@@ -163,17 +163,17 @@ public sealed class DataGatewayProvider : IDataGateway
             _logger.LogDebug("Found {Count} available connections for dataset: {DataSetName}", 
                 availableConnections.Length, dataSetName);
             
-            return FdwResult<string[]>.Success(availableConnections);
+            return GenericResult<string[]>.Success(availableConnections);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting available connections for dataset: {DataSetName}", dataSetName);
-            return FdwResult<string[]>.Failure($"Failed to get available connections: {ex.Message}");
+            return GenericResult<string[]>.Failure($"Failed to get available connections: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult> TestConnection(IConnectionConfiguration connectionConfig, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult> TestConnection(IConnectionConfiguration connectionConfig, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -183,16 +183,16 @@ public sealed class DataGatewayProvider : IDataGateway
             var factoryResult = _factoryProvider.GetFactory(connectionConfig.ConnectionType);
             if (!factoryResult.IsSuccess)
             {
-                return FdwResult.Failure($"Connection test failed - no factory: {factoryResult.Message}");
+                return GenericResult.Failure($"Connection test failed - no factory: {factoryResult.Message}");
             }
 
             var connectionResult = factoryResult.Value!.Create(connectionConfig);
             if (!connectionResult.IsSuccess)
             {
-                return FdwResult.Failure($"Connection test failed: {connectionResult.Message}");
+                return GenericResult.Failure($"Connection test failed: {connectionResult.Message}");
             }
 
-            using var connection = connectionResult.Value! as IFdwConnection;
+            using var connection = connectionResult.Value! as IGenericConnection;
             
             // Test the connection
             var testResult = await connection.TestConnectionAsync();
@@ -212,12 +212,12 @@ public sealed class DataGatewayProvider : IDataGateway
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error testing connection: {ConnectionType}", connectionConfig.ConnectionType);
-            return FdwResult.Failure($"Connection test failed: {ex.Message}");
+            return GenericResult.Failure($"Connection test failed: {ex.Message}");
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFdwResult<DataSetMetadata[]>> DiscoverDataSets(IConnectionConfiguration connectionConfig, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<DataSetMetadata[]>> DiscoverDataSets(IConnectionConfiguration connectionConfig, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -227,16 +227,16 @@ public sealed class DataGatewayProvider : IDataGateway
             var factoryResult = _factoryProvider.GetFactory(connectionConfig.ConnectionType);
             if (!factoryResult.IsSuccess)
             {
-                return FdwResult<DataSetMetadata[]>.Failure($"Failed to get connection factory: {factoryResult.Message}");
+                return GenericResult<DataSetMetadata[]>.Failure($"Failed to get connection factory: {factoryResult.Message}");
             }
 
             var connectionResult = factoryResult.Value!.Create(connectionConfig);
             if (!connectionResult.IsSuccess)
             {
-                return FdwResult<DataSetMetadata[]>.Failure($"Failed to create connection: {connectionResult.Message}");
+                return GenericResult<DataSetMetadata[]>.Failure($"Failed to create connection: {connectionResult.Message}");
             }
 
-            using var connection = connectionResult.Value! as IFdwConnection;
+            using var connection = connectionResult.Value! as IGenericConnection;
             
             // Discover datasets (implementation will vary by connection type)
             var metadataResult = await DiscoverDataSetsFromConnection(connection, cancellationToken);
@@ -249,7 +249,7 @@ public sealed class DataGatewayProvider : IDataGateway
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error discovering datasets for connection: {ConnectionType}", connectionConfig.ConnectionType);
-            return FdwResult<DataSetMetadata[]>.Failure($"Dataset discovery failed: {ex.Message}");
+            return GenericResult<DataSetMetadata[]>.Failure($"Dataset discovery failed: {ex.Message}");
         }
     }
 
@@ -260,7 +260,7 @@ public sealed class DataGatewayProvider : IDataGateway
     /// </summary>
     /// <param name="connectionName">The name of the connection to resolve.</param>
     /// <returns>The resolved connection configuration.</returns>
-    private async Task<IFdwResult<IConnectionConfiguration>> ResolveConnectionConfiguration(string connectionName)
+    private async Task<IGenericResult<IConnectionConfiguration>> ResolveConnectionConfiguration(string connectionName)
     {
         // Step 13: Placeholder for configuration resolution
         // This will be enhanced in Step 15 with full configuration loading
@@ -268,7 +268,7 @@ public sealed class DataGatewayProvider : IDataGateway
         
         // For now, return a placeholder implementation
         await Task.Delay(1); // Simulate async operation
-        return FdwResult<IConnectionConfiguration>.Failure($"Connection configuration resolution not yet implemented for: {connectionName}");
+        return GenericResult<IConnectionConfiguration>.Failure($"Connection configuration resolution not yet implemented for: {connectionName}");
     }
 
     /// <summary>
@@ -276,7 +276,7 @@ public sealed class DataGatewayProvider : IDataGateway
     /// </summary>
     /// <param name="configurationId">The ID of the configuration to resolve.</param>
     /// <returns>The resolved connection configuration.</returns>
-    private async Task<IFdwResult<IConnectionConfiguration>> ResolveConnectionConfigurationById(int configurationId)
+    private async Task<IGenericResult<IConnectionConfiguration>> ResolveConnectionConfigurationById(int configurationId)
     {
         // Step 13: Placeholder for ID-based configuration resolution
         // This will be enhanced in Step 15 with full configuration loading
@@ -284,7 +284,7 @@ public sealed class DataGatewayProvider : IDataGateway
         
         // For now, return a placeholder implementation
         await Task.Delay(1); // Simulate async operation
-        return FdwResult<IConnectionConfiguration>.Failure($"Connection configuration resolution not yet implemented for ID: {configurationId}");
+        return GenericResult<IConnectionConfiguration>.Failure($"Connection configuration resolution not yet implemented for ID: {configurationId}");
     }
 
     /// <summary>
@@ -293,7 +293,7 @@ public sealed class DataGatewayProvider : IDataGateway
     /// <param name="query">The query to validate.</param>
     /// <param name="connectionConfig">The connection configuration to validate against.</param>
     /// <returns>The validation result.</returns>
-    private async Task<IFdwResult> ValidateQueryCompatibility(IDataQuery query, IConnectionConfiguration connectionConfig)
+    private async Task<IGenericResult> ValidateQueryCompatibility(IDataQuery query, IConnectionConfiguration connectionConfig)
     {
         // Step 13: Basic validation logic
         // This will be enhanced in Step 14 with full query validation
@@ -301,17 +301,17 @@ public sealed class DataGatewayProvider : IDataGateway
         
         if (query == null)
         {
-            return FdwResult.Failure("Query cannot be null");
+            return GenericResult.Failure("Query cannot be null");
         }
 
         if (string.IsNullOrEmpty(connectionConfig.ConnectionType))
         {
-            return FdwResult.Failure("Connection type cannot be null or empty");
+            return GenericResult.Failure("Connection type cannot be null or empty");
         }
 
         // Simulate async validation
         await Task.Delay(1);
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <summary>
@@ -322,7 +322,7 @@ public sealed class DataGatewayProvider : IDataGateway
     /// <param name="connection">The connection to use for execution.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>The query execution result.</returns>
-    private async Task<IFdwResult<T>> ExecuteQueryThroughConnection<T>(IDataQuery query, IFdwConnection connection, CancellationToken cancellationToken)
+    private async Task<IGenericResult<T>> ExecuteQueryThroughConnection<T>(IDataQuery query, IGenericConnection connection, CancellationToken cancellationToken)
     {
         // Step 14: Full DataCommand execution flow
         _logger.LogDebug("Executing query through connection: {ConnectionId}", connection.ConnectionId);
@@ -343,7 +343,7 @@ public sealed class DataGatewayProvider : IDataGateway
             {
                 _logger.LogWarning("Command execution failed for query {CommandId}: {Error}", 
                     dataCommand.CommandId, commandResult.Message);
-                return FdwResult<T>.Failure($"Query execution failed: {commandResult.Message}");
+                return GenericResult<T>.Failure($"Query execution failed: {commandResult.Message}");
             }
 
             _logger.LogDebug("Query execution completed successfully for command: {CommandId}", dataCommand.CommandId);
@@ -352,7 +352,7 @@ public sealed class DataGatewayProvider : IDataGateway
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error executing query through connection: {ConnectionId}", connection.ConnectionId);
-            return FdwResult<T>.Failure($"Query execution error: {ex.Message}");
+            return GenericResult<T>.Failure($"Query execution error: {ex.Message}");
         }
     }
 
@@ -417,7 +417,7 @@ public sealed class DataGatewayProvider : IDataGateway
     /// <param name="connection">The connection to discover datasets from.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>Array of discovered dataset metadata.</returns>
-    private async Task<IFdwResult<DataSetMetadata[]>> DiscoverDataSetsFromConnection(IFdwConnection connection, CancellationToken cancellationToken)
+    private async Task<IGenericResult<DataSetMetadata[]>> DiscoverDataSetsFromConnection(IGenericConnection connection, CancellationToken cancellationToken)
     {
         // Step 13: Placeholder for dataset discovery
         // This will be connection-specific discovery logic
@@ -441,7 +441,7 @@ public sealed class DataGatewayProvider : IDataGateway
             }
         };
         
-        return FdwResult<DataSetMetadata[]>.Success(placeholder);
+        return GenericResult<DataSetMetadata[]>.Success(placeholder);
     }
 
     #endregion

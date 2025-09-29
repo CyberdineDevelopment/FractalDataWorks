@@ -14,7 +14,7 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions;
 /// </summary>
 /// <typeparam name="TConfiguration">The type of configuration this connection requires.</typeparam>
 /// <remarks>
-/// This interface extends IFdwConnection to provide data-specific functionality
+/// This interface extends IGenericConnection to provide data-specific functionality
 /// while constraining command execution to IDataCommand types only.
 /// </remarks>
 public interface IExternalDataConnection<TConfiguration> : IConnection<TConfiguration>
@@ -28,9 +28,9 @@ public interface IExternalDataConnection<TConfiguration> : IConnection<TConfigur
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult&lt;T&gt; with the command execution result or error information.
+    /// an IGenericResult&lt;T&gt; with the command execution result or error information.
     /// </returns>
-    Task<IFdwResult<T>> Execute<T>(IDataCommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<T>> Execute<T>(IDataCommand command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Discovers the schema structure starting from an optional path.
@@ -39,9 +39,9 @@ public interface IExternalDataConnection<TConfiguration> : IConnection<TConfigur
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult with a collection of discovered data containers.
+    /// an IGenericResult with a collection of discovered data containers.
     /// </returns>
-    Task<IFdwResult<IEnumerable<DataContainer>>> DiscoverSchema(DataPath? startPath = null, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IEnumerable<DataContainer>>> DiscoverSchema(DataPath? startPath = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Tests if this connection is available and operational.
@@ -49,9 +49,9 @@ public interface IExternalDataConnection<TConfiguration> : IConnection<TConfigur
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult&lt;bool&gt; indicating whether the connection is available.
+    /// an IGenericResult&lt;bool&gt; indicating whether the connection is available.
     /// </returns>
-    Task<IFdwResult<bool>> TestConnection(CancellationToken cancellationToken = default);
+    Task<IGenericResult<bool>> TestConnection(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets metadata information about this connection.
@@ -59,7 +59,7 @@ public interface IExternalDataConnection<TConfiguration> : IConnection<TConfigur
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains
-    /// an IFdwResult with connection metadata.
+    /// an IGenericResult with connection metadata.
     /// </returns>
-    Task<IFdwResult<IDictionary<string, object>>> GetConnectionInfo(CancellationToken cancellationToken = default);
+    Task<IGenericResult<IDictionary<string, object>>> GetConnectionInfo(CancellationToken cancellationToken = default);
 }

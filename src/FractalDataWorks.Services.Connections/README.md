@@ -14,7 +14,7 @@ FractalDataWorks.Services.Connections implements a provider-based model for mana
 
 ## Features
 
-- **FdwConnectionProvider** - Central provider for creating and managing connections
+- **GenericConnectionProvider** - Central provider for creating and managing connections
 - **ConnectionTypes Collection** - Source-generated collection of all connection types
 - **Configuration Integration** - Support for appsettings.json and configuration objects
 - **State Management** - Built-in connection state tracking
@@ -32,7 +32,7 @@ FractalDataWorks.Services.Connections implements a provider-based model for mana
 
 ```csharp
 // Register the connection provider
-services.AddSingleton<IFdwConnectionProvider, FdwConnectionProvider>();
+services.AddSingleton<IGenericConnectionProvider, GenericConnectionProvider>();
 
 // Register all discovered connection types
 ConnectionTypes.Register(services);
@@ -62,26 +62,26 @@ ConnectionTypes.Register(services);
 ```csharp
 public class DataService
 {
-    private readonly IFdwConnectionProvider _connectionProvider;
+    private readonly IGenericConnectionProvider _connectionProvider;
 
-    public DataService(IFdwConnectionProvider connectionProvider)
+    public DataService(IGenericConnectionProvider connectionProvider)
     {
         _connectionProvider = connectionProvider;
     }
 
-    public async Task<IFdwResult<List<User>>> GetUsersAsync()
+    public async Task<IGenericResult<List<User>>> GetUsersAsync()
     {
         // Get connection by configuration name
         var connectionResult = await _connectionProvider.GetConnection("MainDatabase");
         if (connectionResult.Error)
-            return FdwResult<List<User>>.Failure(connectionResult.Message);
+            return GenericResult<List<User>>.Failure(connectionResult.Message);
 
         using var connection = connectionResult.Value;
 
         // Open connection
         var openResult = await connection.OpenAsync();
         if (openResult.Error)
-            return FdwResult<List<User>>.Failure(openResult.Message);
+            return GenericResult<List<User>>.Failure(openResult.Message);
 
         // Execute command using the connection
         var command = new QueryCommand { /* ... */ };
@@ -92,16 +92,16 @@ public class DataService
 
 ## Key Components
 
-### FdwConnectionProvider
+### GenericConnectionProvider
 
 The main provider for connection management:
 
 ```csharp
-public interface IFdwConnectionProvider
+public interface IGenericConnectionProvider
 {
-    Task<IFdwResult<IFdwConnection>> GetConnection(IConnectionConfiguration configuration);
-    Task<IFdwResult<IFdwConnection>> GetConnection(int configurationId);
-    Task<IFdwResult<IFdwConnection>> GetConnection(string configurationName);
+    Task<IGenericResult<IGenericConnection>> GetConnection(IConnectionConfiguration configuration);
+    Task<IGenericResult<IGenericConnection>> GetConnection(int configurationId);
+    Task<IGenericResult<IGenericConnection>> GetConnection(string configurationName);
 }
 ```
 
@@ -155,7 +155,7 @@ To add a new connection type:
 
 ```csharp
 public sealed class MongoDbConnectionType :
-    ConnectionTypeBase<IFdwConnection, MongoDbConfiguration, IMongoDbConnectionFactory>
+    ConnectionTypeBase<IGenericConnection, MongoDbConfiguration, IMongoDbConnectionFactory>
 {
     public static MongoDbConnectionType Instance { get; } = new();
 
@@ -183,12 +183,12 @@ public sealed class MongoDbConnectionType :
 public class MongoDbConnection :
     ConnectionServiceBase<IConnectionCommand, MongoDbConfiguration, MongoDbConnection>
 {
-    protected override async Task<IFdwResult> OpenCoreAsync()
+    protected override async Task<IGenericResult> OpenCoreAsync()
     {
         // MongoDB connection logic
     }
 
-    public override async Task<IFdwResult<T>> Execute<T>(IConnectionCommand command)
+    public override async Task<IGenericResult<T>> Execute<T>(IConnectionCommand command)
     {
         // Execute MongoDB commands
     }
@@ -227,9 +227,9 @@ Comprehensive structured logging:
 
 ```csharp
 // Connection operations
-FdwConnectionProviderLog.GettingConnection(logger, connectionType);
-FdwConnectionProviderLog.ConnectionCreated(logger, connectionType);
-FdwConnectionProviderLog.ConnectionCreationFailed(logger, connectionType, error);
+GenericConnectionProviderLog.GettingConnection(logger, connectionType);
+GenericConnectionProviderLog.ConnectionCreated(logger, connectionType);
+GenericConnectionProviderLog.ConnectionCreationFailed(logger, connectionType, error);
 ```
 
 ## Dependencies
@@ -254,7 +254,7 @@ FdwConnectionProviderLog.ConnectionCreationFailed(logger, connectionType, error)
 
 - [Connections Architecture](../../docs/Connections.md)
 - [Developer Guide](../../docs/DeveloperGuide-ServiceSetup.md)
-- [API Reference](https://docs.fractaldataworks.com/api/connections)
+- [API Reference](https://docs.FractalDataWorks.com/api/connections)
 
 ## License
 

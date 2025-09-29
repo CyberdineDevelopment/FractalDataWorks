@@ -103,7 +103,7 @@ public interface IDataPath
     /// A result indicating whether the parameters are valid, with specific
     /// error messages for any validation failures.
     /// </returns>
-    IFdwResult ValidateParameters(IDictionary<string, object> parameters);
+    IGenericResult ValidateParameters(IDictionary<string, object> parameters);
 
     /// <summary>
     /// Gets the parent path if this path is hierarchical.

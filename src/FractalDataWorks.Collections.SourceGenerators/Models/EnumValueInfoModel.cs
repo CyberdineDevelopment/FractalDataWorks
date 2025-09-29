@@ -4,10 +4,10 @@ using FractalDataWorks.SourceGenerators.Models;
 namespace FractalDataWorks.Collections.Models;
 
 /// <summary>
-/// Type alias for FdwValueInfoModel used in Collections context.
+/// Type alias for GenericValueInfoModel used in Collections context.
 /// Maintains compatibility while using the generalized model.
 /// </summary>
-public class EnumValueInfoModel : FdwValueInfoModel, IEquatable<EnumValueInfoModel>
+public class EnumValueInfoModel : GenericValueInfoModel, IEquatable<EnumValueInfoModel>
 {
     /// <summary>
     /// Determines whether the specified <see cref="EnumValueInfoModel"/> is equal to the current instance.

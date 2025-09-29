@@ -28,7 +28,7 @@ namespace FractalDataWorks.Services.Authentication.Abstractions.Security;
 /// to provide end-to-end token lifecycle management from generation through validation.
 /// </para>
 /// <para>
-/// All operations return IFdwResult to provide consistent error handling and
+/// All operations return IGenericResult to provide consistent error handling and
 /// success/failure semantics across the FractalDataWorks framework.
 /// </para>
 /// <para>
@@ -55,7 +55,7 @@ public interface ISecurityTokenService
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous token generation operation.
-    /// The task result contains an IFdwResult with the generated token string
+    /// The task result contains an IGenericResult with the generated token string
     /// if generation succeeds, or error information if generation fails.
     /// </returns>
     /// <remarks>
@@ -99,7 +99,7 @@ public interface ISecurityTokenService
     /// <exception cref="System.InvalidOperationException">
     /// Thrown when <paramref name="context"/> represents an unauthenticated user.
     /// </exception>
-    Task<IFdwResult<string>> GenerateTokenAsync(IAuthenticationContext context, CancellationToken cancellationToken = default);
+    Task<IGenericResult<string>> GenerateTokenAsync(IAuthenticationContext context, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Parses the provided token and extracts the authentication context information.
@@ -113,7 +113,7 @@ public interface ISecurityTokenService
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous token parsing operation.
-    /// The task result contains an IFdwResult with the extracted IAuthenticationContext
+    /// The task result contains an IGenericResult with the extracted IAuthenticationContext
     /// if parsing succeeds, or error information if parsing fails.
     /// </returns>
     /// <remarks>
@@ -158,7 +158,7 @@ public interface ISecurityTokenService
     /// <exception cref="System.ArgumentException">
     /// Thrown when <paramref name="token"/> is empty or whitespace.
     /// </exception>
-    Task<IFdwResult<IAuthenticationContext>> ParseTokenAsync(string token, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IAuthenticationContext>> ParseTokenAsync(string token, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates the provided token for integrity, authenticity, and validity.
@@ -172,7 +172,7 @@ public interface ISecurityTokenService
     /// </param>
     /// <returns>
     /// A task that represents the asynchronous token validation operation.
-    /// The task result contains an IFdwResult with a boolean value indicating
+    /// The task result contains an IGenericResult with a boolean value indicating
     /// whether the token is valid (true) or invalid (false).
     /// </returns>
     /// <remarks>
@@ -224,5 +224,5 @@ public interface ISecurityTokenService
     /// <exception cref="System.ArgumentException">
     /// Thrown when <paramref name="token"/> is empty or whitespace.
     /// </exception>
-    Task<IFdwResult<bool>> ValidateTokenAsync(string token, CancellationToken cancellationToken = default);
+    Task<IGenericResult<bool>> ValidateTokenAsync(string token, CancellationToken cancellationToken = default);
 }

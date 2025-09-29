@@ -17,6 +17,6 @@ public interface ICommand<T> : ICommand
     /// <summary>
     /// Validates this command.
     /// </summary>
-    /// <returns>A FdwResult containing the validation result.</returns>
-    new IFdwResult<ValidationResult> Validate();
+    /// <returns>A GenericResult containing the validation result.</returns>
+    new IGenericResult<ValidationResult> Validate();
 }

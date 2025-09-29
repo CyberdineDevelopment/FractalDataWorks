@@ -10,16 +10,16 @@ This package provides the foundational interfaces for external connection servic
 
 The external connections abstractions follow the framework's **enhanced service pattern**:
 
-- **Core Interface**: `IFdwConnectionService` extends `IServiceType` 
-- **Command Contract**: `IFdwConnectionCommand` defines connection command structure
-- **Configuration Base**: `IFdwConnectionConfiguration` provides configuration contract
+- **Core Interface**: `IGenericConnectionService` extends `IServiceType` 
+- **Command Contract**: `IGenericConnectionCommand` defines connection command structure
+- **Configuration Base**: `IGenericConnectionConfiguration` provides configuration contract
 - **Base Classes**: Add type constraints without implementation logic
 
 ## Key Interfaces
 
 ### Core Service Interface
 ```csharp
-public interface IFdwConnectionService : IServiceType
+public interface IGenericConnectionService : IServiceType
 {
     // Service discovery and capability information
     string[] SupportedDataStores { get; }
@@ -30,59 +30,59 @@ public interface IFdwConnectionService : IServiceType
     int Priority { get; }
     
     // Factory creation for connections
-    Task<IFdwResult<IFdwConnectionFactory>> CreateConnectionFactoryAsync(
+    Task<IGenericResult<IGenericConnectionFactory>> CreateConnectionFactoryAsync(
         IServiceProvider serviceProvider);
     
     // Validation and metadata
-    IFdwResult ValidateCapability(string dataStore, string? connectionMode = null);
-    Task<IFdwResult<IProviderMetadata>> GetProviderMetadataAsync();
+    IGenericResult ValidateCapability(string dataStore, string? connectionMode = null);
+    Task<IGenericResult<IProviderMetadata>> GetProviderMetadataAsync();
 }
 ```
 
 ### Generic Service Interface
 ```csharp
-public interface IFdwConnectionService<TConfiguration> : IFdwConnectionService
-    where TConfiguration : IFdwConnectionConfiguration, new()
+public interface IGenericConnectionService<TConfiguration> : IGenericConnectionService
+    where TConfiguration : IGenericConnectionConfiguration, new()
 {
     // Type-safe factory creation
-    Task<IFdwResult<IFdwConnectionFactory<TConfiguration, IFdwConnection<TConfiguration>>>> 
+    Task<IGenericResult<IGenericConnectionFactory<TConfiguration, IGenericConnection<TConfiguration>>>> 
         CreateTypedConnectionFactoryAsync(IServiceProvider serviceProvider);
         
     // Configuration validation
-    IFdwResult ValidateConfiguration(TConfiguration configuration);
+    IGenericResult ValidateConfiguration(TConfiguration configuration);
 }
 ```
 
 ### Connection Interface
 ```csharp
-public interface IFdwConnection
+public interface IGenericConnection
 {
     // Connection lifecycle and state management
     string ConnectionId { get; }
     string ProviderName { get; }
-    FdwConnectionState State { get; }
+    GenericConnectionState State { get; }
     string ConnectionString { get; }
     
     // Connection operations
-    Task<IFdwResult> OpenAsync();
-    Task<IFdwResult> CloseAsync();
-    Task<IFdwResult> TestConnectionAsync();
-    Task<IFdwResult<IConnectionMetadata>> GetMetadataAsync();
+    Task<IGenericResult> OpenAsync();
+    Task<IGenericResult> CloseAsync();
+    Task<IGenericResult> TestConnectionAsync();
+    Task<IGenericResult<IConnectionMetadata>> GetMetadataAsync();
 }
 ```
 
 ### Factory Interface
 ```csharp
-public interface IFdwConnectionFactory
+public interface IGenericConnectionFactory
 {
     // Connection creation and validation
     string ProviderName { get; }
     IReadOnlyList<string> SupportedConnectionTypes { get; }
     Type ConfigurationType { get; }
     
-    Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(FractalConfigurationBase configuration);
-    Task<IFdwResult> ValidateConfigurationAsync(FractalConfigurationBase configuration);
-    Task<IFdwResult> TestConnectivityAsync(FractalConfigurationBase configuration);
+    Task<IGenericResult<IGenericConnection>> CreateConnectionAsync(FractalConfigurationBase configuration);
+    Task<IGenericResult> ValidateConfigurationAsync(FractalConfigurationBase configuration);
+    Task<IGenericResult> TestConnectivityAsync(FractalConfigurationBase configuration);
 }
 ```
 
@@ -90,7 +90,7 @@ public interface IFdwConnectionFactory
 
 The package includes base classes that **only add generic type constraints**:
 
-- `FdwConnectionProviderBase` - Provides service type implementation with metadata
+- `GenericConnectionProviderBase` - Provides service type implementation with metadata
 - Base classes are **logging-enabled** but contain no business logic
 
 **Important**: Base classes contain **no implementation logic**. They exist solely to provide service type enumeration support and type constraints.
@@ -99,7 +99,7 @@ The package includes base classes that **only add generic type constraints**:
 
 ### Connection State Management
 ```csharp
-public enum FdwConnectionState
+public enum GenericConnectionState
 {
     Closed, Opening, Open, Closing, Broken, Connecting, Executing
 }
@@ -140,8 +140,8 @@ This pattern is necessary because connections are **infrastructure services** th
 
 Concrete implementations should:
 
-1. **Implement IFdwConnectionService** with capability metadata
-2. **Inherit from FdwConnectionProviderBase** for service enumeration
+1. **Implement IGenericConnectionService** with capability metadata
+2. **Inherit from GenericConnectionProviderBase** for service enumeration
 3. **Create connection factory** that produces actual connections
 4. **Define connection types** with proper state management
 5. **Provide configuration classes** for connection parameters
@@ -153,11 +153,11 @@ The type hierarchy flows from service discovery to typed implementation:
 ```
 IServiceType
     ↓
-IFdwConnectionService
+IGenericConnectionService
     ↓
-IFdwConnectionService<TConfiguration>
+IGenericConnectionService<TConfiguration>
     ↓  
-FdwConnectionProviderBase
+GenericConnectionProviderBase
     ↓
 ConcreteConnectionService<SpecificConfig>
 ```

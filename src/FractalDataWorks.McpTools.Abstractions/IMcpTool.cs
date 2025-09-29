@@ -37,10 +37,10 @@ public interface IMcpTool
     /// <summary>
     /// Executes the tool with Railway-oriented result handling.
     /// </summary>
-    Task<IFdwResult<object>> ExecuteAsync(object? arguments, CancellationToken cancellationToken = default);
+    Task<IGenericResult<object>> ExecuteAsync(object? arguments, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates the tool arguments before execution.
     /// </summary>
-    Task<IFdwResult> ValidateArgumentsAsync(object? arguments, CancellationToken cancellationToken = default);
+    Task<IGenericResult> ValidateArgumentsAsync(object? arguments, CancellationToken cancellationToken = default);
 }

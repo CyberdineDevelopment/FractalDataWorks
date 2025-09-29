@@ -6,28 +6,28 @@ The FractalDataWorks.Services.Connections library provides a unified abstraction
 
 ## Core Components
 
-### IFdwConnection
+### IGenericConnection
 
 The base connection interface that all connections must implement:
 
 ```csharp
-// Located in: Services.Connections.Abstractions/IFdwConnection.cs
-public interface IFdwConnection : IDisposable, IFdwService
+// Located in: Services.Connections.Abstractions/IGenericConnection.cs
+public interface IGenericConnection : IDisposable, IGenericService
 {
-    // Inherits from IFdwService for consistent service patterns
+    // Inherits from IGenericService for consistent service patterns
 }
 ```
 
-### FdwConnectionProvider
+### GenericConnectionProvider
 
 The central provider for creating and managing connections:
 
 ```csharp
-public sealed class FdwConnectionProvider : IFdwConnectionProvider
+public sealed class GenericConnectionProvider : IGenericConnectionProvider
 {
-    public async Task<IFdwResult<IFdwConnection>> GetConnection(IConnectionConfiguration configuration);
-    public async Task<IFdwResult<IFdwConnection>> GetConnection(int configurationId);
-    public async Task<IFdwResult<IFdwConnection>> GetConnection(string configurationName);
+    public async Task<IGenericResult<IGenericConnection>> GetConnection(IConnectionConfiguration configuration);
+    public async Task<IGenericResult<IGenericConnection>> GetConnection(int configurationId);
+    public async Task<IGenericResult<IGenericConnection>> GetConnection(string configurationName);
 }
 ```
 
@@ -77,7 +77,7 @@ public class ConnectionRegistrationOptions
 
 ## Logging Infrastructure
 
-### FdwConnectionProviderLog
+### GenericConnectionProviderLog
 
 Structured logging for connection operations:
 
@@ -113,7 +113,7 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService>
 
 // Connection type with full constraints
 public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory>
-    where TService : class, IFdwConnection  // Must implement IFdwConnection
+    where TService : class, IGenericConnection  // Must implement IGenericConnection
     where TConfiguration : class, IConnectionConfiguration
     where TFactory : class, IConnectionFactory<TService, TConfiguration>
 ```
@@ -129,7 +129,7 @@ public class MsSqlConnection : ConnectionServiceBase<MsSqlCommand, MsSqlConfigur
 
 This ensures:
 - Connection services must use connection-specific commands
-- All connections implement IFdwConnection
+- All connections implement IGenericConnection
 - Type safety increases from abstraction to implementation
 
 ## Registration Process
@@ -201,7 +201,7 @@ The provider uses a multi-step resolution process:
 
 ## Error Handling
 
-All operations return `IFdwResult<T>` with detailed error information:
+All operations return `IGenericResult<T>` with detailed error information:
 
 - Configuration validation failures
 - Missing connection types
@@ -228,7 +228,7 @@ public static class ConnectionServiceExtensions
 ## Thread Safety
 
 - `ConnectionTypes` static class is thread-safe
-- `FdwConnectionProvider` is thread-safe for all operations
+- `GenericConnectionProvider` is thread-safe for all operations
 - Individual connections maintain their own thread safety
 - Factory operations are thread-safe
 
@@ -286,6 +286,6 @@ Built-in support for:
 The framework provides a migration path from direct connection usage:
 
 1. Wrap existing connections in adapters
-2. Implement IFdwConnection interface
+2. Implement IGenericConnection interface
 3. Register with ConnectionTypes
 4. Gradually migrate to full abstraction

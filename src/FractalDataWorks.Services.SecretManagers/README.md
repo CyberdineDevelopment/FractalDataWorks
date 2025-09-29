@@ -24,7 +24,7 @@ The Secret Management framework provides ServiceType auto-discovery for secret s
 
 ```csharp
 // Program.cs - Zero-configuration registration
-builder.Services.AddScoped<IFdwSecretProvider, FdwSecretProvider>();
+builder.Services.AddScoped<IGenericSecretProvider, GenericSecretProvider>();
 
 // Single line registers ALL discovered secret management types
 SecretManagerTypes.Register(builder.Services);
@@ -51,25 +51,25 @@ SecretManagerTypes.Register(builder.Services);
 ```csharp
 public class EmailService
 {
-    private readonly IFdwSecretProvider _secretProvider;
+    private readonly IGenericSecretProvider _secretProvider;
 
-    public EmailService(IFdwSecretProvider secretProvider)
+    public EmailService(IGenericSecretProvider secretProvider)
     {
         _secretProvider = secretProvider;
     }
 
-    public async Task<IFdwResult> SendEmailAsync(string to, string subject, string body)
+    public async Task<IGenericResult> SendEmailAsync(string to, string subject, string body)
     {
         var secretResult = await _secretProvider.GetSecretManager("AzureKeyVault");
         if (!secretResult.IsSuccess)
-            return FdwResult.Failure(secretResult.Error);
+            return GenericResult.Failure(secretResult.Error);
 
         using var secretManager = secretResult.Value;
 
         // Universal secret retrieval - works with any provider
         var smtpPassword = await secretManager.GetSecretAsync("smtp-password");
         if (!smtpPassword.IsSuccess)
-            return FdwResult.Failure(smtpPassword.Error);
+            return GenericResult.Failure(smtpPassword.Error);
 
         // Use the secret for email sending
         var emailResult = await SendEmailWithPassword(to, subject, body, smtpPassword.Value);
@@ -97,7 +97,7 @@ public class EmailService
 
 ```csharp
 // 1. Create your secret management type (singleton pattern)
-public sealed class CustomVaultType : SecretManagerTypeBase<IFdwSecretManager, CustomVaultConfiguration, ICustomVaultFactory>
+public sealed class CustomVaultType : SecretManagerTypeBase<IGenericSecretManager, CustomVaultConfiguration, ICustomVaultFactory>
 {
     public static CustomVaultType Instance { get; } = new();
 

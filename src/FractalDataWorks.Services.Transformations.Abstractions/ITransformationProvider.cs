@@ -11,7 +11,7 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// <summary>
 /// Non-generic marker interface for transformation providers.
 /// </summary>
-public interface ITransformationProvider : IFdwService
+public interface ITransformationProvider : IGenericService
 {
 }
 
@@ -25,7 +25,7 @@ public interface ITransformationProvider : IFdwService
 /// different formats, structures, and representations. They enable data pipeline operations
 /// and ETL (Extract, Transform, Load) processes within the framework.
 /// </remarks>
-public interface ITransformationProvider<TTransformationRequest> : ITransformationProvider, IFdwService<TTransformationRequest>
+public interface ITransformationProvider<TTransformationRequest> : ITransformationProvider, IGenericService<TTransformationRequest>
     where TTransformationRequest : ITransformationRequest
 {
     /// <summary>
@@ -84,7 +84,7 @@ public interface ITransformationProvider<TTransformationRequest> : ITransformati
     /// This method enables dynamic transformation validation without executing
     /// the actual transformation. Useful for pipeline planning and validation.
     /// </remarks>
-    IFdwResult ValidateTransformation(string inputType, string outputType, string? transformationCategory = null);
+    IGenericResult ValidateTransformation(string inputType, string outputType, string? transformationCategory = null);
     
     /// <summary>
     /// Transforms data from the input format to the output format.
@@ -100,7 +100,7 @@ public interface ITransformationProvider<TTransformationRequest> : ITransformati
     /// This method performs the actual data transformation using the configuration
     /// and parameters specified in the transformation request.
     /// </remarks>
-    Task<IFdwResult<TOutput>> Transform<TOutput>(ITransformationRequest transformationRequest);
+    Task<IGenericResult<TOutput>> Transform<TOutput>(ITransformationRequest transformationRequest);
     
     /// <summary>
     /// Transforms data from the input format to the output format with non-generic result.
@@ -115,7 +115,7 @@ public interface ITransformationProvider<TTransformationRequest> : ITransformati
     /// This method provides non-generic transformation for scenarios where the output
     /// type is not known at compile time or varies based on runtime configuration.
     /// </remarks>
-    Task<IFdwResult<object?>> Transform(ITransformationRequest transformationRequest);
+    Task<IGenericResult<object?>> Transform(ITransformationRequest transformationRequest);
     
     /// <summary>
     /// Creates a transformation engine for complex, multi-step transformations.
@@ -130,7 +130,7 @@ public interface ITransformationProvider<TTransformationRequest> : ITransformati
     /// Transformation engines enable complex, stateful transformations that may
     /// involve multiple steps, caching, or batch processing capabilities.
     /// </remarks>
-    Task<IFdwResult<ITransformationEngine>> CreateEngineAsync(ITransformationEngineConfiguration configuration);
+    Task<IGenericResult<ITransformationEngine>> CreateEngineAsync(ITransformationEngineConfiguration configuration);
     
     /// <summary>
     /// Gets transformation performance metrics for this provider.
@@ -143,6 +143,6 @@ public interface ITransformationProvider<TTransformationRequest> : ITransformati
     /// Metrics help monitor transformation performance, identify bottlenecks,
     /// and optimize data processing pipelines.
     /// </remarks>
-    Task<IFdwResult<ITransformationMetrics>> GetTransformationMetricsAsync();
+    Task<IGenericResult<ITransformationMetrics>> GetTransformationMetricsAsync();
 }
 

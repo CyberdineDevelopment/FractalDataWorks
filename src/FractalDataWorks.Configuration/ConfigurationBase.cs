@@ -12,7 +12,7 @@ namespace FractalDataWorks.Configuration;
 /// Base class for all configuration types in the Rec framework.
 /// </summary>
 /// <typeparam name="TConfiguration">The derived configuration type.</typeparam>
-public abstract class ConfigurationBase<TConfiguration> : fdwConfigurationBase
+public abstract class ConfigurationBase<TConfiguration> : GenericConfigurationBase
     where TConfiguration : ConfigurationBase<TConfiguration>, new()
 {
 
@@ -34,20 +34,20 @@ public abstract class ConfigurationBase<TConfiguration> : fdwConfigurationBase
     /// <summary>
     /// Validates the configuration using FluentValidation.
     /// </summary>
-    /// <returns>A FdwResult containing the FluentValidation ValidationResult.</returns>
-    public override IFdwResult<ValidationResult> Validate()
+    /// <returns>A GenericResult containing the FluentValidation ValidationResult.</returns>
+    public override IGenericResult<ValidationResult> Validate()
     {
         var validator = GetValidator();
         if (validator == null)
         {
             // No validator configured, return success
-            return FdwResult<ValidationResult>.Success(new ValidationResult());
+            return GenericResult<ValidationResult>.Success(new ValidationResult());
         }
 
         var validationResult = validator.Validate((TConfiguration)this);
         // Always return success with the validation result
         // The caller should check validationResult.IsValid to determine if validation passed
-        return FdwResult<ValidationResult>.Success(validationResult);
+        return GenericResult<ValidationResult>.Success(validationResult);
     }
 
 

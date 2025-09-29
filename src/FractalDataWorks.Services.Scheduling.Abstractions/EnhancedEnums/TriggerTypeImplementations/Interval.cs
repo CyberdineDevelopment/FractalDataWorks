@@ -129,7 +129,7 @@ public sealed class Interval : TriggerTypeBase
     /// // Returns 9 AM Eastern + 2 hours (first execution after start time)
     /// </code>
     /// </example>
-    public override DateTime? CalculateNextExecution(IFdwTrigger trigger, DateTime? lastExecution)
+    public override DateTime? CalculateNextExecution(IGenericTrigger trigger, DateTime? lastExecution)
     {
         if (trigger?.Configuration == null)
         {
@@ -254,23 +254,23 @@ public sealed class Interval : TriggerTypeBase
     /// // result.Error == true with timezone validation error
     /// </code>
     /// </example>
-    public override IFdwResult ValidateTrigger(IFdwTrigger trigger)
+    public override IGenericResult ValidateTrigger(IGenericTrigger trigger)
     {
         if (trigger?.Configuration == null)
         {
-            return FdwResult.Failure("Trigger configuration is required for Interval trigger type");
+            return GenericResult.Failure("Trigger configuration is required for Interval trigger type");
         }
 
         // Validate interval is present and positive
         if (!trigger.Configuration.TryGetValue(IntervalMinutesKey, out var intervalObj) ||
             !TryConvertToInt(intervalObj, out var intervalMinutes))
         {
-            return FdwResult.Failure($"Interval in minutes is required and must be provided in the '{IntervalMinutesKey}' configuration key as a positive integer");
+            return GenericResult.Failure($"Interval in minutes is required and must be provided in the '{IntervalMinutesKey}' configuration key as a positive integer");
         }
 
         if (intervalMinutes <= 0)
         {
-            return FdwResult.Failure($"Interval must be greater than 0 minutes. Provided value: {intervalMinutes}");
+            return GenericResult.Failure($"Interval must be greater than 0 minutes. Provided value: {intervalMinutes}");
         }
 
         // Validate start time if provided
@@ -278,7 +278,7 @@ public sealed class Interval : TriggerTypeBase
             startTimeObj != null &&
             !TryConvertToDateTime(startTimeObj, out var _))
         {
-            return FdwResult.Failure($"Start time must be a valid DateTime if provided in the '{StartTimeKey}' configuration key");
+            return GenericResult.Failure($"Start time must be a valid DateTime if provided in the '{StartTimeKey}' configuration key");
         }
 
         // Validate timezone if provided
@@ -292,15 +292,15 @@ public sealed class Interval : TriggerTypeBase
             }
             catch (TimeZoneNotFoundException)
             {
-                return FdwResult.Failure($"Invalid timezone identifier: '{timeZoneId}'. Use standard timezone IDs like 'UTC', 'America/New_York', or 'Europe/London'");
+                return GenericResult.Failure($"Invalid timezone identifier: '{timeZoneId}'. Use standard timezone IDs like 'UTC', 'America/New_York', or 'Europe/London'");
             }
             catch (InvalidTimeZoneException ex)
             {
-                return FdwResult.Failure($"Invalid timezone configuration: {ex.Message}. Timezone: '{timeZoneId}'");
+                return GenericResult.Failure($"Invalid timezone configuration: {ex.Message}. Timezone: '{timeZoneId}'");
             }
         }
 
-        return FdwResult.Success();
+        return GenericResult.Success();
     }
 
     /// <summary>

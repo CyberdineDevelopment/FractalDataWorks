@@ -11,7 +11,7 @@ namespace FractalDataWorks.SourceGenerators.Services;
 /// from type definitions and values during source generation.
 /// Generalized from IEnumCollectionBuilder to work with any collection type.
 /// </summary>
-public interface IFdwCollectionBuilder
+public interface IGenericCollectionBuilder
 {
     /// <summary>
     /// Configures the generation mode for the collection.
@@ -20,7 +20,7 @@ public interface IFdwCollectionBuilder
     /// <param name="mode">The collection generation mode to use.</param>
     /// <returns>The current builder instance for method chaining.</returns>
     /// <exception cref="ArgumentException">Thrown when an invalid generation mode is specified.</exception>
-    IFdwCollectionBuilder Configure(CollectionGenerationMode mode);
+    IGenericCollectionBuilder Configure(CollectionGenerationMode mode);
 
     /// <summary>
     /// Sets the type definition that contains metadata about the type to be processed.
@@ -29,7 +29,7 @@ public interface IFdwCollectionBuilder
     /// <param name="definition">The type definition containing metadata for code generation.</param>
     /// <returns>The current builder instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="definition"/> is null.</exception>
-    IFdwCollectionBuilder WithDefinition(FdwTypeInfoModel definition);
+    IGenericCollectionBuilder WithDefinition(GenericTypeInfoModel definition);
 
     /// <summary>
     /// Sets the collection of values to include in the generated collection.
@@ -38,7 +38,7 @@ public interface IFdwCollectionBuilder
     /// <param name="values">The list of values to include in the collection.</param>
     /// <returns>The current builder instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is null.</exception>
-    IFdwCollectionBuilder WithValues(IList<FdwValueInfoModel> values);
+    IGenericCollectionBuilder WithValues(IList<GenericValueInfoModel> values);
 
     /// <summary>
     /// Sets the return type for generated collection methods and properties.
@@ -47,7 +47,7 @@ public interface IFdwCollectionBuilder
     /// <param name="returnType">The fully qualified or simplified return type name.</param>
     /// <returns>The current builder instance for method chaining.</returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="returnType"/> is null or empty.</exception>
-    IFdwCollectionBuilder WithReturnType(string returnType);
+    IGenericCollectionBuilder WithReturnType(string returnType);
 
     /// <summary>
     /// Sets the compilation context for type symbol resolution and semantic analysis.
@@ -57,7 +57,7 @@ public interface IFdwCollectionBuilder
     /// <param name="compilation">The compilation context from the source generator.</param>
     /// <returns>The current builder instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="compilation"/> is null.</exception>
-    IFdwCollectionBuilder WithCompilation(Compilation compilation);
+    IGenericCollectionBuilder WithCompilation(Compilation compilation);
 
     /// <summary>
     /// Builds and returns the complete source code for the collection.

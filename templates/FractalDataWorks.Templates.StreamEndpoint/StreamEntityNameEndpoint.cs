@@ -55,18 +55,18 @@ public class StreamEntityNameEndpoint : FractalEndpoint<StreamEntityNameRequest,
     }
 #endif
 
-    protected override async Task<IFdwResult<IAsyncEnumerable<StreamEntityNameResponse>>> ExecuteQueryAsync(StreamEntityNameRequest query, CancellationToken ct)
+    protected override async Task<IGenericResult<IAsyncEnumerable<StreamEntityNameResponse>>> ExecuteQueryAsync(StreamEntityNameRequest query, CancellationToken ct)
     {
         try
         {
             // Create the async enumerable for streaming
             var stream = StreamEntityNameDataAsync(query, ct);
-            return FdwResult<IAsyncEnumerable<StreamEntityNameResponse>>.Success(stream);
+            return GenericResult<IAsyncEnumerable<StreamEntityNameResponse>>.Success(stream);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error starting EntityName stream");
-            return FdwResult<IAsyncEnumerable<StreamEntityNameResponse>>.Failure("Failed to start EntityName stream");
+            return GenericResult<IAsyncEnumerable<StreamEntityNameResponse>>.Failure("Failed to start EntityName stream");
         }
     }
 

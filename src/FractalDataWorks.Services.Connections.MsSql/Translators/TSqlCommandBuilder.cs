@@ -27,7 +27,7 @@ internal sealed class TSqlCommandBuilder
         _containerType = containerType ?? throw new ArgumentNullException(nameof(containerType));
     }
 
-    public async Task<IFdwResult<SqlCommand>> BuildAsync(IDataQuery query)
+    public async Task<IGenericResult<SqlCommand>> BuildAsync(IDataQuery query)
     {
         try
         {
@@ -39,11 +39,11 @@ internal sealed class TSqlCommandBuilder
                 command.Parameters.Add(parameter);
             }
 
-            return FdwResult<SqlCommand>.Success(command);
+            return GenericResult<SqlCommand>.Success(command);
         }
         catch (Exception ex)
         {
-            return FdwResult<SqlCommand>.Failure($"Failed to build SQL command: {ex.Message}");
+            return GenericResult<SqlCommand>.Failure($"Failed to build SQL command: {ex.Message}");
         }
     }
 

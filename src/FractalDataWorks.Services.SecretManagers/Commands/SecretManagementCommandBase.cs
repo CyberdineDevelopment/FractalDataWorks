@@ -78,7 +78,7 @@ public abstract class SecretManagerCommandBase : ISecretManagerCommand
     public DateTimeOffset Timestamp { get; }
 
     /// <inheritdoc/>
-    public IFdwConfiguration? Configuration { get; }
+    public IGenericConfiguration? Configuration { get; }
 
     /// <summary>
     /// Gets the base managementCommand identifier as a Guid.
@@ -118,7 +118,7 @@ public abstract class SecretManagerCommandBase : ISecretManagerCommand
     public abstract bool IsSecretModifying { get; }
 
     /// <inheritdoc/>
-    public virtual IFdwResult<ValidationResult> Validate()
+    public virtual IGenericResult<ValidationResult> Validate()
     {
         var errors = new List<ValidationFailure>();
         
@@ -149,11 +149,11 @@ public abstract class SecretManagerCommandBase : ISecretManagerCommand
         var validationResult = new ValidationResult(errors);
         if (validationResult.IsValid)
         {
-            return FdwResult<ValidationResult>.Success(validationResult);
+            return GenericResult<ValidationResult>.Success(validationResult);
         }
         
         var errorMessage = string.Join("; ", errors.Select(e => e.ErrorMessage));
-        return FdwResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errorMessage, "ValidationFailed", "SecretManagerCommandBase"));
+        return GenericResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errorMessage, "ValidationFailed", "SecretManagerCommandBase"));
     }
 
     /// <inheritdoc/>

@@ -12,7 +12,7 @@ The foundational abstract class for all connection service implementations:
 
 ```csharp
 public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService>
-    : IFdwService<TCommand, TConfiguration, TService>, IFdwConnection
+    : IGenericService<TCommand, TConfiguration, TService>, IGenericConnection
     where TCommand : IConnectionCommand
     where TConfiguration : class, IConnectionConfiguration
     where TService : class
@@ -55,22 +55,22 @@ This base class integrates with the ServiceTypes source generator for automatic 
 
 ## Connection Interfaces
 
-### IFdwConnection
+### IGenericConnection
 
 Core connection interface:
 
 ```csharp
-public interface IFdwConnection : IDisposable
+public interface IGenericConnection : IDisposable
 {
     string ConnectionId { get; }
     string ProviderName { get; }
     IConnectionState State { get; }
     string ConnectionString { get; }
 
-    Task<IFdwResult> OpenAsync();
-    Task<IFdwResult> CloseAsync();
-    Task<IFdwResult> TestConnectionAsync();
-    Task<IFdwResult<IConnectionMetadata>> GetMetadataAsync();
+    Task<IGenericResult> OpenAsync();
+    Task<IGenericResult> CloseAsync();
+    Task<IGenericResult> TestConnectionAsync();
+    Task<IGenericResult<IConnectionMetadata>> GetMetadataAsync();
 }
 ```
 
@@ -79,7 +79,7 @@ public interface IFdwConnection : IDisposable
 Base configuration interface:
 
 ```csharp
-public interface IConnectionConfiguration : IFdwConfiguration
+public interface IConnectionConfiguration : IGenericConfiguration
 {
     string ConnectionType { get; }
     string ConnectionString { get; }
@@ -95,7 +95,7 @@ Factory interface for connection creation:
 ```csharp
 public interface IConnectionFactory
 {
-    Task<IFdwResult<IFdwConnection>> CreateConnectionAsync(IConnectionConfiguration configuration);
+    Task<IGenericResult<IGenericConnection>> CreateConnectionAsync(IConnectionConfiguration configuration);
     bool CanCreate(IConnectionConfiguration configuration);
 }
 ```
@@ -296,16 +296,16 @@ public abstract class ConnectionMessageCollectionBase
 
 ## Provider Interfaces
 
-### IFdwConnectionProvider
+### IGenericConnectionProvider
 
 Main provider interface:
 
 ```csharp
-public interface IFdwConnectionProvider
+public interface IGenericConnectionProvider
 {
-    Task<IFdwResult<IFdwConnection>> GetConnection(IConnectionConfiguration configuration);
-    Task<IFdwResult<IFdwConnection>> GetConnection(int configurationId);
-    Task<IFdwResult<IFdwConnection>> GetConnection(string configurationName);
+    Task<IGenericResult<IGenericConnection>> GetConnection(IConnectionConfiguration configuration);
+    Task<IGenericResult<IGenericConnection>> GetConnection(int configurationId);
+    Task<IGenericResult<IGenericConnection>> GetConnection(string configurationName);
 }
 ```
 
@@ -347,12 +347,12 @@ public interface IConnectionTypeRegistration
 Specialized interface for data operations:
 
 ```csharp
-public interface IConnectionDataService : IFdwConnection
+public interface IConnectionDataService : IGenericConnection
 {
-    Task<IFdwResult<T>> QueryAsync<T>(string query, object parameters = null);
-    Task<IFdwResult<IEnumerable<T>>> QueryMultipleAsync<T>(string query, object parameters = null);
-    Task<IFdwResult<int>> ExecuteAsync(string command, object parameters = null);
-    Task<IFdwResult> BulkInsertAsync<T>(IEnumerable<T> data, string tableName);
+    Task<IGenericResult<T>> QueryAsync<T>(string query, object parameters = null);
+    Task<IGenericResult<IEnumerable<T>>> QueryMultipleAsync<T>(string query, object parameters = null);
+    Task<IGenericResult<int>> ExecuteAsync(string command, object parameters = null);
+    Task<IGenericResult> BulkInsertAsync<T>(IEnumerable<T> data, string tableName);
 }
 ```
 

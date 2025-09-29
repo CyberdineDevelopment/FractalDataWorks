@@ -21,8 +21,8 @@ namespace FractalDataWorks.Services.SecretManager;
 public abstract class SecretManagerServiceType<TSelf, TService, TConfiguration, TFactory> :
     ServiceTypeBase<TService, TConfiguration, TFactory>
     where TSelf : SecretManagerServiceType<TSelf, TService, TConfiguration, TFactory>, IEnumOption<TSelf>
-    where TService : class, IFdwService
-    where TConfiguration : class, IFdwConfiguration
+    where TService : class, IGenericService
+    where TConfiguration : class, IGenericConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
     /// <summary>

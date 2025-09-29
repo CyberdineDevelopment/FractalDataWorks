@@ -33,7 +33,7 @@ public static class ApplicationBuilderExtensions
     /// <returns>The application builder for method chaining.</returns>
     public static IApplicationBuilder UseFractalDataWorksWeb(
         this IApplicationBuilder app,
-        Action<FdwWebMiddlewareOptions>? configureOptions = null)
+        Action<GenericWebMiddlewareOptions>? configureOptions = null)
     {
         // TODO: Implement UseFractalDataWorksWeb with configuration
         return app;

@@ -5,11 +5,11 @@ using Microsoft.Extensions.Logging;
 namespace FractalDataWorks.Services.Connections.Logging;
 
 /// <summary>
-/// High-performance logging methods for FdwConnectionProvider using source generators.
+/// High-performance logging methods for GenericConnectionProvider using source generators.
 /// </summary>
 /// <ExcludeFromTest>Source-generated logging class with no business logic to test</ExcludeFromTest>
 [ExcludeFromCodeCoverage] // Source-generated logging class with no business logic
-public static partial class FdwConnectionProviderLog
+public static partial class GenericConnectionProviderLog
 {
     /// <summary>
     /// Logs when getting a connection for a specific type.
