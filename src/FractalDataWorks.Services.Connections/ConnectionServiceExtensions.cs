@@ -22,7 +22,8 @@ public static class ConnectionServiceExtensions
     {
         // Register all discovered connection types using the generated ConnectionTypes class
         // This will be populated by the ServiceTypeCollectionGenerator
-        foreach (var connectionType in ConnectionTypes.All)
+        var connectionTypes = new ConnectionTypes();
+        foreach (var connectionType in connectionTypes.All)
         {
             // Each connection type registers its own services (factories, services, etc.)
             connectionType.Register(services);

@@ -1,12 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Binder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using FractalDataWorks.Messages;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Connections.Abstractions;
+using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.Connections.Logging;
 
 namespace FractalDataWorks.Services.Connections;
@@ -130,13 +130,13 @@ public sealed class FdwConnectionProvider : IFdwConnectionProvider
                 return FdwResult<IFdwConnection>.Failure(new ValidationMessage($"ConnectionType not specified in configuration section: {configurationName}"));
             }
 
-            // For now, bind to the generic configuration interface and let the factory handle specifics
-            var config = section.Get<IConnectionConfiguration>();
-            if (config == null)
+            // Create a minimal configuration placeholder since we don't have concrete binding
+            // The factory will need to handle the specific configuration binding based on connection type
+            var config = new BasicConnectionConfiguration
             {
-                FdwConnectionProviderLog.ConfigurationBindingFailed(_logger, "IConnectionConfiguration");
-                return FdwResult<IFdwConnection>.Failure(new ErrorMessage($"Failed to bind configuration to IConnectionConfiguration"));
-            }
+                ConnectionType = connectionTypeName,
+                Name = configurationName
+            };
 
             // Use the main method to create the connection
             return await GetConnection(config);
@@ -146,5 +146,23 @@ public sealed class FdwConnectionProvider : IFdwConnectionProvider
             FdwConnectionProviderLog.GetConnectionByNameException(_logger, ex, configurationName);
             return FdwResult<IFdwConnection>.Failure(new ErrorMessage(ex.Message));
         }
+    }
+}
+
+/// <summary>
+/// Basic implementation of IConnectionConfiguration for simple scenarios.
+/// </summary>
+internal sealed class BasicConnectionConfiguration : IConnectionConfiguration
+{
+    public string ConnectionType { get; set; } = string.Empty;
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string SectionName { get; set; } = string.Empty;
+    public bool IsEnabled { get; set; } = true;
+    public IServiceLifetime Lifetime { get; set; } = ServiceLifetimes.Scoped;
+
+    public IFdwResult<FluentValidation.Results.ValidationResult> Validate()
+    {
+        return FdwResult<FluentValidation.Results.ValidationResult>.Success(new FluentValidation.Results.ValidationResult());
     }
 }

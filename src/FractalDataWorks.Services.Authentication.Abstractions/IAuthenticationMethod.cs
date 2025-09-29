@@ -1,4 +1,4 @@
-using FractalDataWorks.Abstractions;
+using FractalDataWorks.EnhancedEnums;
 
 namespace FractalDataWorks.Services.Authentication.Abstractions;
 
