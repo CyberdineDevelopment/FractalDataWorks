@@ -33,7 +33,7 @@ public abstract class DataSetTypeBase : TypeOptionBase<DataSetTypeBase>, IDataSe
         Type recordType,
         IReadOnlyCollection<IDataField> fields,
         string? category = null)
-        : base(id, name, category ?? "Dataset")
+        : base(id, name, $"DataSets:{name}", $"{name} Data Set", description, category ?? "Dataset")
     {
         Description = description;
         RecordType = recordType;
@@ -60,7 +60,7 @@ public abstract class DataSetTypeBase : TypeOptionBase<DataSetTypeBase>, IDataSe
     }
 
     /// <inheritdoc/>
-    public string Description { get; }
+    public new string Description { get; }
 
     /// <inheritdoc/>
     public Type RecordType { get; }

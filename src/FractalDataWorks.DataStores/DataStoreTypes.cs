@@ -1,8 +1,8 @@
 using FractalDataWorks.ServiceTypes;
 using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.DataStores.Abstractions;
-using FractalDataWorks.Abstractions;
-using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Services;
 
 namespace FractalDataWorks.DataStores;
 

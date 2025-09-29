@@ -24,7 +24,7 @@ public abstract class ComparisonOperatorBase : TypeOptionBase<ComparisonOperator
         string sqlOperator,
         bool isSingleValue,
         string? category = null)
-        : base(id, name, category ?? "Comparison")
+        : base(id, name, $"DataSets:Operators:Comparison:{name}", $"{name} Comparison Operator", description, category ?? "Comparison")
     {
         Description = description;
         SqlOperator = sqlOperator;
@@ -34,7 +34,7 @@ public abstract class ComparisonOperatorBase : TypeOptionBase<ComparisonOperator
     /// <summary>
     /// Gets the description of this comparison operator.
     /// </summary>
-    public string Description { get; }
+    public new string Description { get; }
 
     /// <summary>
     /// Gets the SQL representation of this operator.

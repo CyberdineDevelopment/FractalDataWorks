@@ -71,8 +71,8 @@ public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TS
         try
         {
             // Try with logger and configuration
-            var serviceLogger = NullLogger<TService>.Instance; // TODO: Get proper logger for service
-            var constructorParams = new object[] { serviceLogger, configuration };
+            var fallbackServiceLogger = NullLogger<TService>.Instance; // TODO: Get proper logger for service
+            var constructorParams = new object[] { fallbackServiceLogger, configuration };
             if (Activator.CreateInstance(typeof(TService), constructorParams) is TService activatorServiceWithLogger)
             {
                 ServiceFactoryLog.ServiceCreatedWithActivator(_logger, serviceTypeName);

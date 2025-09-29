@@ -15,6 +15,7 @@
     <ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.Abstractions\FractalDataWorks.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

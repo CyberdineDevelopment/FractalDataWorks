@@ -16,7 +16,7 @@ public abstract class McpToolType : TypeOptionBase<McpToolType>, ITypeOption<Mcp
     /// <param name="description">The description of what this tool does.</param>
     /// <param name="category">The category this tool belongs to.</param>
     protected McpToolType(int id, string name, string description, string category)
-        : base(id, name, category)
+        : base(id, name, $"MCP:Tools:{name}", $"{name} MCP Tool", description, category)
     {
         Description = description;
     }
@@ -24,5 +24,5 @@ public abstract class McpToolType : TypeOptionBase<McpToolType>, ITypeOption<Mcp
     /// <summary>
     /// Gets the description of what this tool does.
     /// </summary>
-    public string Description { get; }
+    public new string Description { get; }
 }

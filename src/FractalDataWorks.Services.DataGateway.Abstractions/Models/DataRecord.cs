@@ -23,7 +23,7 @@ public sealed class DataRecord : IEquatable<DataRecord>
     /// <param name="data">The collection of datum objects that make up this record.</param>
     public DataRecord(IEnumerable<Datum> data)
     {
-ArgumentNullException.ThrowIfNull(data);
+        if (data == null) throw new ArgumentNullException(nameof(data));
         _data = data.ToDictionary(d => d.Name, d => d, StringComparer.OrdinalIgnoreCase);
         
         // Pre-compute categorized collections for performance

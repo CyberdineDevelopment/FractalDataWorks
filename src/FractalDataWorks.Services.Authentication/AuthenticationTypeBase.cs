@@ -133,7 +133,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
         bool supportsTokenCaching,
         bool supportsTokenRefresh,
         string? category = null)
-        : base(id, name, category ?? "Authentication")
+        : base(id, name, $"Services:Authentication:{name}", $"{name} Authentication Service", $"Authentication service using {providerName} provider", category ?? "Authentication")
     {
         ProviderName = providerName ?? throw new ArgumentNullException(nameof(providerName));
         Method = method ?? throw new ArgumentNullException(nameof(method));

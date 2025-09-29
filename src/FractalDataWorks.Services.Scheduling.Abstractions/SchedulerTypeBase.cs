@@ -145,7 +145,7 @@ public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> :
         bool supportsRecurring,
         bool supportsDelayed,
         string? category = null)
-        : base(id, name, category ?? "Scheduling")
+        : base(id, name, $"Services:Scheduling:{name}", $"{name} Scheduling Service", $"Scheduling service using {schedulingEngine} engine", category ?? "Scheduling")
     {
         SchedulingEngine = schedulingEngine ?? throw new ArgumentNullException(nameof(schedulingEngine));
         JobExecutorType = jobExecutorType ?? throw new ArgumentNullException(nameof(jobExecutorType));

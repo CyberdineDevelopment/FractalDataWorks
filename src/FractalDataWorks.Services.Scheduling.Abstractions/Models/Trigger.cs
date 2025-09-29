@@ -955,7 +955,7 @@ public sealed class Trigger : IFdwTrigger
     /// <returns>A hash code based on the trigger ID.</returns>
     public override int GetHashCode()
     {
-        return TriggerId.GetHashCode(StringComparison.Ordinal);
+        return StringComparer.Ordinal.GetHashCode(TriggerId);
     }
 
     #endregion

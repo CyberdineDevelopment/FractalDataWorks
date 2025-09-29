@@ -55,7 +55,7 @@ public sealed class QueryCommand<TEntity> : DataCommandBase<IEnumerable<TEntity>
     /// <returns>A new QueryCommand instance with the specified predicate.</returns>
     public QueryCommand<TEntity> Where(Expression<Func<TEntity, bool>> predicate)
     {
-ArgumentNullException.ThrowIfNull(predicate);
+        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
         return new QueryCommand<TEntity>(
             ConnectionName ?? string.Empty, 
             predicate, 
@@ -73,7 +73,7 @@ ArgumentNullException.ThrowIfNull(predicate);
     /// <returns>A new QueryCommand instance with the specified ordering.</returns>
     public QueryCommand<TEntity> OrderByField(Expression<Func<TEntity, object>> orderBy)
     {
-        ArgumentNullException.ThrowIfNull(orderBy);
+        if (orderBy == null) throw new ArgumentNullException(nameof(orderBy));
         return new QueryCommand<TEntity>(
             ConnectionName ?? string.Empty, 
             Predicate, 

@@ -175,7 +175,7 @@ public abstract class TransformationTypeBase<TService, TConfiguration, TFactory>
         bool supportsStreaming,
         IDataContainerType[] supportedContainers,
         string? category = null)
-        : base(id, name, category ?? "Transformation")
+        : base(id, name, $"Services:Transformations:{name}", $"{name} Transformation Service", $"Transformation service for {inputType.Name} to {outputType.Name}", category ?? "Transformation")
     {
         InputType = inputType ?? throw new ArgumentNullException(nameof(inputType));
         OutputType = outputType ?? throw new ArgumentNullException(nameof(outputType));

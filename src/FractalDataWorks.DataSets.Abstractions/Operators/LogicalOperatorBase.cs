@@ -24,7 +24,7 @@ public abstract class LogicalOperatorBase : TypeOptionBase<LogicalOperatorBase>,
         int precedence,
         string sqlOperator,
         string? category = null)
-        : base(id, name, category ?? "Logical")
+        : base(id, name, $"DataSets:Operators:Logical:{name}", $"{name} Logical Operator", description, category ?? "Logical")
     {
         Description = description;
         Precedence = precedence;
@@ -34,7 +34,7 @@ public abstract class LogicalOperatorBase : TypeOptionBase<LogicalOperatorBase>,
     /// <summary>
     /// Gets the description of this logical operator.
     /// </summary>
-    public string Description { get; }
+    public new string Description { get; }
 
     /// <summary>
     /// Gets the SQL representation of this operator.

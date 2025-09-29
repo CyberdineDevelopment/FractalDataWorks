@@ -18,7 +18,7 @@ public sealed class OrderByClause
     /// <summary>
     /// Gets the sort direction.
     /// </summary>
-    public SortDirectionBase Direction { get; init; }
+    public required SortDirectionBase Direction { get; init; }
     
     /// <summary>
     /// Gets the original expression for this ordering.

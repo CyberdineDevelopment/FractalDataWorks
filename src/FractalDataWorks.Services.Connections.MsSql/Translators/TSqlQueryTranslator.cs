@@ -43,8 +43,10 @@ internal sealed class TSqlQueryTranslator : IQueryTranslator
         IDataSetType dataSet,
         string containerType)
     {
-        ArgumentNullException.ThrowIfNull(query);
-        ArgumentNullException.ThrowIfNull(dataSet);
+        if (query == null)
+            return FdwResult<IConnectionCommand>.Failure("Query cannot be null");
+        if (dataSet == null)
+            return FdwResult<IConnectionCommand>.Failure("DataSet cannot be null");
 
         try
         {
@@ -80,8 +82,10 @@ internal sealed class TSqlQueryTranslator : IQueryTranslator
         IDataSetType dataSet,
         string containerType)
     {
-        ArgumentNullException.ThrowIfNull(query);
-        ArgumentNullException.ThrowIfNull(dataSet);
+        if (query == null)
+            return FdwResult.Failure("Query cannot be null");
+        if (dataSet == null)
+            return FdwResult.Failure("DataSet cannot be null");
 
         try
         {

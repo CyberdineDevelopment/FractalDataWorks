@@ -26,7 +26,7 @@ public sealed class DataPath : IEquatable<DataPath>
     /// <exception cref="ArgumentException">Thrown when segments contains null or empty values.</exception>
     public DataPath(IEnumerable<string> segments, string separator = "/")
     {
-ArgumentNullException.ThrowIfNull(segments);
+        if (segments == null) throw new ArgumentNullException(nameof(segments));
         _segments = segments.ToArray();
         
         if (_segments.Length == 0)
@@ -38,7 +38,7 @@ ArgumentNullException.ThrowIfNull(segments);
                 throw new ArgumentException($"Segment at index {i} cannot be null or empty.", nameof(segments));
         }
         
-        ArgumentNullException.ThrowIfNull(separator);
+        if (separator == null) throw new ArgumentNullException(nameof(separator));
         Separator = separator;
     }
 
@@ -146,7 +146,6 @@ ArgumentNullException.ThrowIfNull(segments);
     /// <returns>A new DataPath instance with the new separator.</returns>
     public DataPath WithSeparator(string newSeparator)
     {
-        ArgumentNullException.ThrowIfNull(newSeparator);
         return new DataPath(_segments, newSeparator);
     }
 

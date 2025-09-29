@@ -373,7 +373,7 @@ public sealed class DataStore : IEquatable<DataStore>
     /// <exception cref="ArgumentException">Thrown when a container with the same name already exists.</exception>
     public DataStore AddContainer(DataContainer container)
     {
-ArgumentNullException.ThrowIfNull(container);
+        if (container == null) throw new ArgumentNullException(nameof(container));
         if (_containers.ContainsKey(container.Name))
             throw new ArgumentException($"Container with name '{container.Name}' already exists in data store '{Name}'.", nameof(container));
         

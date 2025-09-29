@@ -24,7 +24,7 @@ public abstract class SortDirectionBase : TypeOptionBase<SortDirectionBase>, ISo
         bool isAscending,
         string sqlKeyword,
         string? category = null)
-        : base(id, name, category ?? "Sort")
+        : base(id, name, $"DataSets:Operators:Sort:{name}", $"{name} Sort Direction", description, category ?? "Sort")
     {
         Description = description;
         IsAscending = isAscending;
@@ -34,7 +34,7 @@ public abstract class SortDirectionBase : TypeOptionBase<SortDirectionBase>, ISo
     /// <summary>
     /// Gets the description of this sort direction.
     /// </summary>
-    public string Description { get; }
+    public new string Description { get; }
 
     /// <summary>
     /// Gets the SQL keyword representation of this direction.

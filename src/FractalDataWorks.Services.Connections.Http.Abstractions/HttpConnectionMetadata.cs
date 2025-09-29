@@ -13,7 +13,7 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions;
 /// <summary>
 /// Basic HTTP connection metadata implementation.
 /// </summary>
-private sealed class HttpConnectionMetadata : IConnectionMetadata
+internal sealed class HttpConnectionMetadata : IConnectionMetadata
 {
     public HttpConnectionMetadata(string systemName)
     {

@@ -18,7 +18,7 @@ public sealed class WhereClause
     /// <summary>
     /// Gets the comparison operator (Equals, NotEquals, GreaterThan, etc.).
     /// </summary>
-    public ComparisonOperatorBase Operator { get; init; }
+    public required ComparisonOperatorBase Operator { get; init; }
     
     /// <summary>
     /// Gets the value to compare against.
@@ -28,7 +28,7 @@ public sealed class WhereClause
     /// <summary>
     /// Gets the logical operator combining this condition with others (And, Or).
     /// </summary>
-    public LogicalOperatorBase LogicalOperator { get; init; }
+    public required LogicalOperatorBase LogicalOperator { get; init; }
     
     /// <summary>
     /// Gets the original expression for this condition.

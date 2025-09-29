@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Binder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using FractalDataWorks.Messages;
@@ -71,7 +72,7 @@ public sealed class FdwConnectionProvider : IFdwConnectionProvider
             }
             else
             {
-                FdwConnectionProviderLog.ConnectionCreationFailed(_logger, configuration.ConnectionType, result.Error);
+                FdwConnectionProviderLog.ConnectionCreationFailed(_logger, configuration.ConnectionType, result.Error.ToString());
             }
 
             return result;

@@ -44,8 +44,10 @@ internal sealed class SqlServerResultMapper
         IDataSetType dataSet,
         string containerType) where TResult : class
     {
-        ArgumentNullException.ThrowIfNull(connectionResult);
-        ArgumentNullException.ThrowIfNull(dataSet);
+        if (connectionResult == null)
+            return FdwResult<IEnumerable<TResult>>.Failure("Connection result cannot be null");
+        if (dataSet == null)
+            return FdwResult<IEnumerable<TResult>>.Failure("DataSet cannot be null");
 
         try
         {

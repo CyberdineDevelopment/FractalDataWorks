@@ -615,7 +615,7 @@ public sealed class Schedule : IFdwSchedule
     /// <returns>A hash code based on the schedule ID.</returns>
     public override int GetHashCode()
     {
-        return Id.GetHashCode(StringComparison.Ordinal);
+        return StringComparer.Ordinal.GetHashCode(Id);
     }
 
     #endregion

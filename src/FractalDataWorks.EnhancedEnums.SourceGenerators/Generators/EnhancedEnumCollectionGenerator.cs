@@ -78,9 +78,9 @@ public sealed class EnhancedEnumCollectionGenerator : IIncrementalGenerator
     /// Discovers all collection definitions using EnumOption-first discovery.
     /// Same pattern as TypeCollectionGenerator - find options first, then match to collections.
     /// </summary>
-    private static ImmutableArray<EnumTypeInfoWithCompilation> DiscoverAllCollectionDefinitions(Compilation compilation, AnalyzerConfigOptions globalOptions)
+    private static ImmutableArray<Models.EnumTypeInfoWithCompilation> DiscoverAllCollectionDefinitions(Compilation compilation, AnalyzerConfigOptions globalOptions)
     {
-        var results = new List<EnumTypeInfoWithCompilation>();
+        var results = new List<Models.EnumTypeInfoWithCompilation>();
 
         // STEP 1: Find all EnumOption attributes and group by collection type
         var optionsByCollectionType = FindAndGroupAllEnumOptions(compilation);
@@ -112,7 +112,7 @@ public sealed class EnhancedEnumCollectionGenerator : IIncrementalGenerator
             if (enumDefinition != null)
             {
                 var diagnostics = new List<Diagnostic>(); // Could add validation here
-                results.Add(new EnumTypeInfoWithCompilation(enumDefinition, compilation, optionTypes, collectionClass, diagnostics));
+                results.Add(new Models.EnumTypeInfoWithCompilation(enumDefinition, compilation, optionTypes, collectionClass, diagnostics));
             }
         }
 

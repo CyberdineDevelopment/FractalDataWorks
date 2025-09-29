@@ -274,7 +274,7 @@ public sealed class DataContainer : IEquatable<DataContainer>
     /// <exception cref="ArgumentException">Thrown when a child with the same name already exists.</exception>
     public DataContainer AddChild(DataContainer child)
     {
-ArgumentNullException.ThrowIfNull(child);
+        if (child == null) throw new ArgumentNullException(nameof(child));
         if (_children.Any(c => string.Equals(c.Name, child.Name, StringComparison.OrdinalIgnoreCase)))
             throw new ArgumentException($"Child container with name '{child.Name}' already exists.", nameof(child));
         
