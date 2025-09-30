@@ -1,6 +1,11 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.Results;
+using FractalDataWorks.Services;
+using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.ServiceTypes.Attributes;
 
 namespace FractalDataWorks.ServiceTypes;
@@ -13,10 +18,10 @@ namespace FractalDataWorks.ServiceTypes;
 /// <typeparam name="TService">The service interface type</typeparam>
 /// <typeparam name="TConfiguration">The configuration type</typeparam>
 /// <typeparam name="TFactory">The factory type</typeparam>
-public abstract class ServiceTypeBase<TService, TConfiguration, TFactory>
-    where TService : class
-    where TConfiguration : class
-    where TFactory : class
+public abstract class ServiceTypeBase<TService, TConfiguration, TFactory> : EnumOptionBase<IServiceType>, IServiceType<TService, TConfiguration, TFactory>
+    where TService : class, IGenericService
+    where TConfiguration : class, IGenericConfiguration
+    where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
     /// <summary>
     /// Gets the unique identifier for this service type.
@@ -79,6 +84,16 @@ public abstract class ServiceTypeBase<TService, TConfiguration, TFactory>
     public abstract void Configure(IConfiguration configuration);
 
     /// <summary>
+    /// Creates a factory instance for this service type.
+    /// Returns the factory type that can create instances of the service.
+    /// </summary>
+    /// <returns>A result containing the factory type or failure information.</returns>
+    public virtual IGenericResult<Type> Factory()
+    {
+        return GenericResult<Type>.Success(typeof(TFactory));
+    }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ServiceTypeBase{TService, TConfiguration, TFactory}"/> class.
     /// </summary>
     /// <param name="id">The unique identifier for this service type.</param>
@@ -94,9 +109,8 @@ public abstract class ServiceTypeBase<TService, TConfiguration, TFactory>
         string displayName,
         string description,
         string? category = null)
+        : base(id, name)
     {
-        Id = id;
-        Name = name;
         SectionName = sectionName;
         DisplayName = displayName;
         Description = description;

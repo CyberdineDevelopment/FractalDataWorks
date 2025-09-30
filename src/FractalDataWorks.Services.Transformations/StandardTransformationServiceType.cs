@@ -1,6 +1,7 @@
 using System;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.DataContainers.Abstractions;
-using FractalDataWorks.EnhancedEnums;
 using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.Services;
 using FractalDataWorks.Services.Abstractions;
@@ -13,8 +14,7 @@ namespace FractalDataWorks.Services.Transformations;
 /// </summary>
 [ServiceTypeOption(typeof(TransformationTypes), "StandardTransformation")]
 public sealed class StandardTransformationServiceType :
-    TransformationTypeBase<ITransformationProvider, ITransformationsConfiguration, IServiceFactory<ITransformationProvider, ITransformationsConfiguration>>,
-    IEnumOption<StandardTransformationServiceType>
+    TransformationTypeBase<ITransformationProvider, ITransformationsConfiguration, IServiceFactory<ITransformationProvider, ITransformationsConfiguration>>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="StandardTransformationServiceType"/> class.
@@ -30,11 +30,24 @@ public sealed class StandardTransformationServiceType :
     {
     }
 
-    /// <inheritdoc/>
-    public override Type GetFactoryImplementationType()
+    /// <summary>
+    /// Registers services required by this service type with the DI container.
+    /// </summary>
+    public override void Register(IServiceCollection services)
     {
-        // Use the generic factory for now
-        // Can be overridden later to return a custom StandardTransformationServiceFactory if needed
-        return typeof(GenericServiceFactory<ITransformationProvider, ITransformationsConfiguration>);
+        // Register the generic factory
+        services.AddScoped<IServiceFactory<ITransformationProvider, ITransformationsConfiguration>, GenericServiceFactory<ITransformationProvider, ITransformationsConfiguration>>();
+
+        // Register the transformation provider
+        services.AddScoped<ITransformationProvider, StandardTransformationProvider>();
+    }
+
+    /// <summary>
+    /// Configures the service type using the provided configuration.
+    /// </summary>
+    public override void Configure(IConfiguration configuration)
+    {
+        // Configuration validation and setup can be added here
+        // For now, this is a no-op as the standard transformation doesn't require special configuration
     }
 }
