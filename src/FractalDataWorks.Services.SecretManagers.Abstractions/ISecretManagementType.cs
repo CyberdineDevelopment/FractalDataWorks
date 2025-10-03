@@ -16,7 +16,7 @@ namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 /// <typeparam name="TService">The secret management service interface type.</typeparam>
 /// <typeparam name="TConfiguration">The configuration type for the secret management service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating secret management service instances.</typeparam>
-public interface ISecretManagerType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
+public interface ISecretManagerType<TService, TConfiguration, TFactory> : IServiceType<TService, TFactory, TConfiguration>
     where TService : ISecretManager
     where TConfiguration : ISecretManagerConfiguration
     where TFactory : ISecretManagerServiceFactory<TService, TConfiguration>

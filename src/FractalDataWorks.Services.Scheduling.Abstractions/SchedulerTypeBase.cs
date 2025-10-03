@@ -17,7 +17,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// no instantiation logic should be included (that belongs in factories).
 /// </remarks>
 public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TConfiguration, TFactory>
+    ServiceTypeBase<TService, TFactory, TConfiguration>
     where TService : class, IGenericSchedulingService
     where TConfiguration : class, ISchedulingConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>

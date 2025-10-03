@@ -18,7 +18,7 @@ namespace FractalDataWorks.Services.Authentication.Abstractions;
 /// The ServiceTypeCollectionGenerator will discover all types inheriting from this base.
 /// </remarks>
 public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TConfiguration, TFactory>,
+    ServiceTypeBase<TService, TFactory, TConfiguration>,
     IAuthenticationType<TService, TConfiguration, TFactory>,
     IAuthenticationType
     where TService : class, IAuthenticationService
@@ -41,7 +41,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
     /// Defines the primary authentication mechanism such as OAuth2, SAML, JWT, etc.
     /// This helps consumers understand the authentication flow they can expect.
     /// </remarks>
-    public AuthenticationMethod Method { get; }
+    public IAuthenticationMethod Method { get; }
 
     /// <summary>
     /// Gets the supported authentication protocols.
@@ -125,7 +125,7 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
         int id,
         string name,
         string providerName,
-        AuthenticationMethod method,
+        IAuthenticationMethod method,
         IReadOnlyList<string> supportedProtocols,
         IReadOnlyList<string> supportedFlows,
         IReadOnlyList<string> supportedTokenTypes,
@@ -135,11 +135,11 @@ public abstract class AuthenticationTypeBase<TService, TConfiguration, TFactory>
         string? category = null)
         : base(id, name, $"Services:Authentication:{name}", $"{name} Authentication Service", $"Authentication service using {providerName} provider", category ?? "Authentication")
     {
-        ProviderName = providerName ?? throw new ArgumentNullException(nameof(providerName));
-        Method = method ?? throw new ArgumentNullException(nameof(method));
-        SupportedProtocols = supportedProtocols ?? throw new ArgumentNullException(nameof(supportedProtocols));
-        SupportedFlows = supportedFlows ?? throw new ArgumentNullException(nameof(supportedFlows));
-        SupportedTokenTypes = supportedTokenTypes ?? throw new ArgumentNullException(nameof(supportedTokenTypes));
+        ProviderName = providerName;
+        Method = method;
+        SupportedProtocols = supportedProtocols;
+        SupportedFlows = supportedFlows;
+        SupportedTokenTypes = supportedTokenTypes;
         SupportsMultiTenant = supportsMultiTenant;
         SupportsTokenCaching = supportsTokenCaching;
         SupportsTokenRefresh = supportsTokenRefresh;

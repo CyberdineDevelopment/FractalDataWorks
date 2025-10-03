@@ -22,7 +22,7 @@ Domain-specific interfaces like `IConnectionType<TService, TConfiguration, TFact
 
 ```csharp
 // Generic interface constrains to connection-specific types
-public interface IConnectionType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
+public interface IConnectionType<TService, TConfiguration, TFactory> : IServiceType<TService, TFactory, TConfiguration>
     where TService : class, IGenericConnection              // Must be connection service
     where TConfiguration : class, IConnectionConfiguration   // Must be connection config
     where TFactory : class, IConnectionFactory<TService, TConfiguration> // Must be connection factory
@@ -53,11 +53,11 @@ string category = connectionType.Category;               // "Database"
 IServiceType                                    // Base storage contract (Id, Name)
 ├── IServiceType<TService>                     // + Service type constraint
 ├── IServiceType<TService, TConfiguration>     // + Configuration constraint  
-└── IServiceType<TService, TConfiguration, TFactory> // + Factory constraint
+└── IServiceType<TService, TFactory, TConfiguration> // + Factory constraint
 
 // Domain-specific interfaces add specific constraints
 IConnectionType : IServiceType                 // Connection base
-└── IConnectionType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
+└── IConnectionType<TService, TConfiguration, TFactory> : IServiceType<TService, TFactory, TConfiguration>
 ```
 
 ### ServiceTypeBase Hierarchy
@@ -66,7 +66,7 @@ IConnectionType : IServiceType                 // Connection base
 ServiceTypeBase                                    // Abstract base implementation
 ├── ServiceTypeBase<TService>                     // + Service type
 ├── ServiceTypeBase<TService, TConfiguration>     // + Configuration
-└── ServiceTypeBase<TService, TConfiguration, TFactory> // + Factory
+└── ServiceTypeBase<TService, TFactory, TConfiguration> // + Factory
 ```
 
 ### ServiceTypeCollectionBase
@@ -128,7 +128,7 @@ private PostgreSqlConnectionType() : base(id: 1, name: "PostgreSql") { } // Dupl
 ```csharp
 // ✅ CORRECT - Proper constraints for connections
 public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TConfiguration, TFactory>
+    ServiceTypeBase<TService, TFactory, TConfiguration>
     where TService : class, IGenericConnection          // Must implement IGenericConnection
     where TConfiguration : class, IConnectionConfiguration // Must implement IConnectionConfiguration  
     where TFactory : class, IConnectionFactory<TService, TConfiguration> // Must implement factory interface
@@ -246,7 +246,7 @@ using FractalDataWorks.ServiceTypes;
 namespace FractalDataWorks.Services.Connections.Abstractions;
 
 public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TConfiguration, TFactory>,    // Rule 1: Inherit base class
+    ServiceTypeBase<TService, TFactory, TConfiguration>,    // Rule 1: Inherit base class
     IConnectionType<TService, TConfiguration, TFactory>,    // Rule 1: Implement generic interface
     IConnectionType                                         // Rule 1: Implement non-generic interface
     where TService : class, IGenericConnection              // Rule 4: Service constraint
@@ -445,9 +445,9 @@ public void ConfigureFromInterface(IConnectionType connectionType)
 ### ❌ Missing Interface Implementation
 ```csharp
 // WRONG - Only inherits base class
-public sealed class BadType : ServiceTypeBase<IService, Config, Factory>
+public sealed class BadType : ServiceTypeBase<IService, Factory, Config>
 {
-    // Missing: , IServiceType<IService, Config, Factory>, IServiceType
+    // Missing: , IServiceType<IService, Factory, Config>, IServiceType
 }
 ```
 

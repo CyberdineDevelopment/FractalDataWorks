@@ -2,6 +2,8 @@
 
 **Complete guide for creating domain services and implementations in the FractalDataWorks framework.** This covers both domain creation (new business areas) and implementation creation (specific service implementations within existing domains).
 
+**See also:** [Service Developer Reference](Service-Developer-Reference.md) for a complete type reference with inheritance chains and constraints.
+
 ## Table of Contents
 
 1. [Architecture Overview](#architecture-overview)

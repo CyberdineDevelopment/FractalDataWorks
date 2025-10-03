@@ -1,9 +1,11 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.ServiceTypes;
 using FractalDataWorks.Services;
+using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.DataStores.Abstractions;
 
@@ -15,11 +17,11 @@ namespace FractalDataWorks.DataStores.Abstractions;
 /// <typeparam name="TConfiguration">The configuration type for the data store service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating data store service instances.</typeparam>
 public abstract class DataStoreTypeBase<TService, TConfiguration, TFactory> :
-    ServiceTypeBase<TService, TConfiguration, TFactory>,
+    ServiceTypeBase<TService, TFactory, TConfiguration>,
     IDataStoreType
-    where TService : class, IDataStore
-    where TConfiguration : class
-    where TFactory : class
+    where TService : class, IGenericService
+    where TConfiguration : class, IGenericConfiguration
+    where TFactory : class,IServiceFactory<TService, TConfiguration>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DataStoreTypeBase{TService,TConfiguration,TFactory}"/> class.

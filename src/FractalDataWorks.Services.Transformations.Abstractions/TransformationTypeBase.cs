@@ -19,7 +19,7 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// no instantiation logic should be included (that belongs in factories).
 /// </remarks>
 public abstract class TransformationTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TConfiguration, TFactory>
+    ServiceTypeBase<TService, TFactory, TConfiguration>
     where TService : class, ITransformationProvider
     where TConfiguration : class, ITransformationsConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>

@@ -457,7 +457,7 @@ Use the generic factory for services that:
 
 ```csharp
 // ServiceType uses GenericServiceFactory directly
-public sealed class EmailServiceType : ServiceTypeBase<EmailService, EmailConfiguration, GenericServiceFactory<EmailService, EmailConfiguration>>
+public sealed class EmailServiceType : ServiceTypeBase<EmailService, GenericServiceFactory<EmailService, EmailConfiguration, EmailConfiguration>>
 {
     public override void Register(IServiceCollection services)
     {

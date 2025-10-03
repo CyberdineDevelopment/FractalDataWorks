@@ -126,7 +126,7 @@ FractalDataWorks.ServiceTypes.SourceGenerators
 namespace FractalDataWorks.Services.Connections.Abstractions;
 
 // Generic interface with connection-specific constraints
-public interface IConnectionType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
+public interface IConnectionType<TService, TConfiguration, TFactory> : IServiceType<TService, TFactory, TConfiguration>
     where TService : class, IGenericConnection
     where TConfiguration : class, IConnectionConfiguration
     where TFactory : class, IConnectionFactory<TService, TConfiguration>
@@ -147,7 +147,7 @@ public interface IConnectionType : IServiceType
 namespace FractalDataWorks.Services.Connections.Abstractions;
 
 public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TConfiguration, TFactory>,
+    ServiceTypeBase<TService, TFactory, TConfiguration>,
     IConnectionType<TService, TConfiguration, TFactory>,
     IConnectionType
     where TService : class, IGenericConnection

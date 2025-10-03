@@ -14,7 +14,7 @@ namespace FractalDataWorks.Services.Authentication.Abstractions;
 /// <typeparam name="TService">The authentication service interface type.</typeparam>
 /// <typeparam name="TConfiguration">The configuration type for the authentication service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating authentication service instances.</typeparam>
-public interface IAuthenticationType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
+public interface IAuthenticationType<TService, TConfiguration, TFactory> : IServiceType<TService, TFactory, TConfiguration>
     where TService : class, IAuthenticationService
     where TConfiguration : class, IAuthenticationConfiguration
     where TFactory : class, IAuthenticationServiceFactory<TService, TConfiguration>

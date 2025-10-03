@@ -16,7 +16,7 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// <typeparam name="TService">The transformation service interface type.</typeparam>
 /// <typeparam name="TConfiguration">The configuration type for the transformation service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating transformation service instances.</typeparam>
-public interface ITransformationType<TService, TConfiguration, TFactory> : IServiceType<TService, TConfiguration, TFactory>
+public interface ITransformationType<TService, TConfiguration, TFactory> : IServiceType<TService, TFactory, TConfiguration>
     where TService : class, ITransformationProvider
     where TConfiguration : class, ITransformationsConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>

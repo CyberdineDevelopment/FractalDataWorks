@@ -28,7 +28,6 @@
     <!-- Package Management -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <EnablePackageValidation>false</EnablePackageValidation>
-    <EnableCrossAssemblyDiscovery>true</EnableCrossAssemblyDiscovery>
     
     <!-- NuGet Package Properties -->
     <PackageProjectUrl>https://github.com/FractalDataWorks/FractalDataWorks</PackageProjectUrl>
@@ -68,12 +67,6 @@
   <ItemGroup>
     <!-- Include README for NuGet package -->
     <None Include="README.md" Pack="true" PackagePath="\" />
-    <!-- Include build props and targets files for cross-assembly discovery -->
-    <None Include="build\FractalDataWorks.EnhancedEnums.props" Pack="true" PackagePath="build" />
-    <None Include="build\FractalDataWorks.EnhancedEnums.targets" Pack="true" PackagePath="build" />
-    <!-- Also include in buildTransitive for development dependency packages -->
-    <None Include="buildTransitive\FractalDataWorks.EnhancedEnums.props" Pack="true" PackagePath="buildTransitive" />
-    <None Include="buildTransitive\FractalDataWorks.EnhancedEnums.targets" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>
   
   <ItemGroup>

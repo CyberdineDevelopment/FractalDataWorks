@@ -18,21 +18,51 @@ namespace FractalDataWorks.ServiceTypes;
 /// <typeparam name="TService">The service interface type</typeparam>
 /// <typeparam name="TConfiguration">The configuration type</typeparam>
 /// <typeparam name="TFactory">The factory type</typeparam>
-public abstract class ServiceTypeBase<TService, TConfiguration, TFactory> : EnumOptionBase<IServiceType>, IServiceType<TService, TConfiguration, TFactory>
+public abstract class ServiceTypeBase<TService, TFactory, TConfiguration> : ServiceTypeBase<TService, TFactory>, IServiceType<TService, TFactory>
     where TService : class, IGenericService
     where TConfiguration : class, IGenericConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
 {
-    /// <summary>
-    /// Gets the unique identifier for this service type.
-    /// </summary>
-    public int Id { get; }
 
     /// <summary>
-    /// Gets the name of this service type.
+    /// Gets the configuration type used to configure this service.
     /// </summary>
-    public string Name { get; }
+    [TypeLookup("FromConfigurationType")]
+    public Type ConfigurationType => typeof(TConfiguration);
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ServiceTypeBase{TService, TConfiguration, TFactory}"/> class.
+    /// </summary>
+    /// <param name="id">The unique identifier for this service type.</param>
+    /// <param name="name">The name of this service type.</param>
+    /// <param name="sectionName">The configuration section name for appsettings.json.</param>
+    /// <param name="displayName">The display name for this service type.</param>
+    /// <param name="description">The description of what this service type provides.</param>
+    /// <param name="category">The category of the service type (optional, defaults to "Default").</param>
+    protected ServiceTypeBase(
+        int id,
+        string name,
+        string sectionName,
+        string displayName,
+        string description,
+        string? category = null)
+        : base(id, name,sectionName,displayName,description,category)
+    {
+
+    }
+}
+
+/// <summary>
+/// Base class for service type definitions that supports category-based hierarchical organization.
+/// ServiceTypes define the contract and configuration for services in the plugin architecture.
+/// The ServiceTypeCollectionGenerator will automatically discover all concrete types that inherit from ServiceTypeBase.
+/// </summary>
+/// <typeparam name="TService">The service interface type</typeparam>
+/// <typeparam name="TFactory">The factory type</typeparam>
+public abstract class ServiceTypeBase<TService, TFactory> : EnumOptionBase<IServiceType>, IServiceType<TService, TFactory>
+    where TService : class, IGenericService
+    where TFactory : class, IServiceFactory<TService>
+{
     /// <summary>
     /// Gets the category for this service type (e.g., "Database", "Cache", "Messaging").
     /// </summary>
@@ -41,19 +71,9 @@ public abstract class ServiceTypeBase<TService, TConfiguration, TFactory> : Enum
     /// <summary>
     /// Gets the service type interface or class that implementations must satisfy.
     /// </summary>
-    [TypeLookup("GetByServiceType")]
+    [TypeLookup("ServiceType")]
     public Type ServiceType => typeof(TService);
-
-    /// <summary>
-    /// Gets the configuration type used to configure this service.
-    /// </summary>
-    public Type ConfigurationType => typeof(TConfiguration);
-
-    /// <summary>
-    /// Gets the factory type for creating service instances.
-    /// </summary>
-    public Type FactoryType => typeof(TFactory);
-
+    
     /// <summary>
     /// Gets the configuration section name for appsettings.json.
     /// </summary>
@@ -88,10 +108,8 @@ public abstract class ServiceTypeBase<TService, TConfiguration, TFactory> : Enum
     /// Returns the factory type that can create instances of the service.
     /// </summary>
     /// <returns>A result containing the factory type or failure information.</returns>
-    public virtual IGenericResult<Type> Factory()
-    {
-        return GenericResult<Type>.Success(typeof(TFactory));
-    }
+    public Type FactoryType => typeof(TFactory);
+    
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ServiceTypeBase{TService, TConfiguration, TFactory}"/> class.

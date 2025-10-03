@@ -17,7 +17,7 @@ namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 /// The ServiceTypeCollectionGenerator will discover all types inheriting from this base.
 /// </remarks>
 public abstract class SecretManagerTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TConfiguration, TFactory>,
+    ServiceTypeBase<TService, TFactory, TConfiguration>,
     ISecretManagerServiceType
     where TService : class,ISecretManagerService
     where TConfiguration : class,ISecretManagerConfiguration

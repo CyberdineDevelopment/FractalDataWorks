@@ -472,7 +472,7 @@ The factory system provides **type-safe service creation** with **configuration 
 // ✅ Correct: Use GenericServiceFactory for standard services
 namespace MyCompany.Services.UserManagement.ServiceTypes;
 
-public class UserManagementServiceType : ServiceTypeBase<IUserManagementService, UserManagementConfiguration, GenericServiceFactory<IUserManagementService, UserManagementConfiguration>>
+public class UserManagementServiceType : ServiceTypeBase<IUserManagementService, GenericServiceFactory<IUserManagementService, UserManagementConfiguration, UserManagementConfiguration>>
 {
     public UserManagementServiceType() : base(100, "UserManagement", "UserServices") { }
 

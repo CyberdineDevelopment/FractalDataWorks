@@ -19,7 +19,7 @@ namespace FractalDataWorks.Services.DataGateway.Abstractions;
 /// The ServiceTypeCollectionGenerator will discover all types inheriting from this base.
 /// </remarks>
 public abstract class DataGatewayTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TConfiguration, TFactory>,
+    ServiceTypeBase<TService, TFactory, TConfiguration>,
     IDataGatewayServiceType
     where TService : class, IDataService, IGenericService
     where TConfiguration : class, IDataGatewaysConfiguration, IGenericConfiguration

@@ -14,7 +14,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// <typeparam name="TConfiguration">The configuration type for the connection service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating connection service instances.</typeparam>
 public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TConfiguration, TFactory>,
+    ServiceTypeBase<TService, TFactory, TConfiguration>,
     IConnectionType<TService, TConfiguration, TFactory>,
     IConnectionType
     where TService : class, IGenericConnection
@@ -46,7 +46,7 @@ public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> :
     /// Gets the factory type for creating connection service instances.
     /// </summary>
     /// <returns>The factory type.</returns>
-    public IGenericResult<Type> Factory() => GenericResult<Type>.Success(typeof(TFactory));
+    public Type Factory() => GenericResult<Type>.Success(typeof(TFactory));
 
     // NOTE: Container type and translator support will be added when those abstractions are ready
 }

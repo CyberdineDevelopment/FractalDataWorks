@@ -19,7 +19,7 @@ namespace FractalDataWorks.Services.SecretManager;
 /// <typeparam name="TConfiguration">The configuration type.</typeparam>
 /// <typeparam name="TFactory">The factory type.</typeparam>
 public abstract class SecretManagerServiceType<TSelf, TService, TConfiguration, TFactory> :
-    ServiceTypeBase<TService, TConfiguration, TFactory>
+    ServiceTypeBase<TService, TFactory, TConfiguration>
     where TSelf : SecretManagerServiceType<TSelf, TService, TConfiguration, TFactory>, IEnumOption<TSelf>
     where TService : class, IGenericService
     where TConfiguration : class, IGenericConfiguration

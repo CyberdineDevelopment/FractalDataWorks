@@ -17,8 +17,8 @@ namespace FractalDataWorks.ServiceTypes;
 /// <typeparam name="TConfiguration">The configuration type</typeparam>
 /// <typeparam name="TFactory">The factory type</typeparam>
 public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConfiguration, TFactory>
-    where TBase : class, IServiceType<TService, TConfiguration, TFactory>
-    where TGeneric : IServiceType<TService, TConfiguration, TFactory>
+    where TBase : class, IServiceType<TService, TFactory, TConfiguration>
+    where TGeneric : IServiceType<TService, TFactory, TConfiguration>
     where TService : class,IGenericService
     where TConfiguration : class, IGenericConfiguration
     where TFactory : class , IServiceFactory<TService, TConfiguration>

@@ -24,18 +24,25 @@ namespace FractalDataWorks.ServiceTypes;
 /// <item><description>Dependency injection integration with proper lifetime management</description></item>
 /// </list>
 /// </remarks>
-public interface IServiceType<TService, TConfiguration, TFactory> : IServiceType<TService,TConfiguration>
+public interface IServiceType<TService, TFactory, TConfiguration> : IServiceType<TService,TFactory>
     where TService : IGenericService
     where TFactory : IServiceFactory<TService, TConfiguration>
     where TConfiguration : IGenericConfiguration
 {
     /// <summary>
-    /// Creates a factory instance for this service type.
-    /// Follows Railway-Oriented Programming - returns Result instead of throwing.
+    /// Gets the configuration type required by this service type.
     /// </summary>
-    /// <returns>A result containing the factory instance or failure information.</returns>
-    IGenericResult<Type> Factory();
-
+    /// <value>The Type of the configuration class that this service requires for initialization.</value>
+    /// <remarks>
+    /// This property enables:
+    /// <list type="bullet">
+    /// <item><description>Compile-time validation of configuration compatibility</description></item>
+    /// <item><description>Runtime configuration type checking and validation</description></item>
+    /// <item><description>Dynamic configuration object creation and binding</description></item>
+    /// <item><description>Configuration serialization and deserialization</description></item>
+    /// </list>
+    /// </remarks>
+    Type ConfigurationType { get; }
 }
 
 /// <summary>
@@ -43,7 +50,7 @@ public interface IServiceType<TService, TConfiguration, TFactory> : IServiceType
 /// This interface provides type safety for services that use standard factory patterns.
 /// </summary>
 /// <typeparam name="TService">The service interface type that this service type provides.</typeparam>
-/// <typeparam name="TConfiguration">The configuration type required by the service.</typeparam>
+/// <typeparam name="TFactory">The type of factory required for the service</typeparam>
 /// <remarks>
 /// This interface is used for services that:
 /// <list type="bullet">
@@ -53,9 +60,9 @@ public interface IServiceType<TService, TConfiguration, TFactory> : IServiceType
 /// <item><description>Integrate with the Enhanced Enum service discovery system</description></item>
 /// </list>
 /// </remarks>
-public interface IServiceType<TService, TConfiguration> : IServiceType<TService>
+public interface IServiceType<TService, TFactory> : IServiceType<TService>
     where TService : IGenericService
-    where TConfiguration : IGenericConfiguration
+    where TFactory : IServiceFactory<TService>
 {
 
 }
@@ -125,20 +132,6 @@ public interface IServiceType  : IEnumOption<IServiceType>
     /// </remarks>
     public string Category { get; }
 
-    /// <summary>
-    /// Gets the configuration type required by this service type.
-    /// </summary>
-    /// <value>The Type of the configuration class that this service requires for initialization.</value>
-    /// <remarks>
-    /// This property enables:
-    /// <list type="bullet">
-    /// <item><description>Compile-time validation of configuration compatibility</description></item>
-    /// <item><description>Runtime configuration type checking and validation</description></item>
-    /// <item><description>Dynamic configuration object creation and binding</description></item>
-    /// <item><description>Configuration serialization and deserialization</description></item>
-    /// </list>
-    /// </remarks>
-    Type ConfigurationType { get; }
 
     /// <summary>
     /// Gets the factory type for creating service instances.

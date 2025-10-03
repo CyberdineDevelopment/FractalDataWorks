@@ -107,8 +107,8 @@ Your collection class must inherit from `ServiceTypeCollectionBase` with proper 
 
 ```csharp
 public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConfiguration, TFactory>
-    where TBase : ServiceTypeBase<TService, TConfiguration, TFactory>
-    where TGeneric : ServiceTypeBase<TService, TConfiguration, TFactory>
+    where TBase : ServiceTypeBase<TService, TFactory, TConfiguration>
+    where TGeneric : ServiceTypeBase<TService, TFactory, TConfiguration>
     where TService : class
     where TConfiguration : class
     where TFactory : class
@@ -141,7 +141,7 @@ Use `[TypeLookup]` attributes on base class properties to generate additional lo
 
 ```csharp
 public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory>
-    : ServiceTypeBase<TService, TConfiguration, TFactory>
+    : ServiceTypeBase<TService, TFactory, TConfiguration>
 {
     [TypeLookup("GetByProvider")]
     public abstract string ProviderName { get; }
