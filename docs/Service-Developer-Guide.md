@@ -41,8 +41,9 @@ await userService.Execute(UserManagementCommands.Create(username: "john", email:
 1. **Commands Unify Domains** - All implementations understand the same command interfaces
 2. **TypeCollections Enable Discovery** - Source-generated service lookup and registration
 3. **Providers Abstract Selection** - Get services by capability, not implementation type
-4. **Execute-Only Interface** - Services only have `Execute(TCommand)` methods
-5. **Translator Pattern** - Implementations translate domain commands to technology-specific operations
+4. **Dual-Interface Pattern** - Services have domain-specific methods AND Execute(TCommand) methods
+5. **Uniform Signatures** - All implementations in a domain must have identical public method signatures
+6. **Translator Pattern** - Implementations translate domain commands to technology-specific operations
 
 ### Project Structure
 
@@ -244,13 +245,18 @@ namespace MyCompany.Services.UserManagement.Abstractions.Services;
 
 /// <summary>
 /// Service interface for user management operations.
-/// All implementations provide the same command execution interface.
+/// All implementations must have identical public method signatures.
 /// </summary>
 public interface IUserManagementService : IGenericService<IUserManagementCommand, IUserManagementConfiguration>
 {
-    // CRITICAL: No domain-specific methods!
-    // Everything goes through Execute(TCommand) - this enables implementation abstraction
+    // Domain-specific methods (all implementations must have these exact signatures)
+    Task<IGenericResult<User>> GetUser(string userId, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IEnumerable<User>>> ListUsers(CancellationToken cancellationToken = default);
+    Task<IGenericResult<User>> CreateUser(string username, string email, string password, CancellationToken cancellationToken = default);
+    Task<IGenericResult<bool>> AuthenticateUser(string username, string password, CancellationToken cancellationToken = default);
+
     // Execute methods are inherited from IGenericService
+    // Both domain-specific methods AND Execute methods can be used to interact with the service
 }
 ```
 
@@ -722,9 +728,34 @@ public sealed class DatabaseUserManagementService : ServiceBase<IUserManagementC
         _translator = translator ?? throw new ArgumentNullException(nameof(translator));
     }
 
+    // Domain-specific method implementations (must match interface signatures exactly)
+    public async Task<IGenericResult<User>> GetUser(string userId, CancellationToken cancellationToken = default)
+    {
+        UserManagementServiceLog.CommandExecutionStarted(Logger, "GetUser", userId);
+        return await _translator.TranslateGetUser(userId, cancellationToken);
+    }
+
+    public async Task<IGenericResult<IEnumerable<User>>> ListUsers(CancellationToken cancellationToken = default)
+    {
+        UserManagementServiceLog.CommandExecutionStarted(Logger, "ListUsers", Guid.NewGuid().ToString());
+        return await _translator.TranslateListUsers(cancellationToken);
+    }
+
+    public async Task<IGenericResult<User>> CreateUser(string username, string email, string password, CancellationToken cancellationToken = default)
+    {
+        UserManagementServiceLog.UserCreationStarted(Logger, username, email);
+        return await _translator.TranslateCreateUser(username, email, password, cancellationToken);
+    }
+
+    public async Task<IGenericResult<bool>> AuthenticateUser(string username, string password, CancellationToken cancellationToken = default)
+    {
+        UserManagementServiceLog.AuthenticationAttempt(Logger, username);
+        return await _translator.TranslateAuthenticate(username, password, cancellationToken);
+    }
+
     /// <summary>
     /// Executes domain commands by translating them to SQL operations.
-    /// CRITICAL: This is the ONLY method - no domain-specific methods!
+    /// This provides command-based execution alongside domain-specific methods.
     /// </summary>
     public override async Task<IGenericResult> Execute(IUserManagementCommand command, CancellationToken cancellationToken = default)
     {
@@ -738,8 +769,8 @@ public sealed class DatabaseUserManagementService : ServiceBase<IUserManagementC
             // TRANSLATOR PATTERN: Convert domain command to SQL operation
             var result = command switch
             {
-                ICreateUserCommand createCmd => await _translator.TranslateCreateUser(createCmd, cancellationToken),
-                IAuthenticateUserCommand authCmd => await _translator.TranslateAuthenticate(authCmd, cancellationToken),
+                ICreateUserCommand createCmd => await CreateUser(createCmd.Username, createCmd.Email, createCmd.Password, cancellationToken),
+                IAuthenticateUserCommand authCmd => await AuthenticateUser(authCmd.Username, authCmd.Password, cancellationToken),
                 _ => GenericResult.Failure($"Unknown command type: {commandType}")
             };
 
