@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FractalDataWorks.ServiceTypes.Attributes;
+using FractalDataWorks.Services.Authentication;
 using FractalDataWorks.Services.Authentication.Abstractions;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;
 
@@ -17,7 +18,7 @@ namespace FractalDataWorks.Services.Authentication.AzureEntra;
 /// </remarks>
 [ServiceTypeOption(typeof(AuthenticationTypes), "AzureEntra")]
 public sealed class AzureEntraAuthenticationType : 
-    AuthenticationTypeBase<IAuthenticationService, IAuthenticationConfiguration, IAzureEntraAuthenticationServiceFactory>
+    AuthenticationTypeBase<IAuthenticationService, IEntraAuthenticationServiceFactory, IAuthenticationConfiguration>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureEntraAuthenticationType"/> class.
@@ -27,7 +28,7 @@ public sealed class AzureEntraAuthenticationType :
             id: 1,
             name: "AzureEntra",
             providerName: "Microsoft Entra ID",
-            method: AuthenticationMethod.OAuth2,
+            method: AuthenticationMethods.OAuth2(),
             supportedProtocols: new[] { "OAuth 2.0", "OpenID Connect", "SAML 2.0" },
             supportedFlows: new[] { "authorization_code", "client_credentials", "device_code", "interactive", "silent", "on_behalf_of" },
             supportedTokenTypes: new[] { "access_token", "id_token", "refresh_token" },
@@ -48,5 +49,5 @@ public sealed class AzureEntraAuthenticationType :
     public override Type ConfigurationType => typeof(IAuthenticationConfiguration);
 
     /// <inheritdoc/>
-    public override Type FactoryType => typeof(IAzureEntraAuthenticationServiceFactory);
+    public override Type FactoryType => typeof(IEntraAuthenticationServiceFactory);
 }

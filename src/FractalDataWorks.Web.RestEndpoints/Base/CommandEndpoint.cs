@@ -15,7 +15,7 @@ namespace FractalDataWorks.Web.RestEndpoints.Base;
 /// </summary>
 /// <typeparam name="TCommand">The command request type.</typeparam>
 /// <typeparam name="TResult">The command result type.</typeparam>
-public abstract class CommandEndpoint<TCommand, TResult> : FractalEndpoint<TCommand, TResult>
+public abstract class CommandEndpoint<TCommand, TResult> : RecEndpoint<TCommand, TResult>
     where TCommand : notnull
 {
     /// <summary>

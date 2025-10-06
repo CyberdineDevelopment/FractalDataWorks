@@ -9,18 +9,19 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// Provides scheduler-specific metadata and capabilities.
 /// </summary>
 /// <typeparam name="TService">The scheduler service type.</typeparam>
-/// <typeparam name="TConfiguration">The scheduler configuration type.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating scheduler service instances.</typeparam>
+/// <typeparam name="TConfiguration">The scheduler configuration type.</typeparam>
 /// <remarks>
 /// This class replaces the old EnhancedEnum-based SchedulingServiceType.
-/// Scheduler types should inherit from this class and provide metadata only - 
+/// Scheduler types should inherit from this class and provide metadata only -
 /// no instantiation logic should be included (that belongs in factories).
 /// </remarks>
-public abstract class SchedulerTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TFactory, TConfiguration>
+public abstract class SchedulerTypeBase<TService, TFactory, TConfiguration> :
+    ServiceTypeBase<TService, TFactory, TConfiguration>,
+    ISchedulerType<TService, TFactory, TConfiguration>
     where TService : class, IGenericSchedulingService
-    where TConfiguration : class, ISchedulingConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
+    where TConfiguration : class, ISchedulingConfiguration
 {
     /// <summary>
     /// Gets the scheduling engine used by this service type.

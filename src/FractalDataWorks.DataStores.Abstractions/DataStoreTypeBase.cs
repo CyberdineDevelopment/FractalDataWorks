@@ -1,51 +1,62 @@
-using System;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using FractalDataWorks.Configuration.Abstractions;
-using FractalDataWorks.Results;
-using FractalDataWorks.ServiceTypes;
-using FractalDataWorks.Services;
-using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.Collections;
 
 namespace FractalDataWorks.DataStores.Abstractions;
 
 /// <summary>
-/// Base class for data store type definitions that inherit from ServiceTypeBase.
-/// Provides metadata and factory creation for data store services.
+/// Base class for data store type definitions.
+/// Provides metadata about data storage locations and capabilities.
 /// </summary>
-/// <typeparam name="TService">The data store service interface type.</typeparam>
-/// <typeparam name="TConfiguration">The configuration type for the data store service.</typeparam>
-/// <typeparam name="TFactory">The factory type for creating data store service instances.</typeparam>
-public abstract class DataStoreTypeBase<TService, TConfiguration, TFactory> :
-    ServiceTypeBase<TService, TFactory, TConfiguration>,
-    IDataStoreType
-    where TService : class, IGenericService
-    where TConfiguration : class, IGenericConfiguration
-    where TFactory : class,IServiceFactory<TService, TConfiguration>
+/// <remarks>
+/// DataStoreType is NOT a service - it's metadata describing WHERE data is physically stored.
+/// Use TypeCollection pattern for discovery and lookup.
+/// </remarks>
+public abstract class DataStoreTypeBase : TypeOptionBase<DataStoreTypeBase>, IDataStoreType
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataStoreTypeBase{TService,TConfiguration,TFactory}"/> class.
+    /// Initializes a new instance of the <see cref="DataStoreTypeBase"/> class.
     /// </summary>
-    /// <param name="id">The unique identifier for this data store service type.</param>
-    /// <param name="name">The name of this data store service type.</param>
-    /// <param name="sectionName">The configuration section name for appsettings.json.</param>
-    /// <param name="displayName">The display name for this service type.</param>
-    /// <param name="description">The description of what this service type provides.</param>
+    /// <param name="id">The unique identifier for this data store type.</param>
+    /// <param name="name">The name of this data store type.</param>
+    /// <param name="displayName">The display name for this data store type.</param>
+    /// <param name="description">The description of this data store type.</param>
+    /// <param name="supportsRead">Whether this store supports read operations.</param>
+    /// <param name="supportsWrite">Whether this store supports write operations.</param>
+    /// <param name="supportsTransactions">Whether this store supports transactions.</param>
     /// <param name="category">The category for this data store type (defaults to "Data Store").</param>
     protected DataStoreTypeBase(
         int id,
         string name,
-        string sectionName,
         string displayName,
         string description,
+        bool supportsRead,
+        bool supportsWrite,
+        bool supportsTransactions,
         string? category = null)
-        : base(id, name, sectionName, displayName, description, category ?? "Data Store")
+        : base(id, name)
     {
+        DisplayName = displayName;
+        Description = description;
+        SupportsRead = supportsRead;
+        SupportsWrite = supportsWrite;
+        SupportsTransactions = supportsTransactions;
+        Category = category ?? "Data Store";
     }
 
-    /// <summary>
-    /// Gets the factory type for creating data store service instances.
-    /// </summary>
-    /// <returns>The factory type.</returns>
-    public IGenericResult<Type> Factory() => GenericResult<Type>.Success(typeof(TFactory));
+    /// <inheritdoc/>
+    public string DisplayName { get; }
+
+    /// <inheritdoc/>
+    public string Description { get; }
+
+    /// <inheritdoc/>
+    public bool SupportsRead { get; }
+
+    /// <inheritdoc/>
+    public bool SupportsWrite { get; }
+
+    /// <inheritdoc/>
+    public bool SupportsTransactions { get; }
+
+    /// <inheritdoc/>
+    public string Category { get; }
 }

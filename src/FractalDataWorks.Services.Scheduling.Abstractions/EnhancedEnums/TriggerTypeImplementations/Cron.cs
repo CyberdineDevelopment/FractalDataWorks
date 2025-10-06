@@ -226,7 +226,7 @@ public sealed class Cron : TriggerTypeBase
     {
         if (trigger?.Configuration == null)
         {
-            return GenericResult.Failure("Trigger configuration is required for Cron trigger type");
+            return GenericResult.Failure(SchedulingMessages.TriggerConfigurationNull());
         }
 
         // Validate cron expression is present

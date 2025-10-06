@@ -16,12 +16,40 @@
     <!-- Collections.SourceGenerators for processing [TypeCollection] and [TypeOption] attributes -->
     <ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
+                      PrivateAssets="all" />
 
     <!-- ServiceTypes source generator for ServiceType processing (used by concrete implementations) -->
     <ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"
                       ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
+                      PrivateAssets="all" />
+
+    <!-- Messages source generator for generating message collections -->
+    <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Explicitly embed the Collections generator DLL -->
+    <None Include="..\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false"
+          Condition="Exists('..\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll')" />
+
+    <!-- Explicitly embed the ServiceTypes generator DLL -->
+    <None Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.ServiceTypes.SourceGenerators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false"
+          Condition="Exists('..\FractalDataWorks.ServiceTypes.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.ServiceTypes.SourceGenerators.dll')" />
+
+    <!-- Explicitly embed the Messages generator DLL -->
+    <None Include="..\FractalDataWorks.Messages.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Messages.SourceGenerators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false"
+          Condition="Exists('..\FractalDataWorks.Messages.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Messages.SourceGenerators.dll')" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />

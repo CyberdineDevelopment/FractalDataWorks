@@ -5,10 +5,10 @@ using Microsoft.Extensions.Logging;
 namespace FractalDataWorks.Services.Authentication.AzureEntra.Logging;
 
 /// <summary>
-/// High-performance logging methods for AzureEntraAuthenticationService using source generators.
+/// High-performance logging methods for EntraAuthenticationService using source generators.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Source-generated logging class with no business logic")]
-public static partial class AzureEntraAuthenticationServiceLog
+public static partial class EntraAuthenticationServiceLog
 {
     /// <summary>
     /// Logs when authentication fails for Azure Entra.

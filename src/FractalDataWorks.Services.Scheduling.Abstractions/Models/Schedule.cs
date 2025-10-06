@@ -424,44 +424,44 @@ public sealed class Schedule : IGenericSchedule
         // Validate basic identity information
         if (string.IsNullOrWhiteSpace(Id))
         {
-            return GenericResult.Failure("Schedule ID cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.ScheduleIdNullOrEmpty());
         }
 
         if (string.IsNullOrWhiteSpace(Name))
         {
-            return GenericResult.Failure("Schedule name cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.ScheduleNameNullOrEmpty());
         }
 
         if (string.IsNullOrWhiteSpace(ScheduleId))
         {
-            return GenericResult.Failure("Schedule ID (IFractalSchedule) cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.ScheduleIdNullOrEmpty());
         }
 
         if (string.IsNullOrWhiteSpace(ScheduleName))
         {
-            return GenericResult.Failure("Schedule name (IFractalSchedule) cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.ScheduleNameNullOrEmpty());
         }
 
         if (string.IsNullOrWhiteSpace(ProcessId))
         {
-            return GenericResult.Failure("Process ID cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.ProcessIdNullOrEmpty());
         }
 
         // Validate process information
         if (string.IsNullOrWhiteSpace(ProcessType))
         {
-            return GenericResult.Failure("Process type cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.ProcessTypeNullOrEmpty());
         }
 
         if (ProcessConfiguration == null)
         {
-            return GenericResult.Failure("Process configuration cannot be null");
+            return GenericResult.Failure(SchedulingMessages.ProcessConfigurationNull());
         }
 
         // Validate trigger
         if (Trigger == null)
         {
-            return GenericResult.Failure("Trigger cannot be null");
+            return GenericResult.Failure(SchedulingMessages.TriggerNull());
         }
 
         // Delegate trigger validation to the appropriate trigger type
@@ -474,7 +474,7 @@ public sealed class Schedule : IGenericSchedule
         // Validate timestamps
         if (UpdatedAt < CreatedAt)
         {
-            return GenericResult.Failure("Updated timestamp cannot be earlier than created timestamp");
+            return GenericResult.Failure(SchedulingMessages.InvalidScheduleTimestamp());
         }
 
         return GenericResult.Success();
@@ -565,22 +565,22 @@ public sealed class Schedule : IGenericSchedule
         
         if (string.IsNullOrWhiteSpace(Trigger.TriggerId))
         {
-            return GenericResult.Failure("Trigger ID cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.TriggerIdNullOrEmpty());
         }
 
         if (string.IsNullOrWhiteSpace(Trigger.TriggerName))
         {
-            return GenericResult.Failure("Trigger name cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.TriggerNameNullOrEmpty());
         }
 
         if (string.IsNullOrWhiteSpace(Trigger.TriggerType))
         {
-            return GenericResult.Failure("Trigger type cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.TriggerTypeNullOrEmpty());
         }
 
         if (Trigger.Configuration == null)
         {
-            return GenericResult.Failure("Trigger configuration cannot be null");
+            return GenericResult.Failure(SchedulingMessages.TriggerConfigurationNull());
         }
 
         return GenericResult.Success();

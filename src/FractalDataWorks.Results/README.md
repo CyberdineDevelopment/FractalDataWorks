@@ -50,8 +50,8 @@ public interface IGenericResult<T> : IGenericResult, IGenericResult<T>
 ### GenericResult Implementation
 
 **Message Handling**:
-- Stores messages as `List<IFractalMessage>` internally
-- Supports construction with string, IFractalMessage, or collections of IFractalMessage
+- Stores messages as `List<IRecMessage>` internally
+- Supports construction with string, IRecMessage, or collections of IRecMessage
 - `IsEmpty` returns true when message collection is empty (not when IsSuccess is true)
 - `Message` property returns first message or empty string
 - `Messages` property provides read-only access to all messages
@@ -61,17 +61,17 @@ public interface IGenericResult<T> : IGenericResult, IGenericResult<T>
 // Success results
 GenericResult.Success()                                    // No message
 GenericResult.Success(string message)                      // With string message  
-GenericResult.Success(IFractalMessage message)                 // With IFractalMessage
-GenericResult.Success<TMessage>(TMessage message)          // With typed IFractalMessage
-GenericResult.Success(IEnumerable<IFractalMessage> messages)   // With message collection
-GenericResult.Success(params IFractalMessage[] messages)       // With message array
+GenericResult.Success(IRecMessage message)                 // With IRecMessage
+GenericResult.Success<TMessage>(TMessage message)          // With typed IRecMessage
+GenericResult.Success(IEnumerable<IRecMessage> messages)   // With message collection
+GenericResult.Success(params IRecMessage[] messages)       // With message array
 
 // Failure results
 GenericResult.Failure(string message)                      // With string message
-GenericResult.Failure(IFractalMessage message)                 // With IFractalMessage
-GenericResult.Failure<TMessage>(TMessage message)          // With typed IFractalMessage  
-GenericResult.Failure(IEnumerable<IFractalMessage> messages)   // With message collection
-GenericResult.Failure(params IFractalMessage[] messages)       // With message array
+GenericResult.Failure(IRecMessage message)                 // With IRecMessage
+GenericResult.Failure<TMessage>(TMessage message)          // With typed IRecMessage  
+GenericResult.Failure(IEnumerable<IRecMessage> messages)   // With message collection
+GenericResult.Failure(params IRecMessage[] messages)       // With message array
 ```
 
 ### GenericResult&lt;T&gt; Generic Implementation
@@ -87,18 +87,18 @@ GenericResult.Failure(params IFractalMessage[] messages)       // With message a
 // Success results with values
 GenericResult<T>.Success(T value)                                    // Value only
 GenericResult<T>.Success(T value, string message)                   // Value + message
-GenericResult<T>.Success(T value, IFractalMessage message)              // Value + IFractalMessage
+GenericResult<T>.Success(T value, IRecMessage message)              // Value + IRecMessage
 GenericResult<T>.Success<TMessage>(T value, TMessage message)       // Value + typed message
-GenericResult<T>.Success(T value, IEnumerable<IFractalMessage> messages)// Value + collection
-GenericResult<T>.Success(T value, params IFractalMessage[] messages)    // Value + array
+GenericResult<T>.Success(T value, IEnumerable<IRecMessage> messages)// Value + collection
+GenericResult<T>.Success(T value, params IRecMessage[] messages)    // Value + array
 
 // Failure results (static methods with different signatures)
 GenericResult<T>.Failure<T>(string message)           // Generic static method
 GenericResult<T>.Failure(string message)              // Instance-type static method
-GenericResult<T>.Failure(IFractalMessage message)         // With IFractalMessage
-GenericResult<T>.Failure<TMessage>(TMessage message)  // With typed IFractalMessage
-GenericResult<T>.Failure(IEnumerable<IFractalMessage> messages) // With collection
-GenericResult<T>.Failure(params IFractalMessage[] messages)     // With array
+GenericResult<T>.Failure(IRecMessage message)         // With IRecMessage
+GenericResult<T>.Failure<TMessage>(TMessage message)  // With typed IRecMessage
+GenericResult<T>.Failure(IEnumerable<IRecMessage> messages) // With collection
+GenericResult<T>.Failure(params IRecMessage[] messages)     // With array
 ```
 
 **Functional Methods**:
@@ -167,10 +167,10 @@ Console.WriteLine($"Failed: {failedResult.Message}");
 
 ```csharp
 // Multiple messages
-var messages = new List<IFractalMessage>
+var messages = new List<IRecMessage>
 {
-    new FractalMessage("First step completed"),  
-    new FractalMessage("Second step completed")
+    new RecMessage("First step completed"),  
+    new RecMessage("Second step completed")
 };
 IGenericResult result = GenericResult.Success(messages);
 
@@ -223,7 +223,7 @@ IGenericResult<NonResult> LogOperation(string message)
 
 ### Message vs Messages Property
 - `Message` returns the **first** message from the collection or empty string if no messages
-- `Messages` provides access to the **full collection** of IFractalMessage objects
+- `Messages` provides access to the **full collection** of IRecMessage objects
 - Only the first message is used in Map/Match operations
 
 ### IsEmpty Behavior Differences
@@ -252,11 +252,11 @@ The following code should be excluded from coverage testing:
 This library appears to be part of a recent refactor. Key observations:
 
 1. **Message Integration**: Heavy integration with FractalDataWorks.Messages framework for structured message handling
-2. **Enhanced Enum Dependency**: IFractalMessage extends IEnumOption, indicating integration with enhanced enum pattern  
+2. **Enhanced Enum Dependency**: IRecMessage extends IEnumOption, indicating integration with enhanced enum pattern  
 3. **Dual Interface Support**: Supports both IGenericResult (standard) and IGenericResult (enhanced) interfaces
 4. **Factory Pattern**: Extensive use of static factory methods rather than public constructors
 
 ## Dependencies
 
-- **FractalDataWorks.Messages**: Required for IFractalMessage, FractalMessage, and MessageSeverity types
+- **FractalDataWorks.Messages**: Required for IRecMessage, RecMessage, and MessageSeverity types
 - **FractalDataWorks.EnhancedEnums** (indirect): Required through Messages dependency for IEnumOption interface

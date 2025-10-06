@@ -39,7 +39,7 @@ public sealed class GlobalMessageCollectionAttribute : Attribute
 
     /// <summary>
     /// Gets or sets the return type for generated methods.
-    /// Defaults to IFractalMessage.
+    /// Defaults to IRecMessage.
     /// </summary>
     public Type ReturnType { get; set; }
 }

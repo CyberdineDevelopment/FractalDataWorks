@@ -5,6 +5,7 @@ using FluentValidation.Results;
 using FractalDataWorks.Messages;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.SecretManagers.Abstractions;
+using FractalDataWorks.Services.SecretManagers.Abstractions.Messages;
 using FractalDataWorks.Services.SecretManager;
 
 namespace FractalDataWorks.Services.SecretManagers.AzureKeyVault.Configuration;
@@ -238,6 +239,6 @@ public sealed class AzureKeyVaultConfiguration : ISecretManagerConfiguration
         }
         
         var errors = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
-        return GenericResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errors, "ValidationFailed", "AzureKeyVaultConfiguration"));
+        return GenericResult<ValidationResult>.Failure(SecretManagerMessages.ValidationFailed(errors));
     }
 }

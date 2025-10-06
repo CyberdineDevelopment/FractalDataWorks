@@ -234,7 +234,7 @@ public sealed class Once : TriggerTypeBase
     {
         if (trigger?.Configuration == null)
         {
-            return GenericResult.Failure("Trigger configuration is required for Once trigger type");
+            return GenericResult.Failure(SchedulingMessages.TriggerConfigurationNull());
         }
 
         // Validate start time if provided

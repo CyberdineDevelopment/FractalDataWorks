@@ -1,39 +1,43 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using FractalDataWorks.Services;
-using FractalDataWorks.ServiceTypes;
+using FractalDataWorks.Collections;
 
 namespace FractalDataWorks.DataStores.Abstractions;
 
 /// <summary>
-/// Represents a data store type definition in the service type architecture.
+/// Represents a data store type definition - metadata about WHERE data is physically stored.
 /// </summary>
-public interface IDataStoreType : IServiceType
+/// <remarks>
+/// Data store types describe storage backend characteristics (SQL Server, PostgreSQL, S3, FileSystem, etc.)
+/// This is NOT a service interface - it's metadata for type discovery via TypeCollection.
+/// </remarks>
+public interface IDataStoreType : ITypeOption
 {
-    /// <summary>
-    /// Gets the section name for configuration in appsettings.json.
-    /// </summary>
-    string SectionName { get; }
-
     /// <summary>
     /// Gets the display name for this data store type.
     /// </summary>
     string DisplayName { get; }
 
     /// <summary>
-    /// Gets the description of what this data store type provides.
+    /// Gets the description of this data store type.
     /// </summary>
-    new string Description { get; }
+    string Description { get; }
 
     /// <summary>
-    /// Registers the services required by this data store type with the dependency injection container.
+    /// Gets whether this store supports read operations.
     /// </summary>
-    /// <param name="services">The service collection to register services with.</param>
-    void Register(IServiceCollection services);
+    bool SupportsRead { get; }
 
     /// <summary>
-    /// Configures the data store type using the provided configuration.
+    /// Gets whether this store supports write operations.
     /// </summary>
-    /// <param name="configuration">The application configuration.</param>
-    void Configure(IConfiguration configuration);
+    bool SupportsWrite { get; }
+
+    /// <summary>
+    /// Gets whether this store supports transactions.
+    /// </summary>
+    bool SupportsTransactions { get; }
+
+    /// <summary>
+    /// Gets the category for this data store type.
+    /// </summary>
+    string Category { get; }
 }

@@ -77,7 +77,7 @@ public interface ITransformationRequest : ICommand
     /// mapping rules, filter criteria, aggregation functions, or formatting options.
     /// The structure and content depend on the specific transformation being performed.
     /// </remarks>
-    new IReadOnlyDictionary<string, object> Configuration { get; }
+    IReadOnlyDictionary<string, object> Configuration { get; }
     
     /// <summary>
     /// Gets additional options for transformation execution.
@@ -196,7 +196,7 @@ public interface ITransformationRequest<TInput> : ITransformationRequest
     /// <remarks>
     /// This method provides type-safe request copying for generic request instances.
     /// </remarks>
-    new ITransformationRequest<TInput> WithInputData(TInput? newInputData, string? newInputType = null);
+    ITransformationRequest<TInput> WithInputData(TInput? newInputData, string? newInputType = null);
 
     /// <summary>
     /// Creates a copy of this request with modified output type.

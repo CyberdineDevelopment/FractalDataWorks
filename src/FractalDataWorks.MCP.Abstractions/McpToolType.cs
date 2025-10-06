@@ -1,6 +1,6 @@
 using FractalDataWorks.Collections;
 
-namespace FractalDataWorks.MCP.Abstractions;
+namespace FractalDataWorks.Mcp.Abstractions;
 
 /// <summary>
 /// Abstract base class for MCP tool type definitions.

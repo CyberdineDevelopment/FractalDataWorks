@@ -1,8 +1,11 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using FractalDataWorks.Results;
 using FractalDataWorks.Services;
+using FractalDataWorks.Services.Abstractions.Commands;
 using FractalDataWorks.Services.SecretManagers.Abstractions;
-using FractalDataWorks.Services.SecretManagers.Commands;
-using ISecretManagerCommand = FractalDataWorks.Services.SecretManagers.Commands;
 
 namespace FractalDataWorks.Services.SecretManager;
 
@@ -12,9 +15,9 @@ namespace FractalDataWorks.Services.SecretManager;
 /// <typeparam name="TSecretCommand">The secret managementCommand type.</typeparam>
 /// <typeparam name="TSecretManagerConfiguration">The secret management configuration type.</typeparam>
 /// <typeparam name="TSecretManagerService">The concrete secret management service type for logging category.</typeparam>
-public abstract class SecretManagerServiceBase<TSecretCommand, TSecretManagerConfiguration, TSecretManagerService> 
-    : ServiceBase<TSecretCommand, TSecretManagerConfiguration, TSecretManagerService>, ISecretManagerService<TSecretCommand>
-    where TSecretCommand : Abstractions.ISecretManagerCommand
+public abstract class SecretManagerServiceBase<TSecretCommand, TSecretManagerConfiguration, TSecretManagerService>
+    : ServiceBase<TSecretCommand, TSecretManagerConfiguration, TSecretManagerService>, ISecretManager
+    where TSecretCommand : ICommand, ISecretManagerCommand
     where TSecretManagerConfiguration : ISecretManagerConfiguration
     where TSecretManagerService : class
 {
@@ -23,8 +26,20 @@ public abstract class SecretManagerServiceBase<TSecretCommand, TSecretManagerCon
     /// </summary>
     /// <param name="logger">The logger instance for the concrete service type.</param>
     /// <param name="configuration">The secret management configuration.</param>
-    protected SecretManagerServiceBase(ILogger<TSecretManagerService> logger, TSecretManagerConfiguration configuration) 
-        : base(logger, configuration) 
-    { 
+    protected SecretManagerServiceBase(ILogger<TSecretManagerService> logger, TSecretManagerConfiguration configuration)
+        : base(logger, configuration)
+    {
     }
+
+    /// <inheritdoc/>
+    public abstract Task<IGenericResult<object?>> Execute(ISecretManagerCommand managementCommand, CancellationToken cancellationToken = default);
+
+    /// <inheritdoc/>
+    public abstract Task<IGenericResult<TResult>> Execute<TResult>(ISecretManagerCommand<TResult> managementCommand, CancellationToken cancellationToken = default);
+
+    /// <inheritdoc/>
+    public abstract Task<IGenericResult> ExecuteBatch(IReadOnlyList<ISecretManagerCommand> commands, CancellationToken cancellationToken = default);
+
+    /// <inheritdoc/>
+    public abstract IGenericResult ValidateCommand(ISecretManagerCommand managementCommand);
 }

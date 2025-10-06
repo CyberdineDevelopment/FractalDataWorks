@@ -11,18 +11,19 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// Provides transformation-specific metadata and capabilities.
 /// </summary>
 /// <typeparam name="TService">The transformation service type.</typeparam>
-/// <typeparam name="TConfiguration">The transformation configuration type.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating transformation service instances.</typeparam>
+/// <typeparam name="TConfiguration">The transformation configuration type.</typeparam>
 /// <remarks>
 /// This class replaces the old EnhancedEnum-based TransformationServiceType.
-/// Transformation types should inherit from this class and provide metadata only - 
+/// Transformation types should inherit from this class and provide metadata only -
 /// no instantiation logic should be included (that belongs in factories).
 /// </remarks>
-public abstract class TransformationTypeBase<TService, TConfiguration, TFactory> : 
-    ServiceTypeBase<TService, TFactory, TConfiguration>
+public abstract class TransformationTypeBase<TService, TFactory, TConfiguration> :
+    ServiceTypeBase<TService, TFactory, TConfiguration>,
+    ITransformationType<TService, TFactory, TConfiguration>
     where TService : class, ITransformationProvider
-    where TConfiguration : class, ITransformationsConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
+    where TConfiguration : class, ITransformationsConfiguration
 {
     /// <summary>
     /// Gets the input type for this transformation.

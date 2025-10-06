@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using FractalDataWorks.DataSets.Abstractions;
 using FractalDataWorks.Results;
+using FractalDataWorks.Services.Connections.Abstractions.Messages;
 using FractalDataWorks.Services.Connections.Abstractions.Translators;
 
 namespace FractalDataWorks.Services.Connections.MsSql.Mappers;
@@ -141,7 +142,7 @@ internal sealed class SqlServerResultMapper
             // For DataReader, check if it's readable
             if (connectionResult is SqlDataReader reader && reader.IsClosed)
             {
-                return GenericResult.Failure("SqlDataReader is closed and cannot be read");
+                return GenericResult.Failure(ConnectionMessages.DataReaderClosed());
             }
 
             // Basic schema validation would go here

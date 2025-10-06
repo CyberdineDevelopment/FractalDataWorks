@@ -22,12 +22,12 @@ public class GenericResult : IGenericResult
         IsSuccess = isSuccess;
         if (!string.IsNullOrEmpty(message))
         {
-            _messages.Add(new FractalMessage(message!));
+            _messages.Add(new RecMessage(message!));
         }
     }
 
     /// <summary>
-    /// Constructor for GenericResult with IFractalMessage
+    /// Constructor for GenericResult with IRecMessage
     /// </summary>
     /// <param name="isSuccess"></param>
     /// <param name="message"></param>
@@ -112,29 +112,29 @@ public class GenericResult : IGenericResult
     public static IGenericResult Success(string message) => new GenericResult(true, message);
 
     /// <summary>
-    /// Creates a successful result with an IFractalMessage.
+    /// Creates a successful result with an IRecMessage.
     /// </summary>
     /// <param name="message">The success message object.</param>
     /// <returns>A successful result.</returns>
     public static IGenericResult Success(IGenericMessage message) => new GenericResult(true, message);
 
     /// <summary>
-    /// Creates a successful result with any object that implements IFractalMessage.
+    /// Creates a successful result with any object that implements IRecMessage.
     /// </summary>
-    /// <typeparam name="TMessage">The type of the message that implements IFractalMessage.</typeparam>
+    /// <typeparam name="TMessage">The type of the message that implements IRecMessage.</typeparam>
     /// <param name="message">The success message object.</param>
     /// <returns>A successful result.</returns>
     public static IGenericResult Success<TMessage>(TMessage message) where TMessage : IGenericMessage => new GenericResult(true, message);
 
     /// <summary>
-    /// Creates a successful result with multiple IFractalMessages.
+    /// Creates a successful result with multiple IRecMessages.
     /// </summary>
     /// <param name="messages">The success message objects.</param>
     /// <returns>A successful result.</returns>
     public static IGenericResult Success(IEnumerable<IGenericMessage> messages) => new GenericResult(true, messages);
 
     /// <summary>
-    /// Creates a successful result with multiple IFractalMessages.
+    /// Creates a successful result with multiple IRecMessages.
     /// </summary>
     /// <param name="messages">The success message objects.</param>
     /// <returns>A successful result.</returns>
@@ -148,29 +148,29 @@ public class GenericResult : IGenericResult
     public static IGenericResult Failure(string message) => new GenericResult(false, message);
 
     /// <summary>
-    /// Creates a failed result with an IFractalMessage.
+    /// Creates a failed result with an IRecMessage.
     /// </summary>
     /// <param name="message">The failure message object.</param>
     /// <returns>A failed result.</returns>
     public static IGenericResult Failure(IGenericMessage message) => new GenericResult(false, message);
 
     /// <summary>
-    /// Creates a failed result with any object that implements IFractalMessage.
+    /// Creates a failed result with any object that implements IRecMessage.
     /// </summary>
-    /// <typeparam name="TMessage">The type of the message that implements IFractalMessage.</typeparam>
+    /// <typeparam name="TMessage">The type of the message that implements IRecMessage.</typeparam>
     /// <param name="message">The failure message object.</param>
     /// <returns>A failed result.</returns>
     public static IGenericResult Failure<TMessage>(TMessage message) where TMessage : IGenericMessage => new GenericResult(false, message);
 
     /// <summary>
-    /// Creates a failed result with multiple IFractalMessages.
+    /// Creates a failed result with multiple IRecMessages.
     /// </summary>
     /// <param name="messages">The failure message objects.</param>
     /// <returns>A failed result.</returns>
     public static IGenericResult Failure(IEnumerable<IGenericMessage> messages) => new GenericResult(false, messages);
 
     /// <summary>
-    /// Creates a failed result with multiple IFractalMessages.
+    /// Creates a failed result with multiple IRecMessages.
     /// </summary>
     /// <param name="messages">The failure message objects.</param>
     /// <returns>A failed result.</returns>

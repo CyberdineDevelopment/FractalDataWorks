@@ -258,7 +258,7 @@ public sealed class Trigger : IGenericTrigger
 
         if (!string.IsNullOrWhiteSpace(timeZoneId))
         {
-            config[Cron.TimeZoneIdKey] = timeZoneId;
+            config[Cron.TimeZoneIdKey] = timeZoneId!;
         }
 
         var combinedMetadata = CombineMetadata(description, metadata);
@@ -517,12 +517,12 @@ public sealed class Trigger : IGenericTrigger
 
         if (!string.IsNullOrWhiteSpace(description))
         {
-            config[Manual.DescriptionKey] = description;
+            config[Manual.DescriptionKey] = description!;
         }
 
         if (!string.IsNullOrWhiteSpace(requiredRole))
         {
-            config[Manual.RequiredRoleKey] = requiredRole;
+            config[Manual.RequiredRoleKey] = requiredRole!;
         }
 
         var combinedMetadata = CombineMetadata(description, metadata);
@@ -588,27 +588,27 @@ public sealed class Trigger : IGenericTrigger
         // Basic validation first
         if (string.IsNullOrWhiteSpace(TriggerId))
         {
-            return GenericResult.Failure("Trigger ID cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.TriggerIdNullOrEmpty());
         }
 
         if (string.IsNullOrWhiteSpace(TriggerName))
         {
-            return GenericResult.Failure("Trigger name cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.TriggerNameNullOrEmpty());
         }
 
         if (string.IsNullOrWhiteSpace(TriggerType))
         {
-            return GenericResult.Failure("Trigger type cannot be null or empty");
+            return GenericResult.Failure(SchedulingMessages.TriggerTypeNullOrEmpty());
         }
 
         if (Configuration == null)
         {
-            return GenericResult.Failure("Trigger configuration cannot be null");
+            return GenericResult.Failure(SchedulingMessages.TriggerConfigurationNull());
         }
 
         if (ModifiedUtc < CreatedUtc)
         {
-            return GenericResult.Failure("Modified timestamp cannot be earlier than created timestamp");
+            return GenericResult.Failure(SchedulingMessages.InvalidTimestamp());
         }
 
         // Delegate to trigger type specific validation

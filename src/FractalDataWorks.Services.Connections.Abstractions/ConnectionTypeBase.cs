@@ -46,7 +46,7 @@ public abstract class ConnectionTypeBase<TService, TConfiguration, TFactory> :
     /// Gets the factory type for creating connection service instances.
     /// </summary>
     /// <returns>The factory type.</returns>
-    public Type Factory() => GenericResult<Type>.Success(typeof(TFactory));
+    public Type Factory() => typeof(TFactory);
 
     // NOTE: Container type and translator support will be added when those abstractions are ready
 }

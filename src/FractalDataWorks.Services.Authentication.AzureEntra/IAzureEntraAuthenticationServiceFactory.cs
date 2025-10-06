@@ -9,7 +9,7 @@ namespace FractalDataWorks.Services.Authentication.AzureEntra;
 /// Factory interface for creating Azure Entra authentication service instances.
 /// This allows for future custom factory implementations while using GenericServiceFactory by default.
 /// </summary>
-public interface IAzureEntraAuthenticationServiceFactory : 
+public interface IEntraAuthenticationServiceFactory : 
     IAuthenticationServiceFactory<IAuthenticationService, IAuthenticationConfiguration>,
     IServiceFactory<IAuthenticationService, IAuthenticationConfiguration>
 {

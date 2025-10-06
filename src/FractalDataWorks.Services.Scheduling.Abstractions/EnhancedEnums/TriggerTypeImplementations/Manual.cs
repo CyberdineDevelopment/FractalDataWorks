@@ -174,7 +174,7 @@ public sealed class Manual : TriggerTypeBase
     {
         if (trigger?.Configuration == null)
         {
-            return GenericResult.Failure("Trigger configuration is required for Manual trigger type");
+            return GenericResult.Failure(SchedulingMessages.TriggerConfigurationNull());
         }
 
         // Validate AllowConcurrent if provided

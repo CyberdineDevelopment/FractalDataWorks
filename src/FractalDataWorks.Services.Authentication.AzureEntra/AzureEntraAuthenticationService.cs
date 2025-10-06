@@ -18,17 +18,17 @@ namespace FractalDataWorks.Services.Authentication.AzureEntra;
 /// <summary>
 /// Azure Entra ID (Azure Active Directory) authentication service implementation.
 /// </summary>
-public sealed class AzureEntraAuthenticationService :
-    AuthenticationServiceBase<IAuthenticationCommand, AzureEntraConfiguration, AzureEntraAuthenticationService>,
+public sealed class EntraAuthenticationService :
+    AuthenticationServiceBase<IAuthenticationCommand, AzureEntraConfiguration, EntraAuthenticationService>,
     IAuthenticationService
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="AzureEntraAuthenticationService"/> class.
+    /// Initializes a new instance of the <see cref="EntraAuthenticationService"/> class.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
     /// <param name="configuration">The Azure Entra configuration.</param>
-    public AzureEntraAuthenticationService(
-        ILogger<AzureEntraAuthenticationService> logger,
+    public EntraAuthenticationService(
+        ILogger<EntraAuthenticationService> logger,
         AzureEntraConfiguration configuration)
         : base(logger, configuration)
     {
@@ -54,7 +54,7 @@ public sealed class AzureEntraAuthenticationService :
         }
         catch (Exception ex)
         {
-            Logging.AzureEntraAuthenticationServiceLog.AuthenticationFailed(Logger, ex);
+            Logging.EntraAuthenticationServiceLog.AuthenticationFailed(Logger, ex);
             return GenericResult<IAuthenticationContext>.Failure(
                 ex.Message);
         }
@@ -66,7 +66,7 @@ public sealed class AzureEntraAuthenticationService :
         if (string.IsNullOrWhiteSpace(token))
         {
             return GenericResult<bool>.Failure(
-                "Token cannot be null or empty");
+                AuthenticationMessages.TokenNullOrEmpty());
         }
 
         try
@@ -79,7 +79,7 @@ public sealed class AzureEntraAuthenticationService :
         }
         catch (Exception ex)
         {
-            Logging.AzureEntraAuthenticationServiceLog.TokenValidationFailed(Logger, ex);
+            Logging.EntraAuthenticationServiceLog.TokenValidationFailed(Logger, ex);
             return GenericResult<bool>.Failure(
                 ex.Message);
         }
@@ -91,7 +91,7 @@ public sealed class AzureEntraAuthenticationService :
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
             return GenericResult<string>.Failure(
-                "Refresh token is invalid");
+                AuthenticationMessages.RefreshTokenInvalid());
         }
 
         try
@@ -104,7 +104,7 @@ public sealed class AzureEntraAuthenticationService :
         }
         catch (Exception ex)
         {
-            Logging.AzureEntraAuthenticationServiceLog.TokenRefreshFailed(Logger, ex);
+            Logging.EntraAuthenticationServiceLog.TokenRefreshFailed(Logger, ex);
             return GenericResult<string>.Failure(
                 "Refresh token is invalid");
         }
@@ -116,7 +116,7 @@ public sealed class AzureEntraAuthenticationService :
         if (string.IsNullOrWhiteSpace(token))
         {
             return GenericResult.Failure(
-                "Token cannot be null or empty");
+                AuthenticationMessages.TokenNullOrEmpty());
         }
 
         try
@@ -125,14 +125,14 @@ public sealed class AzureEntraAuthenticationService :
             // Note: Azure AD doesn't directly support token revocation for access tokens
             // but we can implement local blacklisting or session management
             
-            Logging.AzureEntraAuthenticationServiceLog.TokenRevocationRequested(Logger);
+            Logging.EntraAuthenticationServiceLog.TokenRevocationRequested(Logger);
             return GenericResult.Success();
         }
         catch (Exception ex)
         {
-            Logging.AzureEntraAuthenticationServiceLog.TokenRevocationFailed(Logger, ex);
+            Logging.EntraAuthenticationServiceLog.TokenRevocationFailed(Logger, ex);
             return GenericResult.Failure(
-                $"Failed to revoke token: {ex.Message}");
+                AuthenticationMessages.TokenRevocationFailed(ex.Message));
         }
     }
 
@@ -141,20 +141,20 @@ public sealed class AzureEntraAuthenticationService :
     {
         // Authentication service doesn't use command pattern
         // Direct method calls are preferred
-        return GenericResult<T>.Failure("Authentication service does not support command-based execution. Use direct methods instead.");
+        return GenericResult<T>.Failure(AuthenticationMessages.CommandExecutionNotSupported());
     }
 
     /// <inheritdoc/>
     public override async Task<IGenericResult<TOut>> Execute<TOut>(IAuthenticationCommand command, CancellationToken cancellationToken)
     {
         // Authentication doesn't use command pattern
-        return GenericResult<TOut>.Failure("Authentication service does not support command-based execution. Use direct methods instead.");
+        return GenericResult<TOut>.Failure(AuthenticationMessages.CommandExecutionNotSupported());
     }
 
     /// <inheritdoc/>
     public override async Task<IGenericResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken)
     {
         // Authentication doesn't use command pattern
-        return GenericResult.Failure("Authentication service does not support command-based execution. Use direct methods instead.");
+        return GenericResult.Failure(AuthenticationMessages.CommandExecutionNotSupported());
     }
 }

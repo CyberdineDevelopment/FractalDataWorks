@@ -16,12 +16,12 @@ namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 /// no instantiation logic should be included (that belongs in factories).
 /// The ServiceTypeCollectionGenerator will discover all types inheriting from this base.
 /// </remarks>
-public abstract class SecretManagerTypeBase<TService, TConfiguration, TFactory> : 
+public abstract class SecretManagerTypeBase<TService, TFactory, TConfiguration> :
     ServiceTypeBase<TService, TFactory, TConfiguration>,
-    ISecretManagerServiceType
-    where TService : class,ISecretManagerService
-    where TConfiguration : class,ISecretManagerConfiguration
+    ISecretManagerServiceType<TService, TFactory, TConfiguration>
+    where TService : class, ISecretManager
     where TFactory : class, ISecretManagerServiceFactory<TService, TConfiguration>
+    where TConfiguration : class, ISecretManagerConfiguration
 {
     /// <summary>
     /// Gets the secret store types supported by this provider.

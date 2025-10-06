@@ -8,12 +8,12 @@ The Messages package enables consistent, discoverable, and type-safe messaging a
 
 ## Key Components
 
-### IFractalMessage Interface
+### IRecMessage Interface
 
 The core interface that all framework messages implement:
 
 ```csharp
-public interface IFractalMessage : IEnumOption
+public interface IRecMessage : IEnumOption
 {
     string Message { get; }              // Human-readable message text
     string? Code { get; }                // Unique identifier for programmatic handling
@@ -25,12 +25,12 @@ This interface inherits from `IEnumOption` providing:
 - `int Id` - Unique identifier for this enum value  
 - `string Name` - Display name or string representation
 
-### IFractalMessage<TSeverity> Interface
+### IRecMessage<TSeverity> Interface
 
 Generic interface for messages with strongly typed severity:
 
 ```csharp
-public interface IFractalMessage<TSeverity> : IFractalMessage where TSeverity : Enum
+public interface IRecMessage<TSeverity> : IRecMessage where TSeverity : Enum
 {
     TSeverity Severity { get; }          // Severity level of the message
 }
@@ -50,27 +50,27 @@ public enum MessageSeverity
 }
 ```
 
-### FractalMessage Class
+### RecMessage Class
 
-Concrete implementation of IFractalMessage for general-purpose messaging:
+Concrete implementation of IRecMessage for general-purpose messaging:
 
 ```csharp
-public class FractalMessage : IFractalMessage
+public class RecMessage : IRecMessage
 {
     public MessageSeverity Severity { get; set; }
     public string Message { get; set; } = string.Empty;
     public string? Code { get; set; }
     public string? Source { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string Name { get; set; } = "FractalMessage";
+    public string Name { get; set; } = "RecMessage";
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     public Guid CorrelationId { get; set; } = Guid.NewGuid();
     public IDictionary<string, object> Metadata { get; set; }
 
     // Constructors for various initialization patterns
-    public FractalMessage()
-    public FractalMessage(string message)
-    public FractalMessage(MessageSeverity severity, string message, string? code = null, string? source = null)
+    public RecMessage()
+    public RecMessage(string message)
+    public RecMessage(MessageSeverity severity, string message, string? code = null, string? source = null)
 }
 ```
 
@@ -79,7 +79,7 @@ public class FractalMessage : IFractalMessage
 The base class for framework messages with formatting and metadata capabilities:
 
 ```csharp
-public abstract class MessageTemplate<TSeverity> : IMessageIdentifier, IFractalMessage<TSeverity>
+public abstract class MessageTemplate<TSeverity> : IMessageIdentifier, IRecMessage<TSeverity>
     where TSeverity : Enum
 {
     public int Id { get; }
@@ -106,7 +106,7 @@ public abstract class MessageTemplate<TSeverity> : IMessageIdentifier, IFractalM
 Base class for message collections that provides core functionality:
 
 ```csharp
-public abstract class MessageCollectionBase<T> where T : class, IFractalMessage
+public abstract class MessageCollectionBase<T> where T : class, IRecMessage
 {
     // Static collection methods
     public static ImmutableArray<T> All()
@@ -172,10 +172,10 @@ public sealed class GlobalMessageCollectionAttribute : Attribute
 
 ```csharp
 // Simple message creation
-var message = new FractalMessage("Operation completed successfully");
+var message = new RecMessage("Operation completed successfully");
 
 // Message with severity and metadata
-var errorMessage = new FractalMessage(
+var errorMessage = new RecMessage(
     MessageSeverity.Error, 
     "Validation failed", 
     "VAL001", 

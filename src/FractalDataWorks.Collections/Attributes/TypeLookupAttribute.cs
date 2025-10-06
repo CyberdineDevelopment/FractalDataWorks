@@ -11,28 +11,28 @@ public sealed class TypeLookupAttribute : Attribute
     /// <summary>
     /// Initializes a new instance of the <see cref="TypeLookupAttribute"/> class.
     /// </summary>
-    /// <param name="methodName">Custom method name for the lookup (e.g. ByName).</param>
-    /// <param name="allowMultiple">Allow multiple results per lookup key.</param>
+    /// <param name="methodName">Required method name for the lookup (e.g. "Name", "Id", "Category").</param>
+    /// <param name="returnsList">If true, returns IReadOnlyList of matching items; if false, returns single item (default).</param>
     /// <param name="returnType">The return type for this specific lookup method.</param>
     public TypeLookupAttribute(
-        string methodName = "",
-        bool allowMultiple = false,
+        string methodName,
+        bool returnsList = false,
         Type? returnType = null)
     {
-        MethodName = methodName;
-        AllowMultiple = allowMultiple;
+        MethodName = methodName ?? throw new ArgumentNullException(nameof(methodName));
+        ReturnsList = returnsList;
         ReturnType = returnType;
     }
 
     /// <summary>
-    /// Gets the custom method name for the lookup (e.g. ByName).
+    /// Gets the method name for the lookup (e.g. "Name", "Id", "Category").
     /// </summary>
     public string MethodName { get; }
 
     /// <summary>
-    /// Gets whether to allow multiple results per lookup key.
+    /// Gets whether to return a list of items instead of a single item.
     /// </summary>
-    public bool AllowMultiple { get; }
+    public bool ReturnsList { get; }
 
     /// <summary>
     /// Gets the return type for this specific lookup method.

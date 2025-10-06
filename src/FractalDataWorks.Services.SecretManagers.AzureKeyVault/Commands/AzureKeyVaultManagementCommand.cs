@@ -8,11 +8,7 @@ using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Messages;
 using FractalDataWorks.Services.Abstractions.Commands;
 using FractalDataWorks.Services.SecretManagers.Abstractions;
-using FractalDataWorks.Services.SecretManager;
-using FractalDataWorks.Services.SecretManagers.Commands;
-using FractalDataWorks.Services.SecretManagers.Abstractions;
-using FractalDataWorks.Services.SecretManager;
-using ISecretManagerCommand = FractalDataWorks.Services.SecretManagers.Commands.ISecretManagerCommand;
+using FractalDataWorks.Services.SecretManagers.Abstractions.Messages;
 
 namespace FractalDataWorks.Services.SecretManagers.AzureKeyVault.Commands;
 
@@ -26,10 +22,10 @@ public sealed class AzureKeyVaultManagementCommand : ISecretManagerCommand
     /// <summary>
     /// Gets the unique identifier for this managementCommand as a Guid.
     /// </summary>
-    Guid ICommand.CommandId => _commandGuid;
-    
+    public Guid CommandId => _commandGuid;
+
     /// <summary>
-    /// Gets the unique identifier for this managementCommand as a string.
+    /// Gets the unique identifier for this managementCommand as a string (explicit implementation).
     /// </summary>
     string ISecretManagerCommand.CommandId => _commandGuid.ToString();
 
@@ -70,10 +66,9 @@ public sealed class AzureKeyVaultManagementCommand : ISecretManagerCommand
 
     /// <summary>
     /// Gets a value indicating whether this managementCommand modifies secrets.
-    /// Following Enhanced Enum pattern: use ByName() to get behavior from enum option.
     /// </summary>
-    public bool IsSecretModifying => 
-        EnhancedEnums.SecretCommandTypes.ByName(CommandType).IsSecretModifying;
+    public bool IsSecretModifying =>
+        CommandType is "SetSecret" or "DeleteSecret" or "PurgeSecret" or "RestoreSecret" or "BackupSecret";
 
     /// <summary>
     /// Gets the correlation ID for this managementCommand.
@@ -94,19 +89,19 @@ public sealed class AzureKeyVaultManagementCommand : ISecretManagerCommand
     /// Validates the managementCommand parameters.
     /// </summary>
     /// <returns>A validation result indicating whether the managementCommand is valid.</returns>
-    public IGenericResult<ValidationResult> Validate()
+    public IGenericResult Validate()
     {
         // Basic validation for key and managementCommand type
         var validator = new AzureKeyVaultCommandValidator();
         var result = validator.Validate(this);
-        
+
         if (result.IsValid)
         {
-            return GenericResult<ValidationResult>.Success(result);
+            return GenericResult.Success();
         }
-        
+
         var errorMessage = string.Join("; ", result.Errors.Select(e => e.ErrorMessage));
-        return GenericResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errorMessage, "ValidationFailed", "AzureKeyVaultManagementCommand"));
+        return GenericResult.Failure(SecretManagerMessages.ValidationFailed(errorMessage));
     }
 
     /// <summary>

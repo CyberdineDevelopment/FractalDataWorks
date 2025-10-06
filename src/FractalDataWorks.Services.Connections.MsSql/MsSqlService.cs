@@ -10,6 +10,7 @@ using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions.Commands;
+using FractalDataWorks.Services.Connections.Abstractions.Messages;
 using FractalDataWorks.Services.Connections.Abstractions.Translators;
 using FractalDataWorks.Services.Connections.MsSql.Commands;
 using FractalDataWorks.Services.Connections.MsSql.Logging;
@@ -341,7 +342,7 @@ public sealed class MsSqlService
     {
         if (string.IsNullOrEmpty(connectionId))
         {
-            return Task.FromResult(GenericResult.Failure("Connection ID cannot be null or empty"));
+            return Task.FromResult(GenericResult.Failure(ConnectionMessages.ConnectionIdNullOrEmpty()));
         }
 
         if (_connections.TryGetValue(connectionId, out var connection))

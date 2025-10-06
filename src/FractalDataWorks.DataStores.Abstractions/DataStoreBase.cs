@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FractalDataWorks.DataStores.Abstractions.Messages;
 using FractalDataWorks.Results;
 
 namespace FractalDataWorks.DataStores.Abstractions;
@@ -130,7 +131,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     public virtual IGenericResult ValidateConnectionCompatibility(string connectionType)
     {
         if (string.IsNullOrWhiteSpace(connectionType))
-            return GenericResult.Failure("Connection type cannot be null or empty");
+            return GenericResult.Failure(DataStoreMessages.ConnectionTypeNullOrEmpty());
 
         var compatibleTypes = GetCompatibleConnectionTypes();
         
@@ -146,7 +147,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     public virtual async Task<IGenericResult> UpdateConfigurationAsync(TConfiguration configuration)
     {
         if (configuration == null)
-            return GenericResult.Failure("Configuration cannot be null");
+            return GenericResult.Failure(DataStoreMessages.DataStoreConfigurationNull());
 
         try
         {

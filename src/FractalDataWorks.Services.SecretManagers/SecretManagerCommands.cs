@@ -1,5 +1,6 @@
 using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
+using FractalDataWorks.Services.SecretManagers.Abstractions;
 
 namespace FractalDataWorks.Services.SecretManagers;
 

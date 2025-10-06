@@ -5,10 +5,58 @@ using FractalDataWorks.ServiceTypes;
 namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 
 /// <summary>
-/// Interface for secret management service type definitions.
+/// Generic interface for secret management service type definitions.
 /// Provides secret management-specific metadata on top of the base service type.
 /// </summary>
-public interface ISecretManagerServiceType : IServiceType
+/// <typeparam name="TService">The secret management service type.</typeparam>
+/// <typeparam name="TFactory">The factory type for creating secret management service instances.</typeparam>
+/// <typeparam name="TConfiguration">The configuration type for the secret management service.</typeparam>
+public interface ISecretManagerServiceType<TService, TFactory, TConfiguration> : IServiceType<TService, TFactory, TConfiguration>
+    where TService : class, ISecretManager
+    where TFactory : class, ISecretManagerServiceFactory<TService, TConfiguration>
+    where TConfiguration : class, ISecretManagerConfiguration
+{
+    /// <summary>
+    /// Gets the secret store types supported by this provider.
+    /// </summary>
+    string[] SupportedSecretStores { get; }
+
+    /// <summary>
+    /// Gets the secret types supported by this provider.
+    /// </summary>
+    IReadOnlyList<string> SupportedSecretTypes { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports secret rotation.
+    /// </summary>
+    bool SupportsRotation { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports secret versioning.
+    /// </summary>
+    bool SupportsVersioning { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports soft delete.
+    /// </summary>
+    bool SupportsSoftDelete { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports access policies.
+    /// </summary>
+    bool SupportsAccessPolicies { get; }
+
+    /// <summary>
+    /// Gets the maximum secret size in bytes supported by this provider.
+    /// </summary>
+    int MaxSecretSizeBytes { get; }
+}
+
+/// <summary>
+/// Non-generic interface for secret management service type definitions.
+/// Provides secret management-specific metadata on top of the base service type.
+/// </summary>
+public interface ISecretManagerServiceType : IServiceType<ISecretManager, ISecretManagerServiceFactory<ISecretManager, ISecretManagerConfiguration>, ISecretManagerConfiguration>
 {
     /// <summary>
     /// Gets the secret store types supported by this provider.

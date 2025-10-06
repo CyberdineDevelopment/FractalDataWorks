@@ -15,7 +15,7 @@ namespace FractalDataWorks.DataContainers.Abstractions;
 /// This interface extends ITypeOption to leverage the existing collection
 /// infrastructure for automatic type registration and lookup.
 /// </remarks>
-public interface IDataContainerType
+public interface IDataContainerType : ITypeOption
 {
     /// <summary>
     /// Gets the file extension associated with this container type.

@@ -12,12 +12,12 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions;
 /// with the service framework's dependency injection and configuration systems.
 /// </summary>
 /// <typeparam name="TService">The scheduler service interface type.</typeparam>
-/// <typeparam name="TConfiguration">The configuration type for the scheduler service.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating scheduler service instances.</typeparam>
-public interface ISchedulerType<TService, TConfiguration, TFactory> : IServiceType<TService, TFactory, TConfiguration>
+/// <typeparam name="TConfiguration">The configuration type for the scheduler service.</typeparam>
+public interface ISchedulerType<TService, TFactory, TConfiguration> : IServiceType<TService, TFactory, TConfiguration>
     where TService : class, IGenericSchedulingService
-    where TConfiguration : class, ISchedulingConfiguration
     where TFactory : class, IServiceFactory<TService, TConfiguration>
+    where TConfiguration : class, ISchedulingConfiguration
 {
     /// <summary>
     /// Gets the name of the underlying scheduling engine (e.g., "Quartz.NET", "Hangfire").
@@ -79,7 +79,7 @@ public interface ISchedulerType<TService, TConfiguration, TFactory> : IServiceTy
 /// Non-generic interface for scheduler service types.
 /// Provides a common base for all scheduler types regardless of generic parameters.
 /// </summary>
-public interface ISchedulerType : IServiceType
+public interface ISchedulerType : IServiceType<IGenericSchedulingService, IServiceFactory<IGenericSchedulingService, ISchedulingConfiguration>, ISchedulingConfiguration>
 {
     /// <summary>
     /// Gets the name of the underlying scheduling engine (e.g., "Quartz.NET", "Hangfire").

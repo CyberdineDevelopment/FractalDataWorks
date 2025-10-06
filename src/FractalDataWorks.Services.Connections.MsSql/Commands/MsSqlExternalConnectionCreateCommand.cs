@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions.Commands;
+using FractalDataWorks.Services.Connections.Abstractions.Messages;
 using FractalDataWorks;
 using FractalDataWorks.Messages;
 using FractalDataWorks.Results;
@@ -60,7 +61,7 @@ public sealed class MsSqlGenericConnectionCreateCommand : IConnectionCommand, IC
         }
         
         var errors = string.Join("; ", result.Errors.Select(e => e.ErrorMessage));
-        return GenericResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errors, "ValidationFailed", "MsSqlGenericConnectionCreateCommand"));
+        return GenericResult<ValidationResult>.Failure(ConnectionMessages.ValidationFailed(errors));
     }
 
     /// <summary>

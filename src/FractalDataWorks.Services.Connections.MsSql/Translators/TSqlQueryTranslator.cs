@@ -7,6 +7,7 @@ using Microsoft.Data.SqlClient;
 using FractalDataWorks.DataSets.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Connections.Abstractions;
+using FractalDataWorks.Services.Connections.Abstractions.Messages;
 using FractalDataWorks.Services.Connections.Abstractions.Translators;
 
 namespace FractalDataWorks.Services.Connections.MsSql.Translators;
@@ -83,9 +84,9 @@ internal sealed class TSqlQueryTranslator : IQueryTranslator
         string containerType)
     {
         if (query == null)
-            return GenericResult.Failure("Query cannot be null");
+            return GenericResult.Failure(ConnectionMessages.QueryNull());
         if (dataSet == null)
-            return GenericResult.Failure("DataSet cannot be null");
+            return GenericResult.Failure(ConnectionMessages.DataSetNull());
 
         try
         {

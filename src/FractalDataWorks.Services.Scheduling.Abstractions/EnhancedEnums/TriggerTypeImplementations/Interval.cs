@@ -258,7 +258,7 @@ public sealed class Interval : TriggerTypeBase
     {
         if (trigger?.Configuration == null)
         {
-            return GenericResult.Failure("Trigger configuration is required for Interval trigger type");
+            return GenericResult.Failure(SchedulingMessages.TriggerConfigurationNull());
         }
 
         // Validate interval is present and positive

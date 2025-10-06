@@ -7,6 +7,7 @@ using FractalDataWorks.Messages;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions.Commands;
 using FractalDataWorks.Services.SecretManagers.Abstractions;
+using FractalDataWorks.Services.SecretManagers.Abstractions.Messages;
 
 namespace FractalDataWorks.Services.SecretManagers.Commands;
 
@@ -118,10 +119,10 @@ public abstract class SecretManagerCommandBase : ISecretManagerCommand
     public abstract bool IsSecretModifying { get; }
 
     /// <inheritdoc/>
-    public virtual IGenericResult<ValidationResult> Validate()
+    public virtual IGenericResult Validate()
     {
         var errors = new List<ValidationFailure>();
-        
+
         // Validate managementCommand type
         if (string.IsNullOrWhiteSpace(CommandType))
         {
@@ -149,11 +150,11 @@ public abstract class SecretManagerCommandBase : ISecretManagerCommand
         var validationResult = new ValidationResult(errors);
         if (validationResult.IsValid)
         {
-            return GenericResult<ValidationResult>.Success(validationResult);
+            return GenericResult.Success();
         }
-        
+
         var errorMessage = string.Join("; ", errors.Select(e => e.ErrorMessage));
-        return GenericResult<ValidationResult>.Failure(new FractalMessage(MessageSeverity.Error, errorMessage, "ValidationFailed", "SecretManagerCommandBase"));
+        return GenericResult.Failure(SecretManagerMessages.ValidationFailed(errorMessage));
     }
 
     /// <inheritdoc/>

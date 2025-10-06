@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace FractalDataWorks.Web.RestEndpoints.Logging;
 
 /// <summary>
-/// High-performance logging methods for FractalEndpoint using source generators.
+/// High-performance logging methods for RecEndpoint using source generators.
 /// </summary>
 /// <ExcludeFromTest>Source-generated logging class with no business logic to test</ExcludeFromTest>
 [ExcludeFromCodeCoverage(Justification = "Source-generated logging class with no business logic")]

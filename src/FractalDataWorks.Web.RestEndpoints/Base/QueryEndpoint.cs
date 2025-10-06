@@ -13,7 +13,7 @@ namespace FractalDataWorks.Web.RestEndpoints.Base;
 /// </summary>
 /// <typeparam name="TQuery">The query request type that extends PagedRequest.</typeparam>
 /// <typeparam name="TResult">The result item type to be paginated.</typeparam>
-public abstract class QueryEndpoint<TQuery, TResult> : FractalEndpoint<TQuery, PagedResponse<TResult>>
+public abstract class QueryEndpoint<TQuery, TResult> : RecEndpoint<TQuery, PagedResponse<TResult>>
     where TQuery : PagedRequest, new()
 {
     /// <summary>

@@ -1,5 +1,6 @@
 using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
+using FractalDataWorks.Services.Scheduling.Abstractions;
 
 namespace FractalDataWorks.Services.Scheduling;
 

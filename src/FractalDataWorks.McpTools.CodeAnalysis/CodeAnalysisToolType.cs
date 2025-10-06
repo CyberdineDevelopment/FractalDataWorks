@@ -1,4 +1,4 @@
-using FractalDataWorks.MCP.Abstractions;
+using FractalDataWorks.Mcp.Abstractions;
 
 namespace FractalDataWorks.McpTools.CodeAnalysis;
 

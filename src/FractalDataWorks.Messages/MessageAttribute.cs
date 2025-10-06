@@ -26,7 +26,7 @@ public sealed class MessageAttribute : Attribute
 
     /// <summary>
     /// Gets or sets the return type for the Enhanced Enum collection.
-    /// Defaults to IFractalMessage if not specified.
+    /// Defaults to IRecMessage if not specified.
     /// </summary>
     /// <value>The type returned by collection methods.</value>
     public Type? ReturnType { get; set; }

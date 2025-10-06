@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.ServiceTypes.Attributes;
+using FractalDataWorks.Services;
+using FractalDataWorks.Services.Authentication.Abstractions;
+using FractalDataWorks.Services.Authentication.Abstractions.Security;
+using FractalDataWorks.Services.Authentication.AzureEntra.Configuration;
+
+namespace FractalDataWorks.Services.Authentication.AzureEntra;
+
+/// <summary>
+/// Service type definition for Azure Entra (Azure Active Directory) authentication.
+/// </summary>
+[ServiceTypeOption(typeof(AuthenticationTypes), "AzureEntraService")]
+public sealed class EntraAuthenticationServiceType :
+    AuthenticationTypeBase<IAuthenticationService, IAuthenticationServiceFactory<IAuthenticationService, IAuthenticationConfiguration>, IAuthenticationConfiguration>,
+    IEnumOption<EntraAuthenticationServiceType>
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntraAuthenticationServiceType"/> class.
+    /// </summary>
+    public EntraAuthenticationServiceType()
+        : base(
+            id: 1,
+            name: "AzureEntra",
+            providerName: "Microsoft.Identity.Client",
+            method: AuthenticationMethods.OAuth2,
+            supportedProtocols: [
+                AuthenticationProtocols.OAuth2,
+                AuthenticationProtocols.OpenIDConnect,
+                AuthenticationProtocols.SAML2
+            ],
+            supportedFlows: [
+                AuthenticationFlows.AuthorizationCode,
+                AuthenticationFlows.ClientCredentials,
+                AuthenticationFlows.Interactive
+            ],
+            supportedTokenTypes: [
+                TokenTypes.AccessToken,
+                TokenTypes.IdToken,
+                TokenTypes.RefreshToken
+            ],
+            supportsMultiTenant: true,
+            supportsTokenCaching: true,
+            supportsTokenRefresh: true,
+            category: "Authentication")
+    {
+    }
+
+    /// <inheritdoc/>
+    public override int Priority => 90;
+
+    /// <inheritdoc/>
+    public override void Register(IServiceCollection services)
+    {
+        // Register the generic factory
+        services.AddScoped<IAuthenticationServiceFactory<IAuthenticationService, IAuthenticationConfiguration>, GenericServiceFactory<IAuthenticationService, IAuthenticationConfiguration>>();
+
+        // Register the Azure Entra authentication service
+        services.AddScoped<IAuthenticationService, EntraAuthenticationService>();
+    }
+
+    /// <inheritdoc/>
+    public override void Configure(IConfiguration configuration)
+    {
+        // Configuration validation can be added here if needed
+        // The configuration section is: Services:Authentication:AzureEntra
+    }
+}

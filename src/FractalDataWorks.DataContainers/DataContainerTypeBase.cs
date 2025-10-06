@@ -10,19 +10,19 @@ using FractalDataWorks.Results;
 namespace FractalDataWorks.DataContainers;
 
 /// <summary>
-/// Base class for data container type Enhanced Enums.
+/// Base class for data container type definitions.
 /// Inherits from TypeOptionBase to enable automatic collection generation.
 /// </summary>
 /// <remarks>
 /// DataContainerTypeBase provides the foundation for creating strongly-typed container
-/// Enhanced Enums that can be discovered and registered automatically by the source generator.
+/// types that can be discovered and registered automatically by the source generator.
 /// Each container type (CSV, JSON, SQL table, etc.) should inherit from this class to
 /// participate in the type collection system.
 ///
 /// The source generator will create a static DataContainerTypes class with properties
 /// for each container type, along with lookup methods for runtime container discovery.
 /// </remarks>
-public abstract class DataContainerTypeBase : TypeOptionBase, IDataContainerType
+public abstract class DataContainerTypeBase : TypeOptionBase<DataContainerTypeBase>, IDataContainerType
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DataContainerTypeBase"/> class.
