@@ -7,7 +7,7 @@ namespace FractalDataWorks.Services.Logging;
 /// High-performance logging methods for ServiceTypeProviderBase using source generators.
 /// </summary>
 /// <ExcludeFromTest>Source-generated logging class with no business logic to test</ExcludeFromTest>
-[ExcludeFromCodeCoverage(Justification = "Source-generated logging class with no business logic")]
+[ExcludeFromCodeCoverage]
 public static partial class ServiceProviderBaseLog
 {
     /// <summary>

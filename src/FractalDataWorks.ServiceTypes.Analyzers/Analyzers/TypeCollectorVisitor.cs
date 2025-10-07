@@ -31,3 +31,4 @@ namespace FractalDataWorks.ServiceTypes.Analyzers;
             }
         }
     }
+

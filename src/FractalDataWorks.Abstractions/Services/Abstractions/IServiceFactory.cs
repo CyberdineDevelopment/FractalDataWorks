@@ -1,8 +1,7 @@
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
-using FractalDataWorks.Services.Abstractions;
 
-namespace FractalDataWorks.Services;
+namespace FractalDataWorks.Services.Abstractions;
 
 /// <summary>
 /// Generic factory interface for creating Service instances

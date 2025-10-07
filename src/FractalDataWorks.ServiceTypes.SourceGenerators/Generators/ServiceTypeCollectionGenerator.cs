@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using FractalDataWorks.ServiceTypes.SourceGenerators.Models;
-using FractalDataWorks.ServiceTypes.SourceGenerators.Services.Builders;
 using FractalDataWorks.SourceGenerators.Models;
 using FractalDataWorks.SourceGenerators.Services;
+using FractalDataWorks.SourceGenerators.Builders;
+using FractalDataWorks.SourceGenerators.Configuration;
 
 namespace FractalDataWorks.ServiceTypes.SourceGenerators.Generators;
 
@@ -50,6 +52,22 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
     /// </summary>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+#if DEBUG
+        // Uncomment to attach debugger when generator runs
+        // if (!Debugger.IsAttached)
+        // {
+        //     Debugger.Launch();
+        // }
+#endif
+
+        // ALWAYS create a debug file to show the generator is being loaded
+        context.RegisterPostInitializationOutput(static context =>
+        {
+            context.AddSource("ServiceTypeCollectionGenerator.Init.g.cs", $@"// ServiceTypeCollectionGenerator.Initialize() called at {System.DateTime.Now}
+// Generator is loaded and running
+");
+        });
+
         // Use optimized attribute-based discovery instead of global scanning
         var serviceTypeCollectionsProvider = context.CompilationProvider
             .Select(static (compilation, token) => 
@@ -142,10 +160,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
         foreach (var (collectionClass, attribute) in attributedCollectionClasses)
         {
             // STEP 3: Base Type Resolution from Attribute
-            var baseTypeName = ExtractBaseTypeNameFromAttribute(attribute);
-            if (string.IsNullOrEmpty(baseTypeName)) continue;
-
-            var baseType = compilation.GetTypeByMetadataName(baseTypeName!);
+            var baseType = ExtractBaseTypeFromAttribute(attribute);
             if (baseType == null) continue;
 
             // STEP 3.1: Validate base type doesn't have abstract properties
@@ -204,21 +219,65 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
         }
 
         // Group discovered ServiceTypeOption types by their explicit collection type
+        // Use dictionary to track most derived type for each unique type name
+        var typesByCollectionAndName = new Dictionary<INamedTypeSymbol, Dictionary<string, INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+
         foreach (var (serviceOptionType, attribute) in allServiceOptionsWithAttributes)
         {
             var collectionType = ExtractCollectionTypeFromServiceTypeOptionAttribute(attribute, compilation);
             if (collectionType != null)
             {
-                if (!serviceOptionsByCollectionType.TryGetValue(collectionType, out var list))
+                if (!typesByCollectionAndName.TryGetValue(collectionType, out var typesByName))
                 {
-                    list = new List<INamedTypeSymbol>();
-                    serviceOptionsByCollectionType[collectionType] = list;
+                    typesByName = new Dictionary<string, INamedTypeSymbol>(StringComparer.Ordinal);
+                    typesByCollectionAndName[collectionType] = typesByName;
                 }
-                list.Add(serviceOptionType);
+
+                var fullTypeName = serviceOptionType.ToDisplayString();
+
+                // If we've seen this type name before, keep the most derived version
+                if (typesByName.TryGetValue(fullTypeName, out var existingType))
+                {
+                    // Check if serviceOptionType is more derived than existingType
+                    if (IsDerivedFrom(serviceOptionType, existingType))
+                    {
+                        typesByName[fullTypeName] = serviceOptionType;
+                    }
+                    // If existingType is more derived, keep it (do nothing)
+                }
+                else
+                {
+                    // First time seeing this type name
+                    typesByName[fullTypeName] = serviceOptionType;
+                }
             }
         }
 
+        // Convert back to the expected format
+        foreach (var kvp in typesByCollectionAndName)
+        {
+            var list = kvp.Value.Values.ToList();
+            serviceOptionsByCollectionType[kvp.Key] = list;
+        }
+
         return serviceOptionsByCollectionType;
+    }
+
+    /// <summary>
+    /// Checks if candidateType is derived from baseType.
+    /// </summary>
+    private static bool IsDerivedFrom(INamedTypeSymbol candidateType, INamedTypeSymbol baseType)
+    {
+        var current = candidateType.BaseType;
+        while (current != null)
+        {
+            if (SymbolEqualityComparer.Default.Equals(current, baseType))
+            {
+                return true;
+            }
+            current = current.BaseType;
+        }
+        return false;
     }
 
     /// <summary>
@@ -332,7 +391,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
     private static List<(INamedTypeSymbol CollectionClass, AttributeData Attribute)> FindAttributedCollectionClasses(Compilation compilation)
     {
         var results = new List<(INamedTypeSymbol CollectionClass, AttributeData Attribute)>();
-        var attributeType = compilation.GetTypeByMetadataName("FractalDataWorks.ServiceTypes.Attributes.ServiceTypeCollectionAttribute");
+        var attributeType = compilation.GetTypeByMetadataName(typeof(FractalDataWorks.ServiceTypes.Attributes.ServiceTypeCollectionAttribute).FullName!);
 
         if (attributeType == null) return results;
 
@@ -506,14 +565,14 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
 
 
     /// <summary>
-    /// Extracts the base type name from the ServiceTypeCollectionAttribute.
+    /// Extracts the base type symbol from the ServiceTypeCollectionAttribute.
     /// </summary>
-    private static string? ExtractBaseTypeNameFromAttribute(AttributeData attribute)
+    private static INamedTypeSymbol? ExtractBaseTypeFromAttribute(AttributeData attribute)
     {
         // ServiceTypeCollectionAttribute now uses Type parameters, extract from BaseType property
         if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is INamedTypeSymbol baseTypeSymbol)
         {
-            return baseTypeSymbol.ToDisplayString();
+            return baseTypeSymbol;
         }
         return null;
     }
@@ -624,9 +683,9 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
     private static EquatableArray<PropertyLookupInfoModel> ExtractServiceTypeLookupProperties(INamedTypeSymbol baseType, Compilation compilation)
     {
         var lookupProperties = new List<PropertyLookupInfoModel>();
-        
-        var typeLookupAttributeType = compilation.GetTypeByMetadataName("FractalDataWorks.ServiceTypes.Attributes.TypeLookupAttribute");
-        
+
+        var typeLookupAttributeType = compilation.GetTypeByMetadataName("FractalDataWorks.ServiceTypes.Attributes.ServiceTypeLookupAttribute");
+
         var currentType = baseType;
         while (currentType != null)
         {
@@ -651,10 +710,10 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
                     }
                 }
             }
-            
+
             currentType = currentType.BaseType;
         }
-        
+
         return new EquatableArray<PropertyLookupInfoModel>(lookupProperties);
     }
 
@@ -895,19 +954,39 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             var isUserClassStatic = collectionClass.IsStatic;
             var isUserClassAbstract = collectionClass.IsAbstract;
 
-            // Use the enhanced EnumCollectionBuilder with FrozenDictionary support
-            var builder = new EnumCollectionBuilder();
+            // Use the shared GenericCollectionBuilder with configuration for ServiceTypeCollections
+            var config = CollectionBuilderConfiguration.ForServiceTypeCollections();
+            var builder = new GenericCollectionBuilder(config);
 
             // Generate the collection with all enhanced features
             var generatedCode = builder
                 .WithDefinition(def)
-                .WithValues(values.ToList())
+                .WithValues(values.Cast<GenericValueInfoModel>().ToList())
                 .WithReturnType(effectiveReturnType)
                 .WithCompilation(compilation)
                 .WithUserClassModifiers(isUserClassStatic, isUserClassAbstract)
                 .Build();
 
             var fileName = $"{def.CollectionName}.g.cs";
+
+#if DEBUG
+            // DEBUG: Add detailed debug information to the generated file
+            var debugHeader = $@"// DEBUG INFORMATION FOR SERVICETYPE COLLECTION GENERATOR
+// Generated at: {System.DateTime.Now}
+// Collection Name: {def.CollectionName}
+// Namespace: {def.Namespace}
+// Class Name: {def.ClassName}
+// Full Type Name: {def.FullTypeName}
+// Return Type: {effectiveReturnType}
+// Discovered {values.Count()} value types
+// Values: {string.Join(", ", values.Select(v => v.Name))}
+// Lookup Properties: {def.LookupProperties.Count()}
+// Lookups: {string.Join(", ", def.LookupProperties.Select(l => $"{l.PropertyName}={l.LookupMethodName}()"))}
+// END DEBUG INFO
+
+";
+            generatedCode = debugHeader + generatedCode;
+#endif
             context.AddSource(fileName, generatedCode);
         }
         catch (Exception ex)

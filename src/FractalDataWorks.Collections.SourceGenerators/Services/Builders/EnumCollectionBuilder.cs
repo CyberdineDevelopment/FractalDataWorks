@@ -26,10 +26,13 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     private string? _returnType;
     private string? _fullReturnType;
     private string? _returnTypeNamespace;
+    private string? _baseClassType;
+    private string? _baseClassTypeNamespace;
     private Compilation? _compilation;
     private ClassBuilder? _classBuilder;
     private bool _isUserClassStatic;
     private bool _isUserClassAbstract;
+    private string _emptyClassCode = string.Empty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EnumCollectionBuilder"/> class.
@@ -97,6 +100,26 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         return this;
     }
 
+    /// <summary>
+    /// Sets the base class type for generating the Empty class.
+    /// </summary>
+    /// <param name="baseClassType">The base class type (e.g., "FractalDataWorks.DataSets.Abstractions.Operators.SortDirectionBase").</param>
+    /// <returns>The builder instance for method chaining.</returns>
+    public IEnumCollectionBuilder WithBaseClassType(string? baseClassType)
+    {
+        if (!string.IsNullOrEmpty(baseClassType))
+        {
+            _baseClassType = baseClassType;
+            var lastDot = baseClassType.LastIndexOf('.');
+            if (lastDot >= 0)
+            {
+                _baseClassTypeNamespace = baseClassType.Substring(0, lastDot);
+                _baseClassType = baseClassType.Substring(lastDot + 1);
+            }
+        }
+        return this;
+    }
+
     /// <inheritdoc/>
     public string Build()
     {
@@ -120,7 +143,12 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         
         return string.Join("\n", lines);
     }
-    
+
+    /// <summary>
+    /// Gets the generated Empty class code as a separate file.
+    /// </summary>
+    public string GetEmptyClassCode() => _emptyClassCode;
+
     private string BuildCore()
     {
         BuildNamespace();
@@ -1311,7 +1339,64 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
             .WithXmlDoc("Static empty instance with default values.");
         
         _classBuilder!.WithField(emptyField);
-        
+
+        // Add lookup dictionaries for non-Id properties (only for netstandard2.0, net8+ uses GetAlternateLookup)
+        if (_definition?.LookupProperties != null)
+        {
+            var nonIdLookups = _definition.LookupProperties
+                .Where(l => !string.Equals(l.PropertyName, "Id", StringComparison.Ordinal) || !string.Equals(l.PropertyType, "int", StringComparison.Ordinal))
+                .ToList();
+
+            if (nonIdLookups.Count > 0)
+            {
+                // Add first field with #if directive
+                var firstLookup = nonIdLookups[0];
+                var firstFieldName = $"_by{firstLookup.PropertyName}";
+                var firstFieldType = $"FrozenDictionary<{firstLookup.PropertyType}, {_returnType}>";
+
+                var firstLookupField = new FieldBuilder()
+                    .WithName(firstFieldName)
+                    .WithType(firstFieldType)
+                    .WithAccessModifier("private")
+                    .AsStatic()
+                    .AsReadOnly()
+                    .WithXmlDoc($"Lookup dictionary for {firstLookup.PropertyName}-based searches (netstandard2.0 only).")
+                    .WithPreprocessorDirective("if !NET8_0_OR_GREATER");
+
+                _classBuilder!.WithField(firstLookupField);
+
+                // Add remaining fields without directives
+                for (int i = 1; i < nonIdLookups.Count; i++)
+                {
+                    var lookup = nonIdLookups[i];
+                    var fieldName = $"_by{lookup.PropertyName}";
+                    var fieldType = $"FrozenDictionary<{lookup.PropertyType}, {_returnType}>";
+
+                    var lookupField = new FieldBuilder()
+                        .WithName(fieldName)
+                        .WithType(fieldType)
+                        .WithAccessModifier("private")
+                        .AsStatic()
+                        .AsReadOnly()
+                        .WithXmlDoc($"Lookup dictionary for {lookup.PropertyName}-based searches (netstandard2.0 only).");
+
+                    _classBuilder!.WithField(lookupField);
+                }
+
+                // Add a dummy field with #endif to close the block
+                var endifField = new FieldBuilder()
+                    .WithName("_preprocessorEnd")
+                    .WithType("int")
+                    .WithAccessModifier("private")
+                    .AsStatic()
+                    .AsReadOnly()
+                    .WithInitializer("0")
+                    .WithPreprocessorDirective("endif");
+
+                _classBuilder!.WithField(endifField);
+            }
+        }
+
         // Add All() method - returns FrozenDictionary values as readonly collection
         var allMethod = new MethodBuilder()
             .WithName("All")
@@ -1324,9 +1409,6 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
 
         _classBuilder!.WithMethod(allMethod);
 
-        // Add dynamic lookup methods based on [TypeLookup] attributes
-        AddDynamicLookupMethods();
-        
         // Add Empty() method
         var emptyMethod = new MethodBuilder()
             .WithName("Empty")
@@ -1336,9 +1418,9 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
             .WithXmlDoc("Gets an empty instance with default values.")
             .WithReturnDoc("An empty instance with default values.")
             .WithExpressionBody("_empty");
-        
+
         _classBuilder!.WithMethod(emptyMethod);
-        
+
         // Add dynamic lookup methods based on [TypeLookup] attributes
         AddDynamicLookupMethods();
         
@@ -1429,6 +1511,37 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
 
         // Initialize primary FrozenDictionary with ID-based key and alternate key lookup support
         constructorBody.AppendLine("        _all = dictionary.ToFrozenDictionary();");
+
+        // Initialize lookup dictionaries for non-Id properties (only for netstandard2.0)
+        if (_definition?.LookupProperties != null)
+        {
+            var hasNonIdLookups = _definition.LookupProperties.Any(l =>
+                !string.Equals(l.PropertyName, "Id", StringComparison.Ordinal) ||
+                !string.Equals(l.PropertyType, "int", StringComparison.Ordinal));
+
+            if (hasNonIdLookups)
+            {
+                constructorBody.AppendLine();
+                constructorBody.AppendLine("#if !NET8_0_OR_GREATER");
+
+                foreach (var lookup in _definition.LookupProperties)
+                {
+                    // Skip Id since it uses the primary _all dictionary
+                    if (string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal) && string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal))
+                        continue;
+
+                    var fieldName = $"_by{lookup.PropertyName}";
+                    constructorBody.AppendLine($"        var {fieldName}Dict = new Dictionary<{lookup.PropertyType}, {_returnType}>();");
+                    constructorBody.AppendLine($"        foreach (var item in _all.Values)");
+                    constructorBody.AppendLine($"        {{");
+                    constructorBody.AppendLine($"            {fieldName}Dict[item.{lookup.PropertyName}] = item;");
+                    constructorBody.AppendLine($"        }}");
+                    constructorBody.AppendLine($"        {fieldName} = {fieldName}Dict.ToFrozenDictionary();");
+                }
+
+                constructorBody.AppendLine("#endif");
+            }
+        }
 
         // Use the collection name directly for the constructor
         var generatedClassName = _definition!.CollectionName;
@@ -1566,237 +1679,6 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         }
     }
     
-    /// <summary>
-    /// Generates an Empty class that inherits from the base type with default constructor values.
-    /// </summary>
-    private void GenerateEmptyClass()
-    {
-        if (_definition == null || _values == null || _values.Count == 0)
-            return;
-            
-        // Get the base type name (e.g., "DataStoreTypeBase" from full type name)
-        var baseTypeName = _definition.ClassName;  // This should be like "DataStoreTypeBase"
-        var emptyClassName = $"Empty{baseTypeName.Replace("Base", "")}"; // "EmptyDataStoreType"
-        
-        // Create the Empty class as nested class (no namespace)
-        var emptyClassBuilder = new ClassBuilder()
-            .WithName(emptyClassName)
-            .WithAccessModifier("internal")
-            .AsSealed()
-            .WithBaseClass(baseTypeName)
-            .WithXmlDoc($"Empty implementation of {baseTypeName} with default values for all properties.");
-        
-        // For TypeCollections, we need to call the base class constructor with proper parameters
-        // The discovered types inherit from the base class, so we need to look at the base class constructor
-        var constructorBuilder = new ConstructorBuilder()
-            .WithClassName(emptyClassName)
-            .WithAccessModifier("internal")
-            .WithXmlDoc("Initializes a new instance of the Empty class with default values.");
-
-        // Determine base constructor parameters by looking at the base type
-        var baseTypeFullName = $"{_definition.Namespace}.{baseTypeName}";
-        var baseTypeSymbol = _compilation?.GetTypeByMetadataName(baseTypeFullName);
-
-        if (baseTypeSymbol != null)
-        {
-            // Find the base constructor with minimum parameters
-            var baseConstructor = baseTypeSymbol.Constructors
-                .Where(c => c.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Protected ||
-                            c.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public)
-                .OrderBy(c => c.Parameters.Length)
-                .FirstOrDefault();
-
-            if (baseConstructor != null)
-            {
-                // Generate base call with appropriate default values
-                var baseCallArgs = new List<string>();
-                foreach (var param in baseConstructor.Parameters)
-                {
-                    var defaultValue = GetDefaultValueForType(param.Type);
-                    baseCallArgs.Add(defaultValue);
-                }
-                constructorBuilder.WithBaseCall(baseCallArgs.ToArray());
-            }
-            else
-            {
-                // Fallback to standard defaults
-                constructorBuilder.WithBaseCall("0", "string.Empty");
-            }
-        }
-        else
-        {
-            // Fallback to standard defaults for EnumOptionBase
-            constructorBuilder.WithBaseCall("0", "string.Empty");
-        }
-            
-        emptyClassBuilder.WithConstructor(constructorBuilder);
-
-        // Implement abstract methods with default/empty implementations
-        AddAbstractMethodImplementations(emptyClassBuilder, baseTypeName);
-
-        // Generate the Empty class as a separate file
-        var emptyClassCode = emptyClassBuilder.Build();
-
-        // We need to generate this as a separate source file
-        // For now, let's add it to the existing class builder as a nested class
-        _classBuilder!.WithNestedClass(emptyClassBuilder);
-    }
-
-    /// <summary>
-    /// Adds implementations for abstract methods in the base class with appropriate default values.
-    /// </summary>
-    private void AddAbstractMethodImplementations(IClassBuilder classBuilder, string baseTypeName)
-    {
-        if (_compilation == null || _definition == null) return;
-
-        // Get the base type symbol to discover abstract methods
-        var baseTypeFullName = $"{_definition.Namespace}.{baseTypeName}";
-        var baseTypeSymbol = _compilation.GetTypeByMetadataName(baseTypeFullName);
-        if (baseTypeSymbol == null) return;
-
-        // Find all abstract methods in the inheritance chain
-        var abstractMethods = GetAbstractMethods(baseTypeSymbol);
-
-        foreach (var method in abstractMethods)
-        {
-            var methodBuilder = new MethodBuilder()
-                .WithName(method.Name)
-                .WithReturnType(method.ReturnType.ToDisplayString())
-                .WithAccessModifier("public")
-                .AsOverride()
-                .WithXmlDoc($"Empty implementation of {method.Name}.");
-
-            // Add parameters
-            foreach (var param in method.Parameters)
-            {
-                methodBuilder.WithParameter(param.Type.ToDisplayString(), param.Name);
-            }
-
-            // Generate appropriate return value based on return type
-            if (method.ReturnsVoid)
-            {
-                // Void method - empty body
-                methodBuilder.WithBody("");
-            }
-            else if (method.ReturnType.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Boolean)
-            {
-                methodBuilder.WithExpressionBody("false");
-            }
-            else if (method.ReturnType.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_String)
-            {
-                methodBuilder.WithExpressionBody("string.Empty");
-            }
-            else if (method.ReturnType.IsReferenceType ||
-                     method.ReturnType.NullableAnnotation == Microsoft.CodeAnalysis.NullableAnnotation.Annotated)
-            {
-                methodBuilder.WithExpressionBody("null!");
-            }
-            else if (method.ReturnType.IsValueType)
-            {
-                methodBuilder.WithExpressionBody("default");
-            }
-            else
-            {
-                methodBuilder.WithExpressionBody("default!");
-            }
-
-            classBuilder.WithMethod(methodBuilder);
-        }
-    }
-    
-    /// <summary>
-    /// Gets the default value for a given type symbol.
-    /// </summary>
-    private static string GetDefaultValueForType(ITypeSymbol typeSymbol)
-    {
-        // Check for special known types
-        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_String)
-            return "string.Empty";
-        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Int32)
-            return "0";
-        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Boolean)
-            return "false";
-
-        // Check if nullable
-        if (typeSymbol.NullableAnnotation == Microsoft.CodeAnalysis.NullableAnnotation.Annotated ||
-            typeSymbol.IsReferenceType)
-            return "null";
-
-        // Default for value types
-        return "default";
-    }
-
-    /// <summary>
-    /// Gets all abstract methods from a type and its base types.
-    /// </summary>
-    private static List<IMethodSymbol> GetAbstractMethods(ITypeSymbol typeSymbol)
-    {
-        var abstractMethods = new List<IMethodSymbol>();
-        var current = typeSymbol;
-        
-        while (current != null)
-        {
-            foreach (var member in current.GetMembers().OfType<IMethodSymbol>())
-            {
-                // Only include abstract methods (not constructors, properties, etc.)
-                if (member.IsAbstract && member.MethodKind == Microsoft.CodeAnalysis.MethodKind.Ordinary)
-                {
-                    abstractMethods.Add(member);
-                }
-            }
-            current = current.BaseType;
-        }
-
-        return abstractMethods;
-    }
-    
-    /// <summary>
-    /// Gets an appropriate default value for a property based on its type and name.
-    /// </summary>
-    private static string GetDefaultValueForProperty(string typeName, string propertyName)
-    {
-        // Handle specific property names with known defaults
-        return propertyName.ToLowerInvariant() switch
-        {
-            "sqloperator" => "string.Empty",
-            "sqlkeyword" => "string.Empty", 
-            "issinglevalue" => "true",
-            "isascending" => "true",
-            "precedence" => "0",
-            _ => GetDefaultValueForType(typeName)
-        };
-    }
-    
-    /// <summary>
-    /// Gets the default value for a given type name.
-    /// </summary>
-    private static string GetDefaultValueForType(string typeName)
-    {
-        return typeName.ToLowerInvariant() switch
-        {
-            "string" => "string.Empty",
-            "string?" => "string.Empty",
-            "int" => "0",
-            "long" => "0L", 
-            "float" => "0f",
-            "double" => "0d",
-            "decimal" => "0m",
-            "bool" => "false",
-            "byte" => "0",
-            "short" => "0",
-            "uint" => "0u",
-            "ulong" => "0ul",
-            "ushort" => "0",
-            "char" => "'\\0'",
-            "guid" => "Guid.Empty",
-            "datetime" => "DateTime.MinValue",
-            "datetimeoffset" => "DateTimeOffset.MinValue",
-            "timespan" => "TimeSpan.Zero",
-            _ when typeName.EndsWith("?", StringComparison.Ordinal) => "null",
-            _ when typeName.Contains("Dictionary") || typeName.Contains("IDictionary") => "new Dictionary<string, object>()",
-            _ => "default"
-        };
-    }
     
     /// <summary>
     /// Adds the static constructor to initialize the collection.
@@ -2093,7 +1975,10 @@ return value != null;");
         var typeCollectionBaseSingle = _compilation.GetTypeByMetadataName(typeof(FractalDataWorks.Collections.TypeCollectionBase<>).FullName!.Replace("+", "."));
         var typeCollectionBaseDouble = _compilation.GetTypeByMetadataName(typeof(FractalDataWorks.Collections.TypeCollectionBase<,>).FullName!.Replace("+", "."));
 
-        if (typeCollectionBaseSingle == null && typeCollectionBaseDouble == null)
+        // Get the ServiceTypeCollectionBase generic type (5 type parameters)
+        var serviceTypeCollectionBase5 = _compilation.GetTypeByMetadataName("FractalDataWorks.ServiceTypes.ServiceTypeCollectionBase`5");
+
+        if (typeCollectionBaseSingle == null && typeCollectionBaseDouble == null && serviceTypeCollectionBase5 == null)
             return false;
 
         // Try to resolve the collection class to check its base type
@@ -2108,11 +1993,14 @@ return value != null;");
             if (currentType is INamedTypeSymbol { IsGenericType: true } namedBase)
             {
                 var constructedFrom = namedBase.ConstructedFrom;
-                
+
                 if (typeCollectionBaseSingle != null && SymbolEqualityComparer.Default.Equals(constructedFrom, typeCollectionBaseSingle))
                     return true;
-                    
+
                 if (typeCollectionBaseDouble != null && SymbolEqualityComparer.Default.Equals(constructedFrom, typeCollectionBaseDouble))
+                    return true;
+
+                if (serviceTypeCollectionBase5 != null && SymbolEqualityComparer.Default.Equals(constructedFrom, serviceTypeCollectionBase5))
                     return true;
             }
 
@@ -2337,14 +2225,19 @@ return value != null;");
             string methodBody;
             if (string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal) && string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal))
             {
-                // For ID lookups, use the primary key directly
+                // For ID lookups, use the primary key directly (same on all platforms)
                 methodBody = $"_all.TryGetValue({parameterName}, out var result) ? result : _empty";
             }
             else
             {
-                // For alternate key lookups, use GetAlternateLookup<T>()
-                methodBody = $@"var alternateLookup = _all.GetAlternateLookup<{lookup.PropertyType}>();
-        return alternateLookup.TryGetValue({parameterName}, out var result) ? result : _empty";
+                // For alternate key lookups, use platform-specific approach
+                var dictionaryName = $"_by{lookup.PropertyName}";
+                methodBody = $@"#if NET8_0_OR_GREATER
+        var alternateLookup = _all.GetAlternateLookup<{lookup.PropertyType}>();
+        return alternateLookup.TryGetValue({parameterName}, out var result) ? result : _empty;
+#else
+        return {dictionaryName}.TryGetValue({parameterName}, out var result) ? result : _empty;
+#endif";
             }
 
             var method = new MethodBuilder()
@@ -2357,6 +2250,7 @@ return value != null;");
                 .WithParamDoc(parameterName, $"The {lookup.PropertyName} value to search for.")
                 .WithReturnDoc($"The type option with the specified {lookup.PropertyName}, or empty instance if not found.");
 
+            // For Id, use expression body; for others, use body with conditional compilation
             if (string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal) && string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal))
             {
                 method.WithExpressionBody(methodBody);
@@ -2368,5 +2262,119 @@ return value != null;");
 
             _classBuilder!.WithMethod(method);
         }
+    }
+
+    /// <summary>
+    /// Generates an Empty class as a separate file.
+    /// </summary>
+    private void GenerateEmptyClass()
+    {
+        if (_definition == null)
+            return;
+
+        // Use base class type if provided, otherwise fall back to return type
+        var baseTypeName = _baseClassType ?? _returnType;
+        if (string.IsNullOrEmpty(baseTypeName))
+            return;
+
+        var emptyClassName = $"Empty{baseTypeName.Replace("Base", "")}";
+
+        // Build complete file with usings and namespace
+        var codeBuilder = new StringBuilder();
+
+        // Add usings
+        var usings = new List<string>
+        {
+            "System"
+        };
+
+        // Add the base class namespace if different from current namespace
+        var baseNamespace = _baseClassTypeNamespace ?? _returnTypeNamespace;
+        if (!string.IsNullOrEmpty(baseNamespace))
+        {
+            usings.Add(baseNamespace);
+        }
+
+        foreach (var usingNs in usings.Distinct(StringComparer.Ordinal).OrderBy(x => x))
+        {
+            codeBuilder.AppendLine($"using {usingNs};");
+        }
+        codeBuilder.AppendLine();
+        codeBuilder.AppendLine("#nullable enable");
+        codeBuilder.AppendLine();
+
+        // Add namespace
+        codeBuilder.AppendLine($"namespace {_definition.Namespace};");
+        codeBuilder.AppendLine();
+
+        // Add XML documentation
+        codeBuilder.AppendLine("/// <summary>");
+        codeBuilder.AppendLine($"/// Empty null-object implementation of {baseTypeName} with default values.");
+        codeBuilder.AppendLine("/// </summary>");
+
+        // Add class declaration - make it public so it's accessible
+        codeBuilder.AppendLine($"public sealed class {emptyClassName} : {baseTypeName}");
+        codeBuilder.AppendLine("{");
+
+        // Find the base constructor and generate constructor
+        var baseNamespace2 = _baseClassTypeNamespace ?? _returnTypeNamespace;
+        var baseTypeFullName = string.IsNullOrEmpty(baseNamespace2)
+            ? baseTypeName
+            : $"{baseNamespace2}.{baseTypeName}";
+        var baseTypeSymbol = _compilation?.GetTypeByMetadataName(baseTypeFullName);
+
+        if (baseTypeSymbol != null)
+        {
+            // Find the protected or public constructor with minimum parameters
+            var baseConstructor = baseTypeSymbol.Constructors
+                .Where(c => !c.IsStatic &&
+                           (c.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Protected ||
+                            c.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public))
+                .OrderBy(c => c.Parameters.Length)
+                .FirstOrDefault();
+
+            if (baseConstructor != null)
+            {
+                var baseCallArgs = new List<string>();
+                foreach (var param in baseConstructor.Parameters)
+                {
+                    var defaultValue = GetDefaultValueForTypeSymbol(param.Type);
+                    baseCallArgs.Add(defaultValue);
+                }
+
+                // Add constructor
+                codeBuilder.AppendLine("    /// <summary>");
+                codeBuilder.AppendLine($"    /// Initializes a new instance of the <see cref=\"{emptyClassName}\"/> class with default values.");
+                codeBuilder.AppendLine("    /// </summary>");
+                codeBuilder.AppendLine($"    public {emptyClassName}()");
+                codeBuilder.AppendLine($"        : base({string.Join(", ", baseCallArgs)})");
+                codeBuilder.AppendLine("    {");
+                codeBuilder.AppendLine("    }");
+            }
+        }
+
+        codeBuilder.AppendLine("}");
+
+        _emptyClassCode = codeBuilder.ToString();
+    }
+
+    /// <summary>
+    /// Gets the default value for a type symbol.
+    /// </summary>
+    private static string GetDefaultValueForTypeSymbol(ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_String)
+            return "string.Empty";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Int32)
+            return "0";
+        if (typeSymbol.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Boolean)
+            return "false";
+        if (typeSymbol.IsValueType)
+            return "default";
+        if (typeSymbol.NullableAnnotation == Microsoft.CodeAnalysis.NullableAnnotation.Annotated)
+            return "null!";
+        if (typeSymbol.IsReferenceType)
+            return "null!";
+        return "default";
     }
 }

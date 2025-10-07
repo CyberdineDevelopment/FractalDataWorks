@@ -86,6 +86,14 @@ public class MessageCollectionGenerator : IIncrementalGenerator
         // For each collection class found, determine if we should scan globally
         foreach (var collectionClass in collectionClasses)
         {
+            // IMPORTANT: Only generate for types defined in THIS assembly being compiled, not from referenced assemblies
+            // Check if this type belongs to the assembly being compiled (not a referenced assembly)
+            if (!SymbolEqualityComparer.Default.Equals(collectionClass.ContainingAssembly, compilation.Assembly))
+            {
+                // This type is from a referenced assembly, skip it
+                continue;
+            }
+
             var isGlobal = HasGlobalMessageCollectionAttribute(collectionClass);
             var baseType = ExtractBaseTypeFromCollection(collectionClass);
             

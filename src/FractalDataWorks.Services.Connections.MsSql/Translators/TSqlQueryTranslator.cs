@@ -8,7 +8,7 @@ using FractalDataWorks.DataSets.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions.Messages;
-using FractalDataWorks.Services.Connections.Abstractions.Translators;
+
 
 namespace FractalDataWorks.Services.Connections.MsSql.Translators;
 
@@ -232,83 +232,4 @@ internal sealed class TSqlQueryTranslator : IQueryTranslator
     }
 }
 
-/// <summary>
-/// Connection command wrapper for SQL Server commands.
-/// </summary>
-internal sealed class SqlConnectionCommand : IConnectionCommand
-{
-    public SqlConnectionCommand(SqlCommand sqlCommand)
-    {
-        SqlCommand = sqlCommand ?? throw new ArgumentNullException(nameof(sqlCommand));
-    }
 
-    public SqlCommand SqlCommand { get; }
-}
-
-/// <summary>
-/// Builder for creating T-SQL commands from LINQ expressions.
-/// </summary>
-internal sealed class TSqlCommandBuilder
-{
-    private readonly IDataSetType _dataSet;
-    private readonly string _containerType;
-    private readonly List<SqlParameter> _parameters = new();
-    private int _parameterIndex = 0;
-
-    public TSqlCommandBuilder(IDataSetType dataSet, string containerType)
-    {
-        _dataSet = dataSet ?? throw new ArgumentNullException(nameof(dataSet));
-        _containerType = containerType ?? throw new ArgumentNullException(nameof(containerType));
-    }
-
-    public async Task<IGenericResult<SqlCommand>> BuildAsync(IDataQuery query)
-    {
-        try
-        {
-            var sql = await BuildSqlAsync(query.Expression).ConfigureAwait(false);
-            
-            var command = new SqlCommand(sql);
-            foreach (var parameter in _parameters)
-            {
-                command.Parameters.Add(parameter);
-            }
-
-            return GenericResult<SqlCommand>.Success(command);
-        }
-        catch (Exception ex)
-        {
-            return GenericResult<SqlCommand>.Failure($"Failed to build SQL command: {ex.Message}");
-        }
-    }
-
-    private async Task<string> BuildSqlAsync(Expression expression)
-    {
-        // This is a simplified implementation
-        // In a real implementation, this would be a comprehensive LINQ-to-SQL translator
-        
-        var tableName = GetTableName();
-        var selectClause = "SELECT *";
-        var whereClause = "";
-        var orderByClause = "";
-        var topClause = "";
-
-        // Basic SELECT with optional WHERE
-        var sql = $"{topClause}{selectClause} FROM {tableName}{whereClause}{orderByClause}";
-        
-        return await Task.FromResult(sql).ConfigureAwait(false);
-    }
-
-    private string GetTableName()
-    {
-        // Get table name from dataset configuration
-        // This would typically come from the dataset metadata
-        return $"[{_dataSet.Name}]";
-    }
-
-    private string CreateParameter(object? value)
-    {
-        var paramName = $"@p{_parameterIndex++}";
-        _parameters.Add(new SqlParameter(paramName, value ?? DBNull.Value));
-        return paramName;
-    }
-}

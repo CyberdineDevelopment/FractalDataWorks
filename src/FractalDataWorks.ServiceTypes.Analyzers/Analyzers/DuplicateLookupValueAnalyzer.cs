@@ -10,14 +10,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace FractalDataWorks.ServiceTypes.Analyzers;
 
 /// <summary>
-/// Analyzer that detects duplicate lookup values in enhanced enum collections when AllowMultiple is not enabled.
+/// Analyzer that detects duplicate lookup values in enhanced enum ServiceTypes when AllowMultiple is not enabled.
 /// Reports warnings when multiple enum options have the same value for a lookup property without explicit AllowMultiple permission.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class DuplicateLookupValueAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>
-    /// Diagnostic ID for duplicate lookup values in enhanced enum collections.
+    /// Diagnostic ID for duplicate lookup values in enhanced enum ServiceTypes.
     /// </summary>
     public const string DiagnosticId = "ENHENUM001";
     
@@ -238,3 +238,4 @@ public class DuplicateLookupValueAnalyzer : DiagnosticAnalyzer
             string.Equals(a.AttributeClass?.Name, attributeName + nameof(Attribute), StringComparison.Ordinal));
     }
 }
+

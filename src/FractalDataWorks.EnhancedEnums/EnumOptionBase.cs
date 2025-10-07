@@ -13,14 +13,14 @@ public abstract class EnumOptionBase<T> : IEnumOption<T> where T : IEnumOption<T
     /// <summary>
     /// Gets the unique identifier for this enum value.
     /// </summary>
-    [EnumLookup("GetById")]
-    public int Id { get; }
+    [EnumLookup("Id")]
+    public virtual int Id { get; }
 
     /// <summary>
     /// Gets the name of this enum value.
     /// </summary>
-    [EnumLookup("GetByName")]
-    public string Name { get; }
+    [EnumLookup("Name")]
+    public virtual string Name { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EnumOptionBase{T}"/> class.

@@ -7,7 +7,6 @@ using FractalDataWorks.Results;
 using FractalDataWorks.Services.Authentication.Abstractions;
 using FractalDataWorks.Services.Authentication.Abstractions.Messages;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;
-using FractalDataWorks.Services.Authentication.ServiceTypes;
 using FractalDataWorks.Services.Authentication.Logging;
 
 namespace FractalDataWorks.Services.Authentication;

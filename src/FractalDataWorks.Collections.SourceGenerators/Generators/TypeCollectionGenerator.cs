@@ -9,7 +9,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using FractalDataWorks.Collections.Models;
 using FractalDataWorks.Collections.SourceGenerators.Models;
 using FractalDataWorks.SourceGenerators.Models;
-using FractalDataWorks.Collections.SourceGenerators.Services.Builders;
+using FractalDataWorks.SourceGenerators.Builders;
+using FractalDataWorks.SourceGenerators.Configuration;
 using FractalDataWorks.Collections.Attributes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -116,6 +117,14 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         // STEP 3-6: For each attributed collection class, lookup pre-discovered type options
         foreach (var (collectionClass, attribute) in attributedCollectionClasses)
         {
+            // IMPORTANT: Only generate for types defined in THIS assembly being compiled, not from referenced assemblies
+            // Check if this type belongs to the assembly being compiled (not a referenced assembly)
+            if (!SymbolEqualityComparer.Default.Equals(collectionClass.ContainingAssembly, compilation.Assembly))
+            {
+                // This type is from a referenced assembly, skip it
+                continue;
+            }
+
             // STEP 3: Base Type Resolution from Attribute
             var baseTypeName = ExtractBaseTypeNameFromAttribute(attribute);
             if (string.IsNullOrEmpty(baseTypeName)) continue;
@@ -223,21 +232,65 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         }
 
         // Group discovered TypeOption types by their explicit collection type
+        // Use dictionary to track most derived type for each unique type name
+        var typesByCollectionAndName = new Dictionary<INamedTypeSymbol, Dictionary<string, INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+
         foreach (var (typeOptionType, attribute) in allTypeOptionsWithAttributes)
         {
             var collectionType = ExtractCollectionTypeFromTypeOptionAttribute(attribute, compilation);
             if (collectionType != null)
             {
-                if (!typeOptionsByCollectionType.TryGetValue(collectionType, out var list))
+                if (!typesByCollectionAndName.TryGetValue(collectionType, out var typesByName))
                 {
-                    list = new List<INamedTypeSymbol>();
-                    typeOptionsByCollectionType[collectionType] = list;
+                    typesByName = new Dictionary<string, INamedTypeSymbol>(StringComparer.Ordinal);
+                    typesByCollectionAndName[collectionType] = typesByName;
                 }
-                list.Add(typeOptionType);
+
+                var fullTypeName = typeOptionType.ToDisplayString();
+
+                // If we've seen this type name before, keep the most derived version
+                if (typesByName.TryGetValue(fullTypeName, out var existingType))
+                {
+                    // Check if typeOptionType is more derived than existingType
+                    if (IsDerivedFrom(typeOptionType, existingType))
+                    {
+                        typesByName[fullTypeName] = typeOptionType;
+                    }
+                    // If existingType is more derived, keep it (do nothing)
+                }
+                else
+                {
+                    // First time seeing this type name
+                    typesByName[fullTypeName] = typeOptionType;
+                }
             }
         }
 
+        // Convert back to the expected format
+        foreach (var kvp in typesByCollectionAndName)
+        {
+            var list = kvp.Value.Values.ToList();
+            typeOptionsByCollectionType[kvp.Key] = list;
+        }
+
         return typeOptionsByCollectionType;
+    }
+
+    /// <summary>
+    /// Checks if candidateType is derived from baseType.
+    /// </summary>
+    private static bool IsDerivedFrom(INamedTypeSymbol candidateType, INamedTypeSymbol baseType)
+    {
+        var current = candidateType.BaseType;
+        while (current != null)
+        {
+            if (SymbolEqualityComparer.Default.Equals(current, baseType))
+            {
+                return true;
+            }
+            current = current.BaseType;
+        }
+        return false;
     }
 
     /// <summary>
@@ -841,13 +894,14 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             var isUserClassStatic = collectionClass.IsStatic;
             var isUserClassAbstract = collectionClass.IsAbstract;
 
-            // Use the enhanced EnumCollectionBuilder with FrozenDictionary support
-            var builder = new EnumCollectionBuilder();
+            // Use the shared GenericCollectionBuilder with configuration for TypeCollections
+            var config = CollectionBuilderConfiguration.ForTypeCollections();
+            var builder = new GenericCollectionBuilder(config);
 
             // Generate the collection with all enhanced features
             var generatedCode = builder
                 .WithDefinition(def)
-                .WithValues(values.ToList())
+                .WithValues(values.Cast<GenericValueInfoModel>().ToList())
                 .WithReturnType(effectiveReturnType)
                 .WithCompilation(compilation)
                 .WithUserClassModifiers(isUserClassStatic, isUserClassAbstract)
@@ -871,6 +925,17 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
 ";
             generatedCode = debugHeader + generatedCode;
 #endif
+
+            // Add the Empty class file FIRST so it's available when the collection compiles
+            var emptyClassCode = builder.GetEmptyClassCode();
+            if (!string.IsNullOrEmpty(emptyClassCode))
+            {
+                var emptyClassName = $"Empty{def.ClassName.Replace("Base", "")}";
+                var emptyFileName = $"{emptyClassName}.g.cs";
+                context.AddSource(emptyFileName, emptyClassCode);
+            }
+
+            // Then add the collection file
             context.AddSource(fileName, generatedCode);
         }
         catch (Exception ex)

@@ -39,7 +39,7 @@
     <PackageProjectUrl>https://github.com/FractalDataWorks/FractalDataWorks</PackageProjectUrl>
     <RepositoryUrl>https://github.com/FractalDataWorks/FractalDataWorks.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>analyzers;type-collections;roslyn;code-analysis</PackageTags>
+    <PackageTags>analyzers;type-ServiceTypes;roslyn;code-analysis</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageDescription>Roslyn analyzers for ServiceTypes that provide compile-time validation and code quality checks for type collection types.</PackageDescription>

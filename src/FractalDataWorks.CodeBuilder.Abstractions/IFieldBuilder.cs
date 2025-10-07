@@ -72,4 +72,11 @@ public interface IFieldBuilder : ICodeBuilder
     /// <param name="summary">The summary text.</param>
     /// <returns>The builder for method chaining.</returns>
     IFieldBuilder WithXmlDoc(string summary);
+
+    /// <summary>
+    /// Adds a preprocessor directive (e.g., "if !NET8_0_OR_GREATER") before this field.
+    /// </summary>
+    /// <param name="directive">The preprocessor directive without the # symbol</param>
+    /// <returns>The builder for method chaining.</returns>
+    IFieldBuilder WithPreprocessorDirective(string directive);
 }

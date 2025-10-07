@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using FractalDataWorks.Results;
+using FractalDataWorks.Services.Scheduling.Abstractions.Messages;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions.Models;
 

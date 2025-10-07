@@ -21,6 +21,7 @@ public sealed class FieldBuilder : CodeBuilderBase, IFieldBuilder
     private string? _initializer;
     private readonly List<string> _attributes = [];
     private string? _xmlDocSummary;
+    private string? _preprocessorDirective;
 
     /// <inheritdoc/>
     public IFieldBuilder WithName(string name)
@@ -97,10 +98,27 @@ public sealed class FieldBuilder : CodeBuilderBase, IFieldBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds a preprocessor directive (e.g., "#if !NET8_0_OR_GREATER") before this field.
+    /// </summary>
+    /// <param name="directive">The preprocessor directive without the # symbol</param>
+    /// <returns>The builder for chaining</returns>
+    public IFieldBuilder WithPreprocessorDirective(string directive)
+    {
+        _preprocessorDirective = directive;
+        return this;
+    }
+
     /// <inheritdoc/>
     public override string Build()
     {
         Clear();
+
+        // Preprocessor directive
+        if (!string.IsNullOrEmpty(_preprocessorDirective))
+        {
+            AppendLine($"#{_preprocessorDirective}");
+        }
 
         // XML documentation
         if (!string.IsNullOrEmpty(_xmlDocSummary))

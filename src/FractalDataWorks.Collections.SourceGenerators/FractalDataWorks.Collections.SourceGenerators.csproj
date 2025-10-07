@@ -5,13 +5,17 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
-    
+
     <!-- Source Generator Specific -->
     <IsPackable>true</IsPackable>
     <IsRoslynComponent>true</IsRoslynComponent>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <DevelopmentDependency>true</DevelopmentDependency>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <!-- Generator Debugging -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
     
     <!-- Package Properties -->
     <PackageDescription>Source generators for TypeCollections including cross-assembly discovery. Enables type options to be distributed across multiple NuGet packages.</PackageDescription>
@@ -53,11 +57,11 @@
       <InputAssemblies Include="$(OriginalAssemblyPath)" />
       
       <!-- Custom dependencies to internalize -->
+      <InputAssemblies Include="$(OutputPath)FractalDataWorks.SourceGenerators.dll" />
       <InputAssemblies Include="$(OutputPath)FractalDataWorks.CodeBuilder.Abstractions.dll" />
       <InputAssemblies Include="$(OutputPath)FractalDataWorks.CodeBuilder.CSharp.dll" />
       <InputAssemblies Include="$(OutputPath)FractalDataWorks.Collections.dll" />
       <InputAssemblies Include="$(OutputPath)FractalDataWorks.Collections.Analyzers.dll" />
-      <InputAssemblies Include="$(OutputPath)FractalDataWorks.SourceGenerators.dll" />
       
       <!-- Comprehensive library search paths -->
       <LibraryPath Include="$(OutputPath)" />
@@ -85,6 +89,7 @@
     <!-- Clean up internalized dependency DLLs that are no longer needed -->
     <!-- Keep Collections.dll as we're packaging it separately -->
     <ItemGroup>
+      <DependencyDllsToDelete Include="$(OutputPath)FractalDataWorks.SourceGenerators.dll" />
       <DependencyDllsToDelete Include="$(OutputPath)FractalDataWorks.CodeBuilder.Abstractions.dll" />
       <DependencyDllsToDelete Include="$(OutputPath)FractalDataWorks.CodeBuilder.CSharp.dll" />
       <DependencyDllsToDelete Include="$(OutputPath)FractalDataWorks.Collections.Analyzers.dll" />

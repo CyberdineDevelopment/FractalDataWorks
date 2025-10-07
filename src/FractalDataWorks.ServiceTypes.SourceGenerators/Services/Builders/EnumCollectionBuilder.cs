@@ -1306,7 +1306,64 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
             .WithXmlDoc("Static empty instance with default values.");
         
         _classBuilder!.WithField(emptyField);
-        
+
+        // Add lookup dictionaries for non-Id properties (only for netstandard2.0, net8+ uses GetAlternateLookup)
+        if (_definition?.LookupProperties != null)
+        {
+            var nonIdLookups = _definition.LookupProperties
+                .Where(l => !string.Equals(l.PropertyName, "Id", StringComparison.Ordinal) || !string.Equals(l.PropertyType, "int", StringComparison.Ordinal))
+                .ToList();
+
+            if (nonIdLookups.Count > 0)
+            {
+                // Add first field with #if directive
+                var firstLookup = nonIdLookups[0];
+                var firstFieldName = $"_by{firstLookup.PropertyName}";
+                var firstFieldType = $"FrozenDictionary<{firstLookup.PropertyType}, {_returnType}>";
+
+                var firstLookupField = new FieldBuilder()
+                    .WithName(firstFieldName)
+                    .WithType(firstFieldType)
+                    .WithAccessModifier("private")
+                    .AsStatic()
+                    .AsReadOnly()
+                    .WithXmlDoc($"Lookup dictionary for {firstLookup.PropertyName}-based searches (netstandard2.0 only).")
+                    .WithPreprocessorDirective("if !NET8_0_OR_GREATER");
+
+                _classBuilder!.WithField(firstLookupField);
+
+                // Add remaining fields without directives
+                for (int i = 1; i < nonIdLookups.Count; i++)
+                {
+                    var lookup = nonIdLookups[i];
+                    var fieldName = $"_by{lookup.PropertyName}";
+                    var fieldType = $"FrozenDictionary<{lookup.PropertyType}, {_returnType}>";
+
+                    var lookupField = new FieldBuilder()
+                        .WithName(fieldName)
+                        .WithType(fieldType)
+                        .WithAccessModifier("private")
+                        .AsStatic()
+                        .AsReadOnly()
+                        .WithXmlDoc($"Lookup dictionary for {lookup.PropertyName}-based searches (netstandard2.0 only).");
+
+                    _classBuilder!.WithField(lookupField);
+                }
+
+                // Add a dummy field with #endif to close the block
+                var endifField = new FieldBuilder()
+                    .WithName("_preprocessorEnd")
+                    .WithType("int")
+                    .WithAccessModifier("private")
+                    .AsStatic()
+                    .AsReadOnly()
+                    .WithInitializer("0")
+                    .WithPreprocessorDirective("endif");
+
+                _classBuilder!.WithField(endifField);
+            }
+        }
+
         // Add All() method
         var allMethod = new MethodBuilder()
             .WithName("All")
@@ -1330,35 +1387,9 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
             .WithExpressionBody("_empty");
         
         _classBuilder!.WithMethod(emptyMethod);
-        
-        // Add Name(string name) method
-        var nameMethod = new MethodBuilder()
-            .WithName("Name")
-            .WithReturnType(_returnType!)
-            .WithAccessModifier("public")
-            .AsStatic()
-            .WithParameter("string", "name")
-            .WithXmlDoc("Gets a type option by its name.")
-            .WithParamDoc("name", "The name of the type option to find.")
-            .WithReturnDoc("The type option with the specified name, or empty instance if not found.")
-            .WithBody(@"if (string.IsNullOrWhiteSpace(name)) return _empty;
-            return _all.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase)) ?? _empty;");
-        
-        _classBuilder!.WithMethod(nameMethod);
-        
-        // Add Id(int id) method  
-        var idMethod = new MethodBuilder()
-            .WithName("Id")
-            .WithReturnType(_returnType!)
-            .WithAccessModifier("public")
-            .AsStatic()
-            .WithParameter("int", "id")
-            .WithXmlDoc("Gets a type option by its ID.")
-            .WithParamDoc("id", "The ID of the type option to find.")
-            .WithReturnDoc("The type option with the specified ID, or empty instance if not found.")
-            .WithExpressionBody("_all.TryGetValue(id, out var result) ? result : _empty");
-        
-        _classBuilder!.WithMethod(idMethod);
+
+        // Add dynamic lookup methods based on [TypeLookup] attributes
+        AddDynamicLookupMethods();
         
         // First, generate static readonly fields to store the Ids for each type
         foreach (var value in _values!.Where(v => v.Include))
@@ -1444,7 +1475,38 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
         }
         
         constructorBody.AppendLine("        _all = dictionary.ToFrozenDictionary();");
-        
+
+        // Initialize lookup dictionaries for non-Id properties (only for netstandard2.0)
+        if (_definition?.LookupProperties != null)
+        {
+            var hasNonIdLookups = _definition.LookupProperties.Any(l =>
+                !string.Equals(l.PropertyName, "Id", StringComparison.Ordinal) ||
+                !string.Equals(l.PropertyType, "int", StringComparison.Ordinal));
+
+            if (hasNonIdLookups)
+            {
+                constructorBody.AppendLine();
+                constructorBody.AppendLine("#if !NET8_0_OR_GREATER");
+
+                foreach (var lookup in _definition.LookupProperties)
+                {
+                    // Skip Id since it uses the primary _all dictionary
+                    if (string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal) && string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal))
+                        continue;
+
+                    var fieldName = $"_by{lookup.PropertyName}";
+                    constructorBody.AppendLine($"        var {fieldName}Dict = new Dictionary<{lookup.PropertyType}, {_returnType}>();");
+                    constructorBody.AppendLine($"        foreach (var item in _all.Values)");
+                    constructorBody.AppendLine($"        {{");
+                    constructorBody.AppendLine($"            {fieldName}Dict[item.{lookup.PropertyName}] = item;");
+                    constructorBody.AppendLine($"        }}");
+                    constructorBody.AppendLine($"        {fieldName} = {fieldName}Dict.ToFrozenDictionary();");
+                }
+
+                constructorBody.AppendLine("#endif");
+            }
+        }
+
         // Use the generated class name (without "Base") for the constructor
         var generatedClassName = _definition!.InheritsFromCollectionBase && _definition.CollectionName.EndsWith("Base", StringComparison.Ordinal) 
             ? _definition.CollectionName.Substring(0, _definition.CollectionName.Length - 4)
@@ -2010,11 +2072,10 @@ return value != null;");
         if (_definition == null || _compilation == null || !_definition.InheritsFromCollectionBase)
             return false;
 
-        // Get the TypeCollectionBase generic types using typeof
-        var typeCollectionBaseSingle = _compilation.GetTypeByMetadataName(typeof(FractalDataWorks.ServiceTypes.ServiceTypeBase<,,>).FullName!.Replace("+", "."));
-        var typeCollectionBaseDouble = _compilation.GetTypeByMetadataName(typeof(FractalDataWorks.ServiceTypes.ServiceTypeBase<,,>).FullName!.Replace("+", "."));
+        // Check if inheriting from ServiceTypeCollectionBase (any arity)
+        var serviceTypeCollectionBase = _compilation.GetTypeByMetadataName("FractalDataWorks.ServiceTypes.ServiceTypeCollectionBase`5");
 
-        if (typeCollectionBaseSingle == null && typeCollectionBaseDouble == null)
+        if (serviceTypeCollectionBase == null)
             return false;
 
         // Try to resolve the collection class to check its base type
@@ -2022,18 +2083,15 @@ return value != null;");
         if (collectionType == null)
             return false;
 
-        // Check inheritance chain
+        // Check inheritance chain - walk up to find ServiceTypeCollectionBase
         var currentType = collectionType.BaseType;
         while (currentType != null)
         {
             if (currentType is INamedTypeSymbol { IsGenericType: true } namedBase)
             {
                 var constructedFrom = namedBase.ConstructedFrom;
-                
-                if (typeCollectionBaseSingle != null && SymbolEqualityComparer.Default.Equals(constructedFrom, typeCollectionBaseSingle))
-                    return true;
-                    
-                if (typeCollectionBaseDouble != null && SymbolEqualityComparer.Default.Equals(constructedFrom, typeCollectionBaseDouble))
+
+                if (SymbolEqualityComparer.Default.Equals(constructedFrom, serviceTypeCollectionBase))
                     return true;
             }
 
@@ -2220,5 +2278,61 @@ return value != null;");
             Accessibility.ProtectedAndInternal => "private protected",
             _ => "public"
         };
+    }
+
+    /// <summary>
+    /// Adds dynamic lookup methods based on [TypeLookup] attributes on the base type.
+    /// Generates methods like Name(string name) and Id(int id) from the LookupProperties.
+    /// Uses GetAlternateLookup on NET8+ and separate dictionaries on netstandard2.0.
+    /// </summary>
+    private void AddDynamicLookupMethods()
+    {
+        if (_definition?.LookupProperties == null) return;
+
+        foreach (var lookup in _definition.LookupProperties)
+        {
+            var methodName = lookup.PropertyName; // Clean name: Id, Name, Category
+            var parameterName = lookup.PropertyName.ToLower(System.Globalization.CultureInfo.InvariantCulture); // id, name, category
+
+            string methodBody;
+            if (string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal) && string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal))
+            {
+                // For ID lookups, use the primary key directly (same on all platforms)
+                methodBody = $"_all.TryGetValue({parameterName}, out var result) ? result : _empty";
+            }
+            else
+            {
+                // For alternate key lookups, use platform-specific approach
+                var dictionaryName = $"_by{lookup.PropertyName}";
+                methodBody = $@"#if NET8_0_OR_GREATER
+        var alternateLookup = _all.GetAlternateLookup<{lookup.PropertyType}>();
+        return alternateLookup.TryGetValue({parameterName}, out var result) ? result : _empty;
+#else
+        return {dictionaryName}.TryGetValue({parameterName}, out var result) ? result : _empty;
+#endif";
+            }
+
+            var method = new MethodBuilder()
+                .WithName(methodName)
+                .WithReturnType(_returnType!)
+                .WithAccessModifier("public")
+                .AsStatic()
+                .WithParameter(lookup.PropertyType, parameterName)
+                .WithXmlDoc($"Gets a type option by its {lookup.PropertyName} using {(string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal) ? "primary key lookup" : "alternate key lookup")}.")
+                .WithParamDoc(parameterName, $"The {lookup.PropertyName} value to search for.")
+                .WithReturnDoc($"The type option with the specified {lookup.PropertyName}, or empty instance if not found.");
+
+            // For Id, use expression body; for others, use body with conditional compilation
+            if (string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal) && string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal))
+            {
+                method.WithExpressionBody(methodBody);
+            }
+            else
+            {
+                method.WithBody(methodBody);
+            }
+
+            _classBuilder!.WithMethod(method);
+        }
     }
 }

@@ -60,6 +60,15 @@ public interface IGenericCollectionBuilder
     IGenericCollectionBuilder WithCompilation(Compilation compilation);
 
     /// <summary>
+    /// Sets the modifiers from the user's declared partial class.
+    /// The generated partial must match what the user declared.
+    /// </summary>
+    /// <param name="isStatic">Whether the user's class is declared as static.</param>
+    /// <param name="isAbstract">Whether the user's class is declared as abstract.</param>
+    /// <returns>The current builder instance for method chaining.</returns>
+    IGenericCollectionBuilder WithUserClassModifiers(bool isStatic, bool isAbstract);
+
+    /// <summary>
     /// Builds and returns the complete source code for the collection.
     /// The returned string contains all the necessary methods, properties, and fields
     /// for the collection based on the specified configuration.

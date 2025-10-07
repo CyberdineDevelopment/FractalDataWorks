@@ -1,9 +1,8 @@
 using FractalDataWorks.ServiceTypes;
 using FractalDataWorks.ServiceTypes.Attributes;
-using FractalDataWorks.Services.Authentication.Abstractions;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;
 
-namespace FractalDataWorks.Services.Authentication.ServiceTypes;
+namespace FractalDataWorks.Services.Authentication.Abstractions;
 
 /// <summary>
 /// Collection of authentication service types.

@@ -40,7 +40,7 @@ public class ServiceServiceTypeCollectionAttributeAnalyzer : DiagnosticAnalyzer
 
     private static readonly LocalizableString GenericMustUseInterfaceTitle = "Generic EnumCollection must specify a non-generic interface constraint for T";
     private static readonly LocalizableString GenericMustUseInterfaceMessageFormat = "Generic EnumCollection class '{0}' must specify a non-generic interface constraint for type parameter T (e.g., where T : IYourInterface, {0}<T>)";
-    private static readonly LocalizableString GenericMustUseInterfaceDescription = "Generic EnumCollection classes require a non-generic interface constraint for T to ensure proper type resolution in the generated collections. The interface cannot be generic.";
+    private static readonly LocalizableString GenericMustUseInterfaceDescription = "Generic EnumCollection classes require a non-generic interface constraint for T to ensure proper type resolution in the generated ServiceTypes. The interface cannot be generic.";
 
     private const string Category = "Usage";
 
@@ -278,3 +278,4 @@ public class ServiceServiceTypeCollectionAttributeAnalyzer : DiagnosticAnalyzer
         return true;
     }
 }
+

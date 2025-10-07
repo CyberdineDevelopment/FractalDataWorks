@@ -37,7 +37,7 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
     /// <param name="configuration">The configuration for this connection service.</param>
     protected ConnectionServiceBase(ILogger<TService> logger, TConfiguration configuration)
     {
-        Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        Configuration = configuration;
         _serviceId = Guid.NewGuid().ToString("N");
         _state = ConnectionStates.Created;
     }

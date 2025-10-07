@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.EnhancedEnums;
 using FractalDataWorks.Results;
-using FractalDataWorks.Services;
 using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.ServiceTypes.Attributes;
 
@@ -27,7 +26,7 @@ public abstract class ServiceTypeBase<TService, TFactory, TConfiguration> : Serv
     /// <summary>
     /// Gets the configuration type used to configure this service.
     /// </summary>
-    [TypeLookup("FromConfigurationType")]
+    [ServiceTypeLookup("FromConfigurationType")]
     public Type ConfigurationType => typeof(TConfiguration);
 
     /// <summary>
@@ -64,6 +63,18 @@ public abstract class ServiceTypeBase<TService, TFactory> : EnumOptionBase<IServ
     where TFactory : class, IServiceFactory<TService>
 {
     /// <summary>
+    /// Gets the unique identifier for this service type.
+    /// </summary>
+    [ServiceTypeLookup("Id")]
+    public override int Id => base.Id;
+
+    /// <summary>
+    /// Gets the name of this service type.
+    /// </summary>
+    [ServiceTypeLookup("Name")]
+    public override string Name => base.Name;
+
+    /// <summary>
     /// Gets the category for this service type (e.g., "Database", "Cache", "Messaging").
     /// </summary>
     public virtual string Category { get; }
@@ -71,7 +82,7 @@ public abstract class ServiceTypeBase<TService, TFactory> : EnumOptionBase<IServ
     /// <summary>
     /// Gets the service type interface or class that implementations must satisfy.
     /// </summary>
-    [TypeLookup("ServiceType")]
+    [ServiceTypeLookup("ServiceType")]
     public Type ServiceType => typeof(TService);
     
     /// <summary>

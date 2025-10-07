@@ -147,3 +147,4 @@ public class EnumOptionConstructorAnalyzer : DiagnosticAnalyzer
         return null; // Default is false in the generator
     }
 }
+

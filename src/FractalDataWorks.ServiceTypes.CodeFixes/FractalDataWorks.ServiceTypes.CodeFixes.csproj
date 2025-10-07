@@ -54,3 +54,4 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" VersionOverride="4.8.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>
+

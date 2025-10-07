@@ -151,3 +151,4 @@ public class AbstractMemberAnalyzer : DiagnosticAnalyzer
                      string.Equals(a.AttributeClass?.Name, "EnumCollection", StringComparison.Ordinal));
     }
 }
+
