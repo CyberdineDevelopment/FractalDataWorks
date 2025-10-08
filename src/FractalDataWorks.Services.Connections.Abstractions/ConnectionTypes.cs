@@ -1,8 +1,7 @@
 using FractalDataWorks.ServiceTypes;
 using FractalDataWorks.ServiceTypes.Attributes;
-using FractalDataWorks.Services.Connections.Abstractions;
 
-namespace FractalDataWorks.Services.Connections;
+namespace FractalDataWorks.Services.Connections.Abstractions;
 
 /// <summary>
 /// Collection of connection service types.

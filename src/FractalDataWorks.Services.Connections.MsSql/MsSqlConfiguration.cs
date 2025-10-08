@@ -26,7 +26,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// This should be a complete connection string including server, database, 
     /// authentication information, and any additional connection parameters.
     /// </remarks>
-    public string ConnectionString { get; set; } = string.Empty;
+    public string ConnectionString { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the command timeout in seconds.
@@ -35,7 +35,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// This timeout applies to command execution. Default is 30 seconds.
     /// Set to 0 for infinite timeout (not recommended).
     /// </remarks>
-    public int CommandTimeoutSeconds { get; set; } = 30;
+    public int CommandTimeoutSeconds { get; init; } = 30;
 
     /// <summary>
     /// Gets or sets the connection timeout in seconds.
@@ -44,7 +44,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// This timeout applies to establishing the initial connection.
     /// Default is 15 seconds.
     /// </remarks>
-    public int ConnectionTimeoutSeconds { get; set; } = 15;
+    public int ConnectionTimeoutSeconds { get; init; } = 15;
 
     /// <summary>
     /// Gets or sets the default schema to use for operations.
@@ -53,7 +53,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// When not specified in DataPath, this schema will be used.
     /// Defaults to "dbo" if not specified.
     /// </remarks>
-    public string DefaultSchema { get; set; } = "dbo";
+    public string DefaultSchema { get; init; } = "dbo";
 
     /// <summary>
     /// Gets or sets the schema mappings for data containers.
@@ -63,7 +63,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// Key is the container name, value is schema.table or just table name.
     /// If not found in mappings, will use DefaultSchema + container name.
     /// </remarks>
-    public IDictionary<string, string> SchemaMappings { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
+    public IDictionary<string, string> SchemaMappings { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
     /// <summary>
     /// Gets or sets a value indicating whether to enable connection pooling.
@@ -72,7 +72,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// Connection pooling is enabled by default for better performance.
     /// Disable only if you have specific requirements.
     /// </remarks>
-    public bool EnableConnectionPooling { get; set; } = true;
+    public bool EnableConnectionPooling { get; init; } = true;
 
     /// <summary>
     /// Gets or sets the minimum pool size.
@@ -81,7 +81,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// The minimum number of connections to maintain in the pool.
     /// Only used when EnableConnectionPooling is true.
     /// </remarks>
-    public int MinPoolSize { get; set; }
+    public int MinPoolSize { get; init; }
 
     /// <summary>
     /// Gets or sets the maximum pool size.
@@ -90,7 +90,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// The maximum number of connections allowed in the pool.
     /// Only used when EnableConnectionPooling is true.
     /// </remarks>
-    public int MaxPoolSize { get; set; } = 100;
+    public int MaxPoolSize { get; init; } = 100;
 
     /// <summary>
     /// Gets or sets a value indicating whether to enable multiple active result sets (MARS).
@@ -99,7 +99,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// MARS allows multiple batches to be pending on a single connection.
     /// Disabled by default for better compatibility.
     /// </remarks>
-    public bool EnableMultipleActiveResultSets { get; set; }
+    public bool EnableMultipleActiveResultSets { get; init; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to enable retry logic for transient failures.
@@ -108,7 +108,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// Automatically retry operations on transient SQL Server errors.
     /// Enabled by default for better reliability.
     /// </remarks>
-    public bool EnableRetryLogic { get; set; } = true;
+    public bool EnableRetryLogic { get; init; } = true;
 
     /// <summary>
     /// Gets or sets the maximum number of retry attempts.
@@ -117,7 +117,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// Only used when EnableRetryLogic is true.
     /// Default is 3 retry attempts.
     /// </remarks>
-    public int MaxRetryAttempts { get; set; } = 3;
+    public int MaxRetryAttempts { get; init; } = 3;
 
     /// <summary>
     /// Gets or sets the base delay between retry attempts in milliseconds.
@@ -126,7 +126,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// Only used when EnableRetryLogic is true.
     /// Uses exponential backoff based on this value.
     /// </remarks>
-    public int RetryDelayMilliseconds { get; set; } = 1000;
+    public int RetryDelayMilliseconds { get; init; } = 1000;
 
     /// <summary>
     /// Gets or sets a value indicating whether to enable detailed logging of SQL commands.
@@ -135,7 +135,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// When enabled, logs generated SQL statements for debugging.
     /// Disable in production for security and performance.
     /// </remarks>
-    public bool EnableSqlLogging { get; set; }
+    public bool EnableSqlLogging { get; init; }
 
     /// <summary>
     /// Gets or sets the maximum length for logged SQL statements.
@@ -144,7 +144,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// Only used when EnableSqlLogging is true.
     /// Prevents excessive log output from large SQL statements.
     /// </remarks>
-    public int MaxSqlLogLength { get; set; } = 1000;
+    public int MaxSqlLogLength { get; init; } = 1000;
 
     /// <summary>
     /// Gets or sets a value indicating whether to use transactions for command execution.
@@ -154,7 +154,7 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// Transactions are automatically committed on success or rolled back on failure.
     /// Default is false for better performance.
     /// </remarks>
-    public bool UseTransactions { get; set; }
+    public bool UseTransactions { get; init; }
 
     /// <summary>
     /// Gets or sets the transaction isolation level to use when UseTransactions is enabled.
@@ -163,16 +163,16 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     /// Only used when UseTransactions is true.
     /// Default is ReadCommitted for balanced consistency and performance.
     /// </remarks>
-    public System.Data.IsolationLevel TransactionIsolationLevel { get; set; } = System.Data.IsolationLevel.ReadCommitted;
+    public System.Data.IsolationLevel TransactionIsolationLevel { get; init; } = System.Data.IsolationLevel.ReadCommitted;
 
     /// <inheritdoc/>
     public override string SectionName => "GenericConnections:MsSql";
 
     /// <inheritdoc/>
-    public string ConnectionType { get; set; } = "MsSql";
+    public string ConnectionType { get; init; } = "MsSql";
 
     /// <inheritdoc/>
-    public ServiceLifetimeBase LifetimeBase { get; set; } = ServiceLifetimeBase.Scoped;
+    public IServiceLifetime Lifetime { get; init; } = ServiceLifetimes.Scoped;
 
     /// <summary>
     /// Gets the sanitized connection string for logging purposes.
@@ -278,6 +278,6 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
         target.UseTransactions = UseTransactions;
         target.TransactionIsolationLevel = TransactionIsolationLevel;
         target.ConnectionType = ConnectionType;
-        target.LifetimeBase = LifetimeBase;
+        target.Lifetime = Lifetime;
     }
 }

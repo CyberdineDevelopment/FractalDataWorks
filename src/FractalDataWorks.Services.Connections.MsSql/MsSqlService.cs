@@ -24,9 +24,8 @@ namespace FractalDataWorks.Services.Connections.MsSql;
 /// SQL Server implementation of connection service with LINQ query translation.
 /// This service handles SQL Server connection commands and translates LINQ queries to T-SQL.
 /// </summary>
-public sealed class MsSqlService 
-    : ConnectionServiceBase<IConnectionCommand, MsSqlConfiguration, MsSqlService>, 
-    IConnectionDataService,
+public sealed class MsSqlService
+    : ConnectionServiceBase<IConnectionCommand, MsSqlConfiguration, MsSqlService>,
     IDisposable
 {
     private readonly ILoggerFactory _loggerFactory;
