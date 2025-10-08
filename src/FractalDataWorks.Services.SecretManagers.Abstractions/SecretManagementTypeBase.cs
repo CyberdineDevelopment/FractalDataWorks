@@ -18,7 +18,7 @@ namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 /// </remarks>
 public abstract class SecretManagerTypeBase<TService, TFactory, TConfiguration> :
     ServiceTypeBase<TService, TFactory, TConfiguration>,
-    ISecretManagerServiceType<TService, TFactory, TConfiguration>
+    ISecretManagerType,ISecretManagerType<TService,TFactory,TConfiguration>
     where TService : class, ISecretManager
     where TFactory : class, ISecretManagerServiceFactory<TService, TConfiguration>
     where TConfiguration : class, ISecretManagerConfiguration
@@ -63,6 +63,12 @@ public abstract class SecretManagerTypeBase<TService, TFactory, TConfiguration> 
     /// enabling rollback and gradual migration scenarios.
     /// </remarks>
     public bool SupportsVersioning { get; }
+
+    public bool SupportsBulkOperations { get; }
+    public bool SupportsEncryptionAtRest { get; }
+    public bool SupportsAuditing { get; }
+    public int MaxSecretSize { get; }
+    public string CloudProvider { get; }
 
     /// <summary>
     /// Gets a value indicating whether this provider supports soft delete.

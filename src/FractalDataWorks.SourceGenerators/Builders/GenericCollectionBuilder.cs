@@ -21,6 +21,7 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
     private readonly LookupMethodGenerator _lookupMethodGenerator;
     private readonly EmptyClassGenerator _emptyClassGenerator;
     private readonly StaticConstructorGenerator _staticConstructorGenerator;
+    private readonly ValuePropertyGenerator _valuePropertyGenerator;
 
     private CollectionGenerationMode _mode;
     private GenericTypeInfoModel? _definition;
@@ -44,6 +45,7 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
         _lookupMethodGenerator = new LookupMethodGenerator(config);
         _emptyClassGenerator = new EmptyClassGenerator(config);
         _staticConstructorGenerator = new StaticConstructorGenerator(config);
+        _valuePropertyGenerator = new ValuePropertyGenerator(config);
     }
 
     /// <summary>
@@ -175,6 +177,28 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
             .WithReturnDoc("A read-only list of all items in the collection.");
 
         classBuilder.WithMethod(allMethod);
+
+        // Generate NotFound() method
+        var notFoundMethod = new MethodBuilder()
+            .WithName("NotFound")
+            .WithReturnType(_returnType!)
+            .WithAccessModifier("public")
+            .AsStatic()
+            .WithExpressionBody("_empty")
+            .WithXmlDoc("Gets the empty/not-found instance for this collection.")
+            .WithReturnDoc("The empty instance representing a not-found value.");
+
+        classBuilder.WithMethod(notFoundMethod);
+
+        // Generate static properties for each value
+        var valueProperties = _valuePropertyGenerator.GenerateValueProperties(
+            _values!,
+            _returnType!,
+            _definition!.UseMethods);
+        foreach (var property in valueProperties)
+        {
+            classBuilder.WithProperty(property);
+        }
 
         // Generate static constructor
         var staticConstructor = _staticConstructorGenerator.GenerateStaticConstructor(

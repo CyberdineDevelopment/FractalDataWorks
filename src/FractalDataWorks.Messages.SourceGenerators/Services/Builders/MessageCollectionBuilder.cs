@@ -321,20 +321,20 @@ public sealed class MessageCollectionBuilder : IMessageCollectionBuilder
 
     /// <summary>
     /// Gets the factory method name for a message value.
-    /// For ServiceMessage types, removes "CurrentMessage" suffix. For others, adds "Create" prefix.
+    /// For ServiceMessage types, removes "Message" suffix. For others, adds "Create" prefix.
     /// </summary>
     /// <param name="value">The message value information.</param>
     /// <returns>The method name to use for factory methods.</returns>
     private static string GetFactoryMethodName(CollectionValueInfoModel value)
     {
         var name = value.Name;
-        
-        // For ServiceMessage types, remove "CurrentMessage" suffix if present
-        if (name.EndsWith("CurrentMessage", StringComparison.Ordinal))
+
+        // For ServiceMessage types, remove "Message" suffix if present
+        if (name.EndsWith("Message", StringComparison.Ordinal))
         {
-            return name.Substring(0, name.Length - "CurrentMessage".Length);
+            return name.Substring(0, name.Length - "Message".Length);
         }
-        
+
         // For other types, use Create prefix
         return $"Create{name}";
     }

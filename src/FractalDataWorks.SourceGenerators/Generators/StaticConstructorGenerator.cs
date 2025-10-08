@@ -47,10 +47,18 @@ public sealed class StaticConstructorGenerator
             // Create instances and add to dictionary
             foreach (var value in includedValues)
             {
-                // Concrete type - create instance and add to dictionary using its Id property
-                var varName = value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture);
-                constructorBody.AppendLine($"var {varName} = new {value.ShortTypeName}();");
-                constructorBody.AppendLine($"dictionary.Add({varName}.Id, {varName});");
+                if (value.BaseConstructorId.HasValue)
+                {
+                    // Use literal ID from base constructor argument
+                    constructorBody.AppendLine($"        dictionary.Add({value.BaseConstructorId.Value}, new {value.ShortTypeName}());");
+                }
+                else
+                {
+                    // Fallback: instantiate and read Id property
+                    var varName = value.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture);
+                    constructorBody.AppendLine($"        var {varName} = new {value.ShortTypeName}();");
+                    constructorBody.AppendLine($"        dictionary.Add({varName}.Id, {varName});");
+                }
                 constructorBody.AppendLine();
             }
 

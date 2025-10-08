@@ -9,8 +9,8 @@ namespace FractalDataWorks.Services.SecretManager;
 /// Collection of secret management service types.
 /// The source generator will discover all SecretManagerServiceType implementations.
 /// </summary>
-[ServiceTypeCollection(typeof(SecretManagerTypeBase<,,>), typeof(ISecretManagerServiceType<,,>), typeof(SecretManagerServiceTypes))]
-public partial class SecretManagerServiceTypes : ServiceTypeCollectionBase<SecretManagerTypeBase<ISecretManager, ISecretManagerServiceFactory<ISecretManager, ISecretManagerConfiguration>, ISecretManagerConfiguration>, ISecretManagerServiceType<ISecretManager, ISecretManagerServiceFactory<ISecretManager, ISecretManagerConfiguration>, ISecretManagerConfiguration>, ISecretManager, ISecretManagerConfiguration, ISecretManagerServiceFactory<ISecretManager, ISecretManagerConfiguration>>
+[ServiceTypeCollection(typeof(SecretManagerTypeBase<,,>), typeof(ISecretManagerType), typeof(SecretManagerServiceTypes))]
+public partial class SecretManagerServiceTypes : ServiceTypeCollectionBase<SecretManagerTypeBase<ISecretManager, ISecretManagerServiceFactory<ISecretManager, ISecretManagerConfiguration>, ISecretManagerConfiguration>, ISecretManagerType, ISecretManager, ISecretManagerConfiguration, ISecretManagerServiceFactory<ISecretManager, ISecretManagerConfiguration>>
 {
     // Concrete implementations will be added by each secret management provider project
     // Example: public static readonly AzureKeyVaultType AzureKeyVault = new();

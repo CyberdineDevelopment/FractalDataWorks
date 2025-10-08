@@ -57,7 +57,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             // Look up the authentication type by the configuration's AuthenticationType property
             // This will use the generated AuthenticationTypes static class
             var authenticationType = AuthenticationTypes.Name(configuration.AuthenticationType);
-            if (authenticationType.IsEmpty)
+            if (authenticationType == AuthenticationTypes.NotFound())
             {
                 AuthenticationProviderLog.UnknownAuthenticationType(_logger, configuration.AuthenticationType);
                 return GenericResult<IAuthenticationService>.Failure(
@@ -128,7 +128,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
 
             // Look up the authentication type
             var authenticationType = AuthenticationTypes.Name(authenticationTypeName);
-            if (authenticationType.IsEmpty)
+            if (authenticationType == AuthenticationTypes.NotFound())
             {
                 AuthenticationProviderLog.UnknownAuthenticationTypeInConfiguration(_logger, authenticationTypeName);
                 return GenericResult<IAuthenticationService>.Failure(AuthenticationMessages.UnknownAuthenticationType(authenticationTypeName));

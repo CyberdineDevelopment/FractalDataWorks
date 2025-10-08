@@ -22,12 +22,11 @@ public static class ConnectionServiceExtensions
     {
         // Register all discovered connection types using the generated ConnectionTypes class
         // This will be populated by the ServiceTypeCollectionGenerator
-        var connectionTypes = new ConnectionTypes();
-        foreach (var connectionType in connectionTypes.All)
+        foreach (var connectionType in ConnectionTypes.All())
         {
             // Each connection type registers its own services (factories, services, etc.)
             connectionType.Register(services);
-            
+
             // Each connection type configures itself using the provided configuration
             connectionType.Configure(configuration);
         }

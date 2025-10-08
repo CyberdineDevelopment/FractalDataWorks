@@ -57,7 +57,7 @@ public abstract class ServiceFactory<TService, TConfiguration> : IServiceFactory
         if (configuration == null)
         {
             Logging.ServiceBaseLog.InvalidConfigurationWarning(_logger, "Configuration cannot be null");
-            return GenericResult<TService>.Failure(ServiceMessages.CreateConfigurationCannotBeNullMessage());
+            return GenericResult<TService>.Failure(ServiceMessages.ConfigurationCannotBeNull());
         }
 
         // Log configuration
@@ -100,7 +100,7 @@ public abstract class ServiceFactory<TService, TConfiguration> : IServiceFactory
             Logging.ServiceBaseLog.InvalidConfigurationWarning(_logger,
                 "Configuration cannot be null");
             validConfiguration = null;
-            return GenericResult<TConfiguration>.Failure(ServiceMessages.CreateConfigurationCannotBeNullMessage());
+            return GenericResult<TConfiguration>.Failure(ServiceMessages.ConfigurationCannotBeNull());
         }
 
         if (configuration is TConfiguration config)
