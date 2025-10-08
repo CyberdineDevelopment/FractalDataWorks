@@ -90,6 +90,13 @@ public class CollectionTypeInfoModel : IInputInfoModel, IEquatable<CollectionTyp
     public bool UseSingletonInstances { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets a value indicating whether to generate methods for access instead of properties.
+    /// When true, generates methods like <c>Opening()</c> instead of properties like <c>Opening</c>.
+    /// Default is false (generates properties).
+    /// </summary>
+    public bool UseMethods { get; set; }
+
+    /// <summary>
     /// Gets or sets how options should be stored internally for lookups.
     /// True provides O(1) lookups using Dictionary.
     /// False provides O(n) lookups using linear search.
@@ -218,6 +225,7 @@ public class CollectionTypeInfoModel : IInputInfoModel, IEquatable<CollectionTyp
         writer.Write(NameComparison.ToString());
         writer.Write(IncludeReferencedAssemblies);
         writer.Write(UseSingletonInstances);
+        writer.Write(UseMethods);
         writer.Write(ReturnType ?? string.Empty);
         writer.Write(ReturnTypeNamespace ?? string.Empty);
         writer.Write(InheritsFromCollectionBase);
@@ -311,6 +319,7 @@ public class CollectionTypeInfoModel : IInputInfoModel, IEquatable<CollectionTyp
   ReturnTypeNamespace: {ReturnTypeNamespace}
   GenerateFactoryMethods: {GenerateFactoryMethods}
   UseSingletonInstances: {UseSingletonInstances}
+  UseMethods: {UseMethods}
   IsGenericType: {IsGenericType}
   InheritsFromCollectionBase: {InheritsFromCollectionBase}
 }}";

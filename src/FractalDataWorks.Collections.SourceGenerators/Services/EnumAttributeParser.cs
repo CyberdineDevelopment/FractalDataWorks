@@ -158,6 +158,7 @@ public static class EnumAttributeParser
             GenerateFactoryMethods = generationMode == 0, // Methods = true, Singletons = false
             NameComparison = StringComparison.OrdinalIgnoreCase, // Fixed for consistency
             UseSingletonInstances = generationMode == 1, // Singletons = true, Methods = false
+            UseMethods = named.TryGetValue("UseMethods", out var um) && um.Value is bool umb && umb,
             ReturnType = named.TryGetValue("ReturnType", out var rt) && rt.Value is string rs ? rs : null,
             ReturnTypeNamespace = named.TryGetValue("ReturnTypeNamespace", out var rtn) && rtn.Value is string rtns ? rtns : null,
             LookupProperties = new EquatableArray<PropertyLookupInfoModel>(lookupProperties),

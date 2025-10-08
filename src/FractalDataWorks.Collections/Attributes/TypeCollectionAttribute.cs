@@ -41,4 +41,11 @@ public sealed class TypeCollectionAttribute(Type baseType, Type defaultReturnTyp
     /// Gets or sets a value indicating whether singleton instances should be used instead of factory methods.
     /// </summary>
     public bool UseSingletonInstances { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to generate methods for access instead of properties.
+    /// When true, generates methods like <c>Opening()</c> instead of properties like <c>Opening</c>.
+    /// Default is false (generates properties).
+    /// </summary>
+    public bool UseMethods { get; set; }
 }

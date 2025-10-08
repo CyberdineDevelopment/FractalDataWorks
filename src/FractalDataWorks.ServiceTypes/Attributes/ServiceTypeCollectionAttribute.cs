@@ -41,4 +41,11 @@ public sealed class ServiceTypeCollectionAttribute(Type baseType, Type defaultRe
     /// Gets or sets a value indicating whether singleton instances should be used instead of factory methods.
     /// </summary>
     public bool UseSingletonInstances { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to generate methods for access instead of properties.
+    /// When true, generates methods like <c>MsSql()</c> instead of properties like <c>MsSql</c>.
+    /// Default is false (generates properties).
+    /// </summary>
+    public bool UseMethods { get; set; }
 }
