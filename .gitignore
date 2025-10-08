@@ -341,3 +341,17 @@ localpackages/
 
 # Local NuGet configuration (user-specific)
 nuget.config.local
+
+# Claude Code integration projects (feature branch only)
+src/FractalDataWorks.ClaudeCode.Anthropic/
+src/FractalDataWorks.ClaudeCode.Anthropic.Abstractions/
+src/FractalDataWorks.ClaudeCode.Console/
+src/FractalDataWorks.ClaudeCode.Console.Abstractions/
+src/FractalDataWorks.ClaudeCode.PowerShell/
+src/FractalDataWorks.ClaudeCode.PowerShell.Abstractions/
+src/FractalDataWorks.McpTools.Agent/
+src/FractalDataWorks.McpTools.FileSystem/
+src/FractalDataWorks.McpTools.Git/
+src/FractalDataWorks.McpTools.Todo/
+src/FractalDataWorks.McpTools.Web/
+docs/ClaudeCode_Integration_Status.md
