@@ -70,7 +70,7 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
 
             AzureKeyVaultServiceLog.CommandCompleted(Logger, managementCommand.CommandId, result.IsSuccess);
 
-            return result.IsSuccess ? GenericResult<object?>.Success(null) : GenericResult<object?>.Failure(result.Message);
+            return result.IsSuccess ? GenericResult<object?>.Success(null) : GenericResult<object?>.Failure(result.CurrentMessage);
         }
         catch (RequestFailedException ex)
         {
@@ -94,7 +94,7 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
         var validationResult = managementCommand.Validate();
         if (!validationResult.IsSuccess)
         {
-            return GenericResult<TResult>.Failure($"ManagementCommand validation failed: {validationResult.Message}");
+            return GenericResult<TResult>.Failure($"ManagementCommand validation failed: {validationResult.CurrentMessage}");
         }
 
         try
@@ -116,7 +116,7 @@ public sealed class AzureKeyVaultService : SecretManagerServiceBase<ISecretManag
 
             if (!result.IsSuccess)
             {
-                return GenericResult<TResult>.Failure(result.Message ?? "ManagementCommand execution failed");
+                return GenericResult<TResult>.Failure(result.CurrentMessage ?? "ManagementCommand execution failed");
             }
 
             // For non-generic results, we need to handle the return differently

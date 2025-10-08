@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Connections.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that validation failed.
+/// CurrentMessage indicating that validation failed.
 /// </summary>
 [Message("ValidationFailed")]
 public sealed class ValidationFailedMessage : ConnectionMessage, IServiceMessage

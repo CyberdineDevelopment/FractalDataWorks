@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that a token was null or empty.
+/// CurrentMessage indicating that a token was null or empty.
 /// </summary>
 [Message("TokenNullOrEmpty")]
 public sealed class TokenNullOrEmptyMessage : AuthenticationMessage, IServiceMessage

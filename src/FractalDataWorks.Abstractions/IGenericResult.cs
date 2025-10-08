@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FractalDataWorks.Messages;
 
 namespace FractalDataWorks.Results;
@@ -28,9 +29,14 @@ public interface IGenericResult
     bool Error { get; }
 
     /// <summary>
-    /// Gets the error message if the operation failed.
+    /// Gets the most recent message (LIFO - Last In, First Out).
     /// </summary>
-    string? Message { get; }
+    string? CurrentMessage { get; }
+
+    /// <summary>
+    /// Gets the collection of messages associated with this result.
+    /// </summary>
+    IReadOnlyList<IGenericMessage> Messages { get; }
 }
 
 /// <summary>

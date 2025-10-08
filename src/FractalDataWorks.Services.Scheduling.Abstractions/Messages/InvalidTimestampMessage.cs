@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Scheduling.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that modified timestamp is earlier than created timestamp.
+/// CurrentMessage indicating that modified timestamp is earlier than created timestamp.
 /// </summary>
 [Message("InvalidTimestamp")]
 public sealed class InvalidTimestampMessage : SchedulingMessage, IServiceMessage

@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Connections.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that the query was null.
+/// CurrentMessage indicating that the query was null.
 /// </summary>
 [Message("QueryNull")]
 public sealed class QueryNullMessage : ConnectionMessage, IServiceMessage

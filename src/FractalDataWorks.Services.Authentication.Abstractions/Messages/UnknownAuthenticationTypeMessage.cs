@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that the specified authentication type is unknown.
+/// CurrentMessage indicating that the specified authentication type is unknown.
 /// </summary>
 [Message("UnknownAuthenticationType")]
 public sealed class UnknownAuthenticationTypeMessage : AuthenticationMessage, IServiceMessage

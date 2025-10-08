@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that configuration binding failed.
+/// CurrentMessage indicating that configuration binding failed.
 /// </summary>
 [Message("ConfigurationBindingFailed")]
 public sealed class ConfigurationBindingFailedMessage : AuthenticationMessage, IServiceMessage

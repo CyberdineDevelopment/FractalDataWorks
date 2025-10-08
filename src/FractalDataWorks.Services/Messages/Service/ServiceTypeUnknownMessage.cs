@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that a service type is unknown or not registered.
+/// CurrentMessage indicating that a service type is unknown or not registered.
 /// </summary>
 [Message("ServiceTypeUnknown")]
 public sealed class ServiceTypeUnknownMessage : ServiceMessage, IServiceMessage

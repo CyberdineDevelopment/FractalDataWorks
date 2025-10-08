@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Execution.Abstractions.Messages.Execution;
 
 /// <summary>
-/// Message indicating that an operation execution has completed successfully.
+/// CurrentMessage indicating that an operation execution has completed successfully.
 /// </summary>
 [Message("OperationExecutionCompleted")]
 public sealed class OperationExecutionCompletedMessage : ExecutionMessage, IServiceMessage

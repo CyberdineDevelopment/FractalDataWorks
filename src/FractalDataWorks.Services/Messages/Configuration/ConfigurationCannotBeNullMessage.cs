@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that a required configuration parameter is null.
+/// CurrentMessage indicating that a required configuration parameter is null.
 /// </summary>
 [Message("ConfigurationCannotBeNull")]
 public sealed class ConfigurationCannotBeNullMessage : ServiceMessage, IServiceMessage

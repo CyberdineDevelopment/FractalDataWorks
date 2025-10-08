@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that an object could not be created through reflection or factory methods.
+/// CurrentMessage indicating that an object could not be created through reflection or factory methods.
 /// The source generator will create FactoryMessages.CouldNotCreateObject(objectType) method.
 /// </summary>
 [Message("CouldNotCreateObject")]

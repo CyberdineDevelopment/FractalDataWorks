@@ -132,8 +132,9 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             var baseType = compilation.GetTypeByMetadataName(baseTypeName!);
             if (baseType == null) continue;
 
-            // STEP 3.1: Validate base type doesn't have abstract properties
-            var diagnostics = ValidateNoAbstractProperties(baseType, collectionClass);
+            // STEP 3.1: Abstract member validation removed
+            // EmptyClassGenerator now handles abstract methods automatically
+            var diagnostics = new List<Diagnostic>();
 
             // STEP 4: ULTRA-FAST Option Type Lookup (O(1) dictionary lookup)
             // Look up pre-discovered options by collection class type
@@ -477,41 +478,56 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
     /// <summary>
     /// STEP 4.1: Property analysis and extraction
     /// Extracts lookup properties from the base type inheritance chain.
+    /// Handles both open and closed generic types by walking the full inheritance chain.
     /// </summary>
     private static EquatableArray<PropertyLookupInfoModel> ExtractLookupPropertiesFromBaseType(INamedTypeSymbol baseType, Compilation compilation)
     {
         var lookupProperties = new List<PropertyLookupInfoModel>();
-        
-        var typeLookupAttributeType = compilation.GetTypeByMetadataName(typeof(FractalDataWorks.Collections.Attributes.TypeLookupAttribute).FullName!);
-        
-        var currentType = baseType;
-        while (currentType != null)
-        {
-            foreach (var property in currentType.GetMembers().OfType<IPropertySymbol>())
-            {
-                var typeLookupAttr = property.GetAttributes()
-                    .FirstOrDefault(ad => typeLookupAttributeType != null && SymbolEqualityComparer.Default.Equals(ad.AttributeClass, typeLookupAttributeType));
 
-                if (typeLookupAttr != null && typeLookupAttr.ConstructorArguments.Length > 0)
+        var typeLookupAttributeType = compilation.GetTypeByMetadataName(typeof(FractalDataWorks.Collections.Attributes.TypeLookupAttribute).FullName!);
+        if (typeLookupAttributeType == null)
+        {
+            return new EquatableArray<PropertyLookupInfoModel>(lookupProperties);
+        }
+
+        // For open generics, we need to use OriginalDefinition to properly walk the inheritance chain
+        var currentType = baseType.OriginalDefinition;
+
+        while (currentType != null && currentType.SpecialType != SpecialType.System_Object)
+        {
+            // Get ALL members including inherited ones by checking each level
+            foreach (var member in currentType.GetMembers())
+            {
+                if (member is IPropertySymbol property)
                 {
-                    var methodName = typeLookupAttr.ConstructorArguments[0].Value?.ToString();
-                    if (!string.IsNullOrEmpty(methodName))
+                    var typeLookupAttr = property.GetAttributes()
+                        .FirstOrDefault(ad => SymbolEqualityComparer.Default.Equals(ad.AttributeClass, typeLookupAttributeType));
+
+                    if (typeLookupAttr != null && typeLookupAttr.ConstructorArguments.Length > 0)
                     {
-                        lookupProperties.Add(new PropertyLookupInfoModel
+                        var methodName = typeLookupAttr.ConstructorArguments[0].Value?.ToString();
+                        if (!string.IsNullOrEmpty(methodName))
                         {
-                            PropertyName = property.Name,
-                            PropertyType = property.Type.ToDisplayString(),
-                            LookupMethodName = methodName!,
-                            AllowMultiple = false,
-                            ReturnType = baseType.ToDisplayString()
-                        });
+                            // Check if we already have this property (avoid duplicates from inheritance)
+                            if (!lookupProperties.Any(lp => lp.PropertyName == property.Name))
+                            {
+                                lookupProperties.Add(new PropertyLookupInfoModel
+                                {
+                                    PropertyName = property.Name,
+                                    PropertyType = property.Type.ToDisplayString(),
+                                    LookupMethodName = methodName!,
+                                    AllowMultiple = false,
+                                    ReturnType = baseType.ToDisplayString()
+                                });
+                            }
+                        }
                     }
                 }
             }
-            
-            currentType = currentType.BaseType;
+
+            currentType = currentType.BaseType?.OriginalDefinition;
         }
-        
+
         return new EquatableArray<PropertyLookupInfoModel>(lookupProperties);
     }
 
@@ -626,15 +642,16 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         if (def == null) throw new ArgumentNullException(nameof(def));
         if (compilation == null) throw new ArgumentNullException(nameof(compilation));
 
-        // STEP 7.1: Base Type Resolution
-        var baseTypeSymbol = compilation.GetTypeByMetadataName(def.CollectionBaseType ?? def.FullTypeName);
-        if (baseTypeSymbol == null) return;
+        // STEP 7.1: Base Type Resolution (REMOVED - was dead code causing silent failures for generic base types)
+        // The baseType symbol is already validated during discovery phase
+        // Attempting to look up generic types by display string fails: "Type<T1,T2>" vs metadata "Type`2"
 
         // STEP 7.2: Return Type Detection
-        // Auto-detect return type based on generic arity (TBase vs TGeneric)
+        // Return type should already be set during definition building phase
+        // This is a safety fallback that should never be needed
         if (string.IsNullOrEmpty(def.ReturnType))
         {
-            def.ReturnType = DetectReturnType(baseTypeSymbol, compilation);
+            def.ReturnType = "object"; // Fallback - should never happen
         }
 
         // STEP 7.3: Type Option Model Conversion

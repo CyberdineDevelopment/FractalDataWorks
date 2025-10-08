@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
@@ -58,7 +59,7 @@ public interface IGenericScheduleExecutionHistory
     /// Gets the result status of the execution.
     /// </summary>
     /// <value>The execution result status.</value>
-    ExecutionStatus Status { get; }
+    IProcessState Status { get; }
 
     /// <summary>
     /// Gets any error message associated with this execution.

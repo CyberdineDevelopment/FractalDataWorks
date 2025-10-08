@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>ABSTRACTIONS_FRAMEWORK</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- FractalDataWorks framework packages -->
+#if (UseCentralPackageManagement)
+    <PackageReference Include="FractalDataWorks.Services.Abstractions" />
+    <PackageReference Include="FractalDataWorks.Abstractions" />
+    <PackageReference Include="FractalDataWorks.EnhancedEnums" />
+    <PackageReference Include="FractalDataWorks.Collections" />
+
+    <!-- Source generators as analyzer packages -->
+    <PackageReference Include="FractalDataWorks.ServiceTypes.SourceGenerators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FractalDataWorks.Collections.SourceGenerators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FractalDataWorks.Messages.SourceGenerators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+#else
+    <PackageReference Include="FractalDataWorks.Services.Abstractions" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageReference Include="FractalDataWorks.Abstractions" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageReference Include="FractalDataWorks.EnhancedEnums" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageReference Include="FractalDataWorks.Collections" Version="FRACTALDATAWORKS_VERSION" />
+
+    <!-- Source generators as analyzer packages -->
+    <PackageReference Include="FractalDataWorks.ServiceTypes.SourceGenerators" Version="FRACTALDATAWORKS_VERSION">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FractalDataWorks.Collections.SourceGenerators" Version="FRACTALDATAWORKS_VERSION">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FractalDataWorks.Messages.SourceGenerators" Version="FRACTALDATAWORKS_VERSION">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+#endif
+  </ItemGroup>
+
+</Project>

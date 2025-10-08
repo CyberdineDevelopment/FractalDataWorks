@@ -4,7 +4,7 @@ using FractalDataWorks.Messages.Attributes;
 namespace FractalDataWorks.Services.Scheduling.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that a scheduled job has completed successfully.
+/// CurrentMessage indicating that a scheduled job has completed successfully.
 /// </summary>
 [Message("JobCompleted")]
 public sealed class JobCompletedMessage : SchedulingMessage

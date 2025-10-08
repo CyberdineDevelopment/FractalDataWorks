@@ -3,7 +3,6 @@ using System.Globalization;
 using FractalDataWorks.Results;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using FractalDataWorks.Results;
 using FastGenericNew;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Services.Abstractions;
@@ -58,7 +57,7 @@ public abstract class ServiceFactory<TService, TConfiguration> : IServiceFactory
         if (configuration == null)
         {
             Logging.ServiceBaseLog.InvalidConfigurationWarning(_logger, "Configuration cannot be null");
-            return GenericResult<TService>.Failure(ServiceMessages.ConfigurationCannotBeNull());
+            return GenericResult<TService>.Failure(ServiceMessages.CreateConfigurationCannotBeNullMessage());
         }
 
         // Log configuration
@@ -101,7 +100,7 @@ public abstract class ServiceFactory<TService, TConfiguration> : IServiceFactory
             Logging.ServiceBaseLog.InvalidConfigurationWarning(_logger,
                 "Configuration cannot be null");
             validConfiguration = null;
-            return GenericResult<TConfiguration>.Failure(ServiceMessages.ConfigurationCannotBeNull());
+            return GenericResult<TConfiguration>.Failure(ServiceMessages.CreateConfigurationCannotBeNullMessage());
         }
 
         if (configuration is TConfiguration config)
@@ -151,13 +150,13 @@ public abstract class ServiceFactory<TService, TConfiguration> : IServiceFactory
         var validationResult = ValidateConfiguration(configuration, out var validConfig);
         if (validationResult.Error || validConfig == null)
         {
-            return GenericResult<T>.Failure(validationResult.Message ?? "Configuration validation failed");
+            return GenericResult<T>.Failure(validationResult.CurrentMessage ?? "Configuration validation failed");
         }
 
         var serviceResult = Create(validConfig);
         if (serviceResult.Error || serviceResult.Value == null)
         {
-            return GenericResult<T>.Failure(serviceResult.Message ?? "Service creation failed");
+            return GenericResult<T>.Failure(serviceResult.CurrentMessage ?? "Service creation failed");
         }
 
         if (serviceResult.Value is T typedService)
@@ -184,13 +183,13 @@ public abstract class ServiceFactory<TService, TConfiguration> : IServiceFactory
         var validationResult = ValidateConfiguration(configuration, out var validConfig);
         if (validationResult.Error || validConfig == null)
         {
-            return GenericResult<IGenericService>.Failure(validationResult.Message ?? "Configuration validation failed");
+            return GenericResult<IGenericService>.Failure(validationResult.CurrentMessage ?? "Configuration validation failed");
         }
 
         var serviceResult = Create(validConfig);
         if (serviceResult.Error || serviceResult.Value == null)
         {
-            return GenericResult<IGenericService>.Failure(serviceResult.Message ?? "Service creation failed");
+            return GenericResult<IGenericService>.Failure(serviceResult.CurrentMessage ?? "Service creation failed");
         }
 
         if (serviceResult.Value is IGenericService recService)
@@ -221,7 +220,7 @@ public abstract class ServiceFactory<TService, TConfiguration> : IServiceFactory
         var validationResult = ValidateConfiguration(configuration, out var validConfig);
         if (validationResult.Error || validConfig == null)
         {
-            return GenericResult<TService>.Failure(validationResult.Message ?? "Configuration validation failed");
+            return GenericResult<TService>.Failure(validationResult.CurrentMessage ?? "Configuration validation failed");
         }
 
         return Create(validConfig);

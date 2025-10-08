@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that a configuration was not found.
+/// CurrentMessage indicating that a configuration was not found.
 /// </summary>
 [Message("ConfigurationNotFound")]
 public sealed class ConfigurationNotFoundMessage : ServiceMessage, IServiceMessage

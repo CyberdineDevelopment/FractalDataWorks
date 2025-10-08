@@ -1,0 +1,36 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- FractalDataWorks Framework Packages -->
+    <PackageVersion Include="FractalDataWorks.Abstractions" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.Services.Abstractions" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.Collections" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.EnhancedEnums" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.ServiceTypes" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.Messages" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.Configuration" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.Configuration.Abstractions" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.Results" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.Results.Abstractions" Version="FRACTALDATAWORKS_VERSION" />
+
+    <!-- Source Generator Packages -->
+    <PackageVersion Include="FractalDataWorks.Collections.SourceGenerators" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.ServiceTypes.SourceGenerators" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.Messages.SourceGenerators" Version="FRACTALDATAWORKS_VERSION" />
+    <PackageVersion Include="FractalDataWorks.EnhancedEnums.SourceGenerators" Version="FRACTALDATAWORKS_VERSION" />
+
+    <!-- Microsoft Extensions -->
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+
+    <!-- Compatibility Packages (netstandard2.0) -->
+    <PackageVersion Include="IsExternalInit" Version="1.0.3" />
+    <PackageVersion Include="PolySharp" Version="1.14.1" />
+  </ItemGroup>
+</Project>

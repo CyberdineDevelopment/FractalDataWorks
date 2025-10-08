@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.SecretManagers.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that the command was null.
+/// CurrentMessage indicating that the command was null.
 /// </summary>
 [Message("CommandNull")]
 public sealed class CommandNullMessage : SecretManagerMessage, IServiceMessage

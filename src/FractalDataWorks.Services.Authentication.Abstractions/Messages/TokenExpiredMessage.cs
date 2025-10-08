@@ -5,7 +5,7 @@ using FractalDataWorks.Messages.Attributes;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that a token has expired.
+/// CurrentMessage indicating that a token has expired.
 /// </summary>
 [Message("TokenExpired")]
 public sealed class TokenExpiredMessage : AuthenticationMessage, IServiceMessage

@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.SecretManagers.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that SecretKey is required for an operation.
+/// CurrentMessage indicating that SecretKey is required for an operation.
 /// </summary>
 [Message("SecretKeyRequired")]
 public sealed class SecretKeyRequiredMessage : SecretManagerMessage, IServiceMessage

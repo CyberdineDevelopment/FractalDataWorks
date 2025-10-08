@@ -813,7 +813,7 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
 
         foreach (var constructor in value.Constructors)
         {
-            // For ServiceMessage types, use the enum name without "Message" suffix and without "Create" prefix
+            // For ServiceMessage types, use the enum name without "CurrentMessage" suffix and without "Create" prefix
             var methodName = GetFactoryMethodName(value);
             
             var methodBuilder = new MethodBuilder()
@@ -894,7 +894,7 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
 
     /// <summary>
     /// Gets the factory method name for an enum value.
-    /// For ServiceMessage types, removes "Message" suffix. For others, adds "Create" prefix.
+    /// For ServiceMessage types, removes "CurrentMessage" suffix. For others, adds "Create" prefix.
     /// </summary>
     /// <param name="value">The enum value information.</param>
     /// <returns>The method name to use for factory methods.</returns>
@@ -902,10 +902,10 @@ public sealed class EnumCollectionBuilder : IEnumCollectionBuilder
     {
         var name = value.Name;
         
-        // For ServiceMessage types, remove "Message" suffix if present
-        if (name.EndsWith("Message", StringComparison.Ordinal))
+        // For ServiceMessage types, remove "CurrentMessage" suffix if present
+        if (name.EndsWith("CurrentMessage", StringComparison.Ordinal))
         {
-            return name.Substring(0, name.Length - "Message".Length);
+            return name.Substring(0, name.Length - "CurrentMessage".Length);
         }
         
         // For other types, use Create prefix

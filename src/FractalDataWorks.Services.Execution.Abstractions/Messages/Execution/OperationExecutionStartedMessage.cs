@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Execution.Abstractions.Messages.Execution;
 
 /// <summary>
-/// Message indicating that an operation execution has started.
+/// CurrentMessage indicating that an operation execution has started.
 /// </summary>
 [Message("OperationExecutionStarted")]
 public sealed class OperationExecutionStartedMessage : ExecutionMessage, IServiceMessage

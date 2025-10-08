@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Execution.Abstractions.Messages.Process;
 
 /// <summary>
-/// Message indicating that a process execution failed.
+/// CurrentMessage indicating that a process execution failed.
 /// </summary>
 [Message("ProcessExecutionFailed")]
 public sealed class ProcessExecutionFailedMessage : ExecutionMessage, IServiceMessage

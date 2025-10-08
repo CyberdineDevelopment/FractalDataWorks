@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that an invalid command was provided.
+/// CurrentMessage indicating that an invalid command was provided.
 /// </summary>
 [Message("InvalidCommand")]
 public sealed class InvalidCommandMessage : ServiceMessage, IServiceMessage

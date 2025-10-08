@@ -5,7 +5,7 @@ using FractalDataWorks.Messages.Attributes;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that authentication failed.
+/// CurrentMessage indicating that authentication failed.
 /// </summary>
 [Message("AuthenticationFailed")]
 public sealed class AuthenticationFailedMessage : AuthenticationMessage, IServiceMessage

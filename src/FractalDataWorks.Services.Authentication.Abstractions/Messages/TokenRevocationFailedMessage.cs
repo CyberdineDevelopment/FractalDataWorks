@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that token revocation failed.
+/// CurrentMessage indicating that token revocation failed.
 /// </summary>
 [Message("TokenRevocationFailed")]
 public sealed class TokenRevocationFailedMessage : AuthenticationMessage, IServiceMessage

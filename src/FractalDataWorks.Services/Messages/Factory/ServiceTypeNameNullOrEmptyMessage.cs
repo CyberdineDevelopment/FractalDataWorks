@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that a service type name is null or empty.
+/// CurrentMessage indicating that a service type name is null or empty.
 /// </summary>
 [Message("ServiceTypeNameNullOrEmpty")]
 public sealed class ServiceTypeNameNullOrEmptyMessage : FactoryMessage, IServiceMessage

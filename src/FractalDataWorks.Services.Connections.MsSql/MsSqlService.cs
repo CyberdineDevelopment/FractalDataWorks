@@ -114,7 +114,7 @@ public sealed class MsSqlService
     public override async Task<IGenericResult> Execute(IConnectionCommand command, CancellationToken cancellationToken)
     {
         var result = await Execute<object>(command, cancellationToken).ConfigureAwait(false);
-        return result.IsSuccess ? GenericResult.Success() : GenericResult.Failure(result.Message);
+        return result.IsSuccess ? GenericResult.Success() : GenericResult.Failure(result.CurrentMessage);
     }
 
     /// <summary>
@@ -178,7 +178,7 @@ public sealed class MsSqlService
             var containerResult = await connection.DiscoverSchema(startPath).ConfigureAwait(false);
             if (!containerResult.IsSuccess)
             {
-                return GenericResult<DataContainer[]>.Failure(containerResult.Message);
+                return GenericResult<DataContainer[]>.Failure(containerResult.CurrentMessage);
             }
             var containers = containerResult.Value?.ToArray() ?? [];
             return GenericResult<DataContainer[]>.Success(containers);
@@ -238,7 +238,7 @@ public sealed class MsSqlService
                         var testResult = await testConnection.TestConnection().ConfigureAwait(false);
                         return testResult.IsSuccess 
                             ? GenericResult<object>.Success(testResult.Value)
-                            : GenericResult<object>.Failure($"Connection test failed: {testResult.Message}");
+                            : GenericResult<object>.Failure($"Connection test failed: {testResult.CurrentMessage}");
                     }
                     catch (Exception ex)
                     {
@@ -278,7 +278,7 @@ public sealed class MsSqlService
             return GenericResult<T>.Failure($"Unable to convert result to type {typeof(T).Name}");
         }
 
-        return GenericResult<T>.Failure(result.Message ?? "Operation failed");
+        return GenericResult<T>.Failure(result.CurrentMessage ?? "Operation failed");
     }
 
     #region IGenericConnectionDataService Implementation

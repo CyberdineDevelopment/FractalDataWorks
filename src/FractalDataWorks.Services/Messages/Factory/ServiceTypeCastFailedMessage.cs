@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that service type casting failed.
+/// CurrentMessage indicating that service type casting failed.
 /// The source generator will create FactoryMessages.ServiceTypeCastFailed(sourceType, targetType) method.
 /// </summary>
 [Message("ServiceTypeCastFailed")]

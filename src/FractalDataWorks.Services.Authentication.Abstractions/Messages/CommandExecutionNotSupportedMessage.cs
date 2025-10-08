@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that command-based execution is not supported.
+/// CurrentMessage indicating that command-based execution is not supported.
 /// </summary>
 [Message("CommandExecutionNotSupported")]
 public sealed class CommandExecutionNotSupportedMessage : AuthenticationMessage, IServiceMessage

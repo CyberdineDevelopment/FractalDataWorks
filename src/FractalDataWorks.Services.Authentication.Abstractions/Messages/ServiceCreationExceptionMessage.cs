@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that an exception occurred during service creation.
+/// CurrentMessage indicating that an exception occurred during service creation.
 /// </summary>
 [Message("ServiceCreationException")]
 public sealed class ServiceCreationExceptionMessage : AuthenticationMessage, IServiceMessage

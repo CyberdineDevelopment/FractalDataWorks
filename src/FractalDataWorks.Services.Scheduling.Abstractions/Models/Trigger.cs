@@ -576,7 +576,7 @@ public sealed class Trigger : IGenericTrigger
     /// 
     /// if (validationResult.Error)
     /// {
-    ///     Logger.LogError("Trigger validation failed: {Message}", validationResult.Message);
+    ///     Logger.LogError("Trigger validation failed: {CurrentMessage}", validationResult.CurrentMessage);
     ///     return;
     /// }
     /// 

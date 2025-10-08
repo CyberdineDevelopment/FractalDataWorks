@@ -188,7 +188,7 @@ public sealed class MsSqlGenericConnection : IGenericConnection<MsSqlConfigurati
         if (result.IsSuccess)
             return GenericResult.Success();
         
-        return GenericResult.Failure(result.Message);
+        return GenericResult.Failure(result.CurrentMessage);
     }
 
     /// <summary>
@@ -230,7 +230,7 @@ public sealed class MsSqlGenericConnection : IGenericConnection<MsSqlConfigurati
                     else
                     {
                         transaction.Rollback();
-                        LogTransactionRolledBack(_logger, command.CommandType, ConnectionId, result.Message ?? "Unknown error", null);
+                        LogTransactionRolledBack(_logger, command.CommandType, ConnectionId, result.CurrentMessage ?? "Unknown error", null);
                     }
                     return result;
                 }
@@ -668,7 +668,7 @@ public sealed class MsSqlGenericConnection : IGenericConnection<MsSqlConfigurati
         var testResult = await TestConnection().ConfigureAwait(false);
         return testResult.IsSuccess 
             ? GenericResult.Success() 
-            : GenericResult.Failure(testResult.Message);
+            : GenericResult.Failure(testResult.CurrentMessage);
     }
 
     /// <inheritdoc/>

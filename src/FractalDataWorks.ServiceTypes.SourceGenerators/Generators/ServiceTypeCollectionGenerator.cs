@@ -163,8 +163,9 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             var baseType = ExtractBaseTypeFromAttribute(attribute);
             if (baseType == null) continue;
 
-            // STEP 3.1: Validate base type doesn't have abstract properties
-            var diagnostics = ValidateNoAbstractProperties(baseType, collectionClass);
+            // STEP 3.1: Abstract member validation removed
+            // EmptyClassGenerator now handles abstract methods automatically
+            var diagnostics = new List<Diagnostic>();
 
             // STEP 4: ULTRA-FAST Option Type Lookup (O(1) dictionary lookup)
             // FIX: Lookup pre-discovered options by collection class, not base type
@@ -679,39 +680,55 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
 
     /// <summary>
     /// Extract lookup properties from ServiceTypeBase for automatic method generation.
+    /// Handles both open and closed generic types by walking the full inheritance chain.
     /// </summary>
     private static EquatableArray<PropertyLookupInfoModel> ExtractServiceTypeLookupProperties(INamedTypeSymbol baseType, Compilation compilation)
     {
         var lookupProperties = new List<PropertyLookupInfoModel>();
 
         var typeLookupAttributeType = compilation.GetTypeByMetadataName("FractalDataWorks.ServiceTypes.Attributes.ServiceTypeLookupAttribute");
-
-        var currentType = baseType;
-        while (currentType != null)
+        if (typeLookupAttributeType == null)
         {
-            foreach (var property in currentType.GetMembers().OfType<IPropertySymbol>())
-            {
-                var typeLookupAttr = property.GetAttributes()
-                    .FirstOrDefault(ad => typeLookupAttributeType != null && SymbolEqualityComparer.Default.Equals(ad.AttributeClass, typeLookupAttributeType));
+            return new EquatableArray<PropertyLookupInfoModel>(lookupProperties);
+        }
 
-                if (typeLookupAttr != null && typeLookupAttr.ConstructorArguments.Length > 0)
+        // For open generics like AuthenticationTypeBase<,,>, we need to use OriginalDefinition
+        // to properly walk the inheritance chain
+        var currentType = baseType.OriginalDefinition;
+
+        while (currentType != null && currentType.SpecialType != SpecialType.System_Object)
+        {
+            // Get ALL members including inherited ones by checking each level
+            foreach (var member in currentType.GetMembers())
+            {
+                if (member is IPropertySymbol property)
                 {
-                    var methodName = typeLookupAttr.ConstructorArguments[0].Value?.ToString();
-                    if (!string.IsNullOrEmpty(methodName))
+                    var typeLookupAttr = property.GetAttributes()
+                        .FirstOrDefault(ad => SymbolEqualityComparer.Default.Equals(ad.AttributeClass, typeLookupAttributeType));
+
+                    if (typeLookupAttr != null && typeLookupAttr.ConstructorArguments.Length > 0)
                     {
-                        lookupProperties.Add(new PropertyLookupInfoModel
+                        var methodName = typeLookupAttr.ConstructorArguments[0].Value?.ToString();
+                        if (!string.IsNullOrEmpty(methodName))
                         {
-                            PropertyName = property.Name,
-                            PropertyType = property.Type.ToDisplayString(),
-                            LookupMethodName = methodName!,
-                            AllowMultiple = false,
-                            ReturnType = baseType.ToDisplayString()
-                        });
+                            // Check if we already have this property (avoid duplicates from inheritance)
+                            if (!lookupProperties.Any(lp => lp.PropertyName == property.Name))
+                            {
+                                lookupProperties.Add(new PropertyLookupInfoModel
+                                {
+                                    PropertyName = property.Name,
+                                    PropertyType = property.Type.ToDisplayString(),
+                                    LookupMethodName = methodName!,
+                                    AllowMultiple = false,
+                                    ReturnType = baseType.ToDisplayString()
+                                });
+                            }
+                        }
                     }
                 }
             }
 
-            currentType = currentType.BaseType;
+            currentType = currentType.BaseType?.OriginalDefinition;
         }
 
         return new EquatableArray<PropertyLookupInfoModel>(lookupProperties);
@@ -732,9 +749,9 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
         if (def == null) throw new ArgumentNullException(nameof(def));
         if (compilation == null) throw new ArgumentNullException(nameof(compilation));
 
-        // STEP 7.1: Base Type Resolution
-        var baseTypeSymbol = compilation.GetTypeByMetadataName(def.CollectionBaseType ?? def.FullTypeName);
-        if (baseTypeSymbol == null) return;
+        // STEP 7.1: Base Type Resolution (REMOVED - was dead code causing silent failures for generic base types)
+        // The baseType symbol is already validated during discovery phase
+        // Attempting to look up generic types by display string fails: "Type<T1,T2>" vs metadata "Type`2"
 
         // STEP 7.2: Return Type Detection
         if (string.IsNullOrEmpty(def.ReturnType))

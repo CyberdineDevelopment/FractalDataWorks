@@ -132,6 +132,6 @@ public abstract class CommandEndpoint<TCommand> : CommandEndpoint<TCommand, obje
         var result = await ExecuteVoidCommandAsync(command, ct).ConfigureAwait(false);
         return result.IsSuccess 
             ? GenericResult<object>.Success(new { Success = true })
-            : GenericResult<object>.Failure(result.Message);
+            : GenericResult<object>.Failure(result.CurrentMessage);
     }
 }

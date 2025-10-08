@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Connections.Abstractions.Messages;
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that HTTP authentication failed.
+/// CurrentMessage indicating that HTTP authentication failed.
 /// </summary>
 [Message("HttpAuthenticationFailed")]
 public sealed class HttpAuthenticationFailedMessage : ConnectionMessage

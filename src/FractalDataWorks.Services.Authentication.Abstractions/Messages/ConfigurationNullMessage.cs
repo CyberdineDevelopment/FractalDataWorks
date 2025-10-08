@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that configuration was null.
+/// CurrentMessage indicating that configuration was null.
 /// </summary>
 [Message("ConfigurationNull")]
 public sealed class ConfigurationNullMessage : AuthenticationMessage, IServiceMessage

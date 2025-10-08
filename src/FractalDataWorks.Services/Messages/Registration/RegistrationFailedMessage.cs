@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that service registration failed.
+/// CurrentMessage indicating that service registration failed.
 /// </summary>
 [Message("RegistrationFailed")]
 public sealed class RegistrationFailedMessage : RegistrationMessage, IServiceMessage

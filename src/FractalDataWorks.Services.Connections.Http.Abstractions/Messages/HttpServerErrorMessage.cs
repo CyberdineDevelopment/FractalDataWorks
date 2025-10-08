@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Connections.Abstractions.Messages;
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that HTTP server returned an error (5xx).
+/// CurrentMessage indicating that HTTP server returned an error (5xx).
 /// </summary>
 [Message("HttpServerError")]
 public sealed class HttpServerErrorMessage : ConnectionMessage

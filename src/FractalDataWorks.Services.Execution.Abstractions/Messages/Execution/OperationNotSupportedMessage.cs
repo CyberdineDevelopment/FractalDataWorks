@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Execution.Abstractions.Messages.Execution;
 
 /// <summary>
-/// Message indicating that a requested operation is not supported by the process.
+/// CurrentMessage indicating that a requested operation is not supported by the process.
 /// </summary>
 [Message("OperationNotSupported")]
 public sealed class OperationNotSupportedMessage : ExecutionMessage, IServiceMessage

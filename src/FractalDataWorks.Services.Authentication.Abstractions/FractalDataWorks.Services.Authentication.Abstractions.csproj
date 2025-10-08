@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj" PrivateAssets="compile" />
+    <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj"/>
     <ProjectReference Include="..\FractalDataWorks.Abstractions\FractalDataWorks.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />

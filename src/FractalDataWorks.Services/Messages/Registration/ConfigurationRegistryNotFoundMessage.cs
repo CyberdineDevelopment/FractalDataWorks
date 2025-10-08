@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that a configuration registry was not found in the DI container.
+/// CurrentMessage indicating that a configuration registry was not found in the DI container.
 /// </summary>
 [Message("ConfigurationRegistryNotFound")]
 public sealed class ConfigurationRegistryNotFoundMessage : RegistrationMessage, IServiceMessage

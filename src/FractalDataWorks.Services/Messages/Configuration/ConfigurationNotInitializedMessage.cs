@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that the configuration registry has not been initialized.
+/// CurrentMessage indicating that the configuration registry has not been initialized.
 /// </summary>
 [Message("ConfigurationNotInitialized")]
 public sealed class ConfigurationNotInitializedMessage : ServiceMessage, IServiceMessage

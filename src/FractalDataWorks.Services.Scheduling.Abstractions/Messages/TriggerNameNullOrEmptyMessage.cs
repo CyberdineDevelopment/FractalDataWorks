@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Scheduling.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that the trigger name is null or empty.
+/// CurrentMessage indicating that the trigger name is null or empty.
 /// </summary>
 [Message("TriggerNameNullOrEmpty")]
 public sealed class TriggerNameNullOrEmptyMessage : SchedulingMessage, IServiceMessage

@@ -125,6 +125,7 @@ lcov.info
 # Coverage reports
 CoverageReport/
 coverage-report/
+tests/coverage/
 
 # ===============================================
 # Build and Publish

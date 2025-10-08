@@ -4,7 +4,7 @@ using FractalDataWorks.Messages.Attributes;
 namespace FractalDataWorks.Services.Connections.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that a connection attempt failed.
+/// CurrentMessage indicating that a connection attempt failed.
 /// </summary>
 [Message("ConnectionFailed")]
 public sealed class ConnectionFailedMessage : ConnectionMessage

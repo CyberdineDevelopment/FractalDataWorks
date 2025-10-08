@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that FastGeneric service instantiation failed.
+/// CurrentMessage indicating that FastGeneric service instantiation failed.
 /// The source generator will create FactoryMessages.FastGenericCreationFailed(serviceType) method.
 /// </summary>
 [Message("FastGenericCreationFailed")]

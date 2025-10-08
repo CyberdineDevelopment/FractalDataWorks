@@ -99,12 +99,139 @@ public sealed class EmptyClassGenerator
                 sb.AppendLine($"        : base({string.Join(", ", baseCallArgs)})");
                 sb.AppendLine("    {");
                 sb.AppendLine("    }");
+                sb.AppendLine();
             }
+
+            // Implement all abstract methods
+            GenerateAbstractMethodImplementations(sb, baseTypeSymbol, compilation);
         }
 
         sb.AppendLine("}");
 
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Generates implementations for all abstract methods in the inheritance chain.
+    /// </summary>
+    private void GenerateAbstractMethodImplementations(StringBuilder sb, INamedTypeSymbol baseType, Compilation compilation)
+    {
+        var implementedMethods = new HashSet<string>();
+
+        // Walk up the inheritance chain
+        var currentType = baseType;
+        while (currentType != null && currentType.SpecialType != SpecialType.System_Object)
+        {
+            foreach (var member in currentType.GetMembers())
+            {
+                if (member is IMethodSymbol method && method.IsAbstract && !method.IsStatic && method.MethodKind == MethodKind.Ordinary)
+                {
+                    // Create a unique signature for deduplication
+                    var signature = GetMethodSignature(method);
+                    if (implementedMethods.Contains(signature))
+                        continue;
+
+                    implementedMethods.Add(signature);
+                    GenerateAbstractMethodImplementation(sb, method, compilation);
+                }
+            }
+
+            currentType = currentType.BaseType;
+        }
+    }
+
+    /// <summary>
+    /// Generates implementation for a single abstract method.
+    /// </summary>
+    private void GenerateAbstractMethodImplementation(StringBuilder sb, IMethodSymbol method, Compilation compilation)
+    {
+        // XML documentation
+        sb.AppendLine("    /// <summary>");
+        sb.AppendLine($"    /// Empty implementation of {method.Name}.");
+        sb.AppendLine("    /// </summary>");
+
+        // Method signature
+        var returnTypeString = method.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var methodName = method.Name;
+        var parameters = string.Join(", ", method.Parameters.Select(p =>
+            $"{p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {p.Name}"));
+
+        sb.AppendLine($"    public override {returnTypeString} {methodName}({parameters})");
+        sb.AppendLine("    {");
+
+        // Generate return statement
+        var returnStatement = GenerateReturnStatement(method, compilation);
+        if (!string.IsNullOrEmpty(returnStatement))
+        {
+            sb.AppendLine($"        {returnStatement}");
+        }
+
+        sb.AppendLine("    }");
+        sb.AppendLine();
+    }
+
+    /// <summary>
+    /// Generates appropriate return statement for a method.
+    /// Logic:
+    /// 1. If return type matches an input parameter type -> return that parameter
+    /// 2. If IGenericResult&lt;T&gt; where T matches input parameter -> return GenericResult&lt;T&gt;.Success(parameter)
+    /// 3. If string -> return string.Empty
+    /// 4. Otherwise -> return default
+    /// </summary>
+    private string GenerateReturnStatement(IMethodSymbol method, Compilation compilation)
+    {
+        var returnType = method.ReturnType;
+
+        // Void methods
+        if (returnType.SpecialType == SpecialType.System_Void)
+            return string.Empty;
+
+        // Check if return type matches any parameter type
+        foreach (var param in method.Parameters)
+        {
+            if (SymbolEqualityComparer.Default.Equals(returnType, param.Type))
+            {
+                return $"return {param.Name};";
+            }
+        }
+
+        // Check for IGenericResult<T> where T matches a parameter
+        if (returnType is INamedTypeSymbol namedReturnType && namedReturnType.IsGenericType)
+        {
+            var genericDef = namedReturnType.OriginalDefinition.ToDisplayString();
+
+            // Check if it's IGenericResult<T>
+            if (genericDef.Contains("IGenericResult") && namedReturnType.TypeArguments.Length == 1)
+            {
+                var resultGenericType = namedReturnType.TypeArguments[0];
+
+                // Find parameter matching the generic type
+                foreach (var param in method.Parameters)
+                {
+                    if (SymbolEqualityComparer.Default.Equals(resultGenericType, param.Type))
+                    {
+                        var genericTypeDisplay = resultGenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                        return $"return global::FractalDataWorks.Results.GenericResult<{genericTypeDisplay}>.Success({param.Name});";
+                    }
+                }
+            }
+        }
+
+        // String -> return string.Empty
+        if (returnType.SpecialType == SpecialType.System_String)
+            return "return string.Empty;";
+
+        // Default for everything else
+        return "return default;";
+    }
+
+    /// <summary>
+    /// Creates a unique signature for a method (for deduplication).
+    /// </summary>
+    private string GetMethodSignature(IMethodSymbol method)
+    {
+        var paramTypes = string.Join(",", method.Parameters.Select(p => p.Type.ToDisplayString()));
+        return $"{method.Name}({paramTypes})";
     }
 
     /// <summary>

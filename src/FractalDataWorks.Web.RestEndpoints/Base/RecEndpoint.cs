@@ -111,13 +111,13 @@ public abstract class RecEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRes
     {
         var messages = new List<string>();
         
-        if (!string.IsNullOrEmpty(result.Message))
-            messages.Add(result.Message);
+        if (!string.IsNullOrEmpty(result.CurrentMessage))
+            messages.Add(result.CurrentMessage);
             
         // TODO: Extract detailed messages when GenericResult is available
         // if (result is GenericResult recResult && recResult.Messages.Count > 0)
         // {
-        //     messages.AddRange(recResult.Messages.Select(m => m.Message));
+        //     messages.AddRange(recResult.Messages.Select(m => m.CurrentMessage));
         // }
         
         return messages.Count > 0 ? messages.ToArray() : ["An error occurred"];

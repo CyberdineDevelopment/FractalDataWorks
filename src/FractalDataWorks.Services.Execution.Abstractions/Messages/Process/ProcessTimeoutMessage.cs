@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Execution.Abstractions.Messages.Process;
 
 /// <summary>
-/// Message indicating that a process operation timed out.
+/// CurrentMessage indicating that a process operation timed out.
 /// </summary>
 [Message("ProcessTimeout")]
 public sealed class ProcessTimeoutMessage : ExecutionMessage, IServiceMessage

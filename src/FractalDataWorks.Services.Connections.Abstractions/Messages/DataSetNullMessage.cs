@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Connections.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that the DataSet was null.
+/// CurrentMessage indicating that the DataSet was null.
 /// </summary>
 [Message("DataSetNull")]
 public sealed class DataSetNullMessage : ConnectionMessage, IServiceMessage

@@ -121,12 +121,12 @@ public sealed class MessageCollectionBuilder : IMessageCollectionBuilder
     {
         if (_definition == null)
         {
-            throw new InvalidOperationException("Message type definition must be provided using WithDefinition().");
+            throw new InvalidOperationException("CurrentMessage type definition must be provided using WithDefinition().");
         }
 
         if (_values == null)
         {
-            throw new InvalidOperationException("Message values must be provided using WithValues().");
+            throw new InvalidOperationException("CurrentMessage values must be provided using WithValues().");
         }
 
         if (string.IsNullOrEmpty(_returnType))
@@ -321,7 +321,7 @@ public sealed class MessageCollectionBuilder : IMessageCollectionBuilder
 
     /// <summary>
     /// Gets the factory method name for a message value.
-    /// For ServiceMessage types, removes "Message" suffix. For others, adds "Create" prefix.
+    /// For ServiceMessage types, removes "CurrentMessage" suffix. For others, adds "Create" prefix.
     /// </summary>
     /// <param name="value">The message value information.</param>
     /// <returns>The method name to use for factory methods.</returns>
@@ -329,10 +329,10 @@ public sealed class MessageCollectionBuilder : IMessageCollectionBuilder
     {
         var name = value.Name;
         
-        // For ServiceMessage types, remove "Message" suffix if present
-        if (name.EndsWith("Message", StringComparison.Ordinal))
+        // For ServiceMessage types, remove "CurrentMessage" suffix if present
+        if (name.EndsWith("CurrentMessage", StringComparison.Ordinal))
         {
-            return name.Substring(0, name.Length - "Message".Length);
+            return name.Substring(0, name.Length - "CurrentMessage".Length);
         }
         
         // For other types, use Create prefix

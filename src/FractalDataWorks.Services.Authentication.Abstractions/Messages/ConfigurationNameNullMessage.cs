@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that configuration name was null or empty.
+/// CurrentMessage indicating that configuration name was null or empty.
 /// </summary>
 [Message("ConfigurationNameNull")]
 public sealed class ConfigurationNameNullMessage : AuthenticationMessage, IServiceMessage

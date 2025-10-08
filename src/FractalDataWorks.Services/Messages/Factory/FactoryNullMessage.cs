@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that a factory instance is null.
+/// CurrentMessage indicating that a factory instance is null.
 /// </summary>
 [Message("FactoryNull")]
 public sealed class FactoryNullMessage : FactoryMessage, IServiceMessage

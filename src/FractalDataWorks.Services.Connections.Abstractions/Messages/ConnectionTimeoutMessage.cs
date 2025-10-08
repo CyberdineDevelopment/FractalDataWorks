@@ -4,7 +4,7 @@ using FractalDataWorks.Messages.Attributes;
 namespace FractalDataWorks.Services.Connections.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that a connection timed out.
+/// CurrentMessage indicating that a connection timed out.
 /// </summary>
 [Message("ConnectionTimeout")]
 public sealed class ConnectionTimeoutMessage : ConnectionMessage

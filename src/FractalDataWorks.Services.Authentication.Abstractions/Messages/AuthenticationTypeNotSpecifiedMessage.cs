@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that AuthenticationType was not specified in configuration.
+/// CurrentMessage indicating that AuthenticationType was not specified in configuration.
 /// </summary>
 [Message("AuthenticationTypeNotSpecified")]
 public sealed class AuthenticationTypeNotSpecifiedMessage : AuthenticationMessage, IServiceMessage

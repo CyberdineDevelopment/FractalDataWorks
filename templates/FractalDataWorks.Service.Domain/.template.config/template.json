@@ -1,0 +1,241 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks Developer Kit",
+  "classifications": ["FractalDataWorks", "Service", "Domain", "Library"],
+  "identity": "FractalDataWorks.Service.Domain.Template",
+  "name": "FractalDataWorks Domain Service",
+  "description": "Creates a complete FractalDataWorks domain service with Abstractions and Implementation projects, including commands, messages, ServiceTypes, and structured logging.",
+  "shortName": "fractaldataworks-domain",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "DomainName",
+  "preferNameDirectory": true,
+  "symbols": {
+    "CreateAbstractionsProject": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Create separate abstractions project (recommended for domain services)",
+      "defaultValue": "true"
+    },
+    "IncludeServiceTypes": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include ServiceType collection with source generation",
+      "defaultValue": "true"
+    },
+    "IncludeCommands": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include command interfaces and base command",
+      "defaultValue": "true"
+    },
+    "IncludeProvider": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include provider pattern for service resolution",
+      "defaultValue": "true"
+    },
+    "IncludeMessages": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include message collection with source generation",
+      "defaultValue": "true"
+    },
+    "IncludeLogging": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include structured logging with source generation",
+      "defaultValue": "true"
+    },
+    "IncludeConfiguration": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include configuration interface and implementation",
+      "defaultValue": "true"
+    },
+    "IncludeTypeCollections": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Include example TypeCollection for domain-specific types",
+      "defaultValue": "false"
+    },
+    "PackageSource": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "Local",
+          "description": "Local packages (templates/local-packages)"
+        },
+        {
+          "choice": "AzureArtifacts",
+          "description": "Azure DevOps Artifacts feed"
+        },
+        {
+          "choice": "NuGetOrg",
+          "description": "Public NuGet.org packages"
+        }
+      ],
+      "defaultValue": "Local",
+      "description": "NuGet package source for FractalDataWorks dependencies"
+    },
+    "AzureArtifactsUrl": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Azure Artifacts feed URL (required if PackageSource=AzureArtifacts)",
+      "defaultValue": "https://pkgs.dev.azure.com/yourorg/_packaging/FractalDataWorks/nuget/v3/index.json",
+      "replaces": "AZURE_ARTIFACTS_URL"
+    },
+    "UseCentralPackageManagement": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Use Directory.Packages.props for centralized package versioning",
+      "defaultValue": "false"
+    },
+    "FractalDataWorksPackageVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "FractalDataWorks package version (* for latest, or specific like 1.0.0)",
+      "defaultValue": "*",
+      "replaces": "FRACTALDATAWORKS_VERSION"
+    },
+    "AbstractionsTargetFramework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "netstandard2.0",
+          "description": ".NET Standard 2.0 (maximum compatibility)"
+        }
+      ],
+      "defaultValue": "netstandard2.0",
+      "replaces": "ABSTRACTIONS_FRAMEWORK"
+    },
+    "ImplementationTargetFrameworks": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "netstandard2.0;net10.0",
+          "description": ".NET Standard 2.0 + .NET 10.0 (recommended)"
+        },
+        {
+          "choice": "net10.0",
+          "description": ".NET 10.0 only"
+        }
+      ],
+      "defaultValue": "netstandard2.0;net10.0",
+      "replaces": "IMPLEMENTATION_FRAMEWORKS"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!CreateAbstractionsProject)",
+          "exclude": [
+            "FractalDataWorks.Services.DomainName.Abstractions/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeServiceTypes)",
+          "exclude": [
+            "**/ServiceTypes/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeCommands)",
+          "exclude": [
+            "**/Commands/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeProvider)",
+          "exclude": [
+            "**/*Provider.cs"
+          ]
+        },
+        {
+          "condition": "(!IncludeMessages)",
+          "exclude": [
+            "**/Messages/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeLogging)",
+          "exclude": [
+            "**/Logging/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeConfiguration)",
+          "exclude": [
+            "**/Configuration/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeTypeCollections)",
+          "exclude": [
+            "**/Types/**"
+          ]
+        },
+        {
+          "condition": "(PackageSource != 'Local')",
+          "exclude": [
+            "NuGet.Local.Config"
+          ]
+        },
+        {
+          "condition": "(PackageSource != 'AzureArtifacts')",
+          "exclude": [
+            "NuGet.Azure.Config"
+          ]
+        },
+        {
+          "condition": "(PackageSource != 'NuGetOrg')",
+          "exclude": [
+            "NuGet.Public.Config"
+          ]
+        },
+        {
+          "condition": "(!UseCentralPackageManagement)",
+          "exclude": [
+            "Directory.Packages.props"
+          ]
+        },
+        {
+          "condition": "(PackageSource == 'Local')",
+          "rename": {
+            "NuGet.Local.Config": "NuGet.Config"
+          }
+        },
+        {
+          "condition": "(PackageSource == 'AzureArtifacts')",
+          "rename": {
+            "NuGet.Azure.Config": "NuGet.Config"
+          }
+        },
+        {
+          "condition": "(PackageSource == 'NuGetOrg')",
+          "rename": {
+            "NuGet.Public.Config": "NuGet.Config"
+          }
+        }
+      ]
+    }
+  ],
+  "postActions": [
+    {
+      "description": "Restore NuGet packages for generated projects",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore' in the solution directory"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

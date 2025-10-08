@@ -33,7 +33,7 @@ public static partial class ServiceBaseLog
     [LoggerMessage(
         EventId = 2,
         Level = LogLevel.Error,
-        Message = "Invalid configuration: {Message}")]
+        Message = "Invalid configuration: {message}")]
     public static partial void InvalidConfiguration(ILogger logger, string message);
 
     /// <summary>
@@ -44,7 +44,7 @@ public static partial class ServiceBaseLog
     [LoggerMessage(
         EventId = 3,
         Level = LogLevel.Warning,
-        Message = "{Message}")]
+        Message = "{message}")]
     public static partial void InvalidConfigurationWarning(ILogger logger, string message);
 
     /// <summary>

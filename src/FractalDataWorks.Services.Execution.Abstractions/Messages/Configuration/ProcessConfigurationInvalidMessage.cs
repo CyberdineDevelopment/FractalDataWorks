@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Execution.Abstractions.Messages.Configuration;
 
 /// <summary>
-/// Message indicating that process configuration is invalid.
+/// CurrentMessage indicating that process configuration is invalid.
 /// </summary>
 [Message("ProcessConfigurationInvalid")]
 public sealed class ProcessConfigurationInvalidMessage : ExecutionMessage, IServiceMessage

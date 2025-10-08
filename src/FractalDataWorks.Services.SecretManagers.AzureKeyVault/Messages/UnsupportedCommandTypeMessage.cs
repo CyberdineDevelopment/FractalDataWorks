@@ -4,7 +4,7 @@ using FractalDataWorks.Messages.Attributes;
 namespace FractalDataWorks.Services.SecretManagers.AzureKeyVault;
 
 /// <summary>
-/// Message indicating that a command type is not supported.
+/// CurrentMessage indicating that a command type is not supported.
 /// </summary>
 [Message(CollectionName = "AzureKeyVaultMessages", Name = "UnsupportedCommandType")]
 public sealed class UnsupportedCommandTypeMessage : AzureKeyVaultMessageBase

@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that a requested record was not found.
+/// CurrentMessage indicating that a requested record was not found.
 /// </summary>
 [Message("RecordNotFound")]
 public sealed class RecordNotFoundMessage : ServiceMessage, IServiceMessage

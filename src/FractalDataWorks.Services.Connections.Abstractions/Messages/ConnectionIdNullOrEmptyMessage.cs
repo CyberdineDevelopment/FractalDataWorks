@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Connections.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that the connection ID was null or empty.
+/// CurrentMessage indicating that the connection ID was null or empty.
 /// </summary>
 [Message("ConnectionIdNullOrEmpty")]
 public sealed class ConnectionIdNullOrEmptyMessage : ConnectionMessage, IServiceMessage

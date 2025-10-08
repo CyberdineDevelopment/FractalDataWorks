@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that the configuration section was not found.
+/// CurrentMessage indicating that the configuration section was not found.
 /// </summary>
 [Message("ConfigurationSectionNotFound")]
 public sealed class ConfigurationSectionNotFoundMessage : AuthenticationMessage, IServiceMessage

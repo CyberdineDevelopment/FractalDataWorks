@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Connections.Abstractions.Messages;
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that HTTP request timed out.
+/// CurrentMessage indicating that HTTP request timed out.
 /// </summary>
 [Message("HttpRequestTimeout")]
 public sealed class HttpRequestTimeoutMessage : ConnectionMessage

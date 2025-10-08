@@ -16,7 +16,7 @@ public abstract class ServiceMessageBase<T> : MessageTemplate<MessageSeverity>, 
 
     // Properties inherited from MessageTemplate<MessageSeverity>:
     // - Severity (MessageSeverity)
-    // - Message (string)
+    // - CurrentMessage (string)
     // - Code (string?)
     // - Source (string?)
     // - Timestamp (DateTime)

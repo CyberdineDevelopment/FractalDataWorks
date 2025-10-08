@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Connections.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that the DataReader is closed and cannot be read.
+/// CurrentMessage indicating that the DataReader is closed and cannot be read.
 /// </summary>
 [Message("DataReaderClosed")]
 public sealed class DataReaderClosedMessage : ConnectionMessage, IServiceMessage

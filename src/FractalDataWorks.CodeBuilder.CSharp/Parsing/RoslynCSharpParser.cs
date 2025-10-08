@@ -65,7 +65,7 @@ public sealed class RoslynCSharpParser : ICodeParser
         
         if (parseResult.IsFailure)
         {
-            return GenericResult.Failure(parseResult.Message ?? "Validation failed");
+            return GenericResult.Failure(parseResult.CurrentMessage ?? "Validation failed");
         }
 
         if (parseResult.Value!.HasErrors)

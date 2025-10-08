@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that a service lifetime is null.
+/// CurrentMessage indicating that a service lifetime is null.
 /// </summary>
 [Message("LifetimeNull")]
 public sealed class LifetimeNullMessage : FactoryMessage, IServiceMessage

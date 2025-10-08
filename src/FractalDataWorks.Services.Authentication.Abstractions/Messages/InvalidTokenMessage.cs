@@ -5,7 +5,7 @@ using FractalDataWorks.Messages.Attributes;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that a token is invalid or malformed.
+/// CurrentMessage indicating that a token is invalid or malformed.
 /// </summary>
 [Message("InvalidToken")]
 public sealed class InvalidTokenMessage : AuthenticationMessage, IServiceMessage

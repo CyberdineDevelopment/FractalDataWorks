@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that no service types have been registered.
+/// CurrentMessage indicating that no service types have been registered.
 /// </summary>
 [Message("NoServiceTypesRegistered")]
 public sealed class NoServiceTypesRegisteredMessage : ServiceMessage, IServiceMessage

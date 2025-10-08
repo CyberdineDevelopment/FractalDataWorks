@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Execution.Abstractions.Messages.Process;
 
 /// <summary>
-/// Message indicating that a process cancellation was requested.
+/// CurrentMessage indicating that a process cancellation was requested.
 /// </summary>
 [Message("ProcessCancellationRequested")]
 public sealed class ProcessCancellationRequestedMessage : ExecutionMessage, IServiceMessage

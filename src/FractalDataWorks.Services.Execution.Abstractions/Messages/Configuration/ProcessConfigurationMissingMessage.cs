@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Execution.Abstractions.Messages.Configuration;
 
 /// <summary>
-/// Message indicating that required process configuration is missing.
+/// CurrentMessage indicating that required process configuration is missing.
 /// </summary>
 [Message("ProcessConfigurationMissing")]
 public sealed class ProcessConfigurationMissingMessage : ExecutionMessage, IServiceMessage

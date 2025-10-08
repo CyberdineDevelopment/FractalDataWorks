@@ -79,13 +79,13 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             if (result.IsSuccess)
             {
                 AuthenticationProviderLog.AuthenticationServiceCreated(_logger, configuration.AuthenticationType);
+                return GenericResult<IAuthenticationService>.Success((IAuthenticationService)result.Value);
             }
             else
             {
-                AuthenticationProviderLog.AuthenticationServiceCreationFailed(_logger, configuration.AuthenticationType, result.Error);
+                AuthenticationProviderLog.AuthenticationServiceCreationFailed(_logger, configuration.AuthenticationType, result.CurrentMessage ?? "Unknown error");
+                return GenericResult<IAuthenticationService>.Failure(result.Messages.ToArray());
             }
-
-            return result;
         }
         catch (Exception ex)
         {

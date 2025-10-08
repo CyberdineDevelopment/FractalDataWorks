@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Messages;
 
 /// <summary>
-/// Message indicating that service was created successfully.
+/// CurrentMessage indicating that service was created successfully.
 /// The source generator will create FactoryMessages.ServiceCreatedSuccessfully(serviceType) method.
 /// </summary>
 [Message("ServiceCreatedSuccessfullyMessage")]

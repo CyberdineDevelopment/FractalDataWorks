@@ -5,7 +5,7 @@ using FractalDataWorks.Services.Abstractions;
 namespace FractalDataWorks.Services.Authentication.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that no factory is registered for the authentication type.
+/// CurrentMessage indicating that no factory is registered for the authentication type.
 /// </summary>
 [Message("NoFactoryRegistered")]
 public sealed class NoFactoryRegisteredMessage : AuthenticationMessage, IServiceMessage

@@ -6,7 +6,7 @@ using FractalDataWorks.Services.Connections.Abstractions.Messages;
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.Messages;
 
 /// <summary>
-/// Message indicating that HTTP configuration is invalid.
+/// CurrentMessage indicating that HTTP configuration is invalid.
 /// </summary>
 [Message("HttpConfigurationInvalid")]
 public sealed class HttpConfigurationInvalidMessage : ConnectionMessage

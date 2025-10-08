@@ -4,7 +4,7 @@ using FractalDataWorks.Messages.Attributes;
 namespace FractalDataWorks.Services.SecretManagers.AzureKeyVault;
 
 /// <summary>
-/// Message indicating that a command was null.
+/// CurrentMessage indicating that a command was null.
 /// </summary>
 [Message(CollectionName = "AzureKeyVaultMessages", Name = "CommandNull")]
 public sealed class CommandNullMessage : AzureKeyVaultMessageBase

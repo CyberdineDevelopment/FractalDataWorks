@@ -98,7 +98,7 @@ public sealed class ServiceFactoryProvider : IServiceFactoryProvider
         var factoryResult = GetFactory(typeName);
         if (factoryResult.IsFailure)
         {
-            return GenericResult<IServiceFactory<TService, TConfiguration>>.Failure(factoryResult.Message ?? "Failed to get factory");
+            return GenericResult<IServiceFactory<TService, TConfiguration>>.Failure(factoryResult.CurrentMessage ?? "Failed to get factory");
         }
 
         if (factoryResult.Value is IServiceFactory<TService, TConfiguration> typedFactory)
