@@ -1,8 +1,7 @@
 using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
-using FractalDataWorks.DataStores.Abstractions;
 
-namespace FractalDataWorks.DataStores;
+namespace FractalDataWorks.DataStores.Abstractions;
 
 /// <summary>
 /// Collection of data store type metadata.

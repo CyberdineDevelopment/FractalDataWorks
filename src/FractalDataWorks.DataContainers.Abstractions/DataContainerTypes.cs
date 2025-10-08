@@ -1,8 +1,7 @@
 using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
-using FractalDataWorks.DataContainers.Abstractions;
 
-namespace FractalDataWorks.DataContainers;
+namespace FractalDataWorks.DataContainers.Abstractions;
 
 /// <summary>
 /// Collection of data container types for dataset operations.

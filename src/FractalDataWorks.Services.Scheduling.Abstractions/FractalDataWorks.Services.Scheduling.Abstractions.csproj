@@ -7,16 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..FractalDataWorks.Collections.SourceGeneratorsFractalDataWorks.Collections.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="none" />
     <None Remove="nul" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..FractalDataWorks.Collections.SourceGeneratorsFractalDataWorks.Collections.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="none" />
     <PackageReference Include="Cronos" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..FractalDataWorks.Collections.SourceGeneratorsFractalDataWorks.Collections.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="none" />
     <ProjectReference Include="..\FractalDataWorks.Services.Execution.Abstractions\FractalDataWorks.Services.Execution.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Messages\FractalDataWorks.Messages.csproj" />
@@ -32,6 +35,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..FractalDataWorks.Collections.SourceGeneratorsFractalDataWorks.Collections.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="none" />
     <!-- Explicitly embed the ServiceTypes generator DLL -->
     <None Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.ServiceTypes.SourceGenerators.dll" 
           Pack="true" 

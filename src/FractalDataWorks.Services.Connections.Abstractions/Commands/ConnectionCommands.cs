@@ -2,7 +2,7 @@ using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
 using FractalDataWorks.Services.Connections.Abstractions;
 
-namespace FractalDataWorks.Services.Connections;
+namespace FractalDataWorks.Services.Connections.Abstractions;
 
 /// <summary>
 /// Collection of connection command types.

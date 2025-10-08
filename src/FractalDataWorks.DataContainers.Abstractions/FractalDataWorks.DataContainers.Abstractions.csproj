@@ -4,7 +4,7 @@
     <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
     <ProjectReference Include="..\FractalDataWorks.DataStores.Abstractions\FractalDataWorks.DataStores.Abstractions.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="none" />
   </ItemGroup>
 
   <PropertyGroup>

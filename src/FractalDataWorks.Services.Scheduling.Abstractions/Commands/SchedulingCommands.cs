@@ -1,8 +1,7 @@
 using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
-using FractalDataWorks.Services.Scheduling.Abstractions;
 
-namespace FractalDataWorks.Services.Scheduling;
+namespace FractalDataWorks.Services.Scheduling.Abstractions;
 
 /// <summary>
 /// Collection of scheduling command types.

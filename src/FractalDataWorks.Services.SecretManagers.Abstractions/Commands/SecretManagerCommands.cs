@@ -1,8 +1,7 @@
 using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
-using FractalDataWorks.Services.SecretManagers.Abstractions;
 
-namespace FractalDataWorks.Services.SecretManagers;
+namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 
 /// <summary>
 /// Collection of secret manager command types.

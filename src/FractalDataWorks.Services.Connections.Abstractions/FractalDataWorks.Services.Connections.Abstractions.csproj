@@ -15,7 +15,7 @@
 
     <!-- Collections.SourceGenerators for processing [TypeCollection] and [TypeOption] attributes -->
     <ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj"
-                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="none" />
 
     <!-- ServiceTypes source generator for ServiceType processing (used by concrete implementations) -->
     <ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"

@@ -117,13 +117,6 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         // STEP 3-6: For each attributed collection class, lookup pre-discovered type options
         foreach (var (collectionClass, attribute) in attributedCollectionClasses)
         {
-            // IMPORTANT: Only generate for types defined in THIS assembly being compiled, not from referenced assemblies
-            // Check if this type belongs to the assembly being compiled (not a referenced assembly)
-            if (!SymbolEqualityComparer.Default.Equals(collectionClass.ContainingAssembly, compilation.Assembly))
-            {
-                // This type is from a referenced assembly, skip it
-                continue;
-            }
 
             // STEP 3: Base Type Resolution from Attribute
             var baseTypeName = ExtractBaseTypeNameFromAttribute(attribute);
