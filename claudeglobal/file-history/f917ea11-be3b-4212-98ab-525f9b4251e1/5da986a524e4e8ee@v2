@@ -1,0 +1,21 @@
+# Replace Collections with ServiceTypes in all files
+Get-ChildItem 'C:\development\github\Developer-Kit\src\FractalDataWorks.ServiceTypes.CodeFixes' -Recurse -Include *.cs,*.csproj | ForEach-Object {
+    (Get-Content $_.FullName -Raw) -replace 'Collections','ServiceTypes' | Set-Content $_.FullName
+}
+
+Get-ChildItem 'C:\development\github\Developer-Kit\src\FractalDataWorks.ServiceTypes.Analyzers' -Recurse -Include *.cs,*.csproj | ForEach-Object {
+    (Get-Content $_.FullName -Raw) -replace 'Collections','ServiceTypes' | Set-Content $_.FullName
+}
+
+# Rename files
+Get-ChildItem 'C:\development\github\Developer-Kit\src\FractalDataWorks.ServiceTypes.CodeFixes' -Recurse -Filter '*Collections*' | ForEach-Object {
+    $newName = $_.Name -replace 'Collections','ServiceTypes'
+    Rename-Item $_.FullName $newName
+}
+
+Get-ChildItem 'C:\development\github\Developer-Kit\src\FractalDataWorks.ServiceTypes.Analyzers' -Recurse -Filter '*Collections*' | ForEach-Object {
+    $newName = $_.Name -replace 'Collections','ServiceTypes'
+    Rename-Item $_.FullName $newName
+}
+
+Write-Host "Done!"

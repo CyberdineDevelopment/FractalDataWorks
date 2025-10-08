@@ -1,0 +1,47 @@
+using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.ServiceTypes;
+
+namespace FractalDataWorks.Services.DataGateway.Abstractions;
+
+/// <summary>
+/// Interface for data gateway service type definitions.
+/// Provides data gateway-specific metadata on top of the base service type.
+/// </summary>
+/// <typeparam name="TService">The service interface type.</typeparam>
+/// <typeparam name="TFactory">The service factory type.</typeparam>
+/// <typeparam name="TConfiguration">The configuration type.</typeparam>
+public interface IDataGatewayType<TService, TFactory, TConfiguration> : IServiceType<TService, TFactory, TConfiguration>
+    where TService : IGenericService
+    where TFactory : IServiceFactory<TService, TConfiguration>
+    where TConfiguration : IGenericConfiguration
+{
+    /// <summary>
+    /// Gets the data store types supported by this provider.
+    /// </summary>
+    string[] SupportedDataStores { get; }
+
+    /// <summary>
+    /// Gets the priority of this data provider for datastore selection.
+    /// </summary>
+    int Priority { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports bulk operations.
+    /// </summary>
+    bool SupportsBulkOperations { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports transactions.
+    /// </summary>
+    bool SupportsTransactions { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports streaming results.
+    /// </summary>
+    bool SupportsStreaming { get; }
+
+    /// <summary>
+    /// Gets the maximum batch size for bulk operations.
+    /// </summary>
+    int MaxBatchSize { get; }
+}

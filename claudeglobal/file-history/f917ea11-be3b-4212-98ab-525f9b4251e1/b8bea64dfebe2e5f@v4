@@ -1,0 +1,96 @@
+using System;
+using System.Linq;
+using System.Text;
+using Microsoft.CodeAnalysis;
+using FractalDataWorks.CodeBuilder.Abstractions;
+using FractalDataWorks.CodeBuilder.CSharp.Builders;
+using FractalDataWorks.SourceGenerators.Configuration;
+using FractalDataWorks.SourceGenerators.Models;
+
+namespace FractalDataWorks.SourceGenerators.Generators;
+
+/// <summary>
+/// Generates static constructors for collection classes.
+/// </summary>
+public sealed class StaticConstructorGenerator
+{
+    private readonly CollectionBuilderConfiguration _config;
+
+    public StaticConstructorGenerator(CollectionBuilderConfiguration config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+    }
+
+    /// <summary>
+    /// Generates the static constructor that initializes _all and _empty fields.
+    /// </summary>
+    public IConstructorBuilder GenerateStaticConstructor(
+        GenericTypeInfoModel definition,
+        System.Collections.Generic.IList<GenericValueInfoModel> values,
+        string returnType,
+        Compilation compilation)
+    {
+        var constructorBody = new StringBuilder();
+
+        // Build dictionary of singleton instances keyed by their Id property
+        constructorBody.AppendLine("var dictionary = new System.Collections.Generic.Dictionary<int, " + returnType + ">");
+        constructorBody.AppendLine("{");
+
+        foreach (var value in values.Where(v => v.Include))
+        {
+            constructorBody.AppendLine($"    [{value.Name}.Id] = {value.Name},");
+        }
+
+        constructorBody.AppendLine("};");
+        constructorBody.AppendLine("_all = dictionary.ToFrozenDictionary();");
+        constructorBody.AppendLine();
+
+        // Initialize _empty field
+        var baseTypeName = definition.ClassName;
+        var fullyQualifiedTypeName = baseTypeName.Contains(".")
+            ? baseTypeName
+            : $"{definition.Namespace}.{baseTypeName}";
+        var baseTypeSymbol = compilation.GetTypeByMetadataName(fullyQualifiedTypeName);
+
+        if (baseTypeSymbol != null && baseTypeSymbol.TypeKind == TypeKind.Class)
+        {
+            // Base class exists - use EmptyClassName instance
+            var emptyClassName = $"Empty{baseTypeName}";
+            constructorBody.AppendLine($"_empty = new {emptyClassName}();");
+        }
+        else
+        {
+            // Interface only - use null!
+            constructorBody.AppendLine("_empty = null!;");
+        }
+
+        // Initialize lookup dictionaries for netstandard2.0 (NET8+ uses GetAlternateLookup instead)
+        if (definition.LookupProperties != null && definition.LookupProperties.Count > 0)
+        {
+            var nonIdLookups = definition.LookupProperties
+                .Where(l => !string.Equals(l.PropertyName, "Id", StringComparison.Ordinal))
+                .ToList();
+
+            if (nonIdLookups.Count > 0)
+            {
+                constructorBody.AppendLine();
+                constructorBody.AppendLine("#if !NET8_0_OR_GREATER");
+
+                foreach (var lookup in nonIdLookups)
+                {
+                    var dictionaryName = $"_by{lookup.PropertyName}";
+                    constructorBody.AppendLine($"{dictionaryName} = _all.Values.ToFrozenDictionary(x => x.{lookup.PropertyName});");
+                }
+
+                constructorBody.AppendLine("#endif");
+            }
+        }
+
+        var constructor = new ConstructorBuilder()
+            .WithClassName(definition.CollectionName)
+            .AsStatic()
+            .WithBody(constructorBody.ToString());
+
+        return constructor;
+    }
+}

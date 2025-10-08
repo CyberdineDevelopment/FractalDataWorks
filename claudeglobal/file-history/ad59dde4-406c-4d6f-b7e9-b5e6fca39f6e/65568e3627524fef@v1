@@ -1,0 +1,18 @@
+using FractalDataWorks.EnhancedEnums;
+
+namespace FractalDataWorks.Services.DataGateway.Abstractions.Configuration;
+
+/// <summary>
+/// Base class for cache strategies.
+/// </summary>
+public abstract class CacheStrategy : EnumOptionBase<CacheStrategy>, ICacheStrategy
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CacheStrategy"/> class.
+    /// </summary>
+    /// <param name="id">The unique identifier for the cache strategy.</param>
+    /// <param name="name">The name of the cache strategy.</param>
+    protected CacheStrategy(int id, string name) : base(id, name)
+    {
+    }
+}

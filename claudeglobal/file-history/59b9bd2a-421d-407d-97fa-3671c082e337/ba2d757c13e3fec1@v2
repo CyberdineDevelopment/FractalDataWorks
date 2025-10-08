@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using FractalDataWorks;
+using FractalDataWorks.Results;
+using FractalDataWorks.Services.Connections.Abstractions;
+using FractalDataWorks.Services.DataGateway.Abstractions.Models;
+
+namespace FractalDataWorks.Services.DataGateway.Abstractions;
+
+/// <summary>
+/// Generic interface for external data connections that can execute data commands and provide schema information.
+/// </summary>
+/// <typeparam name="TConfiguration">The type of configuration this connection requires.</typeparam>
+/// <remarks>
+/// This interface extends IGenericConnection to provide data-specific functionality
+/// while constraining command execution to IDataCommand types only.
+/// </remarks>
+public interface IExternalDataConnection<TConfiguration> : IConnection<TConfiguration>
+    where TConfiguration : IConnectionConfiguration
+{
+    /// <summary>
+    /// Executes a data command against this connection.
+    /// </summary>
+    /// <typeparam name="T">The expected return type of the command execution.</typeparam>
+    /// <param name="command">The data command to execute.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains
+    /// an IGenericResult&lt;T&gt; with the command execution result or error information.
+    /// </returns>
+    Task<IGenericResult<T>> Execute<T>(IDataGatewayCommand command, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Discovers the schema structure starting from an optional path.
+    /// </summary>
+    /// <param name="startPath">Optional starting path for schema discovery.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains
+    /// an IGenericResult with a collection of discovered data containers.
+    /// </returns>
+    Task<IGenericResult<IEnumerable<DataContainer>>> DiscoverSchema(DataPath? startPath = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Tests if this connection is available and operational.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains
+    /// an IGenericResult&lt;bool&gt; indicating whether the connection is available.
+    /// </returns>
+    Task<IGenericResult<bool>> TestConnection(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets metadata information about this connection.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains
+    /// an IGenericResult with connection metadata.
+    /// </returns>
+    Task<IGenericResult<IDictionary<string, object>>> GetConnectionInfo(CancellationToken cancellationToken = default);
+}

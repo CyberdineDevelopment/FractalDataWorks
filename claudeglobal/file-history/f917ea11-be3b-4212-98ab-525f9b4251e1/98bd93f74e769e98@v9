@@ -1,0 +1,129 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.CodeAnalysis;
+using FractalDataWorks.SourceGenerators.Configuration;
+using FractalDataWorks.SourceGenerators.Models;
+
+namespace FractalDataWorks.SourceGenerators.Generators;
+
+/// <summary>
+/// Generates Empty classes for collection value types.
+/// </summary>
+public sealed class EmptyClassGenerator
+{
+    private readonly CollectionBuilderConfiguration _config;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EmptyClassGenerator"/> class.
+    /// </summary>
+    /// <param name="config">The configuration for collection generation.</param>
+    public EmptyClassGenerator(CollectionBuilderConfiguration config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+    }
+
+    /// <summary>
+    /// Generates an Empty class for a collection value type.
+    /// </summary>
+    /// <param name="definition">The type definition</param>
+    /// <param name="returnType">The return type (e.g., "AuthenticationTypeBase" or fully qualified)</param>
+    /// <param name="namespace">The namespace for the Empty class</param>
+    /// <param name="compilation">The compilation context for type resolution</param>
+    /// <returns>The generated Empty class code</returns>
+    public string GenerateEmptyClass(
+        GenericTypeInfoModel definition,
+        string returnType,
+        string @namespace,
+        Compilation compilation)
+    {
+        // Extract simple type name from potentially fully qualified type
+        // E.g., "FractalDataWorks.Services.Connections.Abstractions.IConnectionState" => "IConnectionState"
+        var simpleTypeName = returnType.Contains(".")
+            ? returnType.Substring(returnType.LastIndexOf('.') + 1)
+            : returnType;
+
+        var emptyClassName = $"Empty{simpleTypeName}";
+        var sb = new StringBuilder();
+
+        // Add usings
+        sb.AppendLine("using System;");
+        sb.AppendLine();
+
+        // Namespace
+        sb.AppendLine($"namespace {@namespace};");
+        sb.AppendLine();
+
+        // XML documentation
+        sb.AppendLine("/// <summary>");
+        sb.AppendLine($"/// Empty null-object implementation of {simpleTypeName} with default values.");
+        sb.AppendLine("/// </summary>");
+
+        // Class declaration
+        sb.AppendLine($"public sealed class {emptyClassName} : {returnType}");
+        sb.AppendLine("{");
+
+        // Find the base type and its constructor
+        // returnType might be simple name like "ConnectionStateBase" or fully qualified
+        // Try to resolve it by combining with namespace if it's a simple name
+        var fullyQualifiedTypeName = returnType.Contains(".")
+            ? returnType
+            : $"{@namespace}.{returnType}";
+
+        var baseTypeSymbol = compilation.GetTypeByMetadataName(fullyQualifiedTypeName);
+        if (baseTypeSymbol != null)
+        {
+            // Find the protected or public constructor with minimum parameters
+            var baseConstructor = baseTypeSymbol.Constructors
+                .Where(c => !c.IsStatic &&
+                           (c.DeclaredAccessibility == Accessibility.Protected ||
+                            c.DeclaredAccessibility == Accessibility.Public))
+                .OrderBy(c => c.Parameters.Length)
+                .FirstOrDefault();
+
+            if (baseConstructor != null)
+            {
+                var baseCallArgs = new List<string>();
+                foreach (var param in baseConstructor.Parameters)
+                {
+                    var defaultValue = GetDefaultValueForTypeSymbol(param.Type);
+                    baseCallArgs.Add(defaultValue);
+                }
+
+                // Constructor
+                sb.AppendLine("    /// <summary>");
+                sb.AppendLine($"    /// Initializes a new instance of the <see cref=\"{emptyClassName}\"/> class with default values.");
+                sb.AppendLine("    /// </summary>");
+                sb.AppendLine($"    public {emptyClassName}()");
+                sb.AppendLine($"        : base({string.Join(", ", baseCallArgs)})");
+                sb.AppendLine("    {");
+                sb.AppendLine("    }");
+            }
+        }
+
+        sb.AppendLine("}");
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Gets the default value for a type symbol.
+    /// </summary>
+    private static string GetDefaultValueForTypeSymbol(ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol.SpecialType == SpecialType.System_String)
+            return "string.Empty";
+        if (typeSymbol.SpecialType == SpecialType.System_Int32)
+            return "0";
+        if (typeSymbol.SpecialType == SpecialType.System_Boolean)
+            return "false";
+        if (typeSymbol.IsValueType)
+            return "default";
+        if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+            return "null!";
+        if (typeSymbol.IsReferenceType)
+            return "null!";
+        return "default";
+    }
+}

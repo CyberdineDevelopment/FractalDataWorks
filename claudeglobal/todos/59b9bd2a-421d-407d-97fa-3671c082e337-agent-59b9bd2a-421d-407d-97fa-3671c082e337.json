@@ -1,0 +1,32 @@
+[
+  {
+    "content": "Fix IAuthenticationType interface inheritance",
+    "status": "pending",
+    "activeForm": "Fixing IAuthenticationType interface inheritance"
+  },
+  {
+    "content": "Fix ISchedulerType interface inheritance",
+    "status": "pending",
+    "activeForm": "Fixing ISchedulerType interface inheritance"
+  },
+  {
+    "content": "Fix SecretManagers command validation and interface issues",
+    "status": "pending",
+    "activeForm": "Fixing SecretManagers command validation and interface issues"
+  },
+  {
+    "content": "Convert DataStore to use TypeCollection instead of ServiceTypeCollection",
+    "status": "pending",
+    "activeForm": "Converting DataStore to use TypeCollection"
+  },
+  {
+    "content": "Convert DataContainer to use TypeCollection instead of ServiceTypeCollection",
+    "status": "pending",
+    "activeForm": "Converting DataContainer to use TypeCollection"
+  },
+  {
+    "content": "Ensure DataSet has source mappings for DataStore + DataContainer",
+    "status": "pending",
+    "activeForm": "Ensuring DataSet has source mappings"
+  }
+]

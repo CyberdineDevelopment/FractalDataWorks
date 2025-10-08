@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <!-- Official NuGet.org -->
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+
+    <!-- Local Development Feed -->
+    <add key="FractalDataWorksLocal" value="./local-packages" />
+
+    <!-- Azure Artifacts Feed (requires authentication) -->
+    <!-- <add key="FractalDataWorksAzureArtifacts" value="https://pkgs.dev.azure.com/{organization}/_packaging/{feed}/nuget/v3/index.json" /> -->
+  </packageSources>
+
+  <packageSourceMapping>
+    <!-- Map FractalDataWorks.* packages to local/Azure feeds first -->
+    <packageSource key="FractalDataWorksLocal">
+      <package pattern="FractalDataWorks.*" />
+    </packageSource>
+    <!-- Uncomment when using Azure Artifacts
+    <packageSource key="FractalDataWorksAzureArtifacts">
+      <package pattern="FractalDataWorks.*" />
+    </packageSource>
+    -->
+    <!-- Everything else from NuGet.org -->
+    <packageSource key="nuget.org">
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
+</configuration>

@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using FractalDataWorks.Results;
+using FractalDataWorks.Services.DataGateway.Abstractions.Models;
+
+namespace FractalDataWorks.Services.DataGateway.Abstractions.Commands;
+
+/// <summary>
+/// Command for executing data queries against data gateways.
+/// </summary>
+public sealed class DataQueryCommand : DataCommandBase
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataQueryCommand"/> class.
+    /// </summary>
+    /// <param name="queryExpression">The query expression or SQL statement.</param>
+    /// <param name="connectionName">The connection name to execute against.</param>
+    /// <param name="targetContainer">The target container for the query.</param>
+    /// <param name="parameters">Query parameters.</param>
+    /// <param name="metadata">Additional metadata.</param>
+    /// <param name="timeout">Query timeout.</param>
+    /// <param name="resultType">Expected result type.</param>
+    public DataQueryCommand(
+        string queryExpression,
+        string? connectionName = null,
+        DataPath? targetContainer = null,
+        IReadOnlyDictionary<string, object?>? parameters = null,
+        IReadOnlyDictionary<string, object>? metadata = null,
+        TimeSpan? timeout = null,
+        Type? resultType = null)
+        : base("DataQuery", connectionName ?? string.Empty, targetContainer, parameters, metadata, timeout)
+    {
+        QueryExpression = queryExpression ?? throw new ArgumentNullException(nameof(queryExpression));
+        ResultType = resultType;
+    }
+
+    /// <summary>
+    /// Gets the query expression or SQL statement.
+    /// </summary>
+    public string QueryExpression { get; }
+
+    /// <summary>
+    /// Gets the expected result type for the query.
+    /// </summary>
+    public Type? ResultType { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this command modifies data.
+    /// </summary>
+    public override bool IsDataModifying => false;
+
+    /// <summary>
+    /// Validates the command.
+    /// </summary>
+    public override IGenericResult Validate()
+    {
+        var baseResult = base.Validate();
+        if (!baseResult.IsSuccess)
+        {
+            return baseResult;
+        }
+
+        if (string.IsNullOrWhiteSpace(QueryExpression))
+        {
+            return GenericResult.Failure("Query expression is required");
+        }
+
+        return GenericResult.Success();
+    }
+
+    /// <summary>
+    /// Creates a copy of this command with the specified modifications.
+    /// </summary>
+    protected override DataCommandBase CreateCopy(
+        string? connectionName,
+        DataPath? targetContainer,
+        IReadOnlyDictionary<string, object?> parameters,
+        IReadOnlyDictionary<string, object> metadata,
+        TimeSpan? timeout)
+    {
+        return new DataQueryCommand(
+            QueryExpression,
+            connectionName,
+            targetContainer,
+            parameters,
+            metadata,
+            timeout,
+            ResultType);
+    }
+}

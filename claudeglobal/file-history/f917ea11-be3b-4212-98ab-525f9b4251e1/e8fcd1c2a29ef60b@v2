@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks Developer Kit",
+  "classifications": ["FractalDataWorks", "Service", "Class"],
+  "identity": "FractalDataWorks.ItemTemplate.Service",
+  "name": "FractalDataWorks Service Implementation",
+  "description": "Creates a service class inheriting from ServiceBase with Execute methods",
+  "shortName": "fractaldataworks-service",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "Service",
+  "symbols": {
+    "ServiceName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The service name",
+      "replaces": "SERVICE_NAME",
+      "fileRename": "SERVICE_NAME",
+      "defaultValue": "MyService",
+      "isRequired": true
+    },
+    "DomainName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The domain name",
+      "replaces": "DOMAIN_NAME",
+      "defaultValue": "MyDomain"
+    },
+    "namespace": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The namespace for the service",
+      "replaces": "NAMESPACE",
+      "defaultValue": "MyNamespace"
+    }
+  }
+}

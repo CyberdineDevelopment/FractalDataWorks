@@ -1,0 +1,27 @@
+[
+  {
+    "content": "Create DataGateway abstractions: IDataGateway interface and command interface",
+    "status": "completed",
+    "activeForm": "Creating DataGateway abstractions"
+  },
+  {
+    "content": "Create DataGateway service implementation",
+    "status": "completed",
+    "activeForm": "Creating DataGateway service"
+  },
+  {
+    "content": "Create DataGateway configuration",
+    "status": "completed",
+    "activeForm": "Creating DataGateway configuration"
+  },
+  {
+    "content": "Create DataGateway ServiceType",
+    "status": "completed",
+    "activeForm": "Creating DataGateway ServiceType"
+  },
+  {
+    "content": "Verify DataGateway builds successfully",
+    "status": "in_progress",
+    "activeForm": "Verifying DataGateway build"
+  }
+]

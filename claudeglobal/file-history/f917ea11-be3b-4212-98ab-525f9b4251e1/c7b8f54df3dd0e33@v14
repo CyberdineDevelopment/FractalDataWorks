@@ -1,0 +1,203 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Microsoft.CodeAnalysis;
+using FractalDataWorks.CodeBuilder.CSharp.Builders;
+using FractalDataWorks.SourceGenerators.Configuration;
+using FractalDataWorks.SourceGenerators.Generators;
+using FractalDataWorks.SourceGenerators.Models;
+using FractalDataWorks.SourceGenerators.Services;
+
+namespace FractalDataWorks.SourceGenerators.Builders;
+
+/// <summary>
+/// Orchestrates the generation of collection classes using specialized generators.
+/// This class follows the Single Responsibility Principle by delegating to focused generators.
+/// </summary>
+public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
+{
+    private readonly CollectionBuilderConfiguration _config;
+    private readonly FieldGenerator _fieldGenerator;
+    private readonly LookupMethodGenerator _lookupMethodGenerator;
+    private readonly EmptyClassGenerator _emptyClassGenerator;
+    private readonly StaticConstructorGenerator _staticConstructorGenerator;
+
+    private CollectionGenerationMode _mode;
+    private GenericTypeInfoModel? _definition;
+    private IList<GenericValueInfoModel>? _values;
+    private string? _returnType;
+    private Compilation? _compilation;
+    private bool _isUserClassStatic;
+    private bool _isUserClassAbstract;
+
+    public GenericCollectionBuilder(CollectionBuilderConfiguration config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+        _config.Validate();
+
+        // Initialize generators
+        _fieldGenerator = new FieldGenerator(config);
+        _lookupMethodGenerator = new LookupMethodGenerator(config);
+        _emptyClassGenerator = new EmptyClassGenerator(config);
+        _staticConstructorGenerator = new StaticConstructorGenerator(config);
+    }
+
+    public IGenericCollectionBuilder Configure(CollectionGenerationMode mode)
+    {
+        _mode = mode;
+        return this;
+    }
+
+    public IGenericCollectionBuilder WithDefinition(GenericTypeInfoModel definition)
+    {
+        _definition = definition ?? throw new ArgumentNullException(nameof(definition));
+        return this;
+    }
+
+    public IGenericCollectionBuilder WithValues(IList<GenericValueInfoModel> values)
+    {
+        _values = values ?? throw new ArgumentNullException(nameof(values));
+        return this;
+    }
+
+    public IGenericCollectionBuilder WithReturnType(string returnType)
+    {
+        if (string.IsNullOrEmpty(returnType))
+            throw new ArgumentException("Return type cannot be null or empty.", nameof(returnType));
+
+        _returnType = returnType;
+        return this;
+    }
+
+    public IGenericCollectionBuilder WithCompilation(Compilation compilation)
+    {
+        _compilation = compilation ?? throw new ArgumentNullException(nameof(compilation));
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the modifiers from the user's declared partial class.
+    /// The generated partial must match what the user declared.
+    /// </summary>
+    public IGenericCollectionBuilder WithUserClassModifiers(bool isStatic, bool isAbstract)
+    {
+        _isUserClassStatic = isStatic;
+        _isUserClassAbstract = isAbstract;
+        return this;
+    }
+
+    public string Build()
+    {
+        ValidateConfiguration();
+
+        var classBuilder = new ClassBuilder()
+            .WithNamespace(_definition!.Namespace)
+            .WithName(_definition.CollectionName)
+            .WithAccessModifier("public")
+            .AsPartial();
+
+        // Match the user's declared class modifiers
+        // The generated partial must match what the user declared
+        if (_isUserClassStatic)
+        {
+            classBuilder.AsStatic();
+        }
+
+        // Note: We don't add abstract to the generated partial even if the user's class is abstract
+        // because you can't have a partial class where one part is abstract and the other isn't
+
+        // Add using directives
+        classBuilder.WithUsings("System", "System.Collections.Generic", "System.Collections.Frozen");
+
+        // Generate fields using FieldGenerator
+        var allField = _fieldGenerator.GenerateAllField(_returnType!);
+        classBuilder.WithField(allField);
+
+        // Always generate _empty field (initialized in static constructor)
+        var emptyField = _fieldGenerator.GenerateEmptyField(_returnType!);
+        classBuilder.WithField(emptyField);
+
+        // Generate lookup dictionary fields (with conditional compilation)
+        var lookupFields = _fieldGenerator.GenerateLookupDictionaryFields(_definition!, _returnType!);
+        foreach (var field in lookupFields)
+        {
+            classBuilder.WithField(field);
+        }
+
+        // Generate lookup methods using LookupMethodGenerator
+        var lookupMethods = _lookupMethodGenerator.GenerateDynamicLookupMethods(_definition!, _returnType!);
+        foreach (var method in lookupMethods)
+        {
+            classBuilder.WithMethod(method);
+        }
+
+        // Generate All() method
+        var allMethod = new MethodBuilder()
+            .WithName("All")
+            .WithReturnType($"IReadOnlyList<{_returnType}>")
+            .WithAccessModifier("public")
+            .AsStatic()
+            .WithExpressionBody("_all.Values.ToList()")
+            .WithXmlDoc("Gets all collection items.")
+            .WithReturnDoc("A read-only list of all items in the collection.");
+
+        classBuilder.WithMethod(allMethod);
+
+        // Generate static constructor
+        var staticConstructor = _staticConstructorGenerator.GenerateStaticConstructor(
+            _definition!,
+            _values!,
+            _returnType!,
+            _compilation!);
+        classBuilder.WithConstructor(staticConstructor);
+
+        // Build the class
+        return classBuilder.Build();
+    }
+
+    /// <summary>
+    /// Gets the generated Empty class code.
+    /// </summary>
+    public string GetEmptyClassCode()
+    {
+        if (_definition == null || _compilation == null)
+            return string.Empty;
+
+        // Use ClassName which contains the base type from TypeCollectionAttribute first parameter
+        // This can be a class like "ConnectionStateBase" or an interface like "IAuthenticationCommand"
+        var baseTypeName = _definition.ClassName;
+        if (string.IsNullOrEmpty(baseTypeName))
+            return string.Empty;
+
+        // Check if the base type is actually a class (not an interface)
+        // If it's an interface, skip Empty class generation
+        var fullyQualifiedTypeName = baseTypeName.Contains(".")
+            ? baseTypeName
+            : $"{_definition.Namespace}.{baseTypeName}";
+
+        var baseTypeSymbol = _compilation.GetTypeByMetadataName(fullyQualifiedTypeName);
+        if (baseTypeSymbol == null || baseTypeSymbol.TypeKind != Microsoft.CodeAnalysis.TypeKind.Class)
+            return string.Empty;
+
+        return _emptyClassGenerator.GenerateEmptyClass(
+            _definition,
+            baseTypeName,
+            _definition.Namespace,
+            _compilation);
+    }
+
+    private void ValidateConfiguration()
+    {
+        if (_definition == null)
+            throw new InvalidOperationException("Definition must be set before building.");
+
+        if (_values == null)
+            throw new InvalidOperationException("Values must be set before building.");
+
+        if (string.IsNullOrEmpty(_returnType))
+            throw new InvalidOperationException("Return type must be set before building.");
+
+        if (_compilation == null)
+            throw new InvalidOperationException("Compilation must be set before building.");
+    }
+}

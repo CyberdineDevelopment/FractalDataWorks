@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="FluentValidation" />
+	  <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
+	  <ProjectReference Include="..\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
+  </ItemGroup>
+
+</Project>

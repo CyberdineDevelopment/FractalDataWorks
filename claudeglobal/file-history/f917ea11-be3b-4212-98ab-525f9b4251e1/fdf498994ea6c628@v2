@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- All common properties and packages inherited from Directory.Build.props -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />
+  </ItemGroup>
+
+</Project>

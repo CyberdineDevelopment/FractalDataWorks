@@ -1,0 +1,32 @@
+[
+  {
+    "content": "Add package source and central management parameters to template.json",
+    "status": "completed",
+    "activeForm": "Adding package source and central management parameters to template.json"
+  },
+  {
+    "content": "Create conditional NuGet.Config files (Local, Azure, Public)",
+    "status": "completed",
+    "activeForm": "Creating conditional NuGet.Config files"
+  },
+  {
+    "content": "Create Directory.Packages.props template",
+    "status": "completed",
+    "activeForm": "Creating Directory.Packages.props template"
+  },
+  {
+    "content": "Update project files with conditional package versions",
+    "status": "completed",
+    "activeForm": "Updating project files with conditional package versions"
+  },
+  {
+    "content": "Add conditional logic to template.json sources",
+    "status": "completed",
+    "activeForm": "Adding conditional logic to template.json sources"
+  },
+  {
+    "content": "Test template with Local package source",
+    "status": "in_progress",
+    "activeForm": "Testing template with Local package source"
+  }
+]

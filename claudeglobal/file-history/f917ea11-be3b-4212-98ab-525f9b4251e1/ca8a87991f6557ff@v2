@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <!-- Official NuGet.org for non-FractalDataWorks packages -->
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+
+    <!-- Local Development Feed for FractalDataWorks packages -->
+    <add key="FractalDataWorksLocal" value="./local-packages" />
+  </packageSources>
+
+  <packageSourceMapping>
+    <!-- Map FractalDataWorks.* packages to local feed -->
+    <packageSource key="FractalDataWorksLocal">
+      <package pattern="FractalDataWorks.*" />
+    </packageSource>
+
+    <!-- Everything else from NuGet.org -->
+    <packageSource key="nuget.org">
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
+</configuration>

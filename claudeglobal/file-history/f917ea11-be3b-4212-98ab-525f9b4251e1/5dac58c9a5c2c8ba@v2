@@ -1,0 +1,130 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using FractalDataWorks.CodeBuilder.Abstractions;
+using FractalDataWorks.CodeBuilder.CSharp.Builders;
+using FractalDataWorks.SourceGenerators.Configuration;
+using FractalDataWorks.SourceGenerators.Models;
+
+namespace FractalDataWorks.SourceGenerators.Generators;
+
+/// <summary>
+/// Generates constructors for collection classes.
+/// Responsible for creating static constructors that initialize dictionaries and fields.
+/// </summary>
+public sealed class ConstructorGenerator
+{
+    private readonly CollectionBuilderConfiguration _config;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConstructorGenerator"/> class.
+    /// </summary>
+    /// <param name="config">The collection builder configuration.</param>
+    public ConstructorGenerator(CollectionBuilderConfiguration config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+    }
+
+    /// <summary>
+    /// Adds a static constructor that initializes the _all dictionary and lookup dictionaries.
+    /// </summary>
+    public void AddStaticConstructor(
+        IClassBuilder classBuilder,
+        string className,
+        IList<GenericValueInfoModel> values,
+        IList<PropertyLookupInfoModel>? lookupProperties,
+        string returnType)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+        if (values == null) throw new ArgumentNullException(nameof(values));
+
+        var constructorBody = new StringBuilder();
+
+        // Initialize the main dictionary
+        constructorBody.AppendLine("        var dictionary = new Dictionary<int, " + returnType + ">");
+        constructorBody.AppendLine("        {");
+
+        foreach (var value in values)
+        {
+            if (value.IsAbstract)
+            {
+                constructorBody.AppendLine($"            // {value.Name} is {(value.IsAbstract ? "abstract" : "static")} - included in collection but not instantiated");
+            }
+            else
+            {
+                constructorBody.AppendLine($"            {{ {value.Id}, {value.Name} }},");
+            }
+        }
+
+        constructorBody.AppendLine("        };");
+        constructorBody.AppendLine();
+
+        // Initialize primary FrozenDictionary
+        constructorBody.AppendLine("        _all = dictionary.ToFrozenDictionary();");
+
+        // Initialize lookup dictionaries for non-Id properties (only for netstandard2.0)
+        if (lookupProperties != null)
+        {
+            var nonIdLookups = lookupProperties
+                .Where(l => !string.Equals(l.PropertyName, "Id", StringComparison.Ordinal) ||
+                           !string.Equals(l.PropertyType, "int", StringComparison.Ordinal))
+                .ToList();
+
+            if (nonIdLookups.Count > 0)
+            {
+                constructorBody.AppendLine();
+                constructorBody.AppendLine("#if !NET8_0_OR_GREATER");
+
+                foreach (var lookup in nonIdLookups)
+                {
+                    var fieldName = $"_by{lookup.PropertyName}";
+                    constructorBody.AppendLine($"        var {fieldName}Dict = new Dictionary<{lookup.PropertyType}, {returnType}>();");
+                    constructorBody.AppendLine($"        foreach (var item in _all.Values)");
+                    constructorBody.AppendLine($"        {{");
+                    constructorBody.AppendLine($"            {fieldName}Dict[item.{lookup.PropertyName}] = item;");
+                    constructorBody.AppendLine($"        }}");
+                    constructorBody.AppendLine($"        {fieldName} = {fieldName}Dict.ToFrozenDictionary();");
+                }
+
+                constructorBody.AppendLine("#endif");
+            }
+        }
+
+        var constructor = new ConstructorBuilder()
+            .WithClassName(className)
+            .AsStatic()
+            .WithXmlDoc("Initializes static members of the collection.")
+            .WithBody(constructorBody.ToString());
+
+        classBuilder.WithConstructor(constructor);
+    }
+
+    /// <summary>
+    /// Adds a static constructor for classes that inherit from a base collection.
+    /// This version is simpler and doesn't reinitialize base class members.
+    /// </summary>
+    public void AddStaticConstructorForInheritance(
+        IClassBuilder classBuilder,
+        string className,
+        IList<GenericValueInfoModel> values,
+        string returnType)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+        if (values == null) throw new ArgumentNullException(nameof(values));
+
+        var constructorBody = new StringBuilder();
+
+        // For inherited collections, we may need different initialization logic
+        constructorBody.AppendLine("        // Initialize additional members specific to this collection");
+        constructorBody.AppendLine("        // Base class handles core dictionary initialization");
+
+        var constructor = new ConstructorBuilder()
+            .WithClassName(className)
+            .AsStatic()
+            .WithXmlDoc("Initializes static members specific to this collection.")
+            .WithBody(constructorBody.ToString());
+
+        classBuilder.WithConstructor(constructor);
+    }
+}

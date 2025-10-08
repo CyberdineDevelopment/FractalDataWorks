@@ -1,0 +1,12 @@
+using FractalDataWorks.Messages.Attributes;
+using FractalDataWorks.Services.Abstractions;
+
+namespace FractalDataWorks.Services.Messages;
+
+[Message("ServiceTypeNameNullOrEmpty")]
+public sealed class ServiceTypeNameNullOrEmptyMessage : FactoryMessage, IServiceMessage
+{
+    public ServiceTypeNameNullOrEmptyMessage()
+        : base(3001, "ServiceTypeNameNullOrEmpty", MessageSeverity.Error,
+               "Service type name cannot be null or empty", "FACTORY_TYPE_NAME_NULL") { }
+}

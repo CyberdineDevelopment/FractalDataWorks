@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks Developer Kit",
+  "classifications": ["FractalDataWorks", "ServiceType", "Class"],
+  "identity": "FractalDataWorks.ItemTemplate.ServiceType",
+  "name": "FractalDataWorks ServiceType Definition",
+  "description": "Creates a ServiceType class with ServiceTypeOption attribute and Register method",
+  "shortName": "fractaldataworks-servicetype",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "ServiceType",
+  "symbols": {
+    "ServiceTypeName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The service type name",
+      "replaces": "SERVICETYPE_NAME",
+      "fileRename": "SERVICETYPE_NAME",
+      "defaultValue": "MyServiceType",
+      "isRequired": true
+    },
+    "DomainName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The domain name",
+      "replaces": "DOMAIN_NAME",
+      "defaultValue": "MyDomain"
+    },
+    "namespace": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The namespace",
+      "replaces": "NAMESPACE",
+      "defaultValue": "MyNamespace"
+    }
+  }
+}

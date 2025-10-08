@@ -1,0 +1,102 @@
+using System;
+using FractalDataWorks.CodeBuilder.Abstractions;
+using FractalDataWorks.CodeBuilder.CSharp.Builders;
+using FractalDataWorks.SourceGenerators.Configuration;
+using FractalDataWorks.SourceGenerators.Models;
+
+namespace FractalDataWorks.SourceGenerators.Generators;
+
+/// <summary>
+/// Generates properties for collection classes.
+/// Responsible for creating Count, type properties, and other collection-related properties.
+/// </summary>
+public sealed class PropertyGenerator
+{
+    private readonly CollectionBuilderConfiguration _config;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PropertyGenerator"/> class.
+    /// </summary>
+    /// <param name="config">The collection builder configuration.</param>
+    public PropertyGenerator(CollectionBuilderConfiguration config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+    }
+
+    /// <summary>
+    /// Adds a Count property that returns the number of items in the collection.
+    /// </summary>
+    public void AddCountProperty(IClassBuilder classBuilder, bool isStatic)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+
+        var countProperty = new PropertyBuilder()
+            .WithName("Count")
+            .WithType("int")
+            .WithAccessModifier("public");
+
+        if (isStatic)
+        {
+            countProperty
+                .AsStatic()
+                .WithExpressionBody("_all.Count");
+        }
+        else
+        {
+            countProperty
+                .WithExpressionBody("_all.Count");
+        }
+
+        countProperty
+            .WithXmlDoc("Gets the total number of items in the collection.");
+
+        classBuilder.WithProperty(countProperty);
+    }
+
+    /// <summary>
+    /// Adds a type-specific property for a value (e.g., IsActive, IsDeleted).
+    /// </summary>
+    public void AddTypeProperty(IClassBuilder classBuilder, GenericValueInfoModel value, string returnType)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        // This would generate properties like "IsActive" that check if current instance equals the static value
+        // Example: public bool IsActive => this == Active;
+
+        var propertyName = $"Is{value.Name}";
+
+        var typeProperty = new PropertyBuilder()
+            .WithName(propertyName)
+            .WithType("bool")
+            .WithAccessModifier("public")
+            .WithExpressionBody($"this == {value.Name}")
+            .WithXmlDoc($"Gets a value indicating whether this instance is {value.Name}.");
+
+        classBuilder.WithProperty(typeProperty);
+    }
+
+    /// <summary>
+    /// Adds an Empty property that returns the empty instance.
+    /// </summary>
+    public void AddEmptyProperty(IClassBuilder classBuilder, string returnType, bool isStatic)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+
+        var emptyProperty = new PropertyBuilder()
+            .WithName("Empty")
+            .WithType(returnType)
+            .WithAccessModifier("public");
+
+        if (isStatic)
+        {
+            emptyProperty.AsStatic();
+        }
+
+        emptyProperty
+            .WithExpressionBody("_empty")
+            .WithXmlDoc("Gets the empty instance with default values.");
+
+        classBuilder.WithProperty(emptyProperty);
+    }
+}

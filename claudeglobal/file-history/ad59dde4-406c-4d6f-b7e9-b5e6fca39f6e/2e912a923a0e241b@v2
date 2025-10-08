@@ -1,0 +1,11 @@
+using FractalDataWorks.Services.Abstractions;
+
+namespace FractalDataWorks.Services.DataGateway.Abstractions;
+
+/// <summary>
+/// Interface for data gateway services that handle data operations and queries.
+/// </summary>
+public interface IDataGateway : IGenericService<IDataGatewayCommand, IDataGatewaysConfiguration>
+{
+    // Data gateway specific methods can be added here if needed
+}

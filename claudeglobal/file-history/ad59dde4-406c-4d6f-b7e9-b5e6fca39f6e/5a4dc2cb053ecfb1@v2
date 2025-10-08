@@ -1,0 +1,20 @@
+using FractalDataWorks.Services.Abstractions.Commands;
+
+namespace FractalDataWorks.Services.Execution.Abstractions;
+
+/// <summary>
+/// Represents a command that can be executed by the execution service.
+/// Wraps any ICommand to allow the scheduler to execute arbitrary commands.
+/// </summary>
+public interface IExecutionCommand : ICommand
+{
+    /// <summary>
+    /// Gets the underlying command to be executed.
+    /// </summary>
+    ICommand InnerCommand { get; }
+
+    /// <summary>
+    /// Gets the execution context for this command.
+    /// </summary>
+    string? ExecutionContext { get; }
+}

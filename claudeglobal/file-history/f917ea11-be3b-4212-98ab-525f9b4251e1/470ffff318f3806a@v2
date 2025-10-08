@@ -1,0 +1,173 @@
+using System;
+using System.Linq;
+using Microsoft.CodeAnalysis;
+using FractalDataWorks.CodeBuilder.Abstractions;
+using FractalDataWorks.CodeBuilder.CSharp.Builders;
+using FractalDataWorks.SourceGenerators.Configuration;
+using FractalDataWorks.SourceGenerators.Models;
+
+namespace FractalDataWorks.SourceGenerators.Generators;
+
+/// <summary>
+/// Reconstructs members from base collection types.
+/// Responsible for analyzing base types and generating appropriate overrides/implementations.
+/// </summary>
+public sealed class BaseTypeMemberReconstructor
+{
+    private readonly CollectionBuilderConfiguration _config;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BaseTypeMemberReconstructor"/> class.
+    /// </summary>
+    /// <param name="config">The collection builder configuration.</param>
+    public BaseTypeMemberReconstructor(CollectionBuilderConfiguration config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+    }
+
+    /// <summary>
+    /// Reconstructs members from the base collection type.
+    /// Walks the inheritance chain and copies/overrides necessary members.
+    /// </summary>
+    public void ReconstructMembersFromBase(
+        IClassBuilder classBuilder,
+        GenericTypeInfoModel definition,
+        Compilation compilation)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+        if (definition == null) throw new ArgumentNullException(nameof(definition));
+        if (compilation == null) throw new ArgumentNullException(nameof(compilation));
+
+        // Get the base collection type using configuration
+        var baseCollectionTypeName = $"{_config.BaseCollectionTypeName}`{_config.BaseCollectionArity}";
+        var baseCollectionType = compilation.GetTypeByMetadataName(baseCollectionTypeName);
+        if (baseCollectionType == null)
+        {
+            throw new InvalidOperationException($"Cannot find {baseCollectionTypeName} in compilation. Ensure {_config.BaseNamespace} is referenced.");
+        }
+
+        // Get the concrete collection type
+        var collectionType = compilation.GetTypeByMetadataName(definition.FullTypeName);
+        if (collectionType == null)
+        {
+            throw new InvalidOperationException($"Cannot find collection type {definition.FullTypeName} in compilation.");
+        }
+
+        // Walk the inheritance chain to find the base collection
+        var baseType = collectionType.BaseType;
+        while (baseType != null)
+        {
+            if (baseType.OriginalDefinition.Equals(baseCollectionType, SymbolEqualityComparer.Default))
+            {
+                // Found the base collection in the inheritance chain
+                ReconstructMembersFromType(classBuilder, baseType, collectionType);
+                break;
+            }
+            baseType = baseType.BaseType;
+        }
+    }
+
+    /// <summary>
+    /// Copies static members from base class for partial class scenarios.
+    /// </summary>
+    public void CopyStaticMembersFromBaseClass(
+        IClassBuilder classBuilder,
+        string generatedClassName,
+        Compilation compilation,
+        GenericTypeInfoModel definition)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+        if (compilation == null) throw new ArgumentNullException(nameof(compilation));
+        if (definition == null) throw new ArgumentNullException(nameof(definition));
+
+        var baseCollectionTypeName = $"{_config.BaseCollectionTypeName}`{_config.BaseCollectionArity}";
+        var baseType = compilation.GetTypeByMetadataName(baseCollectionTypeName);
+        if (baseType == null)
+            return;
+
+        // Copy static methods and properties
+        foreach (var member in baseType.GetMembers())
+        {
+            if (!member.IsStatic)
+                continue;
+
+            if (member is IMethodSymbol method && method.MethodKind == MethodKind.Ordinary)
+            {
+                CopyStaticMethod(classBuilder, method);
+            }
+            else if (member is IPropertySymbol property)
+            {
+                CopyStaticProperty(classBuilder, property);
+            }
+        }
+    }
+
+    private void ReconstructMembersFromType(IClassBuilder classBuilder, INamedTypeSymbol baseType, INamedTypeSymbol derivedType)
+    {
+        // This would reconstruct fields, properties, and methods from the base type
+        // For now, this is a simplified version - full implementation would analyze each member
+        // and generate appropriate code
+    }
+
+    private void CopyStaticMethod(IClassBuilder classBuilder, IMethodSymbol method)
+    {
+        if (method == null) return;
+
+        var methodBuilder = new MethodBuilder()
+            .WithName(method.Name)
+            .WithReturnType(method.ReturnType.ToDisplayString())
+            .WithAccessModifier(GetAccessModifier(method.DeclaredAccessibility))
+            .AsStatic();
+
+        // Add parameters
+        foreach (var param in method.Parameters)
+        {
+            methodBuilder.WithParameter(
+                param.Type.ToDisplayString(),
+                param.Name,
+                param.HasExplicitDefaultValue ? param.ExplicitDefaultValue?.ToString() : null);
+        }
+
+        // For now, just add a placeholder body
+        methodBuilder.WithBody("throw new NotImplementedException(\"Base class method not fully reconstructed\");");
+
+        classBuilder.WithMethod(methodBuilder);
+    }
+
+    private void CopyStaticProperty(IClassBuilder classBuilder, IPropertySymbol property)
+    {
+        if (property == null) return;
+
+        var propertyBuilder = new PropertyBuilder()
+            .WithName(property.Name)
+            .WithType(property.Type.ToDisplayString())
+            .WithAccessModifier(GetAccessModifier(property.DeclaredAccessibility))
+            .AsStatic();
+
+        if (property.GetMethod != null)
+        {
+            propertyBuilder.WithGetter("throw new NotImplementedException(\"Base class property not fully reconstructed\");");
+        }
+
+        if (property.SetMethod != null)
+        {
+            propertyBuilder.WithSetter("throw new NotImplementedException(\"Base class property not fully reconstructed\");");
+        }
+
+        classBuilder.WithProperty(propertyBuilder);
+    }
+
+    private static string GetAccessModifier(Accessibility accessibility)
+    {
+        return accessibility switch
+        {
+            Accessibility.Public => "public",
+            Accessibility.Private => "private",
+            Accessibility.Protected => "protected",
+            Accessibility.Internal => "internal",
+            Accessibility.ProtectedOrInternal => "protected internal",
+            Accessibility.ProtectedAndInternal => "private protected",
+            _ => "public"
+        };
+    }
+}

@@ -1,0 +1,221 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using FractalDataWorks.CodeBuilder.Abstractions;
+using FractalDataWorks.CodeBuilder.CSharp.Builders;
+using FractalDataWorks.SourceGenerators.Configuration;
+using FractalDataWorks.SourceGenerators.Models;
+
+namespace FractalDataWorks.SourceGenerators.Generators;
+
+/// <summary>
+/// Generates methods for collection classes.
+/// Responsible for creating All(), lookup methods, factory methods, and other collection operations.
+/// </summary>
+public sealed class MethodGenerator
+{
+    private readonly CollectionBuilderConfiguration _config;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MethodGenerator"/> class.
+    /// </summary>
+    /// <param name="config">The collection builder configuration.</param>
+    public MethodGenerator(CollectionBuilderConfiguration config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+    }
+
+    /// <summary>
+    /// Adds the All() method that returns all items in the collection.
+    /// </summary>
+    public void AddAllMethod(IClassBuilder classBuilder, string returnType, bool isStatic)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+
+        var allMethod = new MethodBuilder()
+            .WithName("All")
+            .WithReturnType($"IReadOnlyList<{returnType}>")
+            .WithAccessModifier("public");
+
+        if (isStatic)
+        {
+            allMethod.AsStatic();
+        }
+
+        allMethod
+            .WithExpressionBody("_all.Values.ToList()")
+            .WithXmlDoc("Gets all items in the collection as a read-only list.")
+            .WithReturnDoc("A read-only list containing all items.");
+
+        classBuilder.WithMethod(allMethod);
+    }
+
+    /// <summary>
+    /// Adds dynamic lookup methods based on [TypeLookup] attributes.
+    /// Generates methods like Name(string name) and Id(int id) with conditional compilation.
+    /// </summary>
+    public void AddDynamicLookupMethods(IClassBuilder classBuilder, IList<PropertyLookupInfoModel> lookupProperties, string returnType)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+        if (lookupProperties == null) return;
+
+        foreach (var lookup in lookupProperties)
+        {
+            var methodName = lookup.PropertyName;
+            var parameterName = lookup.PropertyName.ToLower(System.Globalization.CultureInfo.InvariantCulture);
+
+            string methodBody;
+            if (string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal) &&
+                string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal))
+            {
+                // For ID lookups, use the primary key directly (same on all platforms)
+                methodBody = $"_all.TryGetValue({parameterName}, out var result) ? result : _empty";
+            }
+            else
+            {
+                // For alternate key lookups, use platform-specific approach
+                var dictionaryName = $"_by{lookup.PropertyName}";
+                methodBody = $@"#if NET8_0_OR_GREATER
+        var alternateLookup = _all.GetAlternateLookup<{lookup.PropertyType}>();
+        return alternateLookup.TryGetValue({parameterName}, out var result) ? result : _empty;
+#else
+        return {dictionaryName}.TryGetValue({parameterName}, out var result) ? result : _empty;
+#endif";
+            }
+
+            var method = new MethodBuilder()
+                .WithName(methodName)
+                .WithReturnType(returnType)
+                .WithAccessModifier("public")
+                .AsStatic()
+                .WithParameter(lookup.PropertyType, parameterName)
+                .WithXmlDoc($"Gets a type option by its {lookup.PropertyName} using {(string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal) ? "primary key lookup" : "alternate key lookup")}.")
+                .WithParamDoc(parameterName, $"The {lookup.PropertyName} value to search for.")
+                .WithReturnDoc($"The type option with the specified {lookup.PropertyName}, or empty instance if not found.");
+
+            // For Id, use expression body; for others, use body with conditional compilation
+            if (string.Equals(lookup.PropertyType, "int", StringComparison.Ordinal) &&
+                string.Equals(lookup.PropertyName, "Id", StringComparison.Ordinal))
+            {
+                method.WithExpressionBody(methodBody);
+            }
+            else
+            {
+                method.WithBody(methodBody);
+            }
+
+            classBuilder.WithMethod(method);
+        }
+    }
+
+    /// <summary>
+    /// Adds an AsEnumerable() method for LINQ support.
+    /// </summary>
+    public void AddAsEnumerableMethod(IClassBuilder classBuilder, string returnType, bool isStatic)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+
+        var method = new MethodBuilder()
+            .WithName("AsEnumerable")
+            .WithReturnType($"IEnumerable<{returnType}>")
+            .WithAccessModifier("public");
+
+        if (isStatic)
+        {
+            method.AsStatic();
+        }
+
+        method
+            .WithExpressionBody("_all.Values")
+            .WithXmlDoc("Gets all items as an enumerable for LINQ operations.")
+            .WithReturnDoc("An enumerable of all items.");
+
+        classBuilder.WithMethod(method);
+    }
+
+    /// <summary>
+    /// Adds factory methods for creating instances with specific parameters.
+    /// </summary>
+    public void AddFactoryMethod(IClassBuilder classBuilder, GenericValueInfoModel value, string returnType)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        if (value.Constructor == null || value.Constructor.Parameters == null)
+            return;
+
+        var methodName = $"Create{value.Name}";
+        var method = new MethodBuilder()
+            .WithName(methodName)
+            .WithReturnType(returnType)
+            .WithAccessModifier("public")
+            .AsStatic()
+            .WithXmlDoc($"Creates a new {value.Name} instance with the specified parameters.");
+
+        // Add parameters
+        foreach (var param in value.Constructor.Parameters)
+        {
+            method.WithParameter(param.Type, param.Name, param.DefaultValue);
+            method.WithParamDoc(param.Name, $"The {param.Name} value.");
+        }
+
+        // Generate method body
+        var args = string.Join(", ", value.Constructor.Parameters.Select(p => p.Name));
+        method
+            .WithExpressionBody($"new {value.Name}({args})")
+            .WithReturnDoc($"A new {value.Name} instance.");
+
+        classBuilder.WithMethod(method);
+    }
+
+    /// <summary>
+    /// Adds a Count() method that returns the total number of items.
+    /// </summary>
+    public void AddCountMethod(IClassBuilder classBuilder, bool isStatic)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+
+        var method = new MethodBuilder()
+            .WithName("Count")
+            .WithReturnType("int")
+            .WithAccessModifier("public");
+
+        if (isStatic)
+        {
+            method.AsStatic();
+        }
+
+        method
+            .WithExpressionBody("_all.Count")
+            .WithXmlDoc("Gets the total number of items in the collection.")
+            .WithReturnDoc("The total count.");
+
+        classBuilder.WithMethod(method);
+    }
+
+    /// <summary>
+    /// Adds an Any() method that checks if the collection has any items.
+    /// </summary>
+    public void AddAnyMethod(IClassBuilder classBuilder, bool isStatic)
+    {
+        if (classBuilder == null) throw new ArgumentNullException(nameof(classBuilder));
+
+        var method = new MethodBuilder()
+            .WithName("Any")
+            .WithReturnType("bool")
+            .WithAccessModifier("public");
+
+        if (isStatic)
+        {
+            method.AsStatic();
+        }
+
+        method
+            .WithExpressionBody("_all.Count > 0")
+            .WithXmlDoc("Determines whether the collection contains any items.")
+            .WithReturnDoc("true if the collection contains items; otherwise, false.");
+
+        classBuilder.WithMethod(method);
+    }
+}

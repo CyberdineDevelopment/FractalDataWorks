@@ -1,0 +1,12 @@
+using FractalDataWorks.Messages.Attributes;
+using FractalDataWorks.Services.Abstractions;
+
+namespace FractalDataWorks.Services.Messages;
+
+[Message("FactoryNull")]
+public sealed class FactoryNullMessage : FactoryMessage, IServiceMessage
+{
+    public FactoryNullMessage()
+        : base(3002, "FactoryNull", MessageSeverity.Error,
+               "Factory cannot be null", "FACTORY_NULL") { }
+}

@@ -1,0 +1,25 @@
+using System;
+
+namespace FractalDataWorks.ServiceTypes.Attributes;
+
+/// <summary>
+/// Marks a property on a ServiceType for automatic lookup method generation.
+/// The ServiceTypeCollectionGenerator will create a static lookup method based on this property.
+/// </summary>
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+public sealed class ServiceTypeLookupAttribute : Attribute
+{
+    /// <summary>
+    /// Gets the name of the lookup method to generate.
+    /// </summary>
+    public string MethodName { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ServiceTypeLookupAttribute"/> class.
+    /// </summary>
+    /// <param name="methodName">The name of the lookup method to generate (e.g., "Name", "Id", "Category").</param>
+    public ServiceTypeLookupAttribute(string methodName)
+    {
+        MethodName = methodName ?? throw new ArgumentNullException(nameof(methodName));
+    }
+}

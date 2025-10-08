@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>IMPLEMENTATION_FRAMEWORKS</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference the abstractions project (stays as ProjectReference) -->
+    <ProjectReference Include="..\FractalDataWorks.Services.DomainName.Abstractions\FractalDataWorks.Services.DomainName.Abstractions.csproj" />
+
+    <!-- FractalDataWorks framework packages - versions managed by Directory.Packages.props -->
+    <PackageReference Include="FractalDataWorks.Services" />
+
+    <!-- Source generators as analyzer packages -->
+    <PackageReference Include="FractalDataWorks.Collections.SourceGenerators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FractalDataWorks.Messages.SourceGenerators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <!-- Microsoft packages -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+</Project>

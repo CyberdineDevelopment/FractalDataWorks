@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>ABSTRACTIONS_FRAMEWORK</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- FractalDataWorks framework packages - versions managed by Directory.Packages.props -->
+    <PackageReference Include="FractalDataWorks.Services.Abstractions" />
+    <PackageReference Include="FractalDataWorks.Abstractions" />
+    <PackageReference Include="FractalDataWorks.EnhancedEnums" />
+    <PackageReference Include="FractalDataWorks.Collections" />
+
+    <!-- Source generators as analyzer packages -->
+    <PackageReference Include="FractalDataWorks.ServiceTypes.SourceGenerators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FractalDataWorks.Collections.SourceGenerators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FractalDataWorks.Messages.SourceGenerators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
