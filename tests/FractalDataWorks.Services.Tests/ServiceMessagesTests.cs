@@ -185,7 +185,7 @@ public class ServiceMessagesTests
         var message = new NoServiceTypesRegisteredMessage();
 
         message.ShouldNotBeNull();
-        message.Severity.ShouldBe(MessageSeverity.Warning);
+        message.Severity.ShouldBe(MessageSeverity.Error);
     }
 
     [Fact]
