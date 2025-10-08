@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using FractalDataWorks.CodeBuilder.CSharp.Builders;
@@ -141,8 +142,36 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
         // Note: We don't add abstract to the generated partial even if the user's class is abstract
         // because you can't have a partial class where one part is abstract and the other isn't
 
+
+        // Collect unique namespaces from all discovered types
+        var namespaces = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "System",
+            "System.Collections.Generic",
+            "System.Collections.Frozen",
+            "System.Linq"
+        };
+
+        // Extract namespaces from all value types
+        foreach (var value in _values!.Where(v => v.Include && !v.IsAbstract && !v.IsStatic))
+        {
+            if (!string.IsNullOrEmpty(value.FullTypeName))
+            {
+                var lastDotIndex = value.FullTypeName.LastIndexOf('.');
+                if (lastDotIndex > 0)
+                {
+                    var typeNamespace = value.FullTypeName.Substring(0, lastDotIndex);
+                    // Don't add the collection's own namespace (already in context)
+                    if (!string.Equals(typeNamespace, _definition!.Namespace, StringComparison.Ordinal))
+                    {
+                        namespaces.Add(typeNamespace);
+                    }
+                }
+            }
+        }
+
         // Add using directives
-        classBuilder.WithUsings("System", "System.Collections.Generic", "System.Collections.Frozen", "System.Linq");
+        classBuilder.WithUsings(namespaces.ToArray());
 
         // Generate fields using FieldGenerator
         var allField = _fieldGenerator.GenerateAllField(_returnType!);

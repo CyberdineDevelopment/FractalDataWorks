@@ -7,7 +7,7 @@ using FractalDataWorks.DataStores.Abstractions;
 using FractalDataWorks.DataContainers.Abstractions;
 using FractalDataWorks.Results;
 
-namespace FractalDataWorks.DataContainers;
+namespace FractalDataWorks.DataContainers.Abstractions;
 
 /// <summary>
 /// Base class for data container type definitions.
