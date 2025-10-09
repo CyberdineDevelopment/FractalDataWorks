@@ -1,11 +1,12 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Configuration.Abstractions;
+namespace FractalDataWorks.Configuration;
 
 /// <summary>
 /// Represents a configuration that was deleted.
 /// </summary>
-[EnumOption(typeof(ConfigurationChangeTypes), "Deleted")]
+[TypeOption(typeof(ConfigurationChangeTypes), "Deleted")]
 public sealed class Deleted : ConfigurationChangeTypeBase
 {
     /// <summary>

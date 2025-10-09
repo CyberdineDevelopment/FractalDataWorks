@@ -1,11 +1,12 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Configuration.Abstractions;
+namespace FractalDataWorks.Configuration;
 
 /// <summary>
 /// Represents configuration from a database.
 /// </summary>
-[EnumOption(typeof(ConfigurationSourceTypes), "Database")]
+[TypeOption(typeof(ConfigurationSourceTypes), "Database")]
 public sealed class Database : ConfigurationSourceTypeBase
 {
     /// <summary>

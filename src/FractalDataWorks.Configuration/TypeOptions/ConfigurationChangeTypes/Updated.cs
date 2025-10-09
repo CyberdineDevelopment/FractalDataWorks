@@ -1,11 +1,12 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Configuration.Abstractions;
+namespace FractalDataWorks.Configuration;
 
 /// <summary>
 /// Represents a configuration that was updated.
 /// </summary>
-[EnumOption(typeof(ConfigurationChangeTypes), "Updated")]
+[TypeOption(typeof(ConfigurationChangeTypes), "Updated")]
 public sealed class Updated : ConfigurationChangeTypeBase
 {
     /// <summary>

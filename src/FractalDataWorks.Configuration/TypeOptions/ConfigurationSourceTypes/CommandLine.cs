@@ -1,11 +1,12 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Configuration.Abstractions;
+namespace FractalDataWorks.Configuration;
 
 /// <summary>
 /// Represents configuration from command line arguments.
 /// </summary>
-[EnumOption(typeof(ConfigurationSourceTypes), "CommandLine")]
+[TypeOption(typeof(ConfigurationSourceTypes), "CommandLine")]
 public sealed class CommandLine : ConfigurationSourceTypeBase
 {
     /// <summary>

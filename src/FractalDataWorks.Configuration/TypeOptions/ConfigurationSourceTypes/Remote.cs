@@ -1,11 +1,12 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Configuration.Abstractions;
+namespace FractalDataWorks.Configuration;
 
 /// <summary>
 /// Represents configuration from a remote service.
 /// </summary>
-[EnumOption(typeof(ConfigurationSourceTypes), "Remote")]
+[TypeOption(typeof(ConfigurationSourceTypes), "Remote")]
 public sealed class Remote : ConfigurationSourceTypeBase
 {
     /// <summary>

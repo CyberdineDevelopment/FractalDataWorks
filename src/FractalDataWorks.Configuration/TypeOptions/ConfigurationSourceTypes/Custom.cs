@@ -1,11 +1,12 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Configuration.Abstractions;
+namespace FractalDataWorks.Configuration;
 
 /// <summary>
 /// Represents a custom configuration source.
 /// </summary>
-[EnumOption(typeof(ConfigurationSourceTypes), "Custom")]
+[TypeOption(typeof(ConfigurationSourceTypes), "Custom")]
 public sealed class Custom : ConfigurationSourceTypeBase
 {
     /// <summary>

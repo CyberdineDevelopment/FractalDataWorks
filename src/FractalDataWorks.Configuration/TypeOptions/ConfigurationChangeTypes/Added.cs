@@ -1,11 +1,12 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Configuration.Abstractions;
+namespace FractalDataWorks.Configuration;
 
 /// <summary>
 /// Represents a configuration that was added.
 /// </summary>
-[EnumOption(typeof(ConfigurationChangeTypes), "Added")]
+[TypeOption(typeof(ConfigurationChangeTypes), "Added")]
 public sealed class Added : ConfigurationChangeTypeBase
 {
     /// <summary>

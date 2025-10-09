@@ -18,6 +18,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\FractalDataWorks.Configuration.Abstractions\FractalDataWorks.Configuration.Abstractions.csproj" />
+	  <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
 	</ItemGroup>
 
 

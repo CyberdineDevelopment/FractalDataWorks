@@ -1,11 +1,12 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Configuration.Abstractions;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Configuration.Abstractions;
+namespace FractalDataWorks.Configuration;
 
 /// <summary>
 /// Represents configuration from environment variables.
 /// </summary>
-[EnumOption(typeof(ConfigurationSourceTypes), "Environment")]
+[TypeOption(typeof(ConfigurationSourceTypes), "Environment")]
 public sealed class Environment : ConfigurationSourceTypeBase
 {
     /// <summary>
