@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.DataGateway.Abstractions.Commands;
 
@@ -21,6 +22,9 @@ public abstract class DataCommandBase : IDataGatewayCommand
         TargetContainer = targetContainer;
         Metadata = new Dictionary<string, object>(StringComparer.Ordinal);
         Timeout = null;
+        CommandId = Guid.NewGuid();
+        CorrelationId = Guid.NewGuid();
+        Timestamp = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -48,4 +52,28 @@ public abstract class DataCommandBase : IDataGatewayCommand
     /// Gets or sets the optional timeout for this command.
     /// </summary>
     public TimeSpan? Timeout { get; set; }
+
+    /// <summary>
+    /// Gets the unique identifier for this command instance.
+    /// </summary>
+    public Guid CommandId { get; }
+
+    /// <summary>
+    /// Gets the correlation identifier for tracking related operations.
+    /// </summary>
+    public Guid CorrelationId { get; }
+
+    /// <summary>
+    /// Gets the timestamp when this command was created.
+    /// </summary>
+    public DateTimeOffset Timestamp { get; }
+
+    /// <summary>
+    /// Validates this command.
+    /// </summary>
+    /// <returns>A GenericResult indicating whether validation succeeded.</returns>
+    public virtual IGenericResult Validate()
+    {
+        return GenericResult.Success();
+    }
 }
