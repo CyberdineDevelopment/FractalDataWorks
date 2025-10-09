@@ -27,7 +27,7 @@ public abstract class ServiceTypeBase<TService, TFactory, TConfiguration> : Serv
     /// Gets the configuration type used to configure this service.
     /// </summary>
     [ServiceTypeLookup("FromConfigurationType")]
-    public Type ConfigurationType => typeof(TConfiguration);
+    public override Type ConfigurationType => typeof(TConfiguration);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ServiceTypeBase{TService, TConfiguration, TFactory}"/> class.
@@ -84,7 +84,13 @@ public abstract class ServiceTypeBase<TService, TFactory> : EnumOptionBase<IServ
     /// </summary>
     [ServiceTypeLookup("ServiceType")]
     public Type ServiceType => typeof(TService);
-    
+
+    /// <summary>
+    /// Gets the configuration type required by this service type.
+    /// </summary>
+    [ServiceTypeLookup("FromConfigurationType")]
+    public virtual Type ConfigurationType => typeof(IGenericConfiguration);
+
     /// <summary>
     /// Gets the configuration section name for appsettings.json.
     /// </summary>

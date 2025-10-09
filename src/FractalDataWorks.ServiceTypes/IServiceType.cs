@@ -138,6 +138,20 @@ public interface IServiceType  : IEnumOption<IServiceType>
     /// <value>The Type of the factory used to create service instances.</value>
     Type FactoryType { get; }
 
+    /// <summary>
+    /// Gets the configuration type required by this service type.
+    /// </summary>
+    /// <value>The Type of the configuration class that this service requires for initialization.</value>
+    /// <remarks>
+    /// This property enables:
+    /// <list type="bullet">
+    /// <item><description>Runtime configuration type checking and validation</description></item>
+    /// <item><description>Dynamic configuration object creation and binding</description></item>
+    /// <item><description>Configuration serialization and deserialization</description></item>
+    /// <item><description>Service registration with proper configuration dependencies</description></item>
+    /// </list>
+    /// </remarks>
+    Type ConfigurationType { get; }
 
     /// <summary>
     /// Gets a detailed description of this service type's purpose and capabilities.
