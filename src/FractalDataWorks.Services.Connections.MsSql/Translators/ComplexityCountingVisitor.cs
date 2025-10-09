@@ -14,7 +14,7 @@ namespace FractalDataWorks.Services.Connections.MsSql.Translators;
 /// <summary>
 /// Visitor that calculates the complexity score of a LINQ expression.
 /// </summary>
-private sealed class ComplexityCountingVisitor : ExpressionVisitor
+internal sealed class ComplexityCountingVisitor : ExpressionVisitor
 {
     public int Complexity { get; private set; }
 

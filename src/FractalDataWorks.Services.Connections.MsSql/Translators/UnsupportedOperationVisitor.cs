@@ -14,7 +14,7 @@ namespace FractalDataWorks.Services.Connections.MsSql.Translators;
 /// <summary>
 /// Visitor that detects unsupported LINQ operations for T-SQL translation.
 /// </summary>
-private sealed class UnsupportedOperationVisitor : ExpressionVisitor
+internal sealed class UnsupportedOperationVisitor : ExpressionVisitor
 {
     public List<string> UnsupportedOperations { get; } = new List<string>();
 

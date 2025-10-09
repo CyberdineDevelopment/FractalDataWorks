@@ -14,14 +14,14 @@ namespace FractalDataWorks.Services.Connections.MsSql.Commands;
 /// <summary>
 /// Command for managing SQL Server connections (list, remove, etc.).
 /// </summary>
-public sealed class MsSqlGenericConnectionManagementCommand : IConnectionCommand, IConnectionManagementCommand
+public sealed class MsSqlConnectionManagementCommand : IConnectionCommand, IConnectionManagementCommand
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MsSqlGenericConnectionManagementCommand"/> class.
+    /// Initializes a new instance of the <see cref="MsSqlConnectionManagementCommand"/> class.
     /// </summary>
     /// <param name="operation">The management operation to perform.</param>
     /// <param name="connectionName">The connection name (required for some operations).</param>
-    public MsSqlGenericConnectionManagementCommand(ConnectionManagementOperation operation, string? connectionName = null)
+    public MsSqlConnectionManagementCommand(ConnectionManagementOperation operation, string? connectionName = null)
     {
         Operation = operation;
         ConnectionName = connectionName;

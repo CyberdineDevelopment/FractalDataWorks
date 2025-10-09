@@ -14,7 +14,7 @@ namespace FractalDataWorks.Services.Connections.MsSql.Translators;
 /// <summary>
 /// Visitor that estimates how many SQL parameters will be needed.
 /// </summary>
-private sealed class ParameterCountingVisitor : ExpressionVisitor
+internal sealed class ParameterCountingVisitor : ExpressionVisitor
 {
     public int ParameterCount { get; private set; }
 

@@ -14,14 +14,14 @@ namespace FractalDataWorks.Services.Connections.MsSql.Commands;
 /// <summary>
 /// Command for creating new SQL Server connections.
 /// </summary>
-public sealed class MsSqlGenericConnectionCreateCommand : IConnectionCommand, IConnectionCreateCommand
+public sealed class MsSqlConnectionCreateCommand : IConnectionCommand, IConnectionCreateCommand
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MsSqlGenericConnectionCreateCommand"/> class.
+    /// Initializes a new instance of the <see cref="MsSqlConnectionCreateCommand"/> class.
     /// </summary>
     /// <param name="connectionName">The name for the new connection.</param>
     /// <param name="connectionConfiguration">The SQL Server configuration for the connection.</param>
-    public MsSqlGenericConnectionCreateCommand(string connectionName, MsSqlConfiguration connectionConfiguration)
+    public MsSqlConnectionCreateCommand(string connectionName, MsSqlConfiguration connectionConfiguration)
     {
         ConnectionName = connectionName ?? throw new ArgumentNullException(nameof(connectionName));
         ConnectionConfiguration = connectionConfiguration ?? throw new ArgumentNullException(nameof(connectionConfiguration));

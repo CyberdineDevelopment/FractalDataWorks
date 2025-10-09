@@ -8,6 +8,7 @@ using FractalDataWorks;
 using FractalDataWorks.DataSets.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.Services.Connections;
 using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions.Commands;
 using FractalDataWorks.Services.Connections.Abstractions.Messages;
@@ -24,14 +25,11 @@ namespace FractalDataWorks.Services.Connections.MsSql;
 /// SQL Server implementation of connection service with LINQ query translation.
 /// This service handles SQL Server connection commands and translates LINQ queries to T-SQL.
 /// </summary>
-public sealed class MsSqlService
-    : ConnectionServiceBase<IConnectionCommand, MsSqlConfiguration, MsSqlService>,
-    IDisposable
+public sealed class MsSqlService : ServiceBase<IConnectionCommand, MsSqlConfiguration, MsSqlService>, IDisposable
 {
     private readonly ILoggerFactory _loggerFactory;
-    private readonly Dictionary<string, MsSqlGenericConnection> _connections;
+    private readonly Dictionary<string, object> _connections; // Stubbed - was MsSqlConnection
     private readonly IQueryTranslator _queryTranslator;
-    private readonly IResultMapper _resultMapper;
     private readonly string _serviceId;
     private bool _disposed;
 
@@ -41,26 +39,20 @@ public sealed class MsSqlService
     /// <param name="loggerFactory">The logger factory for creating connection loggers.</param>
     /// <param name="configuration">The MsSql service configuration.</param>
     /// <param name="queryTranslator">The T-SQL query translator.</param>
-    /// <param name="resultMapper">The SQL Server result mapper.</param>
     public MsSqlService(
         ILoggerFactory loggerFactory,
         IQueryTranslator queryTranslator,
-        IResultMapper resultMapper,
-        MsSqlConfiguration configuration) 
+        MsSqlConfiguration configuration)
         : base(configuration)
     {
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         _queryTranslator = queryTranslator ?? throw new ArgumentNullException(nameof(queryTranslator));
-        _resultMapper = resultMapper ?? throw new ArgumentNullException(nameof(resultMapper));
-        _connections = new Dictionary<string, MsSqlGenericConnection>(StringComparer.Ordinal);
+        _connections = new Dictionary<string, object>(StringComparer.Ordinal);
         _serviceId = Guid.NewGuid().ToString("N");
     }
 
     /// <inheritdoc/>
-    public override string ServiceType => "MsSql";
-
-    /// <inheritdoc/>
-    public override bool IsAvailable => _connections.Count > 0;
+    public override bool IsAvailable => false; // Stubbed
 
     /// <inheritdoc/>
     public string ServiceId => _serviceId;
@@ -69,11 +61,6 @@ public sealed class MsSqlService
     /// Gets the query translator for converting LINQ expressions to T-SQL.
     /// </summary>
     protected IQueryTranslator QueryTranslator => _queryTranslator;
-
-    /// <summary>
-    /// Gets the result mapper for converting SQL results to dataset objects.
-    /// </summary>
-    protected IResultMapper ResultMapper => _resultMapper;
 
     /// <inheritdoc/>
     public override async Task<IGenericResult<T>> Execute<T>(IConnectionCommand command)
@@ -147,108 +134,20 @@ public sealed class MsSqlService
 
     private Task<IGenericResult<string>> HandleConnectionCreate(IConnectionCreateCommand command, CancellationToken cancellationToken)
     {
-        if (_connections.ContainsKey(command.ConnectionName))
-        {
-            return Task.FromResult(GenericResult<string>.Failure($"Connection '{command.ConnectionName}' already exists"));
-        }
-
-        if (command.ConnectionConfiguration is not MsSqlConfiguration msSqlConfig)
-        {
-            return Task.FromResult(GenericResult<string>.Failure("Invalid configuration type"));
-        }
-
-        var connectionLogger = _loggerFactory.CreateLogger<MsSqlGenericConnection>();
-        var connection = new MsSqlGenericConnection(connectionLogger, msSqlConfig);
-        _connections[command.ConnectionName] = connection;
-
-        return Task.FromResult(GenericResult<string>.Success($"Connection '{command.ConnectionName}' created successfully"));
+        // Stubbed - MsSqlConnection removed
+        return Task.FromResult(GenericResult<string>.Failure("Not implemented - needs redesign"));
     }
 
-    private async Task<IGenericResult<DataContainer[]>> HandleConnectionDiscovery(IConnectionDiscoveryCommand command, CancellationToken cancellationToken)
+    private Task<IGenericResult<DataContainer[]>> HandleConnectionDiscovery(IConnectionDiscoveryCommand command, CancellationToken cancellationToken)
     {
-        if (!_connections.TryGetValue(command.ConnectionName, out var connection))
-        {
-            return GenericResult<DataContainer[]>.Failure($"Connection '{command.ConnectionName}' not found");
-        }
-
-        try
-        {
-            var startPath = command.StartPath != null ? new DataPath(command.StartPath.Split("."), ".") : null;
-            var containerResult = await connection.DiscoverSchema(startPath).ConfigureAwait(false);
-            if (!containerResult.IsSuccess)
-            {
-                return GenericResult<DataContainer[]>.Failure(containerResult.CurrentMessage);
-            }
-            var containers = containerResult.Value?.ToArray() ?? [];
-            return GenericResult<DataContainer[]>.Success(containers);
-        }
-        catch (Exception ex)
-        {
-            return GenericResult<DataContainer[]>.Failure($"Schema discovery failed: {ex.Message}");
-        }
+        // Stubbed - MsSqlConnection removed
+        return Task.FromResult(GenericResult<DataContainer[]>.Failure("Not implemented - needs redesign"));
     }
 
-    private async Task<IGenericResult<object>> HandleConnectionManagement(IConnectionManagementCommand command, CancellationToken cancellationToken)
+    private Task<IGenericResult<object>> HandleConnectionManagement(IConnectionManagementCommand command, CancellationToken cancellationToken)
     {
-        switch (command.Operation)
-        {
-            case ConnectionManagementOperation.ListConnections:
-                var connectionNames = _connections.Keys.ToArray();
-                return GenericResult<object>.Success(connectionNames);
-
-            case ConnectionManagementOperation.RemoveConnection:
-                if (command.ConnectionName != null && _connections.TryGetValue(command.ConnectionName, out var connection))
-                {
-                    connection.Dispose();
-                    _connections.Remove(command.ConnectionName);
-                    return GenericResult<object>.Success($"Connection '{command.ConnectionName}' removed successfully");
-                }
-                return GenericResult<object>.Failure($"Connection '{command.ConnectionName}' not found");
-
-            case ConnectionManagementOperation.GetConnectionMetadata:
-                if (command.ConnectionName != null && _connections.TryGetValue(command.ConnectionName, out var metadataConnection))
-                {
-                    try
-                    {
-                        var metadata = await metadataConnection.GetMetadataAsync().ConfigureAwait(false);
-                        return GenericResult<object>.Success(metadata);
-                    }
-                    catch (Exception ex)
-                    {
-                        return GenericResult<object>.Failure($"Failed to get connection metadata: {ex.Message}");
-                    }
-                }
-                return GenericResult<object>.Failure($"Connection '{command.ConnectionName}' not found");
-
-            case ConnectionManagementOperation.RefreshConnectionStatus:
-                if (command.ConnectionName != null && _connections.TryGetValue(command.ConnectionName, out var statusConnection))
-                {
-                    var isConnectedResult = await statusConnection.TestConnection().ConfigureAwait(false);
-                    var status = new { IsConnected = isConnectedResult.IsSuccess, ConnectionName = command.ConnectionName };
-                    return GenericResult<object>.Success(status);
-                }
-                return GenericResult<object>.Failure($"Connection '{command.ConnectionName}' not found");
-
-            case ConnectionManagementOperation.TestConnection:
-                if (command.ConnectionName != null && _connections.TryGetValue(command.ConnectionName, out var testConnection))
-                {
-                    try
-                    {
-                        var testResult = await testConnection.TestConnection().ConfigureAwait(false);
-                        return testResult.IsSuccess 
-                            ? GenericResult<object>.Success(testResult.Value)
-                            : GenericResult<object>.Failure($"Connection test failed: {testResult.CurrentMessage}");
-                    }
-                    catch (Exception ex)
-                    {
-                        return GenericResult<object>.Failure($"Connection test failed: {ex.Message}");
-                    }
-                }
-                return GenericResult<object>.Failure($"Connection '{command.ConnectionName}' not found");
-
-            default:
-                return GenericResult<object>.Failure($"Unsupported management operation: {command.Operation}");
-        }
+        // Stubbed - MsSqlConnection removed
+        return Task.FromResult(GenericResult<object>.Failure("Not implemented - needs redesign"));
     }
 
     private static IGenericResult<T> ConvertResult<T>(IGenericResult result)
@@ -280,113 +179,6 @@ public sealed class MsSqlService
         return GenericResult<T>.Failure(result.CurrentMessage ?? "Operation failed");
     }
 
-    #region IGenericConnectionDataService Implementation
-
-    /// <inheritdoc/>
-    public async Task<IGenericResult<string>> CreateConnectionAsync(IGenericConnectionConfiguration configuration, CancellationToken cancellationToken = default)
-    {
-        if (configuration is not MsSqlConfiguration msSqlConfig)
-        {
-            return GenericResult<string>.Failure("Invalid configuration type for MsSql service");
-        }
-
-        var connectionId = Guid.NewGuid().ToString("N");
-        
-        if (_connections.ContainsKey(connectionId))
-        {
-            return GenericResult<string>.Failure($"Connection '{connectionId}' already exists");
-        }
-
-        try
-        {
-            var connectionLogger = _loggerFactory.CreateLogger<MsSqlGenericConnection>();
-            var connection = new MsSqlGenericConnection(connectionLogger, msSqlConfig);
-            _connections[connectionId] = connection;
-
-            MsSqlServiceLog.ConnectionCreated(Logger, connectionId);
-            return GenericResult<string>.Success(connectionId);
-        }
-        catch (Exception ex)
-        {
-            MsSqlServiceLog.ConnectionCreationFailed(Logger, ex);
-            return GenericResult<string>.Failure($"Failed to create connection: {ex.Message}");
-        }
-    }
-
-    /// <inheritdoc/>
-    public Task<IGenericResult<IGenericConnection>> GetConnectionAsync(string connectionId, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrEmpty(connectionId))
-        {
-            return Task.FromResult(GenericResult<IGenericConnection>.Failure("Connection ID cannot be null or empty"));
-        }
-
-        if (_connections.TryGetValue(connectionId, out var connection))
-        {
-            return Task.FromResult(GenericResult<IGenericConnection>.Success((IGenericConnection)connection));
-        }
-
-        return Task.FromResult(GenericResult<IGenericConnection>.Failure($"Connection '{connectionId}' not found"));
-    }
-
-    /// <inheritdoc/>
-    public Task<IGenericResult<IEnumerable<string>>> ListConnectionsAsync(CancellationToken cancellationToken = default)
-    {
-        var connectionIds = _connections.Keys.AsEnumerable();
-        return Task.FromResult(GenericResult<IEnumerable<string>>.Success(connectionIds));
-    }
-
-    /// <inheritdoc/>
-    public Task<IGenericResult> RemoveConnectionAsync(string connectionId, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrEmpty(connectionId))
-        {
-            return Task.FromResult(GenericResult.Failure(ConnectionMessages.ConnectionIdNullOrEmpty()));
-        }
-
-        if (_connections.TryGetValue(connectionId, out var connection))
-        {
-            try
-            {
-                connection.Dispose();
-                _connections.Remove(connectionId);
-                MsSqlServiceLog.ConnectionRemoved(Logger, connectionId);
-                return Task.FromResult(GenericResult.Success());
-            }
-            catch (Exception ex)
-            {
-                MsSqlServiceLog.ConnectionRemovalFailed(Logger, connectionId, ex);
-                return Task.FromResult(GenericResult.Failure($"Failed to remove connection: {ex.Message}"));
-            }
-        }
-
-        return Task.FromResult(GenericResult.Failure($"Connection '{connectionId}' not found"));
-    }
-
-    /// <inheritdoc/>
-    public async Task<IGenericResult<IDictionary<string, bool>>> HealthCheckAsync(CancellationToken cancellationToken = default)
-    {
-        var results = new Dictionary<string, bool>(StringComparer.Ordinal);
-
-        foreach (var kvp in _connections)
-        {
-            try
-            {
-                var testResult = await kvp.Value.TestConnection().ConfigureAwait(false);
-                results[kvp.Key] = testResult.IsSuccess;
-            }
-            catch (Exception ex)
-            {
-                MsSqlServiceLog.HealthCheckFailed(Logger, kvp.Key, ex);
-                results[kvp.Key] = false;
-            }
-        }
-
-        return GenericResult<IDictionary<string, bool>>.Success(results);
-    }
-
-    #endregion
-
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
@@ -406,17 +198,7 @@ public sealed class MsSqlService
         {
             if (disposing)
             {
-                foreach (var connection in _connections.Values)
-                {
-                    try
-                    {
-                        connection.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-                        MsSqlServiceLog.ConnectionDisposeException(Logger, ex);
-                    }
-                }
+                // Stubbed - MsSqlConnection removed
                 _connections.Clear();
             }
 

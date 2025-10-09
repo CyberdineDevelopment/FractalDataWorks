@@ -4,9 +4,9 @@ using Microsoft.Extensions.Logging;
 namespace FractalDataWorks.Services.Connections.MsSql.Logging;
 
 /// <summary>
-/// Source-generated logging for MsSqlExternalConnection.
+/// Source-generated logging for MsSqlConnection.
 /// </summary>
-internal static partial class MsSqlExternalConnectionLog
+internal static partial class MsSqlConnectionLog
 {
     [LoggerMessage(
         EventId = 1,

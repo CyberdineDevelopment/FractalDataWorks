@@ -14,15 +14,15 @@ namespace FractalDataWorks.Services.Connections.MsSql.Commands;
 /// <summary>
 /// Command for discovering SQL Server connection schemas and metadata.
 /// </summary>
-public sealed class MsSqlGenericConnectionDiscoveryCommand : IConnectionCommand, IConnectionDiscoveryCommand
+public sealed class MsSqlConnectionDiscoveryCommand : IConnectionCommand, IConnectionDiscoveryCommand
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MsSqlGenericConnectionDiscoveryCommand"/> class.
+    /// Initializes a new instance of the <see cref="MsSqlConnectionDiscoveryCommand"/> class.
     /// </summary>
     /// <param name="connectionName">The name of the connection to discover.</param>
     /// <param name="startPath">The starting path for schema discovery.</param>
     /// <param name="options">The discovery options.</param>
-    public MsSqlGenericConnectionDiscoveryCommand(
+    public MsSqlConnectionDiscoveryCommand(
         string connectionName, 
         string? startPath = null, 
         ConnectionDiscoveryOptions? options = null)
