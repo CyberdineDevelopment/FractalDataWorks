@@ -64,11 +64,30 @@ public abstract class SecretManagerTypeBase<TService, TFactory, TConfiguration> 
     /// </remarks>
     public bool SupportsVersioning { get; }
 
+    /// <summary>
+    /// Gets a value indicating whether this provider supports bulk operations for retrieving or storing multiple secrets at once.
+    /// </summary>
     public bool SupportsBulkOperations { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports encryption at rest for stored secrets.
+    /// </summary>
     public bool SupportsEncryptionAtRest { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this provider supports auditing of secret access and modifications.
+    /// </summary>
     public bool SupportsAuditing { get; }
+
+    /// <summary>
+    /// Gets the maximum size of a secret in bytes that this provider can store.
+    /// </summary>
     public int MaxSecretSize { get; }
-    public string CloudProvider { get; }
+
+    /// <summary>
+    /// Gets the cloud provider name (e.g., "Azure", "AWS", "Google Cloud") or "On-Premises" for local solutions.
+    /// </summary>
+    public string CloudProvider { get; } = string.Empty;
 
     /// <summary>
     /// Gets a value indicating whether this provider supports soft delete.
