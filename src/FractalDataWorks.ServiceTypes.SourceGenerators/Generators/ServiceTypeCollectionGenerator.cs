@@ -970,8 +970,10 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             var effectiveReturnType = DetermineReturnType(collectionClass);
             if (effectiveReturnType == null)
             {
-                // Fallback to base type name
-                effectiveReturnType = def.ClassName;
+                // Fallback to ReturnType from the definition (set from ServiceTypeCollectionAttribute)
+                // For generic bases, def.ReturnType contains the interface (e.g., IConnectionType)
+                // whereas def.ClassName contains the generic base without type arguments
+                effectiveReturnType = def.ReturnType;
             }
 
             // Determine if the user's declared class is static or abstract
