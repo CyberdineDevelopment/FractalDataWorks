@@ -43,6 +43,17 @@ public static class ReturnTypeResolver
             return definition.FullTypeName;
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
+        // TODO: Complex solution - resolve generic type arguments from constraints
+        // When the base type is generic (e.g., ConnectionTypeBase<TService, TConfiguration, TFactory>)
+        // and we need the concrete type (not just the interface), we should:
+        // 1. Examine the type parameter constraints on the generic base type
+        // 2. Search the derived class to find types that satisfy each constraint
+        // 3. Substitute actual types for the type parameters to construct the fully closed generic type
+        // Current approach: Use interface type (from returnType parameter) to avoid this complexity
+        // See: GenericTypeHelper.GetTypeConstraints() for constraint inspection utilities
+#pragma warning restore CS0618 // Type or member is obsolete
+
         // Fallback: Use object for generic types without better options
         return "object";
     }

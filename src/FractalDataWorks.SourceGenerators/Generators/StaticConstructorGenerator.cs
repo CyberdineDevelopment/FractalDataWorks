@@ -6,6 +6,7 @@ using FractalDataWorks.CodeBuilder.Abstractions;
 using FractalDataWorks.CodeBuilder.CSharp.Builders;
 using FractalDataWorks.SourceGenerators.Configuration;
 using FractalDataWorks.SourceGenerators.Models;
+using FractalDataWorks.SourceGenerators.Services;
 
 namespace FractalDataWorks.SourceGenerators.Generators;
 
@@ -74,20 +75,49 @@ public sealed class StaticConstructorGenerator
 
         // Initialize _empty field
         var baseTypeName = definition.ClassName;
-        var fullyQualifiedTypeName = baseTypeName.Contains(".")
-            ? baseTypeName
-            : $"{definition.Namespace}.{baseTypeName}";
-        var baseTypeSymbol = compilation.GetTypeByMetadataName(fullyQualifiedTypeName);
 
-        if (baseTypeSymbol != null && baseTypeSymbol.TypeKind == TypeKind.Class)
+        // Try to resolve the base type symbol using metadata format for generic types
+        INamedTypeSymbol? baseTypeSymbol = null;
+        if (!string.IsNullOrEmpty(definition.FullTypeName))
         {
-            // Base class exists - use EmptyClassName instance
+            var fullTypeName = definition.FullTypeName;
+            var genericIndex = fullTypeName.IndexOf('<');
+
+            if (genericIndex > 0)
+            {
+                // Generic type - extract metadata name
+                var baseName = fullTypeName.Substring(0, genericIndex);
+                var typeParamSection = fullTypeName.Substring(genericIndex);
+                var arity = typeParamSection.Count(c => c == ',') + 1;
+                var metadataName = $"{baseName}`{arity}";
+                baseTypeSymbol = compilation.GetTypeByMetadataName(metadataName);
+            }
+            else
+            {
+                // Non-generic type
+                baseTypeSymbol = compilation.GetTypeByMetadataName(fullTypeName);
+            }
+        }
+
+        // Fallback to simple name resolution
+        if (baseTypeSymbol == null)
+        {
+            var fullyQualifiedTypeName = baseTypeName.Contains(".")
+                ? baseTypeName
+                : $"{definition.Namespace}.{baseTypeName}";
+            baseTypeSymbol = compilation.GetTypeByMetadataName(fullyQualifiedTypeName);
+        }
+
+        if (baseTypeSymbol != null && baseTypeSymbol.TypeKind == TypeKind.Class && !GenericTypeHelper.IsGenericType(baseTypeSymbol))
+        {
+            // Non-generic base class exists - use EmptyClassName instance
             var emptyClassName = $"Empty{baseTypeName}";
             constructorBody.AppendLine($"_empty = new {emptyClassName}();");
         }
         else
         {
-            // Interface only - use null!
+            // Interface only OR generic base type - use null!
+            // For generic types, we cannot instantiate an open generic, so _empty is null
             constructorBody.AppendLine("_empty = null!;");
         }
 

@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using FractalDataWorks.SourceGenerators.Configuration;
 using FractalDataWorks.SourceGenerators.Models;
+using FractalDataWorks.SourceGenerators.Services;
 
 namespace FractalDataWorks.SourceGenerators.Generators;
 
@@ -44,34 +45,139 @@ public sealed class EmptyClassGenerator
             ? returnType.Substring(returnType.LastIndexOf('.') + 1)
             : returnType;
 
+        // Remove generic type parameters for the class name
+        // E.g., "ConnectionTypeBase<TService, TConfiguration, TFactory>" => "ConnectionTypeBase"
+        var genericStartIndex = simpleTypeName.IndexOf('<');
+        if (genericStartIndex > 0)
+        {
+            simpleTypeName = simpleTypeName.Substring(0, genericStartIndex);
+        }
+
         var emptyClassName = $"Empty{simpleTypeName}";
         var sb = new StringBuilder();
 
         // Add usings
         sb.AppendLine("using System;");
+
+        // Add using for the base type's namespace if it's different from the current namespace
+        if (!string.IsNullOrEmpty(definition.FullTypeName))
+        {
+            var baseTypeNamespace = definition.FullTypeName.Contains(".")
+                ? definition.FullTypeName.Substring(0, definition.FullTypeName.LastIndexOf('.'))
+                : @namespace;
+
+            // Remove generic type parameters from namespace extraction
+            var genericIndex = baseTypeNamespace.IndexOf('<');
+            if (genericIndex > 0)
+            {
+                baseTypeNamespace = baseTypeNamespace.Substring(0, genericIndex);
+                // Re-extract namespace after removing generics
+                var lastDot = baseTypeNamespace.LastIndexOf('.');
+                if (lastDot > 0)
+                {
+                    baseTypeNamespace = baseTypeNamespace.Substring(0, lastDot);
+                }
+            }
+
+            if (!string.Equals(baseTypeNamespace, @namespace, StringComparison.Ordinal))
+            {
+                sb.AppendLine($"using {baseTypeNamespace};");
+            }
+        }
+
         sb.AppendLine();
 
         // Namespace
         sb.AppendLine($"namespace {@namespace};");
         sb.AppendLine();
 
+        // Find the base type symbol for analysis
+        // First, try to get it from the definition's ClassName which has the metadata name
+        INamedTypeSymbol? baseTypeSymbol = null;
+
+        // Try multiple strategies to resolve the base type
+        // Strategy 1: Try using the definition's FullTypeName with metadata format
+        if (!string.IsNullOrEmpty(definition.FullTypeName))
+        {
+            // For generic types, extract the metadata name
+            var metadataName = definition.FullTypeName;
+            var genericIndex = metadataName.IndexOf('<');
+            if (genericIndex > 0)
+            {
+                // Extract namespace and simple name
+                var lastDot = metadataName.LastIndexOf('.', genericIndex > 0 ? genericIndex : metadataName.Length - 1);
+                var namespacePart = lastDot > 0 ? metadataName.Substring(0, lastDot) : @namespace;
+                var namePart = lastDot > 0 ? metadataName.Substring(lastDot + 1, genericIndex - lastDot - 1) : metadataName.Substring(0, genericIndex);
+
+                // Count the generic parameters to get arity
+                var typeParamCount = metadataName.Split(',').Length;
+                metadataName = $"{namespacePart}.{namePart}`{typeParamCount}";
+                baseTypeSymbol = compilation.GetTypeByMetadataName(metadataName);
+            }
+            else
+            {
+                baseTypeSymbol = compilation.GetTypeByMetadataName(definition.FullTypeName);
+            }
+        }
+
+        // Strategy 2: Try combining namespace with simple type name
+        if (baseTypeSymbol == null)
+        {
+            var fullyQualifiedTypeName = returnType.Contains(".")
+                ? returnType
+                : $"{@namespace}.{returnType}";
+
+            // Remove generic parameters to get the base name
+            var fallbackGenericIndex = fullyQualifiedTypeName.IndexOf('<');
+            if (fallbackGenericIndex > 0)
+            {
+                var baseName = fullyQualifiedTypeName.Substring(0, fallbackGenericIndex);
+                // Try to infer arity from the type parameter list
+                var typeParams = fullyQualifiedTypeName.Substring(fallbackGenericIndex);
+                var arity = typeParams.Split(',').Length;
+                baseTypeSymbol = compilation.GetTypeByMetadataName($"{baseName}`{arity}");
+            }
+            else
+            {
+                baseTypeSymbol = compilation.GetTypeByMetadataName(fullyQualifiedTypeName);
+            }
+        }
+
+        // Generate class declaration with generic parameters if needed
+        string classDeclaration;
+        string baseInheritance;
+        string typeParameterConstraints = string.Empty;
+
+        if (baseTypeSymbol != null && GenericTypeHelper.IsGenericType(baseTypeSymbol))
+        {
+            // Generic base type - make Empty class generic too
+            var typeParams = GenericTypeHelper.GetTypeParameterList(baseTypeSymbol);
+            classDeclaration = $"public sealed class {emptyClassName}{typeParams}";
+            baseInheritance = $"{simpleTypeName}{typeParams}";
+            typeParameterConstraints = GenericTypeHelper.GetTypeParameterConstraints(baseTypeSymbol, "    ");
+        }
+        else
+        {
+            // Non-generic base type
+            classDeclaration = $"public sealed class {emptyClassName}";
+            baseInheritance = returnType;
+        }
+
         // XML documentation
         sb.AppendLine("/// <summary>");
         sb.AppendLine($"/// Empty null-object implementation of {simpleTypeName} with default values.");
         sb.AppendLine("/// </summary>");
 
-        // Class declaration
-        sb.AppendLine($"public sealed class {emptyClassName} : {returnType}");
+        // Class declaration with inheritance
+        sb.AppendLine($"{classDeclaration} : {baseInheritance}");
+
+        // Add type parameter constraints if any
+        if (!string.IsNullOrEmpty(typeParameterConstraints))
+        {
+            sb.Append(typeParameterConstraints);
+        }
+
         sb.AppendLine("{");
-
-        // Find the base type and its constructor
-        // returnType might be simple name like "ConnectionStateBase" or fully qualified
-        // Try to resolve it by combining with namespace if it's a simple name
-        var fullyQualifiedTypeName = returnType.Contains(".")
-            ? returnType
-            : $"{@namespace}.{returnType}";
-
-        var baseTypeSymbol = compilation.GetTypeByMetadataName(fullyQualifiedTypeName);
         if (baseTypeSymbol != null)
         {
             // Find the protected or public constructor with minimum parameters

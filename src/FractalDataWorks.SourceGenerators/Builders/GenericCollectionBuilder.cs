@@ -285,14 +285,56 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
         if (string.IsNullOrEmpty(baseTypeName))
             return string.Empty;
 
-        // Check if the base type is actually a class (not an interface)
-        // If it's an interface, skip Empty class generation
-        var fullyQualifiedTypeName = baseTypeName.Contains(".")
-            ? baseTypeName
-            : $"{_definition.Namespace}.{baseTypeName}";
+        // For generic types, FullTypeName will have the format "Namespace.Type<T1,T2>"
+        // We need to convert this to metadata format "Namespace.Type`2" for lookup
+        INamedTypeSymbol? baseTypeSymbol = null;
 
-        var baseTypeSymbol = _compilation.GetTypeByMetadataName(fullyQualifiedTypeName);
+        // Try using FullTypeName first (handles both generic and non-generic)
+        if (!string.IsNullOrEmpty(_definition.FullTypeName))
+        {
+            var fullTypeName = _definition.FullTypeName;
+
+            // Check if it's a generic type (contains '<')
+            var genericIndex = fullTypeName.IndexOf('<');
+            if (genericIndex > 0)
+            {
+                // Extract the base name without type parameters
+                var baseName = fullTypeName.Substring(0, genericIndex);
+
+                // Count type parameters to get arity
+                var typeParamSection = fullTypeName.Substring(genericIndex);
+                var commaCount = typeParamSection.Count(c => c == ',');
+                var arity = commaCount + 1; // Number of commas + 1 = number of parameters
+
+                // Construct metadata name: "Namespace.TypeName`Arity"
+                var metadataName = $"{baseName}`{arity}";
+                baseTypeSymbol = _compilation.GetTypeByMetadataName(metadataName);
+            }
+            else
+            {
+                // Non-generic type - use as-is
+                baseTypeSymbol = _compilation.GetTypeByMetadataName(fullTypeName);
+            }
+        }
+
+        // Fallback: try combining namespace with ClassName
+        if (baseTypeSymbol == null)
+        {
+            var fullyQualifiedTypeName = baseTypeName.Contains(".")
+                ? baseTypeName
+                : $"{_definition.Namespace}.{baseTypeName}";
+
+            baseTypeSymbol = _compilation.GetTypeByMetadataName(fullyQualifiedTypeName);
+        }
+
+        // Check if the base type is actually a class (not an interface)
+        // If it's an interface or not found, skip Empty class generation
         if (baseTypeSymbol == null || baseTypeSymbol.TypeKind != Microsoft.CodeAnalysis.TypeKind.Class)
+            return string.Empty;
+
+        // For generic base types, skip Empty class generation
+        // We cannot instantiate an open generic type, so _empty will be null!
+        if (GenericTypeHelper.IsGenericType(baseTypeSymbol))
             return string.Empty;
 
         return _emptyClassGenerator.GenerateEmptyClass(
