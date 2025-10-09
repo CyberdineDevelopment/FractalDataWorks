@@ -6,7 +6,7 @@ namespace FractalDataWorks.Services.Connections.Rest.EnhancedEnums.Protocols;
 /// <summary>
 /// REST protocol Enhanced Enum option for HTTP-based REST API connections.
 /// </summary>
-[EnumOption("REST")]
+[EnumOption(typeof(HttpProtocols), "REST")]
 public sealed class RestProtocol : HttpProtocolBase
 {
     /// <summary>

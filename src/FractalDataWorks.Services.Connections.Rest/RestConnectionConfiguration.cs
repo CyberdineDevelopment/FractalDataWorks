@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FluentValidation.Results;
 using FractalDataWorks.Results;
+using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions;
 
 namespace FractalDataWorks.Services.Connections.Rest;
@@ -110,23 +111,28 @@ public sealed class RestConnectionConfiguration : IConnectionConfiguration
     public bool ValidateSslCertificate { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets the service lifetime for this connection instance.
+    /// </summary>
+    public IServiceLifetime Lifetime { get; set; } = ServiceLifetimes.Scoped;
+
+    /// <summary>
     /// Validates this configuration using FluentValidation.
     /// </summary>
     /// <returns>A GenericResult containing the FluentValidation ValidationResult.</returns>
     public IGenericResult<ValidationResult> Validate()
     {
         var result = new ValidationResult();
-        
+
         if (string.IsNullOrEmpty(BaseUrl))
         {
             result.Errors.Add(new ValidationFailure(nameof(BaseUrl), "BaseUrl is required"));
         }
-        
+
         if (TimeoutSeconds <= 0)
         {
             result.Errors.Add(new ValidationFailure(nameof(TimeoutSeconds), "TimeoutSeconds must be greater than 0"));
         }
-        
+
         return GenericResult.Success(result);
     }
 }

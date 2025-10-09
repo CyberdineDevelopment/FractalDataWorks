@@ -1,9 +1,10 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Connections.Abstractions;
-using FractalDataWorks.Configuration.Abstractions;
 
 namespace FractalDataWorks.Services.Connections.Rest;
 
@@ -13,14 +14,17 @@ namespace FractalDataWorks.Services.Connections.Rest;
 public sealed class RestConnectionFactory : IConnectionFactory<RestService, RestConnectionConfiguration>
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILoggerFactory _loggerFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RestConnectionFactory"/> class.
     /// </summary>
     /// <param name="httpClientFactory">The HTTP client factory for creating HTTP clients.</param>
-    public RestConnectionFactory(IHttpClientFactory httpClientFactory)
+    /// <param name="loggerFactory">The logger factory for creating loggers.</param>
+    public RestConnectionFactory(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory)
     {
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
     /// <summary>
@@ -45,20 +49,11 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
                 return GenericResult.Failure<RestService>($"Configuration is invalid: {errors}");
             }
 
-            // Create HTTP client
-            var httpClient = _httpClientFactory.CreateClient("RestService");
-            httpClient.BaseAddress = new Uri(configuration.BaseUrl);
-            httpClient.Timeout = TimeSpan.FromSeconds(configuration.TimeoutSeconds);
-
-            // Configure headers
-            httpClient.DefaultRequestHeaders.Clear();
-            httpClient.DefaultRequestHeaders.Add("Accept", configuration.AcceptHeader);
-            httpClient.DefaultRequestHeaders.Add("User-Agent", configuration.UserAgent);
-
             // Create the REST service
-            var service = new RestService(httpClient, configuration);
-            
-            return GenericResult.Success(service);
+            var logger = _loggerFactory.CreateLogger<RestService>();
+            var service = new RestService(logger, _httpClientFactory, configuration);
+
+            return await Task.FromResult(GenericResult.Success(service)).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -75,7 +70,7 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
     {
         if (configuration is RestConnectionConfiguration restConfig)
         {
-            var result = await CreateAsync(restConfig);
+            var result = await CreateAsync(restConfig).ConfigureAwait(false);
             if (result.IsSuccess)
             {
                 return GenericResult.Success<IGenericConnection>(result.Value);
@@ -94,7 +89,7 @@ public sealed class RestConnectionFactory : IConnectionFactory<RestService, Rest
     /// <returns>A result containing the connection instance.</returns>
     public async Task<IGenericResult<IGenericConnection>> CreateConnectionAsync(IGenericConfiguration configuration, string connectionType)
     {
-        return await CreateConnectionAsync(configuration);
+        return await CreateConnectionAsync(configuration).ConfigureAwait(false);
     }
 
     /// <summary>

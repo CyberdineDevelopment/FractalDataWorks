@@ -8,11 +8,11 @@ The TypeCollectionGenerator creates high-performance type collections using attr
 1. Classes marked with `[TypeCollection(baseType, returnType, collectionType)]` - the collection definitions
 2. Classes marked with `[TypeOption(collectionType, name)]` - the options to include in collections
 
-## Example: AuthenticationFlows
+## Example: AuthenticationFlows (Cross-Assembly)
 
 Given this code:
 ```csharp
-// The collection definition
+// The collection definition (in FractalDataWorks.Services.Authentication.Abstractions)
 [TypeCollection(typeof(AuthenticationFlowBase), typeof(IAuthenticationFlow), typeof(AuthenticationFlows))]
 public abstract partial class AuthenticationFlows : TypeCollectionBase<AuthenticationFlowBase, IAuthenticationFlow>
 {
@@ -25,12 +25,27 @@ public abstract class AuthenticationFlowBase : TypeOptionBase<AuthenticationFlow
         : base(id, name) { ... }
 }
 
-// Example options (would be in other projects)
+// Example options (in FractalDataWorks.Services.Authentication - DIFFERENT assembly)
 [TypeOption(typeof(AuthenticationFlows), "ClientCredentials")]
 public sealed class ClientCredentialsFlow : AuthenticationFlowBase
 {
     public ClientCredentialsFlow() : base(1, "ClientCredentials", false, false, true) { }
 }
+```
+
+## Example: ConnectionStates (Single-Assembly)
+
+```csharp
+// The collection definition (in FractalDataWorks.Services.Connections.Abstractions)
+[TypeCollection(typeof(ConnectionStateBase), typeof(IConnectionState), typeof(ConnectionStates))]
+[TypeCollection(RestrictToCurrentCompilation = true)]  // Optional: restrict to same assembly
+public abstract partial class ConnectionStates : TypeCollectionBase<ConnectionStateBase, IConnectionState>
+{
+}
+
+// Example options (in SAME assembly)
+[TypeOption(typeof(ConnectionStates), "Open")]
+public sealed class OpenConnectionState() : ConnectionStateBase(3, "Open");
 ```
 
 The generator will create:
@@ -210,20 +225,34 @@ public abstract partial class AuthenticationFlows
     - **Line 125**: Skip if from referenced assembly
     - This prevents regenerating code for types from NuGet packages
 
-### STEP 3: Extract Base Type (Line 129-133)
+### STEP 3: Extract Base Type (Line 122-126)
 
-43. **Line 129**: Extract base type name from attribute
+43. **Line 122**: Extract base type name from attribute
     - Calls `ExtractBaseTypeNameFromAttribute(attribute)`
     - `[TypeCollection(typeof(AuthenticationFlowBase), ...)]`
     - Gets first constructor argument
 
-44. **Line 130**: If no base type found, skip this collection
+44. **Line 123**: If no base type found, skip this collection
 
-45. **Line 132**: Look up base type in compilation
+45. **Line 125**: Look up base type in compilation
     - `compilation.GetTypeByMetadataName(baseTypeName)`
     - Example: Finds `AuthenticationFlowBase` type
 
-46. **Line 133**: If base type not found, skip this collection
+46. **Line 126**: If base type not found, skip this collection
+
+### STEP 3.2: Extract RestrictToCurrentCompilation Flag (Line 129)
+
+47. **Line 129**: Extract compilation restriction flag
+    - Calls `ExtractRestrictToCurrentCompilationFlag(attribute)`
+    - Checks for named property: `RestrictToCurrentCompilation = true`
+    - Default is `false` (cross-assembly support enabled)
+
+#### Helper: ExtractRestrictToCurrentCompilationFlag (Line 490-503)
+
+48. **Line 490**: Helper to extract the flag value
+49. **Line 493-494**: Look for named argument `RestrictToCurrentCompilation`
+50. **Line 496-499**: If found and value is bool, return it
+51. **Line 502**: Default to false (enables cross-assembly discovery)
 
 #### Helper: ExtractBaseTypeNameFromAttribute (Line 450-459)
 
@@ -261,15 +290,38 @@ public abstract partial class AuthenticationFlows
 
 61. **Line 137**: Store diagnostics for later reporting
 
-### STEP 4: Lookup Pre-Discovered Options (Line 140-143)
+### STEP 4: Lookup Pre-Discovered Options (Line 137-155)
 
-62. **Line 140**: ULTRA-FAST lookup of options (O(1) dictionary lookup)
+52. **Line 137-140**: ULTRA-FAST lookup of ALL options (O(1) dictionary lookup)
     - Look in `typeOptionsByCollectionType` dictionary from STEP 1
     - Key = `collectionClass` (e.g., `AuthenticationFlows`)
-    - Value = list of option types we discovered earlier
+    - Value = `allOptionTypes` - ALL discovered options from current + referenced assemblies
 
-63. **Line 142**: If no options found, create empty list
-    - Collections can have zero options (will generate Empty() method)
+53. **Line 139**: If no options found in dictionary, create empty list
+
+### STEP 4.1: Filter Based on RestrictToCurrentCompilation Flag (Line 143-155)
+
+54. **Line 144**: Check `restrictToCurrentCompilation` flag from STEP 3.2
+
+55. **Line 144-150**: If `restrictToCurrentCompilation = true`:
+    - Filter to ONLY types from current compilation
+    - `t.ContainingAssembly == compilation.Assembly`
+    - Use case: Single-assembly pattern (e.g., ConnectionStates)
+    - Result: `optionTypes` contains only same-assembly implementations
+
+56. **Line 151-155**: If `restrictToCurrentCompilation = false`:
+    - Include ALL types from current + referenced assemblies
+    - Use case: Cross-assembly pattern (e.g., AuthenticationFlows)
+    - Result: `optionTypes` contains all discovered implementations
+
+**Example execution**:
+- AuthenticationFlows with `RestrictToCurrentCompilation = false`:
+  - `allOptionTypes` = [OAuth2Method (Auth dll), FormBasedMethod (Auth dll)]
+  - `optionTypes` = [OAuth2Method, FormBasedMethod] (all kept)
+
+- ConnectionStates with `RestrictToCurrentCompilation = true`:
+  - `allOptionTypes` = [OpenState (same dll), ClosedState (same dll), ExternalState (other dll)]
+  - `optionTypes` = [OpenState, ClosedState] (ExternalState filtered out)
 
 ### STEP 5: Build Collection Model (Line 147-156)
 
@@ -433,37 +485,65 @@ public abstract partial class AuthenticationFlows
 113. **Line 655**: Extract base constructor ID
     - Calls `ExtractBaseConstructorId(optionType, compilation)`
 
-#### Helper: ExtractBaseConstructorId (Line 682-767)
+#### Helper: ExtractBaseConstructorId (Line 724-813)
 
-114. **Line 682**: Extract ID from primary constructor
-    - Example: `public sealed class ClientCredentialsFlow() : AuthenticationFlowBase(1, "ClientCredentials", ...)`
-    - Extracts the "1"
+114. **Line 724**: Extract ID from base constructor invocation
+    - **WORKS FOR ALL CONSTRUCTOR TYPES** (verified ultrathink-level trace)
+    - Supports: primary constructors, regular constructors, records
+    - Supports: positional arguments, named arguments, mixed arguments
 
-115. **Line 685**: Loop through syntax references
-116. **Line 687**: Get syntax node
+115. **Line 731**: Loop through syntax references for the type
 
-117. **Line 690**: Check for class declaration
-118. **Line 693**: Check for base list (inheritance)
-119. **Line 695**: Loop through base types
+116. **Line 733**: Get syntax node (class or record declaration)
 
-120. **Line 697**: Check for primary constructor base syntax
-    - `class Foo() : Base(1, "name")`
+**Primary Constructor Handling (Lines 736-757)**:
 
-121. **Line 700**: Check for argument list
-122. **Line 702**: Get first argument
-123. **Line 703**: Get semantic model for argument
-124. **Line 704**: Get constant value of argument
+117. **Line 736**: Check for class declaration syntax
+118. **Line 739**: Check for base list (inheritance clause)
+119. **Line 741**: Loop through base types in base list
 
-125. **Line 706-709**: If value is int, return it
+120. **Line 743**: Check for primary constructor base syntax
+    - Matches: `class Foo() : Base(1, "name")`
+    - Matches: `class Foo() : Base(id: 1, name: "name")` (named args)
+    - Matches: `class Foo() : Base(1, name: "name")` (mixed)
 
-126. **Line 713-735**: Handle regular constructor syntax
-    - Look for constructor with base initializer
-    - Extract first argument value
+121. **Line 746**: Check for argument list exists
+122. **Line 748**: Get first argument by POSITION (not name!)
+    - `firstArg = primaryBase.ArgumentList.Arguments[0]`
+    - **KEY**: Gets argument by index, works for both positional and named
 
-127. **Line 740-763**: Handle record syntax
-    - Similar to class syntax
+123. **Line 749**: Get semantic model for syntax tree
+124. **Line 750**: Get constant VALUE from expression
+    - `semanticModel.GetConstantValue(firstArg.Expression)`
+    - **KEY**: Evaluates the expression, handles literals, constants, expressions
 
-128. **Line 766**: Return null if no ID found
+125. **Line 752-755**: If constant value is int, return it
+
+**Regular Constructor Handling (Lines 759-779)**:
+
+126. **Line 759-779**: Handle regular (non-primary) constructor syntax
+    - Matches: `public Foo() : base(1, "name")`
+    - Loop through constructor members
+    - Find base constructor initializer
+    - Extract first argument using same semantic model approach
+
+**Record Handling (Lines 786-809)**:
+
+127. **Line 786-809**: Handle record syntax with primary constructor
+    - Matches: `record Foo() : Base(1, "name")`
+    - Same logic as class primary constructor
+
+128. **Line 811**: Return null if no ID found
+
+**VERIFICATION - ID Extraction Works For**:
+✓ Positional args: `Base(3, "Open")`
+✓ Named args: `Base(id: 3, name: "Open")`
+✓ Mixed args: `Base(3, name: "Open")`
+✓ Primary constructor: `class Foo() : Base(3, "name")`
+✓ Regular constructor: `public Foo() : base(3, "name")`
+✓ Record: `record Foo() : Base(3, "name")`
+✓ Const values: `const int Id = 3; Base(Id, ...)`
+✓ Expressions: `Base(1 + 2, ...)`
 
 114. **Line 658-668**: Create `EnumValueInfoModel`
     - **ShortTypeName**: Class name (e.g., "ClientCredentialsFlow")

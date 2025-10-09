@@ -48,4 +48,16 @@ public sealed class TypeCollectionAttribute(Type baseType, Type defaultReturnTyp
     /// Default is false (generates properties).
     /// </summary>
     public bool UseMethods { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to restrict TypeOption discovery to the current compilation only.
+    /// When true, the generator only scans the current compilation for [TypeOption] attributes (single-assembly pattern).
+    /// When false, the generator scans all referenced assemblies for [TypeOption] attributes (cross-assembly pattern).
+    /// Default is false (cross-assembly support enabled).
+    /// </summary>
+    /// <remarks>
+    /// <para><b>Use true when:</b> All TypeOption implementations are in the same assembly as the TypeCollection</para>
+    /// <para><b>Use false when:</b> TypeOption implementations are distributed across multiple assemblies or NuGet packages</para>
+    /// </remarks>
+    public bool RestrictToCurrentCompilation { get; set; }
 }

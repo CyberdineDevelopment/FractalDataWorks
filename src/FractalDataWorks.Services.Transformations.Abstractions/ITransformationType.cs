@@ -16,25 +16,11 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// <typeparam name="TService">The transformation service interface type.</typeparam>
 /// <typeparam name="TFactory">The factory type for creating transformation service instances.</typeparam>
 /// <typeparam name="TConfiguration">The configuration type for the transformation service.</typeparam>
-public interface ITransformationType<TService, TFactory, TConfiguration> : IServiceType<TService, TFactory, TConfiguration>
+public interface ITransformationType<TService, TFactory, TConfiguration> : IServiceType<TService, TFactory, TConfiguration>, ITransformationType
     where TService : class, ITransformationProvider
     where TFactory : class, IServiceFactory<TService, TConfiguration>
     where TConfiguration : class, ITransformationsConfiguration
 {
-    /// <summary>
-    /// Gets the input type for this transformation.
-    /// </summary>
-    Type InputType { get; }
-
-    /// <summary>
-    /// Gets the output type for this transformation.
-    /// </summary>
-    Type OutputType { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether this transformation supports streaming.
-    /// </summary>
-    bool SupportsStreaming { get; }
 }
 
 /// <summary>

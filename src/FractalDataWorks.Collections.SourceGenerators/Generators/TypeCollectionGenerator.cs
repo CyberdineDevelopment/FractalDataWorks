@@ -117,6 +117,12 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         // STEP 3-6: For each attributed collection class, lookup pre-discovered type options
         foreach (var (collectionClass, attribute) in attributedCollectionClasses)
         {
+            // CRITICAL: Only generate for collections defined in the CURRENT compilation
+            // This prevents regenerating collections from referenced assemblies (e.g., Web.Http.Abstractions)
+            if (!SymbolEqualityComparer.Default.Equals(collectionClass.ContainingAssembly, compilation.Assembly))
+            {
+                continue; // Skip collections from referenced assemblies
+            }
 
             // STEP 3: Base Type Resolution from Attribute
             var baseTypeName = ExtractBaseTypeNameFromAttribute(attribute);
@@ -125,15 +131,33 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             var baseType = compilation.GetTypeByMetadataName(baseTypeName!);
             if (baseType == null) continue;
 
+            // STEP 3.2: Extract RestrictToCurrentCompilation flag from attribute
+            var restrictToCurrentCompilation = ExtractRestrictToCurrentCompilationFlag(attribute);
+
             // STEP 3.1: Abstract member validation removed
             // EmptyClassGenerator now handles abstract methods automatically
             var diagnostics = new List<Diagnostic>();
 
             // STEP 4: ULTRA-FAST Option Type Lookup (O(1) dictionary lookup)
             // Look up pre-discovered options by collection class type
-            if (!typeOptionsByCollectionType.TryGetValue(collectionClass, out var optionTypes))
+            if (!typeOptionsByCollectionType.TryGetValue(collectionClass, out var allOptionTypes))
             {
-                optionTypes = new List<INamedTypeSymbol>();
+                allOptionTypes = new List<INamedTypeSymbol>();
+            }
+
+            // STEP 4.1: Filter based on RestrictToCurrentCompilation flag
+            List<INamedTypeSymbol> optionTypes;
+            if (restrictToCurrentCompilation)
+            {
+                // Only include types from the current compilation
+                optionTypes = allOptionTypes
+                    .Where(t => SymbolEqualityComparer.Default.Equals(t.ContainingAssembly, compilation.Assembly))
+                    .ToList();
+            }
+            else
+            {
+                // Include types from all assemblies (current + referenced)
+                optionTypes = allOptionTypes;
             }
 
             // STEP 5: Model Building and Validation
@@ -464,6 +488,24 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Extracts the RestrictToCurrentCompilation flag from the TypeCollectionAttribute.
+    /// </summary>
+    private static bool ExtractRestrictToCurrentCompilationFlag(AttributeData attribute)
+    {
+        // Check for named argument: RestrictToCurrentCompilation = true/false
+        var restrictProp = attribute.NamedArguments
+            .FirstOrDefault(kvp => kvp.Key == nameof(TypeCollectionAttribute.RestrictToCurrentCompilation));
+
+        if (restrictProp.Key != null && restrictProp.Value.Value is bool restrictValue)
+        {
+            return restrictValue;
+        }
+
+        // Default is false (cross-assembly support enabled)
+        return false;
     }
 
 

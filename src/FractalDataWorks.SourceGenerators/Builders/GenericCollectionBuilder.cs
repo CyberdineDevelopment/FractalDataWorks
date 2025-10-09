@@ -152,6 +152,36 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
             "System.Linq"
         };
 
+        // Add namespace for the return type (e.g., ITransformationType, ISecretManagerType)
+        if (!string.IsNullOrEmpty(_returnType))
+        {
+            var lastDotIndex = _returnType.LastIndexOf('.');
+            if (lastDotIndex > 0)
+            {
+                var returnTypeNamespace = _returnType.Substring(0, lastDotIndex);
+                // Don't add the collection's own namespace (already in context)
+                if (!string.Equals(returnTypeNamespace, _definition!.Namespace, StringComparison.Ordinal))
+                {
+                    namespaces.Add(returnTypeNamespace);
+                }
+            }
+        }
+
+        // Add namespace for the collection base type
+        if (!string.IsNullOrEmpty(_definition!.CollectionBaseType))
+        {
+            var lastDotIndex = _definition.CollectionBaseType.LastIndexOf('.');
+            if (lastDotIndex > 0)
+            {
+                var baseTypeNamespace = _definition.CollectionBaseType.Substring(0, lastDotIndex);
+                // Don't add the collection's own namespace (already in context)
+                if (!string.Equals(baseTypeNamespace, _definition.Namespace, StringComparison.Ordinal))
+                {
+                    namespaces.Add(baseTypeNamespace);
+                }
+            }
+        }
+
         // Extract namespaces from all value types
         foreach (var value in _values!.Where(v => v.Include && !v.IsAbstract && !v.IsStatic))
         {

@@ -159,6 +159,13 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
         // STEP 3-6: For each attributed collection class, lookup pre-discovered service type options
         foreach (var (collectionClass, attribute) in attributedCollectionClasses)
         {
+            // CRITICAL: Only generate for collections defined in the CURRENT compilation
+            // This prevents regenerating collections from referenced assemblies
+            if (!SymbolEqualityComparer.Default.Equals(collectionClass.ContainingAssembly, compilation.Assembly))
+            {
+                continue; // Skip collections from referenced assemblies
+            }
+
             // STEP 3: Base Type Resolution from Attribute
             var baseType = ExtractBaseTypeFromAttribute(attribute);
             if (baseType == null) continue;

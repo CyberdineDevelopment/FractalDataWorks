@@ -17,25 +17,10 @@ public sealed class RestConnectionType :
     /// <summary>
     /// Initializes a new instance of the <see cref="RestConnectionType"/> class.
     /// </summary>
-    public RestConnectionType() 
-        : base(1, "REST", "Http")
+    public RestConnectionType()
+        : base(1, "REST", "Connections:REST", "REST API Connection", "REST API connection for HTTP-based REST endpoints", "HTTP Connection")
     {
     }
-
-    /// <summary>
-    /// Gets the configuration section name for REST connections.
-    /// </summary>
-    public override string SectionName => "Connections:REST";
-
-    /// <summary>
-    /// Gets the display name for REST connections.
-    /// </summary>
-    public override string DisplayName => "REST API Connection";
-
-    /// <summary>
-    /// Gets the description of REST connections.
-    /// </summary>
-    public override string Description => "REST API connection for HTTP-based REST endpoints";
 
     /// <summary>
     /// Registers REST connection services with the dependency injection container.
@@ -43,7 +28,7 @@ public sealed class RestConnectionType :
     /// <param name="services">The service collection to register services with.</param>
     public override void Register(IServiceCollection services)
     {
-        services.AddHttpClient<RestService>();
+        services.AddHttpClient("RestService");
         services.AddScoped<RestService>();
         services.AddSingleton<RestConnectionFactory>();
     }
