@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.Services.Authentication;
 using FractalDataWorks.Services.Authentication.Abstractions;
+using FractalDataWorks.Services.Authentication.Abstractions.Methods;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;
 
 namespace FractalDataWorks.Services.Authentication.AzureEntra;
@@ -30,10 +31,22 @@ public sealed class AzureEntraAuthenticationType :
             id: 1,
             name: "AzureEntra",
             providerName: "Microsoft Entra ID",
-            method: AuthenticationMethods.OAuth2(),
-            supportedProtocols: new[] { "OAuth 2.0", "OpenID Connect", "SAML 2.0" },
-            supportedFlows: new[] { "authorization_code", "client_credentials", "device_code", "interactive", "silent", "on_behalf_of" },
-            supportedTokenTypes: new[] { "access_token", "id_token", "refresh_token" },
+            method: new OAuth2AuthenticationMethod(),
+            supportedProtocols: [
+                new OAuth2Protocol(),
+                new OpenIDConnectProtocol(),
+                new SAML2Protocol()
+            ],
+            supportedFlows: [
+                new AuthorizationCodeFlow(),
+                new ClientCredentialsFlow(),
+                new InteractiveFlow()
+            ],
+            supportedTokenTypes: [
+                new AccessToken(),
+                new IdToken(),
+                new RefreshToken()
+            ],
             supportsMultiTenant: true,
             supportsTokenCaching: true,
             supportsTokenRefresh: true,

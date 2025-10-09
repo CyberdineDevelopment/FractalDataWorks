@@ -5,7 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.EnhancedEnums;
 using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.Services;
+using FractalDataWorks.Services.Authentication;
 using FractalDataWorks.Services.Authentication.Abstractions;
+using FractalDataWorks.Services.Authentication.Abstractions.Methods;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;
 using FractalDataWorks.Services.Authentication.AzureEntra.Configuration;
 
@@ -27,21 +29,21 @@ public sealed class EntraAuthenticationServiceType :
             id: 1,
             name: "AzureEntra",
             providerName: "Microsoft.Identity.Client",
-            method: AuthenticationMethods.OAuth2,
+            method: new OAuth2AuthenticationMethod(),
             supportedProtocols: [
-                AuthenticationProtocols.OAuth2,
-                AuthenticationProtocols.OpenIDConnect,
-                AuthenticationProtocols.SAML2
+                new OAuth2Protocol(),
+                new OpenIDConnectProtocol(),
+                new SAML2Protocol()
             ],
             supportedFlows: [
-                AuthenticationFlows.AuthorizationCode,
-                AuthenticationFlows.ClientCredentials,
-                AuthenticationFlows.Interactive
+                new AuthorizationCodeFlow(),
+                new ClientCredentialsFlow(),
+                new InteractiveFlow()
             ],
             supportedTokenTypes: [
-                TokenTypes.AccessToken,
-                TokenTypes.IdToken,
-                TokenTypes.RefreshToken
+                new AccessToken(),
+                new IdToken(),
+                new RefreshToken()
             ],
             supportsMultiTenant: true,
             supportsTokenCaching: true,
@@ -56,8 +58,8 @@ public sealed class EntraAuthenticationServiceType :
     /// <inheritdoc/>
     public override void Register(IServiceCollection services)
     {
-        // Register the generic factory
-        services.AddScoped<IAuthenticationServiceFactory<IAuthenticationService, IAuthenticationConfiguration>, GenericServiceFactory<IAuthenticationService, IAuthenticationConfiguration>>();
+        // Register the Entra authentication service factory
+        services.AddScoped<IAuthenticationServiceFactory<IAuthenticationService, IAuthenticationConfiguration>, EntraAuthenticationServiceFactory>();
 
         // Register the Azure Entra authentication service
         services.AddScoped<IAuthenticationService, EntraAuthenticationService>();
