@@ -18,7 +18,7 @@ namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 /// </remarks>
 public abstract class SecretManagerTypeBase<TService, TFactory, TConfiguration> :
     ServiceTypeBase<TService, TFactory, TConfiguration>,
-    ISecretManagerType,ISecretManagerType<TService,TFactory,TConfiguration>
+    ISecretManagerType<TService,TFactory,TConfiguration>
     where TService : class, ISecretManager
     where TFactory : class, ISecretManagerServiceFactory<TService, TConfiguration>
     where TConfiguration : class, ISecretManagerConfiguration
