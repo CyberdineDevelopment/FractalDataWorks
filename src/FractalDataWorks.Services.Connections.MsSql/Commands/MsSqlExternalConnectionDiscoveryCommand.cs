@@ -46,7 +46,7 @@ public sealed class MsSqlGenericConnectionDiscoveryCommand : IConnectionCommand,
     /// Validates this command using FluentValidation.
     /// </summary>
     /// <returns>The validation result.</returns>
-    public IGenericResult<ValidationResult> Validate()
+    public IGenericResult Validate()
     {
         var result = new ValidationResult();
 
@@ -62,11 +62,11 @@ public sealed class MsSqlGenericConnectionDiscoveryCommand : IConnectionCommand,
 
         if (result.IsValid)
         {
-            return GenericResult<ValidationResult>.Success(result);
+            return GenericResult.Success();
         }
-        
+
         var errorMessage = string.Join("; ", result.Errors.Select(e => e.ErrorMessage));
-        return GenericResult<ValidationResult>.Failure(ConnectionMessages.ValidationFailed(errorMessage));
+        return GenericResult.Failure(ConnectionMessages.ValidationFailed(errorMessage));
     }
 
     /// <summary>
