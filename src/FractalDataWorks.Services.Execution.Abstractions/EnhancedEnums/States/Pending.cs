@@ -1,20 +1,19 @@
 using FractalDataWorks.Collections.Attributes;
-using FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums;
 
-namespace FractalDataWorks.Services.Execution.Abstractions.States;
+namespace FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums.States;
 
 /// <summary>
 /// The process has been triggered but has not yet started execution.
 /// </summary>
 [TypeOption(typeof(ProcessStates), "Pending")]
-public sealed class PendingState : ProcessStateBase
+public sealed class Pending : ProcessStateBase
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="PendingState"/> class.
+    /// Initializes a new instance of the Pending state.
     /// </summary>
-    public PendingState()
+    public Pending()
         : base(
-            id: 1,
+            id: 6,
             name: "Pending",
             isTerminal: false,
             isError: false,

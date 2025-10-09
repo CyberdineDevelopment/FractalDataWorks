@@ -1,21 +1,20 @@
 using FractalDataWorks.Collections.Attributes;
-using FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums;
 
-namespace FractalDataWorks.Services.Execution.Abstractions.States;
+namespace FractalDataWorks.Services.Execution.Abstractions.EnhancedEnums.States;
 
 /// <summary>
 /// The process exceeded its execution timeout limit.
 /// This is a terminal error state - no further transitions are possible.
 /// </summary>
 [TypeOption(typeof(ProcessStates), "TimedOut")]
-public sealed class TimedOutState : ProcessStateBase
+public sealed class TimedOut : ProcessStateBase
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="TimedOutState"/> class.
+    /// Initializes a new instance of the TimedOut state.
     /// </summary>
-    public TimedOutState()
+    public TimedOut()
         : base(
-            id: 6,
+            id: 7,
             name: "TimedOut",
             isTerminal: true,
             isError: true,
