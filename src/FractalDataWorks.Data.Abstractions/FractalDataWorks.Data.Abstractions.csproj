@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <!-- Core Framework Dependencies -->
-    <ProjectReference Include="..\FractalDataWorks.Commands.Abstractions\FractalDataWorks.Commands.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.ServiceTypes.csproj" />
     <ProjectReference Include="..\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Messages\FractalDataWorks.Messages.csproj" />
