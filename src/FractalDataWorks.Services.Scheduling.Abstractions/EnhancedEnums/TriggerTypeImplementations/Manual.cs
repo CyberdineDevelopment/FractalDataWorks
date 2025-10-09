@@ -1,6 +1,7 @@
 using System;
 using FractalDataWorks.EnhancedEnums.Attributes;
 using FractalDataWorks.Results;
+using FractalDataWorks.Services.Scheduling.Abstractions.Messages;
 
 namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.TriggerTypeImplementations;
 
