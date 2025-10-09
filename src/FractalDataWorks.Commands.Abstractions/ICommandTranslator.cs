@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using FractalDataWorks.Data.Abstractions;
 using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Commands.Abstractions;
