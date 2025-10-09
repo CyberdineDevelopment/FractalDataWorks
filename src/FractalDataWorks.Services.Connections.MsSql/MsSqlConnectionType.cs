@@ -24,9 +24,6 @@ public sealed class MsSqlConnectionType : ConnectionTypeBase<IGenericConnection,
     }
 
     /// <inheritdoc/>
-    public override Type FactoryType => typeof(IMsSqlConnectionFactory);
-
-    /// <inheritdoc/>
     public override void Register(IServiceCollection services)
     {
         // Register SQL Server specific services
