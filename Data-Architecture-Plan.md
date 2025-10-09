@@ -204,8 +204,9 @@ FractalDataWorks.Data.Sql/
 ├── SqlCommandType.cs                    # ICommandType implementation
 ├── SqlTranslatorType.cs                 # ITranslatorType implementation
 ├── Translators/
-│   ├── SqlCommandTranslator.cs
-│   ├── SqlExpressionVisitor.cs
+│   ├── SqlCommandTranslator.cs          # Uses Microsoft.SqlServer.TransactSql.ScriptDom
+│   ├── LinqToTSqlVisitor.cs            # LINQ to T-SQL using ScriptDom
+│   ├── TSqlGenerator.cs                # Generates T-SQL using ScriptDom
 │   └── SqlParameterMapper.cs
 ├── Commands/
 │   ├── SqlQueryCommand.cs
@@ -217,6 +218,11 @@ FractalDataWorks.Data.Sql/
 └── Logging/
     └── SqlTranslatorLog.cs
 ```
+
+**Key Dependencies:**
+- Microsoft.SqlServer.TransactSql.ScriptDom - For proper T-SQL parsing and generation
+- Microsoft.Data.SqlClient - For SQL Server connectivity
+- Microsoft.EntityFrameworkCore.InMemory - For in-memory testing
 
 ### SQL Translator Implementation
 
