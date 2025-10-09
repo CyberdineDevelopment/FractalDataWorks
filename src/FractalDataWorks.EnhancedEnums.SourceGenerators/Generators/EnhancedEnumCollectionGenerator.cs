@@ -91,6 +91,13 @@ public sealed class EnhancedEnumCollectionGenerator : IIncrementalGenerator
         // STEP 3: For each collection, lookup its options and build the model
         foreach (var (collectionClass, attribute) in attributedCollectionClasses)
         {
+            // CRITICAL: Only generate for collections defined in the CURRENT compilation
+            // This prevents regenerating collections from referenced assemblies
+            if (!SymbolEqualityComparer.Default.Equals(collectionClass.ContainingAssembly, compilation.Assembly))
+            {
+                continue; // Skip collections from referenced assemblies
+            }
+
             // Extract base type from attribute (first parameter)
             var baseType = ExtractBaseTypeFromAttribute(attribute, compilation);
             if (baseType == null) continue;
