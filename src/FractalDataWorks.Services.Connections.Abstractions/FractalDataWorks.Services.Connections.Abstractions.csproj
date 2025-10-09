@@ -9,6 +9,7 @@
     <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.ServiceTypes.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.DataSets.Abstractions\FractalDataWorks.DataSets.Abstractions.csproj" />
 
     <!-- Collections for TypeCollectionBase used by ConnectionStates -->
     <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
