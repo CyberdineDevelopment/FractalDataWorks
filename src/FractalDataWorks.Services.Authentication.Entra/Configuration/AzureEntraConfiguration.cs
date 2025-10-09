@@ -15,6 +15,9 @@ public sealed class AzureEntraConfiguration : ConfigurationBase<AzureEntraConfig
     public override string SectionName => "AzureEntra";
 
     /// <inheritdoc/>
+    public string AuthenticationType => "AzureEntra";
+
+    /// <inheritdoc/>
     public string ClientId { get; init; } = string.Empty;
 
     /// <summary>

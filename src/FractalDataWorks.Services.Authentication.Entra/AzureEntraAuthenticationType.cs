@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.ServiceTypes.Attributes;
 using FractalDataWorks.Services.Authentication;
 using FractalDataWorks.Services.Authentication.Abstractions;
@@ -43,11 +45,18 @@ public sealed class AzureEntraAuthenticationType :
     public override int Priority => 90;
 
     /// <inheritdoc/>
-    public override Type ServiceType => typeof(IAuthenticationService);
+    public override void Configure(IConfiguration configuration)
+    {
+        // No additional configuration needed at the type level
+        // Configuration is handled by the service itself
+    }
 
     /// <inheritdoc/>
-    public override Type ConfigurationType => typeof(IAuthenticationConfiguration);
-
-    /// <inheritdoc/>
-    public override Type FactoryType => typeof(IEntraAuthenticationServiceFactory);
+    public override void Register(IServiceCollection services)
+    {
+        // Register the factory and service
+        // The actual registration logic will be handled by the service registration system
+        services.AddScoped<IEntraAuthenticationServiceFactory, EntraAuthenticationServiceFactory>();
+        services.AddScoped<IAuthenticationService, EntraAuthenticationService>();
+    }
 }

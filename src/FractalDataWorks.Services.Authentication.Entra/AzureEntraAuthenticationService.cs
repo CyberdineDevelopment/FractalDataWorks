@@ -35,7 +35,7 @@ public sealed class EntraAuthenticationService :
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult<IAuthenticationContext>> AuthenticateAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<IAuthenticationContext>> Authenticate(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -61,7 +61,7 @@ public sealed class EntraAuthenticationService :
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult<bool>> ValidateTokenAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<bool>> ValidateToken(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -86,7 +86,7 @@ public sealed class EntraAuthenticationService :
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult<string>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult<string>> RefreshToken(string refreshToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
@@ -111,7 +111,7 @@ public sealed class EntraAuthenticationService :
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult> RevokeTokenAsync(string token, CancellationToken cancellationToken = default)
+    public async Task<IGenericResult> RevokeToken(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -134,6 +134,14 @@ public sealed class EntraAuthenticationService :
             return GenericResult.Failure(
                 AuthenticationMessages.TokenRevocationFailed(ex.Message));
         }
+    }
+
+    /// <inheritdoc/>
+    public override async Task<IGenericResult> Execute(IAuthenticationCommand command)
+    {
+        // Authentication service doesn't use command pattern
+        // Direct method calls are preferred
+        return GenericResult.Failure(AuthenticationMessages.CommandExecutionNotSupported());
     }
 
     /// <inheritdoc/>
