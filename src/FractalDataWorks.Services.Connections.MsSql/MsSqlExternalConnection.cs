@@ -25,7 +25,7 @@ namespace FractalDataWorks.Services.Connections.MsSql;
 /// Each Execute call creates its own connection, executes the command, and automatically
 /// cleans up resources. All connection lifecycle management is handled internally.
 /// </remarks>
-public sealed class MsSqlGenericConnection : IGenericConnection<MsSqlConfiguration>, IExternalDataConnection<MsSqlConfiguration>
+public sealed class MsSqlGenericConnection : IGenericConnection, IExternalDataConnection<MsSqlConfiguration>
 {
     private readonly ILogger<MsSqlGenericConnection> _logger;
     private readonly MsSqlConfiguration _configuration;
@@ -687,15 +687,6 @@ public sealed class MsSqlGenericConnection : IGenericConnection<MsSqlConfigurati
             return GenericResult<IConnectionMetadata>.Failure($"Failed to get metadata: {ex.Message}");
         }
     }
-
-    /// <inheritdoc/>
-    /// <remarks>Not needed in stateless design - configuration is validated in constructor.</remarks>
-    public static Task<IGenericResult> InitializeAsync(MsSqlConfiguration configuration)
-    {
-        return Task.FromResult(GenericResult.Success());
-    }
-
-    Task<IGenericResult> IGenericConnection<MsSqlConfiguration>.InitializeAsync(MsSqlConfiguration configuration) => InitializeAsync(configuration);
 
     #endregion
 
