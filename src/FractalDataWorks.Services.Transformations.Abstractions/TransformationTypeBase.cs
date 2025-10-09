@@ -20,7 +20,7 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// </remarks>
 public abstract class TransformationTypeBase<TService, TFactory, TConfiguration> :
     ServiceTypeBase<TService, TFactory, TConfiguration>,
-    ITransformationType<TService, TFactory, TConfiguration>
+    ITransformationType,ITransformationType<TService, TFactory, TConfiguration>
     where TService : class, ITransformationProvider
     where TFactory : class, IServiceFactory<TService, TConfiguration>
     where TConfiguration : class, ITransformationsConfiguration
@@ -129,6 +129,62 @@ public abstract class TransformationTypeBase<TService, TFactory, TConfiguration>
     /// efficiently than processing records individually.
     /// </remarks>
     public virtual bool SupportsBatchProcessing => false;
+
+    /// <summary>
+    /// Gets a value indicating whether this transformation supports batching.
+    /// </summary>
+    /// <remarks>
+    /// Batching allows processing multiple transformation operations together.
+    /// </remarks>
+    public virtual bool SupportsBatching => SupportsBatchProcessing;
+
+    /// <summary>
+    /// Gets a value indicating whether this transformation is reversible.
+    /// </summary>
+    /// <remarks>
+    /// Reversible transformations can be inverted to recover the original data.
+    /// </remarks>
+    public virtual bool IsReversible => false;
+
+    /// <summary>
+    /// Gets the maximum input size this transformation can handle (in bytes).
+    /// </summary>
+    /// <remarks>
+    /// Helps prevent out-of-memory errors and allows the system
+    /// to select appropriate transformations based on data size.
+    /// </remarks>
+    public virtual long MaxInputSize => MaxInputSizeBytes;
+
+    /// <summary>
+    /// Gets the expected performance characteristics for this transformation.
+    /// </summary>
+    /// <remarks>
+    /// Examples: "fast", "medium", "slow", "variable"
+    /// </remarks>
+    public virtual string PerformanceProfile => "medium";
+
+    /// <summary>
+    /// Gets the memory usage pattern for this transformation.
+    /// </summary>
+    /// <remarks>
+    /// Examples: "constant", "linear", "quadratic", "streaming"
+    /// </remarks>
+    public virtual string MemoryUsagePattern => ResourceUsageCategory;
+
+    /// <summary>
+    /// Gets the supported input formats for this transformation.
+    /// </summary>
+    public virtual IReadOnlyList<string> SupportedInputFormats => SupportedInputTypes;
+
+    /// <summary>
+    /// Gets the supported output formats for this transformation.
+    /// </summary>
+    public virtual IReadOnlyList<string> SupportedOutputFormats => SupportedOutputTypes;
+
+    /// <summary>
+    /// Gets the data container types that this transformation can work with.
+    /// </summary>
+    public virtual IReadOnlyList<IDataContainerType> SupportedContainerTypes => SupportedContainers;
 
     /// <summary>
     /// Gets the maximum input size in bytes this transformation can handle.

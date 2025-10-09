@@ -27,7 +27,7 @@ public interface ITransformationType<TService, TFactory, TConfiguration> : IServ
 /// Non-generic interface for transformation service types.
 /// Provides a common base for all transformation types regardless of generic parameters.
 /// </summary>
-public interface ITransformationType : IServiceType<ITransformationProvider, IServiceFactory<ITransformationProvider, ITransformationsConfiguration>, ITransformationsConfiguration>
+public interface ITransformationType : IServiceType
 {
     /// <summary>
     /// Gets the input type for this transformation.
