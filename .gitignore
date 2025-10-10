@@ -355,3 +355,6 @@ src/FractalDataWorks.McpTools.Git/
 src/FractalDataWorks.McpTools.Todo/
 src/FractalDataWorks.McpTools.Web/
 docs/ClaudeCode_Integration_Status.md
+/data_architecture.txt
+/data_architecture_clean.md
+/data_architecture_detailed.md
