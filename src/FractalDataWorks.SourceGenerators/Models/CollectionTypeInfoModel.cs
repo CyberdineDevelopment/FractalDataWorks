@@ -168,6 +168,12 @@ public class CollectionTypeInfoModel : IInputInfoModel, IEquatable<CollectionTyp
     public string? CollectionClassName { get; set; }
 
     /// <summary>
+    /// Gets or sets the target framework for the compilation (e.g., "net8.0", "netstandard2.0").
+    /// Used to conditionally generate code based on target framework capabilities.
+    /// </summary>
+    public string? TargetFramework { get; set; }
+
+    /// <summary>
     /// Gets the ID value for a specific value.
     /// </summary>
     /// <param name="value">The value to get the ID for.</param>
@@ -230,6 +236,7 @@ public class CollectionTypeInfoModel : IInputInfoModel, IEquatable<CollectionTyp
         writer.Write(ReturnTypeNamespace ?? string.Empty);
         writer.Write(InheritsFromCollectionBase);
         writer.Write(CollectionClassName ?? string.Empty);
+        writer.Write(TargetFramework ?? string.Empty);
 
         // Write generic type information
         writer.Write(UnboundTypeName);

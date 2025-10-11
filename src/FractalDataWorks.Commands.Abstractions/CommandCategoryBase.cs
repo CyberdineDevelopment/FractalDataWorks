@@ -1,4 +1,4 @@
-using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.Collections;
 
 namespace FractalDataWorks.Commands.Abstractions;
 
@@ -9,29 +9,46 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// Inherit from this class to define specific command categories with
 /// their execution characteristics and requirements.
 /// </remarks>
-public abstract class CommandCategoryBase : EnhancedEnumBase<CommandCategoryBase, ICommandCategory>, ICommandCategory
+public abstract class CommandCategoryBase : TypeOptionBase<CommandCategoryBase>, ICommandCategory
 {
     /// <inheritdoc/>
-    public abstract bool RequiresTransaction { get; }
+    public bool RequiresTransaction { get; }
 
     /// <inheritdoc/>
-    public abstract bool SupportsStreaming { get; }
+    public bool SupportsStreaming { get; }
 
     /// <inheritdoc/>
-    public abstract bool IsCacheable { get; }
+    public bool IsCacheable { get; }
 
     /// <inheritdoc/>
-    public abstract bool IsMutation { get; }
+    public bool IsMutation { get; }
 
     /// <inheritdoc/>
-    public virtual int ExecutionPriority => 50;
+    public int ExecutionPriority { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommandCategoryBase"/> class.
     /// </summary>
     /// <param name="id">The unique identifier for this category.</param>
     /// <param name="name">The name of this category.</param>
-    protected CommandCategoryBase(int id, string name) : base(id, name)
+    /// <param name="requiresTransaction">Whether commands in this category require transactions.</param>
+    /// <param name="supportsStreaming">Whether commands in this category support streaming.</param>
+    /// <param name="isCacheable">Whether command results can be cached.</param>
+    /// <param name="isMutation">Whether commands modify data.</param>
+    /// <param name="executionPriority">The execution priority (default 50).</param>
+    protected CommandCategoryBase(
+        int id,
+        string name,
+        bool requiresTransaction,
+        bool supportsStreaming,
+        bool isCacheable,
+        bool isMutation,
+        int executionPriority = 50) : base(id, name)
     {
+        RequiresTransaction = requiresTransaction;
+        SupportsStreaming = supportsStreaming;
+        IsCacheable = isCacheable;
+        IsMutation = isMutation;
+        ExecutionPriority = executionPriority;
     }
 }

@@ -1,5 +1,6 @@
 using System;
-using FractalDataWorks.Services.Abstractions.Commands;
+using FluentValidation.Results;
+using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Commands.Abstractions;
 
@@ -12,7 +13,7 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// operation abstraction across different implementations (SQL, HTTP, etc.).
 /// All commands should be immutable with init-only properties.
 /// </remarks>
-public interface ICommand : FractalDataWorks.Services.Abstractions.Commands.ICommand
+public interface ICommand
 {
     /// <summary>
     /// Gets the unique identifier for this command instance.
@@ -37,4 +38,28 @@ public interface ICommand : FractalDataWorks.Services.Abstractions.Commands.ICom
     /// </summary>
     /// <value>The category that determines command behavior and requirements.</value>
     ICommandCategory Category { get; }
+
+    /// <summary>
+    /// Validates this command.
+    /// </summary>
+    /// <returns>A GenericResult containing the validation result.</returns>
+    IGenericResult<ValidationResult> Validate();
+}
+
+/// <summary>
+/// Represents a command that can be executed with a payload.
+/// </summary>
+/// <typeparam name="T">The type of the payload carried by this command.</typeparam>
+public interface ICommand<T> : ICommand
+{
+    /// <summary>
+    /// Gets the payload of the command.
+    /// </summary>
+    T? Payload { get; init; }
+
+    /// <summary>
+    /// Validates this command.
+    /// </summary>
+    /// <returns>A GenericResult containing the validation result.</returns>
+    new IGenericResult<ValidationResult> Validate();
 }

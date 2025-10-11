@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using FluentValidation.Results;
 using FractalDataWorks.Commands.Abstractions;
 using FractalDataWorks.Commands.Abstractions.Commands;
+using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Data.Sql.Commands;
 
@@ -72,4 +74,19 @@ public sealed record SqlQueryCommand : IQueryCommand
     /// Gets whether this command has been optimized.
     /// </summary>
     public bool IsOptimized { get; init; }
+
+    /// <inheritdoc/>
+    public IGenericResult<ValidationResult> Validate()
+    {
+        var result = new ValidationResult();
+
+        if (string.IsNullOrWhiteSpace(SqlText))
+        {
+            result.Errors.Add(new ValidationFailure(nameof(SqlText), "SQL text cannot be empty"));
+        }
+
+        return result.IsValid
+            ? GenericResult<ValidationResult>.Success(result)
+            : GenericResult<ValidationResult>.Failure(result);
+    }
 }

@@ -1,6 +1,5 @@
 using FractalDataWorks.Messages;
 using FractalDataWorks.Messages.Attributes;
-using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Commands.Abstractions.Messages;
 
@@ -12,7 +11,7 @@ namespace FractalDataWorks.Commands.Abstractions.Messages;
 /// including errors, warnings, and informational messages.
 /// </remarks>
 [MessageCollection("CommandMessages")]
-public abstract class CommandMessage : MessageTemplate<MessageSeverity>, IServiceMessage
+public abstract class CommandMessage : MessageTemplate<MessageSeverity>, IGenericMessage
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CommandMessage"/> class.

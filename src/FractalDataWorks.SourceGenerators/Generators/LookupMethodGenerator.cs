@@ -28,7 +28,7 @@ public sealed class LookupMethodGenerator
     /// <summary>
     /// Generates dynamic lookup methods based on [TypeLookup] attributes.
     /// Creates methods like Name(string name) and Id(int id).
-    /// Uses GetAlternateLookup on NET8+ and separate dictionaries on netstandard2.0.
+    /// Uses GetAlternateLookup on NET8+ and separate dictionaries on older targets.
     /// </summary>
     public IMethodBuilder[] GenerateDynamicLookupMethods(
         GenericTypeInfoModel definition,
@@ -38,7 +38,7 @@ public sealed class LookupMethodGenerator
             return Array.Empty<IMethodBuilder>();
 
         var methods = definition.LookupProperties
-            .Select(lookup => GenerateLookupMethod(lookup, returnType))
+            .Select(lookup => GenerateLookupMethod(lookup, returnType, definition.TargetFramework))
             .ToArray();
 
         return methods;
@@ -46,7 +46,8 @@ public sealed class LookupMethodGenerator
 
     private IMethodBuilder GenerateLookupMethod(
         PropertyLookupInfoModel lookup,
-        string returnType)
+        string returnType,
+        string? targetFramework)
     {
         var methodName = lookup.PropertyName; // Clean name: Id, Name, Category
         var parameterName = lookup.PropertyName.ToLower(CultureInfo.InvariantCulture); // id, name, category
@@ -63,14 +64,22 @@ public sealed class LookupMethodGenerator
         }
         else
         {
-            // For alternate key lookups, use platform-specific approach
+            // For alternate key lookups, check target framework
+            bool supportsAlternateLookup = IsNet8OrGreater(targetFramework);
             var dictionaryName = $"_by{lookup.PropertyName}";
-            methodBody = $@"#if NET8_0_OR_GREATER
-        var alternateLookup = _all.GetAlternateLookup<{lookup.PropertyType}>();
-        return alternateLookup.TryGetValue({parameterName}, out var result) ? result : _empty;
-#else
-        return {dictionaryName}.TryGetValue({parameterName}, out var result) ? result : _empty;
-#endif";
+
+            if (supportsAlternateLookup)
+            {
+                // NET8.0+ approach using AlternateLookup
+                methodBody = $@"var alternateLookup = _all.GetAlternateLookup<{lookup.PropertyType}>();
+        return alternateLookup.TryGetValue({parameterName}, out var result) ? result : _empty;";
+            }
+            else
+            {
+                // Pre-NET8.0 approach using separate dictionary
+                methodBody = $"return {dictionaryName}.TryGetValue({parameterName}, out var result) ? result : _empty;";
+            }
+
             useExpressionBody = false;
         }
 
@@ -94,5 +103,33 @@ public sealed class LookupMethodGenerator
         }
 
         return method;
+    }
+
+    /// <summary>
+    /// Determines if the target framework is NET8.0 or greater.
+    /// </summary>
+    private static bool IsNet8OrGreater(string? targetFramework)
+    {
+        if (string.IsNullOrEmpty(targetFramework))
+            return false;
+
+        // Check for net8.0, net9.0, net10.0, etc.
+        if (targetFramework.StartsWith("net", StringComparison.OrdinalIgnoreCase))
+        {
+            // Extract version number (e.g., "net8.0" -> "8", "net10.0" -> "10")
+            var versionPart = targetFramework.Substring(3);
+            var dotIndex = versionPart.IndexOf('.');
+            if (dotIndex > 0)
+            {
+                versionPart = versionPart.Substring(0, dotIndex);
+            }
+
+            if (int.TryParse(versionPart, out var version))
+            {
+                return version >= 8;
+            }
+        }
+
+        return false;
     }
 }

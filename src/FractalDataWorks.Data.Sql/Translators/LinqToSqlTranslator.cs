@@ -7,7 +7,6 @@ using FractalDataWorks.Commands.Abstractions;
 using FractalDataWorks.Commands.Abstractions.Commands;
 using FractalDataWorks.Data.Abstractions;
 using FractalDataWorks.Data.Sql.Commands;
-using FractalDataWorks.Data.Sql.Formats;
 using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Data.Sql.Translators;

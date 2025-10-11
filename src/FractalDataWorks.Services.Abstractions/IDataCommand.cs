@@ -1,4 +1,4 @@
-using FractalDataWorks.Services.Abstractions.Commands;
+using FractalDataWorks.Commands.Abstractions;
 
 namespace FractalDataWorks.Services.Abstractions;
 

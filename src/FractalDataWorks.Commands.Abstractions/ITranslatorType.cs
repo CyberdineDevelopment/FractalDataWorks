@@ -12,7 +12,7 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// Translator types define the capabilities and metadata for command translators
 /// that convert between different command formats (e.g., LINQ to SQL, LINQ to HTTP).
 /// </remarks>
-public interface ITranslatorType : ITypeOption<ITranslatorType>
+public interface ITranslatorType : ITypeOption<TranslatorTypeBase>
 {
     /// <summary>
     /// Gets the source format this translator handles.

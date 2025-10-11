@@ -11,13 +11,13 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// including their supported translators and execution characteristics.
 /// Types are registered via TypeCollections for discovery and routing.
 /// </remarks>
-public interface ICommandType : ITypeOption<ICommandType>
+public interface ICommandType : ITypeOption<CommandTypeBase>
 {
     /// <summary>
     /// Gets the command category for this type.
     /// </summary>
     /// <value>The category that defines behavior and requirements.</value>
-    ICommandCategory Category { get; }
+    ICommandCategory CommandCategory { get; }
 
     /// <summary>
     /// Gets the supported translator types for this command.

@@ -16,4 +16,13 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Explicitly embed the Collections generator DLL for NuGet packaging -->
+    <None Include="..\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false"
+          Condition="Exists('..\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll')" />
+  </ItemGroup>
+
 </Project>

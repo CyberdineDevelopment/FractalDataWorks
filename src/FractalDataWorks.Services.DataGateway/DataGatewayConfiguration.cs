@@ -8,7 +8,7 @@ namespace FractalDataWorks.Services.DataGateway;
 public sealed class DataGatewayConfiguration : IDataGatewayConfiguration
 {
     /// <inheritdoc/>
-    public required string Id { get; init; }
+    public required int Id { get; init; }
 
     /// <inheritdoc/>
     public required string Type { get; init; }

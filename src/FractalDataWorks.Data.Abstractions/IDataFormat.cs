@@ -1,4 +1,4 @@
-using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.Collections;
 
 namespace FractalDataWorks.Data.Abstractions;
 
@@ -7,10 +7,10 @@ namespace FractalDataWorks.Data.Abstractions;
 /// </summary>
 /// <remarks>
 /// Data formats represent different ways data can be structured and transmitted,
-/// such as SQL, JSON, XML, CSV, Parquet, etc. Formats are implemented as EnhancedEnums
+/// such as SQL, JSON, XML, CSV, Parquet, etc. Formats are implemented as type options
 /// for extensibility and type-safe comparisons.
 /// </remarks>
-public interface IDataFormat : IEnhancedEnum<IDataFormat>
+public interface IDataFormat : ITypeOption<DataFormatBase>
 {
     /// <summary>
     /// Gets whether this format supports schema discovery.

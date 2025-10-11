@@ -1,4 +1,5 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Data.Abstractions;
 
@@ -10,12 +11,7 @@ namespace FractalDataWorks.Data.Abstractions;
 /// that inherit from DataFormatBase and implement IDataFormat.
 /// Provides standard data formats used across the framework.
 /// </remarks>
-[EnhancedEnumCollection(typeof(DataFormatBase), typeof(IDataFormat), typeof(DataFormats))]
-public partial class DataFormats
+[TypeCollection(typeof(DataFormatBase), typeof(IDataFormat), typeof(DataFormats))]
+public abstract partial class DataFormats : TypeCollectionBase<DataFormatBase, IDataFormat>
 {
-    // Source generator will add:
-    // - public static IReadOnlyList<IDataFormat> All { get; }
-    // - public static IDataFormat GetById(int id)
-    // - public static IDataFormat GetByName(string name)
-    // - Individual static properties for each format
 }

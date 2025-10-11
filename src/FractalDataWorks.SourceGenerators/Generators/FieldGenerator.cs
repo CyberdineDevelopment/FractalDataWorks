@@ -55,7 +55,7 @@ public sealed class FieldGenerator
 
     /// <summary>
     /// Generates lookup dictionary fields for non-ID properties (e.g., _byName).
-    /// Uses conditional compilation to only generate for netstandard2.0.
+    /// Only generates fields for pre-NET8.0 targets that don't support AlternateLookup.
     /// </summary>
     public List<IFieldBuilder> GenerateLookupDictionaryFields(
         GenericTypeInfoModel definition,
@@ -74,47 +74,56 @@ public sealed class FieldGenerator
         if (nonIdLookups.Count == 0)
             return fields;
 
-        // First field gets #if directive
-        var firstLookup = nonIdLookups[0];
-        var firstField = new FieldBuilder()
-            .WithName($"_by{firstLookup.PropertyName}")
-            .WithType($"FrozenDictionary<{firstLookup.PropertyType}, {returnType}>")
-            .WithAccessModifier("private")
-            .AsStatic()
-            .AsReadOnly()
-            .WithXmlDoc($"Lookup dictionary for {firstLookup.PropertyName}-based searches (netstandard2.0 only).")
-            .WithPreprocessorDirective("if !NET8_0_OR_GREATER");
+        // Check if target framework supports AlternateLookup (NET8.0+)
+        bool supportsAlternateLookup = IsNet8OrGreater(definition.TargetFramework);
 
-        fields.Add(firstField);
+        // Don't generate lookup dictionaries if the target supports AlternateLookup
+        if (supportsAlternateLookup)
+            return fields;
 
-        // Remaining fields without directives
-        for (int i = 1; i < nonIdLookups.Count; i++)
+        // Generate lookup dictionary fields for pre-NET8.0 targets
+        foreach (var lookup in nonIdLookups)
         {
-            var lookup = nonIdLookups[i];
             var field = new FieldBuilder()
                 .WithName($"_by{lookup.PropertyName}")
                 .WithType($"FrozenDictionary<{lookup.PropertyType}, {returnType}>")
                 .WithAccessModifier("private")
                 .AsStatic()
                 .AsReadOnly()
-                .WithXmlDoc($"Lookup dictionary for {lookup.PropertyName}-based searches (netstandard2.0 only).");
+                .WithXmlDoc($"Lookup dictionary for {lookup.PropertyName}-based searches.");
 
             fields.Add(field);
         }
 
-        // Add dummy field with #endif
-        var endifField = new FieldBuilder()
-            .WithName("_preprocessorEnd")
-            .WithType("int")
-            .WithAccessModifier("private")
-            .AsStatic()
-            .AsReadOnly()
-            .WithInitializer("0")
-            .WithPreprocessorDirective("endif");
-
-        fields.Add(endifField);
-
         return fields;
+    }
+
+    /// <summary>
+    /// Determines if the target framework is NET8.0 or greater.
+    /// </summary>
+    private static bool IsNet8OrGreater(string? targetFramework)
+    {
+        if (string.IsNullOrEmpty(targetFramework))
+            return false;
+
+        // Check for net8.0, net9.0, net10.0, etc.
+        if (targetFramework.StartsWith("net", StringComparison.OrdinalIgnoreCase))
+        {
+            // Extract version number (e.g., "net8.0" -> "8", "net10.0" -> "10")
+            var versionPart = targetFramework.Substring(3);
+            var dotIndex = versionPart.IndexOf('.');
+            if (dotIndex > 0)
+            {
+                versionPart = versionPart.Substring(0, dotIndex);
+            }
+
+            if (int.TryParse(versionPart, out var version))
+            {
+                return version >= 8;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>

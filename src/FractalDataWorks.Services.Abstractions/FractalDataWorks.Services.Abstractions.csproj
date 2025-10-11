@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FractalDataWorks.Commands.Abstractions\FractalDataWorks.Commands.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Configuration.Abstractions\FractalDataWorks.Configuration.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Messages\FractalDataWorks.Messages.csproj" />

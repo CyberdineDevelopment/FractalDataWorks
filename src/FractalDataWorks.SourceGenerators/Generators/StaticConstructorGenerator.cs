@@ -121,8 +121,10 @@ public sealed class StaticConstructorGenerator
             constructorBody.AppendLine("_empty = null!;");
         }
 
-        // Initialize lookup dictionaries for netstandard2.0 (NET8+ uses GetAlternateLookup instead)
-        if (definition.LookupProperties != null && definition.LookupProperties.Count() > 0)
+        // Initialize lookup dictionaries for pre-NET8.0 targets (NET8+ uses GetAlternateLookup instead)
+        bool supportsAlternateLookup = IsNet8OrGreater(definition.TargetFramework);
+
+        if (!supportsAlternateLookup && definition.LookupProperties != null && definition.LookupProperties.Count() > 0)
         {
             var nonIdLookups = definition.LookupProperties
                 .Where(l => !string.Equals(l.PropertyName, "Id", StringComparison.Ordinal))
@@ -131,15 +133,12 @@ public sealed class StaticConstructorGenerator
             if (nonIdLookups.Count > 0)
             {
                 constructorBody.AppendLine();
-                constructorBody.AppendLine("#if !NET8_0_OR_GREATER");
 
                 foreach (var lookup in nonIdLookups)
                 {
                     var dictionaryName = $"_by{lookup.PropertyName}";
                     constructorBody.AppendLine($"{dictionaryName} = _all.Values.ToFrozenDictionary(x => x.{lookup.PropertyName});");
                 }
-
-                constructorBody.AppendLine("#endif");
             }
         }
 
@@ -149,5 +148,33 @@ public sealed class StaticConstructorGenerator
             .WithBody(constructorBody.ToString());
 
         return constructor;
+    }
+
+    /// <summary>
+    /// Determines if the target framework is NET8.0 or greater.
+    /// </summary>
+    private static bool IsNet8OrGreater(string? targetFramework)
+    {
+        if (string.IsNullOrEmpty(targetFramework))
+            return false;
+
+        // Check for net8.0, net9.0, net10.0, etc.
+        if (targetFramework.StartsWith("net", StringComparison.OrdinalIgnoreCase))
+        {
+            // Extract version number (e.g., "net8.0" -> "8", "net10.0" -> "10")
+            var versionPart = targetFramework.Substring(3);
+            var dotIndex = versionPart.IndexOf('.');
+            if (dotIndex > 0)
+            {
+                versionPart = versionPart.Substring(0, dotIndex);
+            }
+
+            if (int.TryParse(versionPart, out var version))
+            {
+                return version >= 8;
+            }
+        }
+
+        return false;
     }
 }

@@ -1,16 +1,10 @@
-using FractalDataWorks.Collections.Attributes;
 using FractalDataWorks.Commands.Abstractions;
 
 namespace FractalDataWorks.Data.Sql.Commands;
 
 /// <summary>
-/// Command category for SQL query operations.
+/// Category for SQL query commands that read data without modification.
 /// </summary>
-/// <remarks>
-/// Represents read-only SQL operations that retrieve data
-/// without modifying the database state.
-/// </remarks>
-[TypeOption(typeof(CommandCategories), "SqlQuery")]
 public sealed class SqlQueryCategory : CommandCategoryBase
 {
     /// <summary>
@@ -18,22 +12,15 @@ public sealed class SqlQueryCategory : CommandCategoryBase
     /// </summary>
     public static SqlQueryCategory Instance { get; } = new();
 
-    /// <inheritdoc/>
-    public override bool RequiresTransaction => false;
-
-    /// <inheritdoc/>
-    public override bool SupportsStreaming => true;
-
-    /// <inheritdoc/>
-    public override bool IsCacheable => true;
-
-    /// <inheritdoc/>
-    public override bool IsMutation => false;
-
-    /// <inheritdoc/>
-    public override int ExecutionPriority => 100;
-
-    internal SqlQueryCategory() : base(1, "SqlQuery")
+    private SqlQueryCategory()
+        : base(
+            id: 1,
+            name: "SqlQuery",
+            requiresTransaction: false,
+            supportsStreaming: true,
+            isCacheable: true,
+            isMutation: false,
+            executionPriority: 50)
     {
     }
 }

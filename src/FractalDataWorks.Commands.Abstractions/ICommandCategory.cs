@@ -1,4 +1,4 @@
-using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.Collections;
 
 namespace FractalDataWorks.Commands.Abstractions;
 
@@ -7,10 +7,10 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// </summary>
 /// <remarks>
 /// Command categories determine execution characteristics such as transaction requirements,
-/// streaming support, and validation rules. Categories are implemented as EnhancedEnums
+/// streaming support, and validation rules. Categories are implemented as type options
 /// for extensibility and type safety.
 /// </remarks>
-public interface ICommandCategory : IEnhancedEnum<ICommandCategory>
+public interface ICommandCategory : ITypeOption<CommandCategoryBase>
 {
     /// <summary>
     /// Gets whether commands in this category require transaction support.

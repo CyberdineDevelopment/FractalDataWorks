@@ -59,19 +59,3 @@ public interface IQueryCommand : IDataCommand
     /// <value>How long to cache results, if cacheable.</value>
     int? CacheDurationSeconds { get; }
 }
-
-/// <summary>
-/// Specifies ordering for query results.
-/// </summary>
-public interface IOrderSpecification
-{
-    /// <summary>
-    /// Gets the field name to order by.
-    /// </summary>
-    string FieldName { get; }
-
-    /// <summary>
-    /// Gets whether to order in descending order.
-    /// </summary>
-    bool IsDescending { get; }
-}

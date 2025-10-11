@@ -1,4 +1,5 @@
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections;
+using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Commands.Abstractions;
 
@@ -9,12 +10,7 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// This collection is populated by the source generator with all types
 /// that inherit from CommandCategoryBase and implement ICommandCategory.
 /// </remarks>
-[EnhancedEnumCollection(typeof(CommandCategoryBase), typeof(ICommandCategory), typeof(CommandCategories))]
-public partial class CommandCategories
+[TypeCollection(typeof(CommandCategoryBase), typeof(ICommandCategory), typeof(CommandCategories))]
+public abstract partial class CommandCategories : TypeCollectionBase<CommandCategoryBase, ICommandCategory>
 {
-    // Source generator will add:
-    // - public static IReadOnlyList<ICommandCategory> All { get; }
-    // - public static ICommandCategory GetById(int id)
-    // - public static ICommandCategory GetByName(string name)
-    // - Individual static properties for each category
 }

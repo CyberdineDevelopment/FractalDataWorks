@@ -1,7 +1,7 @@
 using System;
+using FractalDataWorks.Collections;
 using FractalDataWorks.Data.Abstractions;
 using FractalDataWorks.Results;
-using FractalDataWorks.ServiceTypes;
 
 namespace FractalDataWorks.Commands.Abstractions;
 
@@ -13,19 +13,19 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// Inherit from this class to define specific translator types that will be discovered
 /// by the TypeCollection source generator.
 /// </remarks>
-public abstract class TranslatorTypeBase : TypeOptionBase<TranslatorTypeBase, ITranslatorType>, ITranslatorType
+public abstract class TranslatorTypeBase : TypeOptionBase<TranslatorTypeBase>, ITranslatorType
 {
     /// <inheritdoc/>
-    public abstract IDataFormat SourceFormat { get; }
+    public IDataFormat SourceFormat { get; }
 
     /// <inheritdoc/>
-    public abstract IDataFormat TargetFormat { get; }
+    public IDataFormat TargetFormat { get; }
 
     /// <inheritdoc/>
-    public abstract TranslationCapabilities Capabilities { get; }
+    public TranslationCapabilities Capabilities { get; }
 
     /// <inheritdoc/>
-    public virtual int Priority => 50;
+    public int Priority { get; }
 
     /// <inheritdoc/>
     public abstract IGenericResult<ICommandTranslator> CreateTranslator(IServiceProvider services);
@@ -36,8 +36,23 @@ public abstract class TranslatorTypeBase : TypeOptionBase<TranslatorTypeBase, IT
     /// <param name="id">The unique identifier for this translator type.</param>
     /// <param name="name">The name of this translator type.</param>
     /// <param name="description">The description of this translator type.</param>
-    protected TranslatorTypeBase(int id, string name, string description)
+    /// <param name="sourceFormat">The source format this translator handles.</param>
+    /// <param name="targetFormat">The target format this translator produces.</param>
+    /// <param name="capabilities">The translation capabilities.</param>
+    /// <param name="priority">The priority for translator selection (default 50).</param>
+    protected TranslatorTypeBase(
+        int id,
+        string name,
+        string description,
+        IDataFormat sourceFormat,
+        IDataFormat targetFormat,
+        TranslationCapabilities capabilities,
+        int priority = 50)
         : base(id, name, description)
     {
+        SourceFormat = sourceFormat;
+        TargetFormat = targetFormat;
+        Capabilities = capabilities;
+        Priority = priority;
     }
 }

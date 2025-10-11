@@ -1,5 +1,6 @@
-using FractalDataWorks.ServiceTypes;
-using FractalDataWorks.ServiceTypes.Attributes;
+using FractalDataWorks.Collections;
+using FractalDataWorks.Collections.Attributes;
+using FractalDataWorks.Data.Abstractions;
 
 namespace FractalDataWorks.Commands.Abstractions;
 
@@ -11,8 +12,8 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// that inherit from TranslatorTypeBase and implement ITranslatorType.
 /// Provides high-performance lookups for translator discovery and routing.
 /// </remarks>
-[ServiceTypeCollection(typeof(TranslatorTypeBase), typeof(ITranslatorType), typeof(TranslatorTypes))]
-public static partial class TranslatorTypes
+[TypeCollection(typeof(TranslatorTypeBase), typeof(ITranslatorType), typeof(TranslatorTypes))]
+public abstract partial class TranslatorTypes : TypeCollectionBase<TranslatorTypeBase, ITranslatorType>
 {
     // Source generator will add:
     // - public static IReadOnlyList<ITranslatorType> All { get; }
@@ -30,7 +31,7 @@ public static partial class TranslatorTypes
     {
         var translators = new System.Collections.Generic.List<ITranslatorType>();
 
-        foreach (var translator in All)
+        foreach (var translator in All())
         {
             if (translator.SourceFormat.Id == sourceFormat.Id &&
                 translator.TargetFormat.Id == targetFormat.Id)

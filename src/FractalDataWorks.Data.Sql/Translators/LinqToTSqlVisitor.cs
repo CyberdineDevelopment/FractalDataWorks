@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
 
 namespace FractalDataWorks.Data.Sql.Translators;
 
@@ -11,10 +10,10 @@ namespace FractalDataWorks.Data.Sql.Translators;
 /// </summary>
 public sealed class LinqToTSqlVisitor : ExpressionVisitor
 {
-    private readonly Stack<TSqlFragment> _fragments = new();
+    private readonly Stack<Microsoft.SqlServer.TransactSql.ScriptDom.TSqlFragment> _fragments = new();
     private readonly List<string> _errors = new();
-    private SelectStatement? _currentSelect;
-    private QuerySpecification? _currentQuery;
+    private Microsoft.SqlServer.TransactSql.ScriptDom.SelectStatement? _currentSelect;
+    private Microsoft.SqlServer.TransactSql.ScriptDom.QuerySpecification? _currentQuery;
 
     /// <summary>
     /// Determines if this visitor can translate the given expression.
@@ -43,12 +42,12 @@ public sealed class LinqToTSqlVisitor : ExpressionVisitor
     /// <summary>
     /// Visits an expression and returns the resulting T-SQL fragment.
     /// </summary>
-    public TSqlFragment? Visit(Expression expression)
+    public new Microsoft.SqlServer.TransactSql.ScriptDom.TSqlFragment? Visit(Expression expression)
     {
         _errors.Clear();
         _fragments.Clear();
-        _currentSelect = new SelectStatement();
-        _currentQuery = new QuerySpecification();
+        _currentSelect = new Microsoft.SqlServer.TransactSql.ScriptDom.SelectStatement();
+        _currentQuery = new Microsoft.SqlServer.TransactSql.ScriptDom.QuerySpecification();
         _currentSelect.QueryExpression = _currentQuery;
 
         base.Visit(expression);
@@ -92,7 +91,7 @@ public sealed class LinqToTSqlVisitor : ExpressionVisitor
         {
             if (_currentQuery.WhereClause == null)
             {
-                _currentQuery.WhereClause = new WhereClause();
+                _currentQuery.WhereClause = new Microsoft.SqlServer.TransactSql.ScriptDom.WhereClause();
             }
             _currentQuery.WhereClause.SearchCondition = comparison;
         }
@@ -107,21 +106,21 @@ public sealed class LinqToTSqlVisitor : ExpressionVisitor
         {
             // This is likely the table source
             var tableName = queryable.ElementType.Name;
-            var tableReference = new NamedTableReference
+            var tableReference = new Microsoft.SqlServer.TransactSql.ScriptDom.NamedTableReference
             {
-                SchemaObject = new SchemaObjectName
+                SchemaObject = new Microsoft.SqlServer.TransactSql.ScriptDom.SchemaObjectName
                 {
                     Identifiers =
                     {
-                        new Identifier { Value = "dbo" },
-                        new Identifier { Value = tableName }
+                        new Microsoft.SqlServer.TransactSql.ScriptDom.Identifier { Value = "dbo" },
+                        new Microsoft.SqlServer.TransactSql.ScriptDom.Identifier { Value = tableName }
                     }
                 }
             };
 
             if (_currentQuery != null)
             {
-                _currentQuery.FromClause = new FromClause();
+                _currentQuery.FromClause = new Microsoft.SqlServer.TransactSql.ScriptDom.FromClause();
                 _currentQuery.FromClause.TableReferences.Add(tableReference);
             }
         }
@@ -214,13 +213,13 @@ public sealed class LinqToTSqlVisitor : ExpressionVisitor
         var keySelector = node.Arguments[1];
         if (keySelector is UnaryExpression unary && unary.Operand is LambdaExpression lambda)
         {
-            var orderByClause = new OrderByClause();
-            var element = new ExpressionWithSortOrder
+            var orderByClause = new Microsoft.SqlServer.TransactSql.ScriptDom.OrderByClause();
+            var element = new Microsoft.SqlServer.TransactSql.ScriptDom.ExpressionWithSortOrder
             {
                 Expression = CreateColumnReference(lambda.Body),
                 SortOrder = node.Method.Name.Contains("Descending")
-                    ? SortOrder.Descending
-                    : SortOrder.Ascending
+                    ? Microsoft.SqlServer.TransactSql.ScriptDom.SortOrder.Descending
+                    : Microsoft.SqlServer.TransactSql.ScriptDom.SortOrder.Ascending
             };
             orderByClause.OrderByElements.Add(element);
             _currentQuery.OrderByClause = orderByClause;
@@ -243,9 +242,9 @@ public sealed class LinqToTSqlVisitor : ExpressionVisitor
         // Get the count
         if (node.Arguments[1] is ConstantExpression constant && constant.Value is int count)
         {
-            _currentQuery.TopRowFilter = new TopRowFilter
+            _currentQuery.TopRowFilter = new Microsoft.SqlServer.TransactSql.ScriptDom.TopRowFilter
             {
-                Expression = new IntegerLiteral { Value = count.ToString() }
+                Expression = new Microsoft.SqlServer.TransactSql.ScriptDom.IntegerLiteral { Value = count.ToString() }
             };
         }
 
@@ -267,9 +266,9 @@ public sealed class LinqToTSqlVisitor : ExpressionVisitor
         if (node.Arguments[1] is ConstantExpression constant && constant.Value is int count)
         {
             // SQL Server uses OFFSET for Skip
-            _currentQuery.OffsetClause = new OffsetClause
+            _currentQuery.OffsetClause = new Microsoft.SqlServer.TransactSql.ScriptDom.OffsetClause
             {
-                OffsetExpression = new IntegerLiteral { Value = count.ToString() },
+                OffsetExpression = new Microsoft.SqlServer.TransactSql.ScriptDom.IntegerLiteral { Value = count.ToString() },
                 FetchExpression = null
             };
         }
@@ -284,7 +283,7 @@ public sealed class LinqToTSqlVisitor : ExpressionVisitor
         // Simple case: selecting all columns
         if (lambda.Body == lambda.Parameters[0])
         {
-            _currentQuery.SelectElements.Add(new SelectStarExpression());
+            _currentQuery.SelectElements.Add(new Microsoft.SqlServer.TransactSql.ScriptDom.SelectStarExpression());
             return;
         }
 
@@ -296,12 +295,12 @@ public sealed class LinqToTSqlVisitor : ExpressionVisitor
                 if (binding is MemberAssignment assignment)
                 {
                     var column = CreateColumnReference(assignment.Expression);
-                    var element = new SelectScalarExpression
+                    var element = new Microsoft.SqlServer.TransactSql.ScriptDom.SelectScalarExpression
                     {
                         Expression = column,
-                        ColumnName = new IdentifierOrValueExpression
+                        ColumnName = new Microsoft.SqlServer.TransactSql.ScriptDom.IdentifierOrValueExpression
                         {
-                            Identifier = new Identifier { Value = binding.Member.Name }
+                            Identifier = new Microsoft.SqlServer.TransactSql.ScriptDom.Identifier { Value = binding.Member.Name }
                         }
                     };
                     _currentQuery.SelectElements.Add(element);
@@ -312,45 +311,45 @@ public sealed class LinqToTSqlVisitor : ExpressionVisitor
         {
             // Single column selection
             var column = CreateColumnReference(lambda.Body);
-            var element = new SelectScalarExpression { Expression = column };
+            var element = new Microsoft.SqlServer.TransactSql.ScriptDom.SelectScalarExpression { Expression = column };
             _currentQuery.SelectElements.Add(element);
         }
     }
 
-    private ScalarExpression CreateColumnReference(Expression expression)
+    private Microsoft.SqlServer.TransactSql.ScriptDom.ScalarExpression CreateColumnReference(Expression expression)
     {
         if (expression is MemberExpression member)
         {
-            return new ColumnReferenceExpression
+            return new Microsoft.SqlServer.TransactSql.ScriptDom.ColumnReferenceExpression
             {
-                MultiPartIdentifier = new MultiPartIdentifier
+                MultiPartIdentifier = new Microsoft.SqlServer.TransactSql.ScriptDom.MultiPartIdentifier
                 {
-                    Identifiers = { new Identifier { Value = member.Member.Name } }
+                    Identifiers = { new Microsoft.SqlServer.TransactSql.ScriptDom.Identifier { Value = member.Member.Name } }
                 }
             };
         }
 
         // Default to a literal for now
-        return new StringLiteral { Value = expression.ToString() };
+        return new Microsoft.SqlServer.TransactSql.ScriptDom.StringLiteral { Value = expression.ToString() };
     }
 
-    private BooleanExpression? CreateComparisonFromBinary(BinaryExpression node)
+    private Microsoft.SqlServer.TransactSql.ScriptDom.BooleanExpression? CreateComparisonFromBinary(BinaryExpression node)
     {
         var left = CreateColumnReference(node.Left);
         var right = CreateColumnReference(node.Right);
 
-        BooleanComparisonType comparisonType = node.NodeType switch
+        Microsoft.SqlServer.TransactSql.ScriptDom.BooleanComparisonType comparisonType = node.NodeType switch
         {
-            ExpressionType.Equal => BooleanComparisonType.Equals,
-            ExpressionType.NotEqual => BooleanComparisonType.NotEqualToBrackets,
-            ExpressionType.GreaterThan => BooleanComparisonType.GreaterThan,
-            ExpressionType.GreaterThanOrEqual => BooleanComparisonType.GreaterThanOrEqualTo,
-            ExpressionType.LessThan => BooleanComparisonType.LessThan,
-            ExpressionType.LessThanOrEqual => BooleanComparisonType.LessThanOrEqualTo,
-            _ => BooleanComparisonType.Equals
+            ExpressionType.Equal => Microsoft.SqlServer.TransactSql.ScriptDom.BooleanComparisonType.Equals,
+            ExpressionType.NotEqual => Microsoft.SqlServer.TransactSql.ScriptDom.BooleanComparisonType.NotEqualToBrackets,
+            ExpressionType.GreaterThan => Microsoft.SqlServer.TransactSql.ScriptDom.BooleanComparisonType.GreaterThan,
+            ExpressionType.GreaterThanOrEqual => Microsoft.SqlServer.TransactSql.ScriptDom.BooleanComparisonType.GreaterThanOrEqualTo,
+            ExpressionType.LessThan => Microsoft.SqlServer.TransactSql.ScriptDom.BooleanComparisonType.LessThan,
+            ExpressionType.LessThanOrEqual => Microsoft.SqlServer.TransactSql.ScriptDom.BooleanComparisonType.LessThanOrEqualTo,
+            _ => Microsoft.SqlServer.TransactSql.ScriptDom.BooleanComparisonType.Equals
         };
 
-        return new BooleanComparisonExpression
+        return new Microsoft.SqlServer.TransactSql.ScriptDom.BooleanComparisonExpression
         {
             ComparisonType = comparisonType,
             FirstExpression = left,

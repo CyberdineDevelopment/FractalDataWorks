@@ -594,7 +594,10 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         {
             rootNamespace = rootNs;
         }
-            
+
+        // Extract target framework for conditional code generation
+        globalOptions.TryGetValue("build_property.TargetFramework", out var targetFramework);
+
 #if DEBUG
         // DEBUG: Output namespace resolution details
         var debugInfo = $@"// NAMESPACE DEBUG (OPTIMIZED):
@@ -617,7 +620,8 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             InheritsFromCollectionBase = true,
             UseSingletonInstances = true,
             GenerateFactoryMethods = true,
-            LookupProperties = ExtractLookupPropertiesFromBaseType(baseType, compilation)
+            LookupProperties = ExtractLookupPropertiesFromBaseType(baseType, compilation),
+            TargetFramework = targetFramework
         };
     }
 

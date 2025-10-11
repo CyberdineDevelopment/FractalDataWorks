@@ -3,12 +3,8 @@ using FractalDataWorks.Commands.Abstractions;
 namespace FractalDataWorks.Data.Sql.Commands;
 
 /// <summary>
-/// Command category for SQL bulk operations.
+/// Category for SQL bulk operation commands.
 /// </summary>
-/// <remarks>
-/// Represents high-performance bulk operations for loading
-/// large amounts of data, such as BULK INSERT and batch operations.
-/// </remarks>
 public sealed class SqlBulkCategory : CommandCategoryBase
 {
     /// <summary>
@@ -16,22 +12,15 @@ public sealed class SqlBulkCategory : CommandCategoryBase
     /// </summary>
     public static SqlBulkCategory Instance { get; } = new();
 
-    /// <inheritdoc/>
-    public override bool RequiresTransaction => true;
-
-    /// <inheritdoc/>
-    public override bool SupportsStreaming => true;
-
-    /// <inheritdoc/>
-    public override bool IsCacheable => false;
-
-    /// <inheritdoc/>
-    public override bool IsMutation => true;
-
-    /// <inheritdoc/>
-    public override int ExecutionPriority => 25;
-
-    private SqlBulkCategory() : base(3, "SqlBulk")
+    private SqlBulkCategory()
+        : base(
+            id: 3,
+            name: "SqlBulk",
+            requiresTransaction: true,
+            supportsStreaming: true,
+            isCacheable: false,
+            isMutation: true,
+            executionPriority: 75)
     {
     }
 }
