@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using FractalDataWorks.ServiceTypes.SourceGenerators.Diagnostics;
 using FractalDataWorks.ServiceTypes.SourceGenerators.Models;
 using FractalDataWorks.SourceGenerators.Models;
 using FractalDataWorks.SourceGenerators.Services;
@@ -39,14 +40,6 @@ namespace FractalDataWorks.ServiceTypes.SourceGenerators.Generators;
 [Generator]
 public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
 {
-    private static readonly DiagnosticDescriptor AbstractPropertyInBaseTypeRule = new(
-        id: "ST006",
-        title: "Abstract properties not allowed in ServiceType base types",
-        messageFormat: "The base type '{0}' contains abstract property '{1}'. ServiceType base types must not have abstract properties - use constructor parameters to pass property values instead.",
-        category: "ServiceTypes",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "ServiceType base types should only have abstract methods, not abstract properties. All properties should be set via constructor parameters.");
     /// <summary>
     /// Initializes the incremental generator for ServiceType collections with optimized attribute-based discovery.
     /// </summary>
@@ -125,7 +118,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
                     if (propertyLocation != null)
                     {
                         var diagnostic = Diagnostic.Create(
-                            AbstractPropertyInBaseTypeRule,
+                            ServiceTypeDiagnostics.AbstractPropertyInBaseTypeRule,
                             propertyLocation,
                             baseType.ToDisplayString(),
                             property.Name);
@@ -1019,13 +1012,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
         {
             // Generate diagnostic for any errors during generation
             var diagnostic = Diagnostic.Create(
-                new DiagnosticDescriptor(
-                    "STCG001",
-                    "ServiceType Collection Generation Failed",
-                    "Failed to generate ServiceType collection {0}: {1}",
-                    "ServiceTypeCollectionGenerator",
-                    DiagnosticSeverity.Error,
-                    isEnabledByDefault: true),
+                ServiceTypeDiagnostics.GenerationFailureRule,
                 Location.None,
                 def.CollectionName,
                 ex.Message);

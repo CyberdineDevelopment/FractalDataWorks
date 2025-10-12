@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using FractalDataWorks.Collections.Models;
+using FractalDataWorks.Collections.SourceGenerators.Diagnostics;
 using FractalDataWorks.Collections.SourceGenerators.Models;
 using FractalDataWorks.SourceGenerators.Models;
 using FractalDataWorks.SourceGenerators.Builders;
@@ -42,18 +43,6 @@ namespace FractalDataWorks.Collections.SourceGenerators.Generators;
 [Generator]
 public sealed class TypeCollectionGenerator : IIncrementalGenerator
 {
-    /// <summary>
-    /// Diagnostic descriptor for abstract properties in base types.
-    /// </summary>
-    private static readonly DiagnosticDescriptor AbstractPropertyInBaseTypeRule = new(
-        id: "TC006",
-        title: "Abstract properties not allowed in TypeCollection base types",
-        messageFormat: "The base type '{0}' contains abstract property '{1}'. TypeCollection base types must not have abstract properties - use constructor parameters to pass property values instead.",
-        category: "TypeCollections",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "TypeCollection base types should only have abstract methods, not abstract properties. All properties should be set via constructor parameters.");
-
     /// <summary>
     /// Initializes the incremental generator for TypeCollection discovery and generation.
     /// </summary>
@@ -207,7 +196,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                     if (propertyLocation != null)
                     {
                         var diagnostic = Diagnostic.Create(
-                            AbstractPropertyInBaseTypeRule,
+                            TypeCollectionDiagnostics.AbstractPropertyInBaseTypeRule,
                             propertyLocation,
                             baseType.ToDisplayString(),
                             property.Name);
@@ -998,13 +987,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
         {
             // Generate diagnostic for any errors during generation
             var diagnostic = Diagnostic.Create(
-                new DiagnosticDescriptor(
-                    "TCG001",
-                    "Type Collection Generation Failed",
-                    "Failed to generate type collection {0}: {1}",
-                    "TypeCollectionGenerator",
-                    DiagnosticSeverity.Error,
-                    isEnabledByDefault: true),
+                TypeCollectionDiagnostics.GenerationFailureRule,
                 Location.None,
                 def.CollectionName,
                 ex.Message);
