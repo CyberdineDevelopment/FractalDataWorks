@@ -17,7 +17,6 @@ using FractalDataWorks.Services.Connections.MsSql.Commands;
 using FractalDataWorks.Services.Connections.MsSql.Logging;
 using FractalDataWorks.Services.Connections.MsSql.Mappers;
 using FractalDataWorks.Services.Connections.MsSql.Translators;
-using FractalDataWorks.Services.DataGateway.Abstractions.Models;
 
 namespace FractalDataWorks.Services.Connections.MsSql;
 
@@ -36,14 +35,16 @@ public sealed class MsSqlService : ServiceBase<IConnectionCommand, MsSqlConfigur
     /// <summary>
     /// Initializes a new instance of the <see cref="MsSqlService"/> class.
     /// </summary>
+    /// <param name="logger">The logger for this service.</param>
     /// <param name="loggerFactory">The logger factory for creating connection loggers.</param>
     /// <param name="configuration">The MsSql service configuration.</param>
     /// <param name="queryTranslator">The T-SQL query translator.</param>
     public MsSqlService(
+        ILogger<MsSqlService> logger,
         ILoggerFactory loggerFactory,
         IQueryTranslator queryTranslator,
         MsSqlConfiguration configuration)
-        : base(configuration)
+        : base(logger, configuration)
     {
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         _queryTranslator = queryTranslator ?? throw new ArgumentNullException(nameof(queryTranslator));
@@ -61,6 +62,12 @@ public sealed class MsSqlService : ServiceBase<IConnectionCommand, MsSqlConfigur
     /// Gets the query translator for converting LINQ expressions to T-SQL.
     /// </summary>
     protected IQueryTranslator QueryTranslator => _queryTranslator;
+
+    /// <inheritdoc/>
+    public override async Task<IGenericResult> Execute(IConnectionCommand command)
+    {
+        return await Execute(command, CancellationToken.None).ConfigureAwait(false);
+    }
 
     /// <inheritdoc/>
     public override async Task<IGenericResult<T>> Execute<T>(IConnectionCommand command)
@@ -138,10 +145,10 @@ public sealed class MsSqlService : ServiceBase<IConnectionCommand, MsSqlConfigur
         return Task.FromResult(GenericResult<string>.Failure("Not implemented - needs redesign"));
     }
 
-    private Task<IGenericResult<DataContainer[]>> HandleConnectionDiscovery(IConnectionDiscoveryCommand command, CancellationToken cancellationToken)
+    private Task<IGenericResult<object[]>> HandleConnectionDiscovery(IConnectionDiscoveryCommand command, CancellationToken cancellationToken)
     {
         // Stubbed - MsSqlConnection removed
-        return Task.FromResult(GenericResult<DataContainer[]>.Failure("Not implemented - needs redesign"));
+        return Task.FromResult(GenericResult<object[]>.Failure("Not implemented - needs redesign"));
     }
 
     private Task<IGenericResult<object>> HandleConnectionManagement(IConnectionManagementCommand command, CancellationToken cancellationToken)

@@ -1,11 +1,11 @@
-using FractalDataWorks.Services.DataGateway.Abstractions;
+using FractalDataWorks.Configuration.Abstractions;
 
 namespace FractalDataWorks.Services.DataGateway;
 
 /// <summary>
 /// Configuration for the DataGateway service.
 /// </summary>
-public sealed class DataGatewayConfiguration : IDataGatewayConfiguration
+public sealed class DataGatewayConfiguration : IGenericConfiguration
 {
     /// <inheritdoc/>
     public required int Id { get; init; }

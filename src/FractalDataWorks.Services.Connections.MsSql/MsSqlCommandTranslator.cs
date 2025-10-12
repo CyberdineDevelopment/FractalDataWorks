@@ -7,16 +7,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Microsoft.Data.SqlClient;
-using FractalDataWorks.Services.DataGateway.Abstractions.Commands;
-using FractalDataWorks.Services.DataGateway.Abstractions.Models;
 using Microsoft.Extensions.Logging;
 using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Connections.MsSql.Logging;
+using FractalDataWorks.Data.Abstractions;
 
 namespace FractalDataWorks.Services.Connections.MsSql;
 
 /// <summary>
-/// Translates DataCommandBase instances to parameterized SQL Server SQL statements.
+/// Translates IDataCommand instances to parameterized SQL Server SQL statements.
 /// </summary>
 /// <remarks>
 /// This translator converts universal data commands (Query, Insert, Update, Delete, Upsert)
@@ -36,11 +35,11 @@ internal sealed class MsSqlCommandTranslator
     }
 
     /// <summary>
-    /// Translates a DataCommandBase to a SQL statement with parameters.
+    /// Translates a IDataCommand to a SQL statement with parameters.
     /// </summary>
     /// <param name="command">The command to translate.</param>
     /// <returns>A translation result containing SQL and parameters.</returns>
-    public SqlTranslationResult Translate(DataCommandBase command)
+    public SqlTranslationResult Translate(IDataCommand command)
     {
         if (command == null)
             throw new ArgumentNullException(nameof(command));
@@ -75,7 +74,7 @@ internal sealed class MsSqlCommandTranslator
         }
     }
 
-    private SqlTranslationResult TranslateQuery(DataCommandBase command)
+    private SqlTranslationResult TranslateQuery(IDataCommand command)
     {
         var sql = new StringBuilder();
         var parameters = new List<SqlParameter>();
@@ -134,7 +133,7 @@ internal sealed class MsSqlCommandTranslator
         return new SqlTranslationResult(sql.ToString(), parameters);
     }
 
-    private SqlTranslationResult TranslateCount(DataCommandBase command)
+    private SqlTranslationResult TranslateCount(IDataCommand command)
     {
         var sql = new StringBuilder();
         var parameters = new List<SqlParameter>();
@@ -157,7 +156,7 @@ internal sealed class MsSqlCommandTranslator
         return new SqlTranslationResult(sql.ToString(), parameters);
     }
 
-    private SqlTranslationResult TranslateExists(DataCommandBase command)
+    private SqlTranslationResult TranslateExists(IDataCommand command)
     {
         var sql = new StringBuilder();
         var parameters = new List<SqlParameter>();
@@ -182,7 +181,7 @@ internal sealed class MsSqlCommandTranslator
         return new SqlTranslationResult(sql.ToString(), parameters);
     }
 
-    private SqlTranslationResult TranslateInsert(DataCommandBase command)
+    private SqlTranslationResult TranslateInsert(IDataCommand command)
     {
         var sql = new StringBuilder();
         var parameters = new List<SqlParameter>();
@@ -221,7 +220,7 @@ internal sealed class MsSqlCommandTranslator
         return new SqlTranslationResult(sql.ToString(), parameters);
     }
 
-    private SqlTranslationResult TranslateBulkInsert(DataCommandBase command)
+    private SqlTranslationResult TranslateBulkInsert(IDataCommand command)
     {
         // For simplicity, generate multiple INSERT statements
         // In production, consider using SqlBulkCopy for better performance
@@ -259,7 +258,7 @@ internal sealed class MsSqlCommandTranslator
         return new SqlTranslationResult(sql.ToString(), parameters);
     }
 
-    private SqlTranslationResult TranslateUpdate(DataCommandBase command)
+    private SqlTranslationResult TranslateUpdate(IDataCommand command)
     {
         var sql = new StringBuilder();
         var parameters = new List<SqlParameter>();
@@ -297,7 +296,7 @@ internal sealed class MsSqlCommandTranslator
         return new SqlTranslationResult(sql.ToString(), parameters);
     }
 
-    private SqlTranslationResult TranslateDelete(DataCommandBase command)
+    private SqlTranslationResult TranslateDelete(IDataCommand command)
     {
         var sql = new StringBuilder();
         var parameters = new List<SqlParameter>();
@@ -320,7 +319,7 @@ internal sealed class MsSqlCommandTranslator
         return new SqlTranslationResult(sql.ToString(), parameters);
     }
 
-    private SqlTranslationResult TranslateUpsert(DataCommandBase command)
+    private SqlTranslationResult TranslateUpsert(IDataCommand command)
     {
         var sql = new StringBuilder();
         var parameters = new List<SqlParameter>();
@@ -367,7 +366,7 @@ internal sealed class MsSqlCommandTranslator
         sql.Append(string.Join(" AND ", onConditions));
     }
 
-    private static void AppendUpsertConflictHandling(StringBuilder sql, DataCommandBase command, 
+    private static void AppendUpsertConflictHandling(StringBuilder sql, IDataCommand command, 
         PropertyInfo[] properties, List<string> conflictFields)
     {
         if (command.Metadata.TryGetValue("OnConflictIgnore", out var ignoreConflict) && ignoreConflict is true)
@@ -385,7 +384,7 @@ internal sealed class MsSqlCommandTranslator
         }
     }
 
-    private static void AppendUpdateAndInsertClauses(StringBuilder sql, DataCommandBase command, 
+    private static void AppendUpdateAndInsertClauses(StringBuilder sql, IDataCommand command, 
         PropertyInfo[] properties, List<string> conflictFields)
     {
         // Update when matched
@@ -409,7 +408,7 @@ internal sealed class MsSqlCommandTranslator
         sql.Append(")");
     }
 
-    private SqlTranslationResult TranslateBulkUpsert(DataCommandBase command)
+    private SqlTranslationResult TranslateBulkUpsert(IDataCommand command)
     {
         // For simplicity, generate individual MERGE statements
         // In production, consider more sophisticated bulk operations
@@ -430,13 +429,13 @@ internal sealed class MsSqlCommandTranslator
         return new SqlTranslationResult(allSql.ToString(), allParameters);
     }
 
-    private (string Schema, string Table) GetSchemaAndTable(DataCommandBase command)
+    private (string Schema, string Table) GetSchemaAndTable(IDataCommand command)
     {
         var containerName = command.TargetContainer?.ToString() ?? GetDefaultContainerName(command);
         return _configuration.ResolveSchemaAndTable(containerName);
     }
 
-    private static string GetDefaultContainerName(DataCommandBase command)
+    private static string GetDefaultContainerName(IDataCommand command)
     {
         // Try to infer from command type
         var commandType = command.GetType();
@@ -448,7 +447,7 @@ internal sealed class MsSqlCommandTranslator
         return "Unknown";
     }
 
-    private static bool TryGetPredicate(DataCommandBase command, [NotNullWhen(true)] out Expression? predicate)
+    private static bool TryGetPredicate(IDataCommand command, [NotNullWhen(true)] out Expression? predicate)
     {
         predicate = null;
         
@@ -463,7 +462,7 @@ internal sealed class MsSqlCommandTranslator
         return false;
     }
 
-    private static bool TryGetOrderBy(DataCommandBase command, [NotNullWhen(true)] out Expression? orderBy)
+    private static bool TryGetOrderBy(IDataCommand command, [NotNullWhen(true)] out Expression? orderBy)
     {
         orderBy = null;
         
@@ -477,7 +476,7 @@ internal sealed class MsSqlCommandTranslator
         return false;
     }
 
-    private static object GetEntityFromCommand(DataCommandBase command)
+    private static object GetEntityFromCommand(IDataCommand command)
     {
         var entityProperty = command.GetType().GetProperty("Entity");
         if (entityProperty == null)
@@ -486,7 +485,7 @@ internal sealed class MsSqlCommandTranslator
         return entityProperty.GetValue(command) ?? throw new InvalidOperationException("Entity is null.");
     }
 
-    private static IEnumerable<object> GetEntitiesFromCommand(DataCommandBase command)
+    private static IEnumerable<object> GetEntitiesFromCommand(IDataCommand command)
     {
         var entitiesProperty = command.GetType().GetProperty("Entities");
         if (entitiesProperty == null)
@@ -496,7 +495,7 @@ internal sealed class MsSqlCommandTranslator
         return entities?.Cast<object>() ?? throw new InvalidOperationException("Entities is null.");
     }
 
-    private static List<string> GetConflictFieldsFromCommand(DataCommandBase command)
+    private static List<string> GetConflictFieldsFromCommand(IDataCommand command)
     {
         var conflictFieldsProperty = command.GetType().GetProperty("ConflictFields");
         if (conflictFieldsProperty == null)
@@ -520,7 +519,7 @@ internal sealed class MsSqlCommandTranslator
     /// <param name="entity">The single entity.</param>
     /// <returns>A single entity upsert command.</returns>
     [ExcludeFromCodeCoverage(Justification = "Placeholder method for bulk operations that throws NotSupportedException. Will be implemented when bulk operations are fully supported.")]
-    private static DataCommandBase CreateSingleEntityUpsertCommand(DataCommandBase originalCommand, object entity)
+    private static IDataCommand CreateSingleEntityUpsertCommand(IDataCommand originalCommand, object entity)
     {
         // This is a simplified approach - in production you'd want more sophisticated command cloning
         throw new NotSupportedException("Single entity upsert command creation is not supported for bulk operations in the current implementation.");
@@ -542,7 +541,7 @@ internal sealed class MsSqlCommandTranslator
         return "(SELECT NULL)"; // Fallback
     }
 
-    private void LogSql(DataCommandBase command, SqlTranslationResult result)
+    private void LogSql(IDataCommand command, SqlTranslationResult result)
     {
         var logSql = result.Sql;
         if (logSql.Length > _configuration.MaxSqlLogLength)
