@@ -1,3 +1,4 @@
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Services.Abstractions;
 
 namespace FractalDataWorks.Services.SecretManagers.Abstractions;

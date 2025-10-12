@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FractalDataWorks;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Results;
 using FluentValidation.Results;
 using FractalDataWorks.Configuration.Abstractions;
@@ -78,7 +79,7 @@ public sealed class AzureKeyVaultManagementCommand : ISecretManagerCommand
     /// <summary>
     /// Gets the timestamp when this managementCommand was created.
     /// </summary>
-    public DateTimeOffset Timestamp { get; } = DateTimeOffset.UtcNow;
+    public DateTime CreatedAt { get; } = DateTime.UtcNow;
 
     /// <summary>
     /// Gets the configuration for this managementCommand.

@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.ServiceTypes;
 

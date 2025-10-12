@@ -5,42 +5,40 @@ using FractalDataWorks.Results;
 namespace FractalDataWorks.Commands.Abstractions;
 
 /// <summary>
-/// Base interface for all commands in the FractalDataWorks framework.
-/// Commands represent operations that can be executed, translated, and validated.
+/// Base interface for all command type definitions in the FractalDataWorks framework.
+/// Commands represent static type definitions (singletons) that define operation metadata.
 /// </summary>
 /// <remarks>
-/// Commands follow the Command Pattern and serve as the foundation for
-/// operation abstraction across different implementations (SQL, HTTP, etc.).
-/// All commands should be immutable with init-only properties.
+/// <para>
+/// Commands follow the TypeCollection pattern and are static singletons, not runtime instances.
+/// For runtime execution tracking, use <see cref="CommandExecution"/> which wraps a command type
+/// with execution-specific metadata (ExecutionId, CreatedAt, Payload).
+/// </para>
+/// <para>
+/// Command types define:
+/// <list type="bullet">
+/// <item>What category of operation (Query, Mutation, Bulk)</item>
+/// <item>Which translators can process this command type</item>
+/// <item>Execution characteristics (batching, pipelining, transaction requirements)</item>
+/// </list>
+/// </para>
 /// </remarks>
-public interface ICommand
+public interface IGenericCommand
 {
-    /// <summary>
-    /// Gets the unique identifier for this command instance.
-    /// </summary>
-    /// <value>A unique identifier for tracking and logging purposes.</value>
-    Guid CommandId { get; }
-
-    /// <summary>
-    /// Gets the timestamp when this command was created.
-    /// </summary>
-    /// <value>The UTC timestamp of command creation.</value>
-    DateTime CreatedAt { get; }
-
     /// <summary>
     /// Gets the command type name for routing and translation.
     /// </summary>
-    /// <value>The type name used by TypeCollections for command routing.</value>
+    /// <value>The type name used by TypeCollections for command routing (e.g., "SqlQuery", "RestGet").</value>
     string CommandType { get; }
 
     /// <summary>
     /// Gets the command category for classification.
     /// </summary>
     /// <value>The category that determines command behavior and requirements.</value>
-    ICommandCategory Category { get; }
+    IGenericCommandCategory Category { get; }
 
     /// <summary>
-    /// Validates this command.
+    /// Validates this command type definition.
     /// </summary>
     /// <returns>A GenericResult containing the validation result.</returns>
     IGenericResult<ValidationResult> Validate();
@@ -50,7 +48,7 @@ public interface ICommand
 /// Represents a command that can be executed with a payload.
 /// </summary>
 /// <typeparam name="T">The type of the payload carried by this command.</typeparam>
-public interface ICommand<T> : ICommand
+public interface IGenericCommand<T> : IGenericCommand
 {
     /// <summary>
     /// Gets the payload of the command.

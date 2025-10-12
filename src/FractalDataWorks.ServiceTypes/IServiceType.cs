@@ -2,7 +2,7 @@ using System;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.EnhancedEnums;
 using FractalDataWorks.Results;
-using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.Abstractions;
 
 namespace FractalDataWorks.ServiceTypes;
 

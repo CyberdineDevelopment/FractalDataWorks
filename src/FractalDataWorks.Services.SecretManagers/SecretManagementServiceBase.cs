@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services;
 using FractalDataWorks.Services.Abstractions.Commands;
@@ -17,7 +18,7 @@ namespace FractalDataWorks.Services.SecretManager;
 /// <typeparam name="TSecretManagerService">The concrete secret management service type for logging category.</typeparam>
 public abstract class SecretManagerServiceBase<TSecretCommand, TSecretManagerConfiguration, TSecretManagerService>
     : ServiceBase<TSecretCommand, TSecretManagerConfiguration, TSecretManagerService>, ISecretManager
-    where TSecretCommand : ICommand, ISecretManagerCommand
+    where TSecretCommand : IGenericCommand, ISecretManagerCommand
     where TSecretManagerConfiguration : ISecretManagerConfiguration
     where TSecretManagerService : class
 {

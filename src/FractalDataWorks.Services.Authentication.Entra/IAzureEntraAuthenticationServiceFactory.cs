@@ -1,3 +1,4 @@
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.Authentication.Abstractions;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;

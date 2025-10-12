@@ -4,6 +4,7 @@ using FractalDataWorks.Results;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using FastGenericNew;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.Messages;

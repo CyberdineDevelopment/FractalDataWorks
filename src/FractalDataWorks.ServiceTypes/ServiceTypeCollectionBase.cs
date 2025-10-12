@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FractalDataWorks.Configuration.Abstractions;
-using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.Abstractions;
 
 namespace FractalDataWorks.ServiceTypes;
 

@@ -9,7 +9,7 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// Inherit from this class to define specific command categories with
 /// their execution characteristics and requirements.
 /// </remarks>
-public abstract class CommandCategoryBase : TypeOptionBase<CommandCategoryBase>, ICommandCategory
+public abstract class CommandCategoryBase : TypeOptionBase<CommandCategoryBase>, IGenericCommandCategory
 {
     /// <inheritdoc/>
     public bool RequiresTransaction { get; }

@@ -1,3 +1,4 @@
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Services.Abstractions.Commands;
 
 namespace FractalDataWorks.Services.Transformations.Abstractions;
@@ -5,6 +6,6 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// <summary>
 /// Command interface for transformation operations.
 /// </summary>
-public interface ITransformationsCommand : ICommand
+public interface ITransformationsCommand : IGenericCommand
 {
 }

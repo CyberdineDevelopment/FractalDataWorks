@@ -16,7 +16,7 @@ namespace FractalDataWorks.Services.Abstractions.Commands;
 /// interface for creating properly configured data commands. They enable fluent configuration
 /// and validation of command parameters, metadata, and execution options.
 /// </remarks>
-public interface ICommandBuilder<TCommand>
+public interface IGenericCommandBuilder<TCommand>
 {
     /// <summary>
     /// Sets the target resource (table, collection, endpoint) for the command.
@@ -30,7 +30,7 @@ public interface ICommandBuilder<TCommand>
     /// This may be a table name, collection name, API endpoint, or other resource identifier
     /// depending on the data provider and command type.
     /// </remarks>
-    ICommandBuilder<TCommand> WithTarget(string target);
+    IGenericCommandBuilder<TCommand> WithTarget(string target);
 
     /// <summary>
     /// Sets the timeout for command execution.
@@ -42,7 +42,7 @@ public interface ICommandBuilder<TCommand>
     /// Command timeouts override provider default timeouts and enable fine-grained
     /// control over execution time limits for specific operations.
     /// </remarks>
-    ICommandBuilder<TCommand> WithTimeout(TimeSpan timeout);
+    IGenericCommandBuilder<TCommand> WithTimeout(TimeSpan timeout);
 
     /// <summary>
     /// Adds a parameter to the command.
@@ -56,7 +56,7 @@ public interface ICommandBuilder<TCommand>
     /// Parameters provide input data for command execution. Parameter names should follow
     /// consistent naming conventions and be unique within the command scope.
     /// </remarks>
-    ICommandBuilder<TCommand> WithParameter(string name, object? value);
+    IGenericCommandBuilder<TCommand> WithParameter(string name, object? value);
 
     /// <summary>
     /// Adds multiple parameters to the command.
@@ -68,7 +68,7 @@ public interface ICommandBuilder<TCommand>
     /// This method provides a convenient way to add multiple parameters at once.
     /// Existing parameters with the same names will be overwritten with new values.
     /// </remarks>
-    ICommandBuilder<TCommand> WithParameters(IReadOnlyDictionary<string, object?> parameters);
+    IGenericCommandBuilder<TCommand> WithParameters(IReadOnlyDictionary<string, object?> parameters);
 
     /// <summary>
     /// Adds metadata to the command.
@@ -82,7 +82,7 @@ public interface ICommandBuilder<TCommand>
     /// Metadata provides additional context and hints for command execution.
     /// Common metadata includes caching directives, optimization hints, and execution preferences.
     /// </remarks>
-    ICommandBuilder<TCommand> WithMetadata(string key, object value);
+    IGenericCommandBuilder<TCommand> WithMetadata(string key, object value);
 
     /// <summary>
     /// Adds multiple metadata entries to the command.
@@ -94,7 +94,7 @@ public interface ICommandBuilder<TCommand>
     /// This method provides a convenient way to add multiple metadata entries at once.
     /// Existing metadata with the same keys will be overwritten with new values.
     /// </remarks>
-    ICommandBuilder<TCommand> WithMetadata(IReadOnlyDictionary<string, object> metadata);
+    IGenericCommandBuilder<TCommand> WithMetadata(IReadOnlyDictionary<string, object> metadata);
 
     /// <summary>
     /// Specifies the expected result type for the command.
@@ -106,7 +106,7 @@ public interface ICommandBuilder<TCommand>
     /// Setting the expected result type helps data providers prepare appropriate
     /// result handling and type conversion logic before executing the command.
     /// </remarks>
-    ICommandBuilder<TCommand> WithExpectedResultType(Type resultType);
+    IGenericCommandBuilder<TCommand> WithExpectedResultType(Type resultType);
 
     /// <summary>
     /// Specifies the expected result type for the command using generic type parameter.
@@ -117,7 +117,7 @@ public interface ICommandBuilder<TCommand>
     /// This method provides type-safe specification of expected result types
     /// without the need for runtime Type objects.
     /// </remarks>
-    ICommandBuilder<TCommand> WithExpectedResultType<TResult>();
+    IGenericCommandBuilder<TCommand> WithExpectedResultType<TResult>();
 
     /// <summary>
     /// Marks the command as data-modifying or read-only.
@@ -128,7 +128,7 @@ public interface ICommandBuilder<TCommand>
     /// This flag helps data providers determine appropriate connection handling,
     /// transaction requirements, and caching behavior for the command.
     /// </remarks>
-    ICommandBuilder<TCommand> WithDataModifying(bool isDataModifying);
+    IGenericCommandBuilder<TCommand> WithDataModifying(bool isDataModifying);
 
     /// <summary>
     /// Validates the current builder state without building the command.
@@ -162,7 +162,7 @@ public interface ICommandBuilder<TCommand>
     /// This method enables builder reuse for creating multiple similar commands
     /// without needing to create new builder instances.
     /// </remarks>
-    ICommandBuilder<TCommand> Reset();
+    IGenericCommandBuilder<TCommand> Reset();
 }
 
 /// <summary>
@@ -175,7 +175,7 @@ public interface ICommandBuilder<TCommand>
 /// Typed command builders provide compile-time type safety for both command construction
 /// and result type specification, eliminating runtime type checking and casting.
 /// </remarks>
-public interface ICommandBuilder<TCommand, TResult> : ICommandBuilder<TCommand>
+public interface IGenericCommandBuilder<TCommand, TResult> : IGenericCommandBuilder<TCommand>
 {
     /// <summary>
     /// Builds a typed command using the current builder configuration.

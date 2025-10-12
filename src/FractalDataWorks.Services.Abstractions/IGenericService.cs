@@ -1,54 +1,12 @@
 using System.Threading;
 using System.Threading.Tasks;
-using FractalDataWorks.Commands.Abstractions;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.Abstractions;
 
-/// <summary>
-/// Base interface for all services in the FractalDataWorks framework.
-/// Provides common service lifecycle management and identification capabilities.
-/// </summary>
-/// <remarks>
-/// All framework services should implement this interface to ensure consistent
-/// behavior and integration with the service management infrastructure.
-/// The "Rec" prefix avoids namespace collisions with common service interfaces.
-/// </remarks>
-public interface IGenericService
-{
-    /// <summary>
-    /// Gets the unique identifier for this service instance.
-    /// </summary>
-    /// <value>A unique identifier for the service instance.</value>
-    /// <remarks>
-    /// This identifier is used for service tracking, logging, and debugging purposes.
-    /// It should remain constant for the lifetime of the service instance.
-    /// </remarks>
-    string Id { get; }
 
-    /// <summary>
-    /// Gets the display name of the service.
-    /// </summary>
-    /// <value>A human-readable name for the service.</value>
-    /// <remarks>
-    /// This name is used in user interfaces, logging, and diagnostic outputs.
-    /// It should be descriptive and help identify the service's purpose.
-    /// </remarks>
-    string ServiceType { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether the service is currently available for use.
-    /// </summary>
-    /// <value><c>true</c> if the service is available; otherwise, <c>false</c>.</value>
-    /// <remarks>
-    /// Services may become unavailable due to configuration issues, network problems,
-    /// or temporary failures. The framework can use this property to determine
-    /// whether to route requests to this service instance.
-    /// </remarks>
-    bool IsAvailable { get; }
-
-}
 
 /// <summary>
 /// Generic interface for services that provide specific functionality.
@@ -59,8 +17,8 @@ public interface IGenericService
 /// Use this interface for services that require specific configuration objects
 /// to function properly. The configuration should be provided via constructor.
 /// </remarks>
-public interface IGenericService<TCommand>
-    where TCommand : ICommand
+public interface IGenericService<TCommand> : IGenericService
+    where TCommand : IGenericCommand
 {
     /// <summary>
     /// Gets the unique identifier for this service instance.
@@ -112,7 +70,7 @@ public interface IGenericService<TCommand>
 /// that most service base classes implement.
 /// </remarks>
 public interface IGenericService<TCommand, TConfiguration> : IGenericService<TCommand>
-    where TCommand : ICommand
+    where TCommand : IGenericCommand
     where TConfiguration : IGenericConfiguration
 {
     /// <summary>
@@ -174,7 +132,7 @@ public interface IGenericService<TCommand, TConfiguration> : IGenericService<TCo
 /// used by ServiceBase and ConnectionServiceBase classes.
 /// </remarks>
 public interface IGenericService<TCommand, TConfiguration, TService> : IGenericService<TCommand, TConfiguration>
-    where TCommand : ICommand
+    where TCommand : IGenericCommand
     where TConfiguration : IGenericConfiguration
     where TService : class
 {

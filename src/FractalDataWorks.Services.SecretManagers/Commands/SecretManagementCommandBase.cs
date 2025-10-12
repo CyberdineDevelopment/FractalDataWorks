@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation.Results;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Messages;
 using FractalDataWorks.Results;
@@ -52,7 +53,7 @@ public abstract class SecretManagerCommandBase : ISecretManagerCommand
         BaseCommandId = commandGuid;
         CommandId = commandGuid.ToString("D");
         CorrelationId = Guid.NewGuid();
-        Timestamp = DateTimeOffset.UtcNow;
+        CreatedAt = DateTime.UtcNow;
         Configuration = null; // Secret commands don't typically carry configuration
         CommandType = commandType;
         Container = container;
@@ -70,15 +71,27 @@ public abstract class SecretManagerCommandBase : ISecretManagerCommand
     }
 
     /// <inheritdoc/>
-    Guid ICommand.CommandId => BaseCommandId;
+    Guid IGenericCommand.CommandId => BaseCommandId;
 
     /// <inheritdoc/>
+    DateTime IGenericCommand.CreatedAt => CreatedAt;
+
+    /// <inheritdoc/>
+    string IGenericCommand.CommandType => CommandType;
+
+    /// <summary>
+    /// Gets the correlation identifier for tracking related operations.
+    /// </summary>
     public Guid CorrelationId { get; }
 
-    /// <inheritdoc/>
-    public DateTimeOffset Timestamp { get; }
+    /// <summary>
+    /// Gets the timestamp when this command was created.
+    /// </summary>
+    public DateTime CreatedAt { get; }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the configuration associated with this command.
+    /// </summary>
     public IGenericConfiguration? Configuration { get; }
 
     /// <summary>

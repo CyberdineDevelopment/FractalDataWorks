@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FractalDataWorks.DataSets.Abstractions;
+using FractalDataWorks.Data.DataSets.Abstractions;
 using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.Connections.Abstractions.Translators;

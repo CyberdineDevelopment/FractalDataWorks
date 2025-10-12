@@ -8,10 +8,10 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// </summary>
 /// <remarks>
 /// This collection is populated by the source generator with all types
-/// that inherit from CommandTypeBase and implement ICommandType.
+/// that inherit from CommandTypeBase and implement IGenericCommandType.
 /// Provides high-performance lookups for command routing and discovery.
 /// </remarks>
-[TypeCollection(typeof(CommandTypeBase), typeof(ICommandType), typeof(CommandTypes))]
-public abstract partial class CommandTypes : TypeCollectionBase<CommandTypeBase, ICommandType>
+[TypeCollection(typeof(CommandTypeBase), typeof(IGenericCommandType), typeof(CommandTypes))]
+public abstract partial class CommandTypes : TypeCollectionBase<CommandTypeBase, IGenericCommandType>
 {
 }

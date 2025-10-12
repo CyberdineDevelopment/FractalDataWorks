@@ -1,0 +1,21 @@
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataContainers.Abstractions\FractalDataWorks.DataContainers.Abstractions.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataSets.Abstractions\FractalDataWorks.DataSets.Abstractions.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores.Abstractions\FractalDataWorks.DataStores.Abstractions.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores\FractalDataWorks.DataStores.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores.SqlServer\FractalDataWorks.DataStores.SqlServer.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores.Rest\FractalDataWorks.DataStores.Rest.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores.FileSystem\FractalDataWorks.DataStores.FileSystem.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+
+Build FAILED.
+
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataContainers.Abstractions\FractalDataWorks.DataContainers.Abstractions.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataSets.Abstractions\FractalDataWorks.DataSets.Abstractions.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores.Abstractions\FractalDataWorks.DataStores.Abstractions.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores\FractalDataWorks.DataStores.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores.SqlServer\FractalDataWorks.DataStores.SqlServer.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores.Rest\FractalDataWorks.DataStores.Rest.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+C:\Program Files\dotnet\sdk\10.0.100-rc.1.25451.107\NuGet.targets(520,5): error MSB3202: The project file "D:\Development\Developer-Kit\src\FractalDataWorks.DataStores.FileSystem\FractalDataWorks.DataStores.FileSystem.csproj" was not found. [D:\Development\Developer-Kit\FractalDataWorks.DeveloperKit.sln]
+    0 Warning(s)
+    7 Error(s)
+
+Time Elapsed 00:00:00.73

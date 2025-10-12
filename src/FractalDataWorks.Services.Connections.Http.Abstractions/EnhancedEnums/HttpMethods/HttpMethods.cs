@@ -1,23 +1,14 @@
+using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpMethods;
 
 /// <summary>
-/// Collection of HTTP methods for enhanced enum functionality.
 /// Source generator creates static HttpMethods class automatically.
 /// </summary>
 [TypeCollection(typeof(HttpMethodBase), typeof(IHttpMethod), typeof(HttpMethods))]
-public abstract class HttpMethods : HttpMethodBase
+public abstract partial class HttpMethods : TypeCollectionBase<HttpMethodBase,IHttpMethod>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="HttpMethods"/> class.
-    /// </summary>
-    /// <param name="id">The unique identifier for the HTTP method.</param>
-    /// <param name="name">The name of the HTTP method.</param>
-    /// <param name="description">The description of the HTTP method.</param>
-    protected HttpMethods(int id, string name, string description) : base(id, name, description)
-    {
-    }
     // DO NOT IMPLEMENT BY HAND!
     // Source generator automatically creates static HttpMethods class with:
     // - HttpMethods.Get (returns IHttpMethod)

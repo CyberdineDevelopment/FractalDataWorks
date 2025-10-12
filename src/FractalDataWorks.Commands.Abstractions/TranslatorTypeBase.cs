@@ -28,7 +28,7 @@ public abstract class TranslatorTypeBase : TypeOptionBase<TranslatorTypeBase>, I
     public int Priority { get; }
 
     /// <inheritdoc/>
-    public abstract IGenericResult<ICommandTranslator> CreateTranslator(IServiceProvider services);
+    public abstract IGenericResult<IGenericCommandTranslator> CreateTranslator(IServiceProvider services);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TranslatorTypeBase"/> class.

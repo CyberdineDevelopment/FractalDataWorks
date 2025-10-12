@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using FractalDataWorks.Commands.Abstractions;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
@@ -18,7 +18,7 @@ namespace FractalDataWorks.Services;
 /// <typeparam name="TConfiguration">The type of configuration this service uses.</typeparam>
 /// <typeparam name="TService">The concrete service type for identification purposes.</typeparam>
 public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGenericService<TCommand, TConfiguration, TService>
-    where TCommand : ICommand
+    where TCommand : IGenericCommand
     where TConfiguration : IGenericConfiguration
     where TService : class
 {

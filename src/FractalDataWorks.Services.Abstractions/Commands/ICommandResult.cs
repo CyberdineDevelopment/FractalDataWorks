@@ -11,7 +11,7 @@ namespace FractalDataWorks.Services.Abstractions.Commands;
 /// Command results provide comprehensive information about individual command executions
 /// within a batch, enabling fine-grained result processing and error handling.
 /// </remarks>
-public interface ICommandResult
+public interface IGenericCommandResult
 {
     /// <summary>
     /// Gets the identifier of the command this result belongs to.

@@ -43,5 +43,5 @@ public interface ITranslatorType : ITypeOption<TranslatorTypeBase>
     /// </summary>
     /// <param name="services">The service provider for dependency resolution.</param>
     /// <returns>A result containing the translator instance or failure message.</returns>
-    IGenericResult<ICommandTranslator> CreateTranslator(IServiceProvider services);
+    IGenericResult<IGenericCommandTranslator> CreateTranslator(IServiceProvider services);
 }

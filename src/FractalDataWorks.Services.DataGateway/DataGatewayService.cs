@@ -1,9 +1,9 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using FractalDataWorks.Data.Abstractions;
 using FractalDataWorks.Results;
-using FractalDataWorks.Services;
+using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.DataGateway.Abstractions;
 
 namespace FractalDataWorks.Services.DataGateway;
@@ -12,42 +12,42 @@ namespace FractalDataWorks.Services.DataGateway;
 /// Default implementation of the DataGateway service.
 /// Routes commands to the appropriate connection based on ConnectionName.
 /// </summary>
-public sealed class DataGatewayService : ServiceBase<IDataGatewayCommand, IDataGatewayConfiguration, DataGatewayService>, IDataGateway
+public sealed class DataGatewayService : IDataGateway
 {
+    private readonly ILogger<DataGatewayService> _logger;
+    private readonly IGenericConnectionProvider _connectionProvider;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DataGatewayService"/> class.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="configuration">The configuration.</param>
-    public DataGatewayService(ILogger<DataGatewayService> logger, IDataGatewayConfiguration configuration)
-        : base(logger, configuration)
+    /// <param name="connectionProvider">The connection provider for routing.</param>
+    public DataGatewayService(
+        ILogger<DataGatewayService> logger,
+        IGenericConnectionProvider connectionProvider)
     {
+        _logger = logger;
+        _connectionProvider = connectionProvider;
     }
 
     /// <inheritdoc/>
-    public override Task<IGenericResult<T>> Execute<T>(IDataGatewayCommand command, CancellationToken cancellationToken)
+    public async Task<IGenericResult<T>> Execute<T>(IDataCommand command, CancellationToken cancellationToken = default)
     {
-        // TODO: Look up connection by command.ConnectionName
-        // TODO: Pass command to that connection
-        // TODO: Return result
-        throw new NotImplementedException("DataGateway routing not yet implemented");
-    }
+        _logger.LogDebug("Routing data command {CommandType} to connection {ConnectionName}",
+            command.CommandType, command.ConnectionName);
 
-    /// <inheritdoc/>
-    public override Task<IGenericResult<T>> Execute<T>(IDataGatewayCommand command)
-    {
-        return Execute<T>(command, CancellationToken.None);
-    }
+        // Get connection by name
+        var connectionResult = await _connectionProvider.GetConnectionAsync(command.ConnectionName, cancellationToken);
+        if (!connectionResult.IsSuccess)
+        {
+            _logger.LogError("Failed to get connection {ConnectionName}", command.ConnectionName);
+            return GenericResult<T>.Failure($"Connection '{command.ConnectionName}' not found");
+        }
 
-    /// <inheritdoc/>
-    public override Task<IGenericResult> Execute(IDataGatewayCommand command, CancellationToken cancellationToken)
-    {
-        return Execute<object>(command, cancellationToken);
-    }
+        var connection = connectionResult.Value;
 
-    /// <inheritdoc/>
-    public override Task<IGenericResult> Execute(IDataGatewayCommand command)
-    {
-        return Execute(command, CancellationToken.None);
+        // Execute command on the connection
+        // Note: Connection service will handle translation (LINQ -> SQL, etc.)
+        return await connection.Execute<T>(command, cancellationToken);
     }
 }

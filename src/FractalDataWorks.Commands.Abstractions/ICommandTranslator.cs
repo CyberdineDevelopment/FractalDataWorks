@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Data.Abstractions;
 using FractalDataWorks.Results;
 
@@ -14,7 +15,7 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// such as translating LINQ expressions to SQL queries or HTTP requests.
 /// All translators must return IGenericResult with appropriate messages on failure.
 /// </remarks>
-public interface ICommandTranslator
+public interface IGenericCommandTranslator
 {
     /// <summary>
     /// Gets the translator type metadata.
@@ -34,7 +35,7 @@ public interface ICommandTranslator
     /// <param name="expression">The expression to translate.</param>
     /// <param name="context">Optional translation context with metadata.</param>
     /// <returns>A result containing the translated command or failure message.</returns>
-    IGenericResult<ICommand> Translate(Expression expression, ITranslationContext? context = null);
+    IGenericResult<IGenericCommand> Translate(Expression expression, ITranslationContext? context = null);
 
     /// <summary>
     /// Translates a command from one format to another.
@@ -42,7 +43,7 @@ public interface ICommandTranslator
     /// <param name="command">The command to translate.</param>
     /// <param name="targetFormat">The desired output format.</param>
     /// <returns>A result containing the translated command or failure message.</returns>
-    IGenericResult<ICommand> TranslateCommand(ICommand command, IDataFormat targetFormat);
+    IGenericResult<IGenericCommand> TranslateCommand(IGenericCommand command, IDataFormat targetFormat);
 
     /// <summary>
     /// Optimizes a translated command for better performance.
@@ -50,12 +51,12 @@ public interface ICommandTranslator
     /// <param name="command">The command to optimize.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>A result containing the optimized command or the original if optimization isn't possible.</returns>
-    Task<IGenericResult<ICommand>> Optimize(ICommand command, CancellationToken cancellationToken = default);
+    Task<IGenericResult<IGenericCommand>> Optimize(IGenericCommand command, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Estimates the cost of executing a translated command.
     /// </summary>
     /// <param name="command">The command to analyze.</param>
     /// <returns>A result containing cost estimation metrics.</returns>
-    IGenericResult<CommandCostEstimate> EstimateCost(ICommand command);
+    IGenericResult<CommandCostEstimate> EstimateCost(IGenericCommand command);
 }

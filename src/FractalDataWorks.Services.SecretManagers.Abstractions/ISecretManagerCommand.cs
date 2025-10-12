@@ -1,6 +1,7 @@
 using FractalDataWorks.Services.Abstractions.Commands;
 using System;
 using System.Collections.Generic;
+using FractalDataWorks.Abstractions;
 
 namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 
@@ -14,7 +15,7 @@ namespace FractalDataWorks.Services.SecretManagers.Abstractions;
 /// and provide a consistent interface for secret providers to execute operations
 /// regardless of the underlying secret storage technology.
 /// </remarks>
-public interface ISecretManagerCommand : ICommand
+public interface ISecretManagerCommand : IGenericCommand
 {
     /// <summary>
     /// Gets the unique identifier for this managementCommand.
@@ -108,7 +109,7 @@ public interface ISecretManagerCommand : ICommand
     /// </remarks>
     bool IsSecretModifying { get; }
 
-    // Note: Validate() method is inherited from ICommand base interface
+    // Note: Validate() method is inherited from IGenericCommand base interface
     // which returns IGenericResult<ValidationResult>
 
     /// <summary>

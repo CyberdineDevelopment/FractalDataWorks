@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.EnhancedEnums;
 using FractalDataWorks.Results;
-using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.ServiceTypes.Attributes;
 
 namespace FractalDataWorks.ServiceTypes;

@@ -13,7 +13,7 @@
     <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Configuration.Abstractions\FractalDataWorks.Configuration.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.DataSets.Abstractions\FractalDataWorks.DataSets.Abstractions.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.Data.DataSets.Abstractions\FractalDataWorks.Data.DataSets.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Services.Connections.Abstractions\FractalDataWorks.Services.Connections.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Services.Connections\FractalDataWorks.Services.Connections.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />

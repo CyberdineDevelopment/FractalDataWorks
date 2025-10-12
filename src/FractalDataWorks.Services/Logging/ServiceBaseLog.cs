@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Services.Abstractions.Commands;
 
@@ -105,7 +106,7 @@ public static partial class ServiceBaseLog
         EventId = 8,
         Level = LogLevel.Information,
         Message = "Command executed with detailed context {@Command}")]
-    public static partial void CommandExecutedWithContext(ILogger logger, ICommand command);
+    public static partial void CommandExecutedWithContext(ILogger logger, IGenericCommand command);
 
     /// <summary>
     /// Logs configuration validation with full configuration context.

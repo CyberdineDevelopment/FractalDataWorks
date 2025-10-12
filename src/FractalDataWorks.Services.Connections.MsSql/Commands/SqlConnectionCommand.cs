@@ -21,8 +21,7 @@ public sealed class SqlConnectionCommand : IConnectionCommand
         SqlText = sqlText ?? throw new ArgumentNullException(nameof(sqlText));
         Parameters = parameters ?? new Dictionary<string, object>();
         CommandId = Guid.NewGuid();
-        CorrelationId = Guid.NewGuid();
-        Timestamp = DateTimeOffset.UtcNow;
+        CreatedAt = DateTime.UtcNow;
     }
 
     /// <summary>
@@ -39,19 +38,16 @@ public sealed class SqlConnectionCommand : IConnectionCommand
     public Guid CommandId { get; }
 
     /// <inheritdoc/>
-    public Guid CorrelationId { get; }
+    public DateTime CreatedAt { get; }
 
     /// <inheritdoc/>
-    public DateTimeOffset Timestamp { get; }
+    public string CommandType => "SqlConnection";
 
     /// <inheritdoc/>
     public string ConnectionName => "Default";
 
     /// <inheritdoc/>
     public string ProviderType => "MsSql";
-
-    /// <inheritdoc/>
-    public IGenericConfiguration? Configuration => null;
 
     /// <inheritdoc/>
     public IGenericResult Validate()

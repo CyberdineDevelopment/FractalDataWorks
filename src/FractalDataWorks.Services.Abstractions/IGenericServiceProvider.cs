@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 

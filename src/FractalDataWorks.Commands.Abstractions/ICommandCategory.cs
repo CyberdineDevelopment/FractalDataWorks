@@ -10,7 +10,7 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// streaming support, and validation rules. Categories are implemented as type options
 /// for extensibility and type safety.
 /// </remarks>
-public interface ICommandCategory : ITypeOption<CommandCategoryBase>
+public interface IGenericCommandCategory : ITypeOption<CommandCategoryBase>
 {
     /// <summary>
     /// Gets whether commands in this category require transaction support.

@@ -7,11 +7,24 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj" />
 		<ProjectReference Include="..\FractalDataWorks.ServiceTypes\FractalDataWorks.ServiceTypes.csproj" />
 		<ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
-		<ProjectReference Include="..\FractalDataWorks.DataContainers.Abstractions\FractalDataWorks.DataContainers.Abstractions.csproj" />
+		<ProjectReference Include="..\FractalDataWorks.Data.DataContainers.Abstractions\FractalDataWorks.Data.DataContainers.Abstractions.csproj" />
 
+		
+		<!-- ServiceTypes source generator for ServiceType processing (used by concrete implementations) -->
+		<ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"
+						  OutputItemType="Analyzer"
+						  ReferenceOutputAssembly="false"
+						  PrivateAssets="all" />
 	</ItemGroup>
-	
-
+	<ItemGroup>
+		<!-- Explicitly embed the ServiceTypes generator DLL -->
+		<None Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.ServiceTypes.SourceGenerators.dll"
+		      Pack="true"
+		      PackagePath="analyzers/dotnet/cs"
+		      Visible="false"
+		      Condition="Exists('..\FractalDataWorks.ServiceTypes.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.ServiceTypes.SourceGenerators.dll')" />
+	</ItemGroup>
 </Project>

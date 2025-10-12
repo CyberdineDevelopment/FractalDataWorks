@@ -7,6 +7,7 @@ using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.Messages;
 using FractalDataWorks.Services.Logging;
 using FastGenericNew;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Configuration.Abstractions;
 
 namespace FractalDataWorks.Services;

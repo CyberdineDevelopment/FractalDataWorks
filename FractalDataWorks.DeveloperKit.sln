@@ -69,11 +69,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Collection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Collections", "src\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj", "{529F98C9-00A7-487B-8846-9A66BA67C84E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.DataContainers.Abstractions", "src\FractalDataWorks.DataContainers.Abstractions\FractalDataWorks.DataContainers.Abstractions.csproj", "{1CDB119F-F130-4498-A281-2364C1EF6FC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.DataContainers.Abstractions", "src\FractalDataWorks.Data.DataContainers.Abstractions\FractalDataWorks.Data.DataContainers.Abstractions.csproj", "{1CDB119F-F130-4498-A281-2364C1EF6FC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.DataSets.Abstractions", "src\FractalDataWorks.DataSets.Abstractions\FractalDataWorks.DataSets.Abstractions.csproj", "{0F154C18-4E3B-4EC4-8FD0-785D35D06E1D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.DataSets.Abstractions", "src\FractalDataWorks.Data.DataSets.Abstractions\FractalDataWorks.Data.DataSets.Abstractions.csproj", "{0F154C18-4E3B-4EC4-8FD0-785D35D06E1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.DataStores.Abstractions", "src\FractalDataWorks.DataStores.Abstractions\FractalDataWorks.DataStores.Abstractions.csproj", "{8B42802E-F11E-4933-8705-8965DDB3B54E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.DataStores.Abstractions", "src\FractalDataWorks.Data.DataStores.Abstractions\FractalDataWorks.Data.DataStores.Abstractions.csproj", "{8B42802E-F11E-4933-8705-8965DDB3B54E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Messages.SourceGenerators", "src\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj", "{B489F652-B0AB-4E8B-BC59-215FB219FE02}"
 EndProject
@@ -107,7 +107,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Services.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Services.Scheduling", "src\FractalDataWorks.Services.Scheduling\FractalDataWorks.Services.Scheduling.csproj", "{4493FB6C-CCBB-4A89-8B98-EC7564C64865}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.DataStores", "src\FractalDataWorks.DataStores\FractalDataWorks.DataStores.csproj", "{8681A90C-9CA9-41F9-990D-3348E1388BB4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.DataStores", "src\FractalDataWorks.Data.DataStores\FractalDataWorks.Data.DataStores.csproj", "{8681A90C-9CA9-41F9-990D-3348E1388BB4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.McpTools.Abstractions", "src\FractalDataWorks.McpTools.Abstractions\FractalDataWorks.McpTools.Abstractions.csproj", "{5D8FEB8B-7E28-40D6-858E-03E40D2AAB8D}"
 EndProject
@@ -179,13 +179,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Commands.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.Abstractions", "src\FractalDataWorks.Data.Abstractions\FractalDataWorks.Data.Abstractions.csproj", "{00AF5242-F40B-4D67-8AE1-5B8C2BF3F728}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.Sql", "src\FractalDataWorks.Data.Sql\FractalDataWorks.Data.Sql.csproj", "{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.DataStores.SqlServer", "src\FractalDataWorks.Data.DataStores.SqlServer\FractalDataWorks.Data.DataStores.SqlServer.csproj", "{D48E2BE0-5AF7-48D8-A469-AA68732C8415}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.DataStores.SqlServer", "src\FractalDataWorks.DataStores.SqlServer\FractalDataWorks.DataStores.SqlServer.csproj", "{D48E2BE0-5AF7-48D8-A469-AA68732C8415}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.DataStores.Rest", "src\FractalDataWorks.Data.DataStores.Rest\FractalDataWorks.Data.DataStores.Rest.csproj", "{BD42A967-6822-4883-9D3D-F762A79105B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.DataStores.Rest", "src\FractalDataWorks.DataStores.Rest\FractalDataWorks.DataStores.Rest.csproj", "{BD42A967-6822-4883-9D3D-F762A79105B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.DataStores.FileSystem", "src\FractalDataWorks.Data.DataStores.FileSystem\FractalDataWorks.Data.DataStores.FileSystem.csproj", "{78B919ED-6D88-4470-AD85-C9C71BE2FCE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.DataStores.FileSystem", "src\FractalDataWorks.DataStores.FileSystem\FractalDataWorks.DataStores.FileSystem.csproj", "{78B919ED-6D88-4470-AD85-C9C71BE2FCE0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FractalDataWorks.Data.Commands.Abstractions", "src\FractalDataWorks.Data.Commands.Abstractions\FractalDataWorks.Data.Commands.Abstractions.csproj", "{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -2549,42 +2549,6 @@ Global
 		{00AF5242-F40B-4D67-8AE1-5B8C2BF3F728}.Release|x64.Build.0 = Release|Any CPU
 		{00AF5242-F40B-4D67-8AE1-5B8C2BF3F728}.Release|x86.ActiveCfg = Release|Any CPU
 		{00AF5242-F40B-4D67-8AE1-5B8C2BF3F728}.Release|x86.Build.0 = Release|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Alpha|Any CPU.ActiveCfg = Alpha|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Alpha|Any CPU.Build.0 = Alpha|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Alpha|x64.ActiveCfg = Alpha|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Alpha|x64.Build.0 = Alpha|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Alpha|x86.ActiveCfg = Alpha|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Alpha|x86.Build.0 = Alpha|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Beta|Any CPU.ActiveCfg = Beta|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Beta|Any CPU.Build.0 = Beta|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Beta|x64.ActiveCfg = Beta|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Beta|x64.Build.0 = Beta|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Beta|x86.ActiveCfg = Beta|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Beta|x86.Build.0 = Beta|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Debug|x64.Build.0 = Debug|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Debug|x86.Build.0 = Debug|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Experimental|Any CPU.ActiveCfg = Experimental|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Experimental|Any CPU.Build.0 = Experimental|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Experimental|x64.ActiveCfg = Experimental|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Experimental|x64.Build.0 = Experimental|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Experimental|x86.ActiveCfg = Experimental|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Experimental|x86.Build.0 = Experimental|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Preview|Any CPU.ActiveCfg = Preview|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Preview|Any CPU.Build.0 = Preview|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Preview|x64.ActiveCfg = Preview|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Preview|x64.Build.0 = Preview|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Preview|x86.ActiveCfg = Preview|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Preview|x86.Build.0 = Preview|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Release|x64.ActiveCfg = Release|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Release|x64.Build.0 = Release|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Release|x86.ActiveCfg = Release|Any CPU
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06}.Release|x86.Build.0 = Release|Any CPU
 		{D48E2BE0-5AF7-48D8-A469-AA68732C8415}.Alpha|Any CPU.ActiveCfg = Alpha|Any CPU
 		{D48E2BE0-5AF7-48D8-A469-AA68732C8415}.Alpha|Any CPU.Build.0 = Alpha|Any CPU
 		{D48E2BE0-5AF7-48D8-A469-AA68732C8415}.Alpha|x64.ActiveCfg = Alpha|Any CPU
@@ -2693,6 +2657,42 @@ Global
 		{78B919ED-6D88-4470-AD85-C9C71BE2FCE0}.Release|x64.Build.0 = Release|Any CPU
 		{78B919ED-6D88-4470-AD85-C9C71BE2FCE0}.Release|x86.ActiveCfg = Release|Any CPU
 		{78B919ED-6D88-4470-AD85-C9C71BE2FCE0}.Release|x86.Build.0 = Release|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Alpha|Any CPU.ActiveCfg = Alpha|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Alpha|Any CPU.Build.0 = Alpha|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Alpha|x64.ActiveCfg = Alpha|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Alpha|x64.Build.0 = Alpha|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Alpha|x86.ActiveCfg = Alpha|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Alpha|x86.Build.0 = Alpha|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Beta|Any CPU.ActiveCfg = Beta|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Beta|Any CPU.Build.0 = Beta|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Beta|x64.ActiveCfg = Beta|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Beta|x64.Build.0 = Beta|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Beta|x86.ActiveCfg = Beta|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Beta|x86.Build.0 = Beta|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Debug|x64.Build.0 = Debug|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Debug|x86.Build.0 = Debug|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Experimental|Any CPU.ActiveCfg = Experimental|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Experimental|Any CPU.Build.0 = Experimental|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Experimental|x64.ActiveCfg = Experimental|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Experimental|x64.Build.0 = Experimental|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Experimental|x86.ActiveCfg = Experimental|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Experimental|x86.Build.0 = Experimental|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Preview|Any CPU.ActiveCfg = Preview|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Preview|Any CPU.Build.0 = Preview|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Preview|x64.ActiveCfg = Preview|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Preview|x64.Build.0 = Preview|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Preview|x86.ActiveCfg = Preview|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Preview|x86.Build.0 = Preview|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Release|x64.ActiveCfg = Release|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Release|x64.Build.0 = Release|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Release|x86.ActiveCfg = Release|Any CPU
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -2733,7 +2733,7 @@ Global
 		{2620D085-C907-410D-A399-33960113D83D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{171CB7E7-262E-4A55-B824-DD5B2E1DA27A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{885ADF61-0160-4221-95E9-DD87C453761C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{882DC15E-AC3D-436D-8DF9-E80D59E9128A} = {16F965F1-9EE9-4305-AE4A-3DB8DC9D2BA9}
+		{882DC15E-AC3D-436D-8DF9-E80D59E9128A} = {67A15D4D-CCCD-4C7A-A461-5E09837A4C3E}
 		{0311BD6C-FF6C-4F06-894F-45F7300CA907} = {615D475A-8389-471E-A664-F5FC3F0D1D4B}
 		{4488BD12-8962-4B82-BB35-0591AD3389C6} = {615D475A-8389-471E-A664-F5FC3F0D1D4B}
 		{EEE328D6-19EF-435F-88F8-E4007BCBE395} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
@@ -2778,10 +2778,10 @@ Global
 		{615D475A-8389-471E-A664-F5FC3F0D1D4B} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{082410FE-371E-47DA-AFDB-398B7146A0D9} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{00AF5242-F40B-4D67-8AE1-5B8C2BF3F728} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{AAC3B287-BC51-4D74-80F6-6DB7C1215D06} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{D48E2BE0-5AF7-48D8-A469-AA68732C8415} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{BD42A967-6822-4883-9D3D-F762A79105B1} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{78B919ED-6D88-4470-AD85-C9C71BE2FCE0} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{F74E6435-D6B8-44F9-95F4-D167EE8C72F0} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CAE45157-2C07-4FE0-B693-6448888211D8}

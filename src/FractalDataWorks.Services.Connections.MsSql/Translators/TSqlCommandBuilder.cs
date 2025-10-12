@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using FractalDataWorks.DataSets.Abstractions;
+using FractalDataWorks.Data.DataSets.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions.Translators;

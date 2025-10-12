@@ -1,3 +1,4 @@
+using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
 
 namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpProtocols;
@@ -7,7 +8,7 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.
 /// Source generator creates static HttpProtocols class automatically.
 /// </summary>
 [TypeCollection(typeof(HttpProtocolBase), typeof(IHttpProtocol), typeof(HttpProtocols))]
-public abstract class HttpProtocols
+public abstract partial class HttpProtocols : TypeCollectionBase<HttpProtocolBase,IHttpProtocol>
 {
     // DO NOT IMPLEMENT BY HAND!
     // Source generator automatically creates static HttpProtocols class with:

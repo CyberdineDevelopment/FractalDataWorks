@@ -10,7 +10,7 @@ namespace FractalDataWorks.Services.Abstractions.Commands;
 /// Command type metrics enable fine-grained performance analysis and optimization
 /// by breaking down provider performance by the types of operations being performed.
 /// </remarks>
-public interface ICommandTypeMetrics
+public interface IGenericCommandTypeMetrics
 {
     /// <summary>
     /// Gets the command type these metrics represent.

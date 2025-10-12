@@ -9,6 +9,9 @@
     <ProjectReference Include="..\FractalDataWorks.Messages\FractalDataWorks.Messages.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Services.DataGateway.Abstractions\FractalDataWorks.Services.DataGateway.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Services.DataGateway\FractalDataWorks.Services.DataGateway.csproj" />
+
+    <!-- Source Generators -->
+    <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     <ProjectReference Include="..\FractalDataWorks.EnhancedEnums.SourceGenerators\FractalDataWorks.EnhancedEnums.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
   </ItemGroup>

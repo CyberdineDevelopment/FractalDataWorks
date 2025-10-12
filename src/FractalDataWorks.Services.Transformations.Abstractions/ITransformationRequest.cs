@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FractalDataWorks;
-using FractalDataWorks.Services.Abstractions.Commands;
+using FractalDataWorks.Abstractions;
 
 namespace FractalDataWorks.Services.Transformations.Abstractions;
 
@@ -13,7 +13,7 @@ namespace FractalDataWorks.Services.Transformations.Abstractions;
 /// Transformation requests provide a standardized way to specify transformation operations
 /// including input data, desired output format, transformation rules, and execution options.
 /// </remarks>
-public interface ITransformationRequest : ICommand
+public interface ITransformationRequest : IGenericCommand
 {
     /// <summary>
     /// Gets the unique identifier for this transformation request.

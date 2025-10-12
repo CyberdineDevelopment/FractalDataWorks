@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using FractalDataWorks.DataSets.Abstractions;
+using FractalDataWorks.Data.DataSets.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Connections.Abstractions.Messages;
 using FractalDataWorks.Services.Connections.Abstractions.Translators;

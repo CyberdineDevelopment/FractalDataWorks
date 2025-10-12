@@ -133,6 +133,6 @@ public sealed class RestConnectionConfiguration : IConnectionConfiguration
             result.Errors.Add(new ValidationFailure(nameof(TimeoutSeconds), "TimeoutSeconds must be greater than 0"));
         }
 
-        return GenericResult.Success(result);
+        return GenericResult<ValidationResult>.Success(result);
     }
 }

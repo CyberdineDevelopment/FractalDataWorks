@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FractalDataWorks.Collections;
 
@@ -7,14 +8,28 @@ namespace FractalDataWorks.Commands.Abstractions;
 /// Base class for command type definitions.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Command types provide metadata about command implementations and their capabilities.
 /// Inherit from this class to define specific command types that will be discovered
 /// by the TypeCollection source generator.
+/// </para>
+/// <para>
+/// Command types are static singletons (e.g., SqlQueryCommandType.Instance) that define:
+/// <list type="bullet">
+/// <item>Command category and execution characteristics</item>
+/// <item>Supported translators for this command type</item>
+/// <item>Batching and pipelining capabilities</item>
+/// <item>The command interface type this represents</item>
+/// </list>
+/// </para>
+/// <para>
+/// This pattern follows the same approach as ServiceTypeBase → ConnectionTypeBase.
+/// </para>
 /// </remarks>
-public abstract class CommandTypeBase : TypeOptionBase<CommandTypeBase>, ICommandType
+public abstract class CommandTypeBase : TypeOptionBase<CommandTypeBase>, IGenericCommandType
 {
     /// <inheritdoc/>
-    public ICommandCategory CommandCategory { get; }
+    public IGenericCommandCategory CommandCategory { get; }
 
     /// <inheritdoc/>
     public IReadOnlyCollection<ITranslatorType> SupportedTranslators { get; }
@@ -27,6 +42,19 @@ public abstract class CommandTypeBase : TypeOptionBase<CommandTypeBase>, IComman
 
     /// <inheritdoc/>
     public int MaxBatchSize { get; }
+
+    /// <summary>
+    /// Gets the command interface type that this command type represents.
+    /// </summary>
+    /// <value>
+    /// The interface type (e.g., typeof(IQueryCommand), typeof(IMutationCommand))
+    /// that defines the contract for this command type.
+    /// </value>
+    /// <remarks>
+    /// This enables runtime type checking and proper routing of command executions
+    /// to the appropriate handlers and translators.
+    /// </remarks>
+    public virtual Type CommandInterfaceType => typeof(IGenericCommand);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommandTypeBase"/> class.
@@ -43,7 +71,7 @@ public abstract class CommandTypeBase : TypeOptionBase<CommandTypeBase>, IComman
         int id,
         string name,
         string description,
-        ICommandCategory category,
+        IGenericCommandCategory category,
         IReadOnlyCollection<ITranslatorType> supportedTranslators,
         bool supportsBatching = false,
         bool supportsPipelining = false,

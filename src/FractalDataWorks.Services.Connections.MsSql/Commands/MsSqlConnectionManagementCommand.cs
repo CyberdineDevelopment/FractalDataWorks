@@ -66,17 +66,12 @@ public sealed class MsSqlConnectionManagementCommand : IConnectionCommand, IConn
     public Guid CommandId { get; } = Guid.NewGuid();
 
     /// <summary>
-    /// Gets the correlation identifier for tracking related operations.
-    /// </summary>
-    public Guid CorrelationId { get; } = Guid.NewGuid();
-
-    /// <summary>
     /// Gets the timestamp when this command was created.
     /// </summary>
-    public DateTimeOffset Timestamp { get; } = DateTimeOffset.UtcNow;
+    public DateTime CreatedAt { get; } = DateTime.UtcNow;
 
     /// <summary>
-    /// Gets the configuration associated with this command.
+    /// Gets the command type identifier.
     /// </summary>
-    public IGenericConfiguration? Configuration => null; // Management commands don't have associated configuration
+    public string CommandType => "ConnectionManagement";
 }

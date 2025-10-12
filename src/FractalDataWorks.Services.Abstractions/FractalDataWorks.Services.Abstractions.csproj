@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.Commands.Abstractions\FractalDataWorks.Commands.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Configuration.Abstractions\FractalDataWorks.Configuration.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Messages\FractalDataWorks.Messages.csproj" />
@@ -21,6 +20,9 @@
     <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj"/>
 
     <!-- Source generators - NOT exported to avoid circular dependencies -->
+    <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\FractalDataWorks.ServiceTypes.SourceGenerators\FractalDataWorks.ServiceTypes.SourceGenerators.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />

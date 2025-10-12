@@ -18,8 +18,9 @@
 
     <!-- Build dependency on the source generator -->
     <ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false"
-                      PrivateAssets="all" />
+                      PrivateAssets="none" />
                       
     <!-- Build dependency on Messages source generator -->
     <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj"

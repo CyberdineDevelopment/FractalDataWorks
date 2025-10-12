@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FractalDataWorks.Abstractions;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;

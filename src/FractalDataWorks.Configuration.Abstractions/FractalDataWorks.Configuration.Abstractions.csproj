@@ -13,6 +13,19 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
+
+    <!-- Collections.SourceGenerators for processing [TypeCollection] and [TypeOption] attributes -->
+    <ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="none" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Explicitly embed the Collections generator DLL -->
+    <None Include="..\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false"
+          Condition="Exists('..\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll')" />
   </ItemGroup>
 
 </Project>
