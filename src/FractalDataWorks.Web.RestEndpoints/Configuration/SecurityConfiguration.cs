@@ -25,10 +25,10 @@ public sealed class SecurityConfiguration
     
     /// <summary>
     /// Gets the default security method by name.
-    /// Following TypeCollection pattern: retrieve object via Name(string).
+    /// TODO: Re-enable once TypeCollection source generator creates GetByName method
+    /// Following TypeCollection pattern: retrieve object via GetByName(string).
     /// </summary>
-    // TODO: Enable once SecurityMethods source generator creates Name(string) method
-    public ISecurityMethod? DefaultSecurityMethodEnum => null; // SecurityMethods.Name(DefaultSecurityMethod);
+    public ISecurityMethod? DefaultSecurityMethodEnum => null; // SecurityMethods.GetByName(DefaultSecurityMethod);
 
     /// <summary>
     /// Gets or sets the JWT security configuration.
