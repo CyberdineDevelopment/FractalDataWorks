@@ -7,7 +7,7 @@ using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using FractalDataWorks.Results;
-using FractalDataWorks.Services.DataGateway.Services;
+using FractalDataWorks.Services.DataGateway.Abstractions;
 using FractalDataWorks.Web.RestEndpoints.Logging;
 // using FractalDataWorks.Services.Execution.Abstractions; // TODO: Add when available
 // using FractalDataWorks.Services.Scheduling.Abstractions; // TODO: Add when available

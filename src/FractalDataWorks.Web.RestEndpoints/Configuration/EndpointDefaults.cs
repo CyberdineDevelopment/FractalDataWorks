@@ -126,8 +126,8 @@ public static class EndpointDefaults
     {
         // TODO: Implement GetDefaultsForType based on endpoint type
         return new EndpointDefaultSettings(
-            DefaultSecurityMethod,
-            DefaultRateLimitPolicy,
+            DefaultSecurityMethod.Name,
+            DefaultRateLimitPolicy.Name,
             DefaultRequestTimeoutMs,
             DefaultMaxRequestBodySize,
             true,

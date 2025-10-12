@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using FractalDataWorks.Services.Authentication.Abstractions.EnhancedEnums.SecurityMethods;
+using FractalDataWorks.Web.Http.Abstractions.Security;
 using ISecurityMethod = FractalDataWorks.Web.Http.Abstractions.Security.ISecurityMethod;
 
 namespace FractalDataWorks.Web.RestEndpoints.Configuration;
@@ -24,10 +24,11 @@ public sealed class SecurityConfiguration
     public string DefaultSecurityMethod { get; init; } = string.Empty;
     
     /// <summary>
-    /// Gets the default security method Enhanced Enum by name.
-    /// Following Enhanced Enum pattern: retrieve object via ByName().
+    /// Gets the default security method by name.
+    /// Following TypeCollection pattern: retrieve object via Name(string).
     /// </summary>
-    public ISecurityMethod DefaultSecurityMethodEnum => SecurityMethods.ByName(DefaultSecurityMethod);
+    // TODO: Enable once SecurityMethods source generator creates Name(string) method
+    public ISecurityMethod? DefaultSecurityMethodEnum => null; // SecurityMethods.Name(DefaultSecurityMethod);
 
     /// <summary>
     /// Gets or sets the JWT security configuration.

@@ -5,7 +5,7 @@ namespace FractalDataWorks.Web.RestEndpoints.Configuration;
 
 /// <summary>
 /// Default settings for a specific endpoint type.
-/// Following Enhanced Enum pattern: store names, retrieve objects via ByName().
+/// Following TypeCollection pattern: store names, retrieve objects via Name(string).
 /// </summary>
 public record EndpointDefaultSettings(
     string SecurityMethodName,
@@ -16,12 +16,14 @@ public record EndpointDefaultSettings(
     string[] AllowedRoles)
 {
     /// <summary>
-    /// Gets the security method Enhanced Enum by name.
+    /// Gets the security method by name.
     /// </summary>
-    public ISecurityMethod SecurityMethod => SecurityMethods.ByName(SecurityMethodName);
-    
+    // TODO: Enable once SecurityMethods source generator creates Name(string) method
+    public ISecurityMethod? SecurityMethod => null; // SecurityMethods.Name(SecurityMethodName);
+
     /// <summary>
-    /// Gets the rate limit policy Enhanced Enum by name.
+    /// Gets the rate limit policy by name.
     /// </summary>
-    public IRateLimitPolicy RateLimitPolicy => RateLimitPolicies.ByName(RateLimitPolicyName);
+    // TODO: Enable once RateLimitPolicies source generator creates Name(string) method
+    public IRateLimitPolicy? RateLimitPolicy => null; // RateLimitPolicies.Name(RateLimitPolicyName);
 };
