@@ -1,12 +1,12 @@
-using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.Collections;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Policies;
 
 /// <summary>
-/// Interface for rate limit policy enhanced enums.
+/// Interface for rate limit policy type options.
 /// Provides abstraction for rate limiting strategies.
 /// </summary>
-public interface IRateLimitPolicy : IEnumOption
+public interface IRateLimitPolicy : ITypeOption<IRateLimitPolicy>
 {
     /// <summary>
     /// Gets a value indicating whether rate limiting is enabled for this policy.

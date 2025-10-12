@@ -1,12 +1,12 @@
-using FractalDataWorks.EnhancedEnums;
+using FractalDataWorks.Collections;
 
 namespace FractalDataWorks.Web.Http.Abstractions.Security;
 
 /// <summary>
-/// Interface for security method enhanced enums.
+/// Interface for security method type options.
 /// Provides abstraction for security authentication methods.
 /// </summary>
-public interface ISecurityMethod : IEnumOption
+public interface ISecurityMethod : ITypeOption<ISecurityMethod>
 {
     /// <summary>
     /// Gets a value indicating whether this security method requires authentication.

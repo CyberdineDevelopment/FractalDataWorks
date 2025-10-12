@@ -17,13 +17,11 @@ public record EndpointDefaultSettings(
 {
     /// <summary>
     /// Gets the security method by name.
-    /// TODO: Re-enable once TypeCollection source generator creates GetByName method
     /// </summary>
-    public ISecurityMethod? SecurityMethod => null; // SecurityMethods.GetByName(SecurityMethodName);
+    public ISecurityMethod? SecurityMethod => SecurityMethods.Name(SecurityMethodName);
 
     /// <summary>
     /// Gets the rate limit policy by name.
-    /// TODO: Re-enable once TypeCollection source generator creates GetByName method
     /// </summary>
-    public IRateLimitPolicy? RateLimitPolicy => null; // RateLimitPolicies.GetByName(RateLimitPolicyName);
+    public IRateLimitPolicy? RateLimitPolicy => RateLimitPolicies.Name(RateLimitPolicyName);
 };

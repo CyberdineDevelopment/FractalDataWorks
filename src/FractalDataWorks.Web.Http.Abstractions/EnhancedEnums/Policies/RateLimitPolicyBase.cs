@@ -6,7 +6,7 @@ namespace FractalDataWorks.Web.Http.Abstractions.Policies;
 /// Enhanced enum defining rate limiting policies for endpoint protection.
 /// Provides various strategies for controlling request frequency and preventing abuse.
 /// </summary>
-public abstract class RateLimitPolicyBase : IRateLimitPolicy
+public abstract class RateLimitPolicyBase : TypeOptionBase<IRateLimitPolicy>, IRateLimitPolicy
 {
     /// <summary>
     /// Gets the maximum number of requests allowed within the time window.
@@ -67,9 +67,8 @@ public abstract class RateLimitPolicyBase : IRateLimitPolicy
         int? defaultRequestLimit,
         int? defaultTimeWindowSeconds,
         bool supportsBurstCapacity)
+        : base(id, name)
     {
-        Id = id;
-        Name = name;
         MaxRequests = maxRequests;
         WindowSizeInSeconds = windowSizeInSeconds;
         PolicyType = policyType;
@@ -78,10 +77,4 @@ public abstract class RateLimitPolicyBase : IRateLimitPolicy
         DefaultTimeWindowSeconds = defaultTimeWindowSeconds;
         SupportsBurstCapacity = supportsBurstCapacity;
     }
-
-    /// <inheritdoc/>
-    public int Id { get; }
-
-    /// <inheritdoc/>
-    public string Name { get; }
 }
