@@ -10,10 +10,37 @@ This package provides the foundational interfaces for external connection servic
 
 The external connections abstractions follow the framework's **enhanced service pattern**:
 
-- **Core Interface**: `IGenericConnectionService` extends `IServiceType` 
-- **Command Contract**: `IGenericConnectionCommand` defines connection command structure
+- **Core Interface**: `IGenericConnectionService` extends `IServiceType`
+- **Command Contract**: `IConnectionCommand` defines connection command structure
 - **Configuration Base**: `IGenericConnectionConfiguration` provides configuration contract
 - **Base Classes**: Add type constraints without implementation logic
+
+## Command Architecture
+
+This package defines two distinct command hierarchies for the two-tier architecture:
+
+### IConnectionCommand (Service-Level)
+Service-level commands for connection management:
+- **Purpose**: Creating and configuring connections, testing connectivity, discovery operations, connection lifecycle management
+- **Key Properties**:
+  - `CommandId` - Unique command identifier
+  - `CreatedAt` - Timestamp
+  - `CommandType` - Type of connection operation
+- **Scope**: Connection service infrastructure
+
+### IDataCommand (Data-Level)
+Data-level commands executed through connections (defined in `FractalDataWorks.Data.Abstractions`):
+- **Purpose**: Query operations, insert/update/delete operations, bulk operations, schema discovery
+- **Key Properties**:
+  - `ConnectionName` - Target connection identifier
+  - `Query` - LINQ expression for filtering
+  - `CommandType` - Type of data operation
+  - `TargetContainer` - Table/collection name
+  - `Metadata` - Additional command metadata
+  - `Timeout` - Operation timeout
+- **Scope**: Data operations through established connections
+
+**Important**: These are separate command hierarchies. Service commands manage connections, while data commands operate through established connections. Do not confuse the two.
 
 ## Key Interfaces
 

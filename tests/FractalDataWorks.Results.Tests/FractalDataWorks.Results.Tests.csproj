@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <!-- Project under test -->
-    <ProjectReference Include="..\..\src\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
-  </ItemGroup>
-
-</Project>

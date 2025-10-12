@@ -1,5 +1,14 @@
 # FractalDataWorks.Services.Connections.MsSql
 
+> ⚠️ **PROJECT STATUS: TEMPORARILY REMOVED**
+>
+> This project was temporarily removed from the solution due to architectural incompatibilities with the new two-tier command architecture. It will be rebuilt with:
+> - Proper distinction between IConnectionCommand (service-level) and IDataCommand (data-level)
+> - Updated ServiceBase constructor requiring logger parameter
+> - Fixed configuration initialization patterns (init-only properties)
+>
+> **This documentation is currently OUTDATED and will be updated when the project is rebuilt.**
+
 SQL Server implementation of external connection services for the FractalDataWorks platform.
 
 ## Overview

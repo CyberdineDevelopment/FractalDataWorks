@@ -83,9 +83,15 @@ public class DataService
         if (openResult.Error)
             return GenericResult<List<User>>.Failure(openResult.Message);
 
-        // Execute command using the connection
-        var command = new QueryCommand { /* ... */ };
-        return await connection.Execute<List<User>>(command);
+        // Execute data command through the connection
+        // Note: Data commands (IDataCommand) are executed through connections
+        var dataCommand = new DataQueryCommand<User>
+        {
+            ConnectionName = "MainDatabase",
+            Query = u => u.IsActive,
+            CommandType = "Query"
+        };
+        return await connection.Execute<List<User>>(dataCommand);
     }
 }
 ```
@@ -183,6 +189,11 @@ public sealed class MongoDbConnectionType :
 public class MongoDbConnection :
     ConnectionServiceBase<IConnectionCommand, MongoDbConfiguration, MongoDbConnection>
 {
+    public MongoDbConnection(ILogger<MongoDbConnection> logger, MongoDbConfiguration configuration)
+        : base(logger, configuration)
+    {
+    }
+
     protected override async Task<IGenericResult> OpenCoreAsync()
     {
         // MongoDB connection logic
@@ -220,6 +231,53 @@ Connections track their state through IConnectionState:
 - `Closed` - Successfully closed
 - `Broken` - Error state
 - `Disposed` - Final state
+
+## Command Architecture
+
+The connection system uses a **two-tier command architecture** to separate connection management from data operations:
+
+### Service Commands (IConnectionCommand)
+Service-level commands for connection lifecycle management:
+- **Purpose**: Manage connection creation, testing, and discovery
+- **Key Properties**:
+  - `CommandId` - Unique command identifier
+  - `CreatedAt` - Timestamp
+  - `CommandType` - Type of connection operation
+- **Examples**: `CreateConnectionCommand`, `TestConnectionCommand`, `DiscoveryCommand`
+
+### Data Commands (IDataCommand)
+Data-level commands executed through established connections:
+- **Purpose**: Execute operations against data sources
+- **Key Properties**:
+  - `ConnectionName` - Target connection identifier
+  - `Query` - LINQ expression for filtering/querying
+  - `CommandType` - Type of data operation
+  - `TargetContainer` - Table/collection/resource name
+  - `Metadata` - Additional command metadata
+  - `Timeout` - Operation timeout
+- **Examples**: `DataQueryCommand`, `DataInsertCommand`, `DataUpdateCommand`
+
+### Usage Pattern
+```csharp
+// 1. Use service commands to manage connection lifecycle
+var createCmd = new CreateConnectionCommand
+{
+    ConnectionName = "main-db",
+    Configuration = dbConfig
+};
+var connResult = await connectionProvider.Execute(createCmd);
+
+// 2. Use data commands through established connections
+var queryCmd = new DataQueryCommand<User>
+{
+    ConnectionName = "main-db",
+    Query = u => u.IsActive && u.Role == "Admin",
+    CommandType = "Query"
+};
+var dataResult = await connection.Execute<List<User>>(queryCmd);
+```
+
+**Important**: Service commands manage the connection infrastructure, while data commands operate through the connections. Never confuse the two hierarchies.
 
 ## Logging
 

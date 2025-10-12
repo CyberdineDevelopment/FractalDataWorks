@@ -8,7 +8,13 @@ This project is currently empty and contains only the basic project file structu
 
 ## Current Status
 
-**⚠️ EMPTY PROJECT**: This project contains no source files or implementations.
+**⚠️ PLACEHOLDER PROJECT**: This project currently has minimal or no implementation.
+
+**Note**: Data abstractions are currently defined in:
+- `FractalDataWorks.Data.Abstractions` - Core data abstractions including `IDataCommand`, `IDataContainer`, etc.
+- Service-specific abstractions projects - Each service defines its own data command extensions
+
+This project may be consolidated or expanded in future refactoring efforts.
 
 The project file (`FractalDataWorks.Services.Data.Abstractions.csproj`) exists but is empty, containing only:
 ```xml
