@@ -27,15 +27,7 @@ public interface ISecretManagerCommand : IGenericCommand
     /// </remarks>
     new string CommandId { get; }
 
-    /// <summary>
-    /// Gets the type of operation this managementCommand represents.
-    /// </summary>
-    /// <value>The managementCommand type (e.g., "GetSecret", "SetSecret", "DeleteSecret", "ListSecrets", "GetSecretVersions").</value>
-    /// <remarks>
-    /// ManagementCommand types help secret providers determine how to execute the managementCommand
-    /// and what type of result to expect. This enables provider-specific optimizations.
-    /// </remarks>
-    string CommandType { get; }
+    // CommandType is inherited from IGenericCommand base interface
 
     /// <summary>
     /// Gets the target secret container or path for this managementCommand.

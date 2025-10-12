@@ -11,15 +11,7 @@ namespace FractalDataWorks.Data.DataStores.Abstractions;
 /// </remarks>
 public interface IDataStoreType : ITypeOption
 {
-    /// <summary>
-    /// Gets the display name for this data store type.
-    /// </summary>
-    string DisplayName { get; }
-
-    /// <summary>
-    /// Gets the description of this data store type.
-    /// </summary>
-    string Description { get; }
+    // DisplayName, Description, and Category are inherited from ITypeOption
 
     /// <summary>
     /// Gets whether this store supports read operations.
@@ -35,9 +27,4 @@ public interface IDataStoreType : ITypeOption
     /// Gets whether this store supports transactions.
     /// </summary>
     bool SupportsTransactions { get; }
-
-    /// <summary>
-    /// Gets the category for this data store type.
-    /// </summary>
-    string Category { get; }
 }

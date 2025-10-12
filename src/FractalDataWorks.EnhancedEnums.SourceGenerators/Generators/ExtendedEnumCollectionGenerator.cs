@@ -347,7 +347,7 @@ public sealed class ExtendedEnumCollectionGenerator : IIncrementalGenerator
         var namedArgs = attribute.NamedArguments;
         foreach (var namedArg in namedArgs)
         {
-            if (namedArg.Key == "UseSingletonInstances" && namedArg.Value.Value is bool value)
+            if (string.Equals(namedArg.Key, "UseSingletonInstances", StringComparison.Ordinal) && namedArg.Value.Value is bool value)
             {
                 useSingletonInstances = value;
                 break;
@@ -560,7 +560,7 @@ public sealed class ExtendedEnumCollectionGenerator : IIncrementalGenerator
     /// <summary>
     /// Container for Extended Enum definition data.
     /// </summary>
-    private class ExtendedEnumDefinition
+    private sealed class ExtendedEnumDefinition
     {
         public string Namespace { get; set; } = string.Empty;
         public string CollectionName { get; set; } = string.Empty;
@@ -574,7 +574,7 @@ public sealed class ExtendedEnumCollectionGenerator : IIncrementalGenerator
     /// <summary>
     /// Container for passing Extended Enum info through the pipeline.
     /// </summary>
-    private class ExtendedEnumTypeInfoWithCompilation
+    private sealed class ExtendedEnumTypeInfoWithCompilation
     {
         public ExtendedEnumDefinition ExtendedEnumDefinition { get; }
         public Compilation Compilation { get; }

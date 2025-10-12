@@ -200,7 +200,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                     if (propertyLocation == null || propertyLocation.IsInMetadata)
                     {
                         propertyLocation = collectionClass.GetAttributes()
-                            .FirstOrDefault(a => a.AttributeClass?.Name == nameof(TypeCollectionAttribute))
+                            .FirstOrDefault(a => string.Equals(a.AttributeClass?.Name, nameof(TypeCollectionAttribute), StringComparison.Ordinal))
                             ?.ApplicationSyntaxReference?.GetSyntax().GetLocation();
                     }
 
@@ -497,7 +497,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
     {
         // Check for named argument: RestrictToCurrentCompilation = true/false
         var restrictProp = attribute.NamedArguments
-            .FirstOrDefault(kvp => kvp.Key == nameof(TypeCollectionAttribute.RestrictToCurrentCompilation));
+            .FirstOrDefault(kvp => string.Equals(kvp.Key, nameof(TypeCollectionAttribute.RestrictToCurrentCompilation), StringComparison.Ordinal));
 
         if (restrictProp.Key != null && restrictProp.Value.Value is bool restrictValue)
         {
@@ -544,7 +544,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
                         if (!string.IsNullOrEmpty(methodName))
                         {
                             // Check if we already have this property (avoid duplicates from inheritance)
-                            if (!lookupProperties.Any(lp => lp.PropertyName == property.Name))
+                            if (!lookupProperties.Any(lp => string.Equals(lp.PropertyName, property.Name, StringComparison.Ordinal)))
                             {
                                 lookupProperties.Add(new PropertyLookupInfoModel
                                 {
@@ -942,7 +942,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             // Get return type from the TypeCollection attribute (second parameter)
             // The attribute must be present since that's how this class was selected for generation
             var typeCollectionAttribute = collectionClass.GetAttributes()
-                .First(a => a.AttributeClass?.Name == nameof(TypeCollectionAttribute));
+                .First(a => string.Equals(a.AttributeClass?.Name, nameof(TypeCollectionAttribute), StringComparison.Ordinal));
 
             var effectiveReturnType = ExtractReturnTypeFromAttribute(typeCollectionAttribute)!;
 

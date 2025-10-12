@@ -33,7 +33,7 @@ public sealed class EmptyClassGenerator
     /// <param name="namespace">The namespace for the Empty class</param>
     /// <param name="compilation">The compilation context for type resolution</param>
     /// <returns>The generated Empty class code</returns>
-    public string GenerateEmptyClass(
+    public static string GenerateEmptyClass(
         GenericTypeInfoModel definition,
         string returnType,
         string @namespace,
@@ -220,9 +220,9 @@ public sealed class EmptyClassGenerator
     /// <summary>
     /// Generates implementations for all abstract methods in the inheritance chain.
     /// </summary>
-    private void GenerateAbstractMethodImplementations(StringBuilder sb, INamedTypeSymbol baseType, Compilation compilation)
+    private static void GenerateAbstractMethodImplementations(StringBuilder sb, INamedTypeSymbol baseType, Compilation compilation)
     {
-        var implementedMethods = new HashSet<string>();
+        var implementedMethods = new HashSet<string>(StringComparer.Ordinal);
 
         // Walk up the inheritance chain
         var currentType = baseType;
@@ -249,7 +249,7 @@ public sealed class EmptyClassGenerator
     /// <summary>
     /// Generates implementation for a single abstract method.
     /// </summary>
-    private void GenerateAbstractMethodImplementation(StringBuilder sb, IMethodSymbol method, Compilation compilation)
+    private static void GenerateAbstractMethodImplementation(StringBuilder sb, IMethodSymbol method, Compilation compilation)
     {
         // XML documentation
         sb.AppendLine("    /// <summary>");
@@ -284,7 +284,7 @@ public sealed class EmptyClassGenerator
     /// 3. If string -> return string.Empty
     /// 4. Otherwise -> return default
     /// </summary>
-    private string GenerateReturnStatement(IMethodSymbol method, Compilation compilation)
+    private static string GenerateReturnStatement(IMethodSymbol method, Compilation compilation)
     {
         var returnType = method.ReturnType;
 
@@ -334,7 +334,7 @@ public sealed class EmptyClassGenerator
     /// <summary>
     /// Creates a unique signature for a method (for deduplication).
     /// </summary>
-    private string GetMethodSignature(IMethodSymbol method)
+    private static string GetMethodSignature(IMethodSymbol method)
     {
         var paramTypes = string.Join(",", method.Parameters.Select(p => p.Type.ToDisplayString()));
         return $"{method.Name}({paramTypes})";

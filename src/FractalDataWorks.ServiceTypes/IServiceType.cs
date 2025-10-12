@@ -28,20 +28,7 @@ public interface IServiceType<TService, TFactory, TConfiguration> : IServiceType
     where TFactory : IServiceFactory<TService, TConfiguration>
     where TConfiguration : IGenericConfiguration
 {
-    /// <summary>
-    /// Gets the configuration type required by this service type.
-    /// </summary>
-    /// <value>The Type of the configuration class that this service requires for initialization.</value>
-    /// <remarks>
-    /// This property enables:
-    /// <list type="bullet">
-    /// <item><description>Compile-time validation of configuration compatibility</description></item>
-    /// <item><description>Runtime configuration type checking and validation</description></item>
-    /// <item><description>Dynamic configuration object creation and binding</description></item>
-    /// <item><description>Configuration serialization and deserialization</description></item>
-    /// </list>
-    /// </remarks>
-    Type ConfigurationType { get; }
+    // ConfigurationType is inherited from IServiceType base interface
 }
 
 /// <summary>

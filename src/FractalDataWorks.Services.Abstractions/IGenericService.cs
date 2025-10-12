@@ -20,41 +20,13 @@ namespace FractalDataWorks.Services.Abstractions;
 public interface IGenericService<TCommand> : IGenericService
     where TCommand : IGenericCommand
 {
-    /// <summary>
-    /// Gets the unique identifier for this service instance.
-    /// </summary>
-    /// <value>A unique identifier for the service instance.</value>
-    /// <remarks>
-    /// This identifier is used for service tracking, logging, and debugging purposes.
-    /// It should remain constant for the lifetime of the service instance.
-    /// </remarks>
-    string Id { get; }
+    // Id, ServiceType, and IsAvailable are inherited from IGenericService base interface
 
-    /// <summary>
-    /// Gets the display name of the service.
-    /// </summary>
-    /// <value>A human-readable name for the service.</value>
-    /// <remarks>
-    /// This name is used in user interfaces, logging, and diagnostic outputs.
-    /// It should be descriptive and help identify the service's purpose.
-    /// </remarks>
-    string ServiceType { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether the service is currently available for use.
-    /// </summary>
-    /// <value><c>true</c> if the service is available; otherwise, <c>false</c>.</value>
-    /// <remarks>
-    /// Services may become unavailable due to configuration issues, network problems,
-    /// or temporary failures. The framework can use this property to determine
-    /// whether to route requests to this service instance.
-    /// </remarks>
-    bool IsAvailable { get; }
     /// <summary>
     /// Executes a command using the service.
     /// </summary>
-    /// <param name="command"></param>
-    /// <returns></returns>
+    /// <param name="command">The command to execute.</param>
+    /// <returns>A task containing the execution result.</returns>
     Task<IGenericResult> Execute(TCommand command);
 }
 

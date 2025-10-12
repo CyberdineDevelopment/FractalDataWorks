@@ -155,7 +155,7 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
         // Add namespace for the return type (e.g., ITransformationType, ISecretManagerType)
         if (!string.IsNullOrEmpty(_returnType))
         {
-            var lastDotIndex = _returnType.LastIndexOf('.');
+            var lastDotIndex = _returnType!.LastIndexOf('.');
             if (lastDotIndex > 0)
             {
                 var returnTypeNamespace = _returnType.Substring(0, lastDotIndex);
@@ -170,7 +170,7 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
         // Add namespace for the collection base type
         if (!string.IsNullOrEmpty(_definition!.CollectionBaseType))
         {
-            var lastDotIndex = _definition.CollectionBaseType.LastIndexOf('.');
+            var lastDotIndex = _definition.CollectionBaseType!.LastIndexOf('.');
             if (lastDotIndex > 0)
             {
                 var baseTypeNamespace = _definition.CollectionBaseType.Substring(0, lastDotIndex);
@@ -204,22 +204,22 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
         classBuilder.WithUsings(namespaces.ToArray());
 
         // Generate fields using FieldGenerator
-        var allField = _fieldGenerator.GenerateAllField(_returnType!);
+        var allField = FieldGenerator.GenerateAllField(_returnType!);
         classBuilder.WithField(allField);
 
         // Always generate _empty field (initialized in static constructor)
-        var emptyField = _fieldGenerator.GenerateEmptyField(_returnType!);
+        var emptyField = FieldGenerator.GenerateEmptyField(_returnType!);
         classBuilder.WithField(emptyField);
 
         // Generate lookup dictionary fields (with conditional compilation)
-        var lookupFields = _fieldGenerator.GenerateLookupDictionaryFields(_definition!, _returnType!);
+        var lookupFields = FieldGenerator.GenerateLookupDictionaryFields(_definition!, _returnType!);
         foreach (var field in lookupFields)
         {
             classBuilder.WithField(field);
         }
 
         // Generate lookup methods using LookupMethodGenerator
-        var lookupMethods = _lookupMethodGenerator.GenerateDynamicLookupMethods(_definition!, _returnType!);
+        var lookupMethods = LookupMethodGenerator.GenerateDynamicLookupMethods(_definition!, _returnType!);
         foreach (var method in lookupMethods)
         {
             classBuilder.WithMethod(method);
@@ -250,7 +250,7 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
         classBuilder.WithMethod(notFoundMethod);
 
         // Generate static properties for each value
-        var valueProperties = _valuePropertyGenerator.GenerateValueProperties(
+        var valueProperties = ValuePropertyGenerator.GenerateValueProperties(
             _values!,
             _returnType!,
             _definition!.UseMethods);
@@ -260,7 +260,7 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
         }
 
         // Generate static constructor
-        var staticConstructor = _staticConstructorGenerator.GenerateStaticConstructor(
+        var staticConstructor = StaticConstructorGenerator.GenerateStaticConstructor(
             _definition!,
             _values!,
             _returnType!,
@@ -337,7 +337,7 @@ public sealed class GenericCollectionBuilder : IGenericCollectionBuilder
         if (GenericTypeHelper.IsGenericType(baseTypeSymbol))
             return string.Empty;
 
-        return _emptyClassGenerator.GenerateEmptyClass(
+        return EmptyClassGenerator.GenerateEmptyClass(
             _definition,
             baseTypeName,
             _definition.Namespace,

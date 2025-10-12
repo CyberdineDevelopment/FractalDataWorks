@@ -38,7 +38,7 @@ public abstract class DataContainerTypeBase : TypeOptionBase<DataContainerTypeBa
         bool supportsStreaming,
         IEnumerable<string> compatibleConnectionTypes,
         string? category = null)
-        : base(id, name)
+        : base(id, name, category)
     {
         FileExtension = fileExtension;
         MimeType = mimeType;
@@ -47,8 +47,9 @@ public abstract class DataContainerTypeBase : TypeOptionBase<DataContainerTypeBa
         SupportsSchemaInference = supportsSchemaInference;
         SupportsStreaming = supportsStreaming;
         CompatibleConnectionTypes = compatibleConnectionTypes;
-        Category = category;
     }
+
+    // Category is inherited from TypeOptionBase
 
     /// <inheritdoc/>
     public string? FileExtension { get; }
@@ -70,11 +71,6 @@ public abstract class DataContainerTypeBase : TypeOptionBase<DataContainerTypeBa
 
     /// <inheritdoc/>
     public IEnumerable<string> CompatibleConnectionTypes { get; }
-
-    /// <summary>
-    /// Gets the category for this container type.
-    /// </summary>
-    public string? Category { get; }
 
     /// <inheritdoc/>
     public abstract IContainerConfiguration CreateDefaultConfiguration();

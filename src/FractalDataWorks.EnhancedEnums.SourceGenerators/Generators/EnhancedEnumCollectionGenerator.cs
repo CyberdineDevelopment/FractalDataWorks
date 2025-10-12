@@ -361,7 +361,7 @@ public sealed class EnhancedEnumCollectionGenerator : IIncrementalGenerator
         var namedArgs = attribute.NamedArguments;
         foreach (var namedArg in namedArgs)
         {
-            if (namedArg.Key == "UseSingletonInstances" && namedArg.Value.Value is bool value)
+            if (string.Equals(namedArg.Key, "UseSingletonInstances", StringComparison.Ordinal) && namedArg.Value.Value is bool value)
             {
                 useSingletonInstances = value;
                 break;

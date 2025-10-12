@@ -21,7 +21,7 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
     private readonly ILogger<GenericConnectionProvider> _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ConnectionProvider"/> class.
+    /// Initializes a new instance of the <see cref="GenericConnectionProvider"/> class.
     /// </summary>
     /// <param name="serviceProvider">The service provider for resolving factories.</param>
     /// <param name="configuration">The configuration for loading connection settings.</param>

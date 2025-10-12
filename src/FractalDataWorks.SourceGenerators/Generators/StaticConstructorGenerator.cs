@@ -29,7 +29,7 @@ public sealed class StaticConstructorGenerator
     /// <summary>
     /// Generates the static constructor that initializes _all and _empty fields.
     /// </summary>
-    public IConstructorBuilder GenerateStaticConstructor(
+    public static IConstructorBuilder GenerateStaticConstructor(
         GenericTypeInfoModel definition,
         System.Collections.Generic.IList<GenericValueInfoModel> values,
         string returnType,
@@ -124,7 +124,7 @@ public sealed class StaticConstructorGenerator
         // Initialize lookup dictionaries for pre-NET8.0 targets (NET8+ uses GetAlternateLookup instead)
         bool supportsAlternateLookup = IsNet8OrGreater(definition.TargetFramework);
 
-        if (!supportsAlternateLookup && definition.LookupProperties != null && definition.LookupProperties.Count() > 0)
+        if (!supportsAlternateLookup && definition.LookupProperties != null && definition.LookupProperties.Length > 0)
         {
             var nonIdLookups = definition.LookupProperties
                 .Where(l => !string.Equals(l.PropertyName, "Id", StringComparison.Ordinal))
@@ -159,7 +159,7 @@ public sealed class StaticConstructorGenerator
             return false;
 
         // Check for net8.0, net9.0, net10.0, etc.
-        if (targetFramework.StartsWith("net", StringComparison.OrdinalIgnoreCase))
+        if (targetFramework!.StartsWith("net", StringComparison.OrdinalIgnoreCase))
         {
             // Extract version number (e.g., "net8.0" -> "8", "net10.0" -> "10")
             var versionPart = targetFramework.Substring(3);
@@ -169,7 +169,7 @@ public sealed class StaticConstructorGenerator
                 versionPart = versionPart.Substring(0, dotIndex);
             }
 
-            if (int.TryParse(versionPart, out var version))
+            if (int.TryParse(versionPart, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var version))
             {
                 return version >= 8;
             }

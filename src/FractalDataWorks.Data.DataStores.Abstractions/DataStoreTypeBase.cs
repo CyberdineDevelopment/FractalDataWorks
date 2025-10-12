@@ -32,21 +32,14 @@ public abstract class DataStoreTypeBase : TypeOptionBase<DataStoreTypeBase>, IDa
         bool supportsWrite,
         bool supportsTransactions,
         string? category = null)
-        : base(id, name)
+        : base(id, name, $"DataStores:{name}", displayName, description, category ?? "Data Store")
     {
-        DisplayName = displayName;
-        Description = description;
         SupportsRead = supportsRead;
         SupportsWrite = supportsWrite;
         SupportsTransactions = supportsTransactions;
-        Category = category ?? "Data Store";
     }
 
-    /// <inheritdoc/>
-    public string DisplayName { get; }
-
-    /// <inheritdoc/>
-    public string Description { get; }
+    // DisplayName, Description, and Category are inherited from TypeOptionBase
 
     /// <inheritdoc/>
     public bool SupportsRead { get; }
@@ -56,7 +49,4 @@ public abstract class DataStoreTypeBase : TypeOptionBase<DataStoreTypeBase>, IDa
 
     /// <inheritdoc/>
     public bool SupportsTransactions { get; }
-
-    /// <inheritdoc/>
-    public string Category { get; }
 }

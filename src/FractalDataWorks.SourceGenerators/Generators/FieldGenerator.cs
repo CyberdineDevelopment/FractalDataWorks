@@ -28,7 +28,7 @@ public sealed class FieldGenerator
     /// <summary>
     /// Generates the _all static field (FrozenDictionary or Dictionary based on target).
     /// </summary>
-    public IFieldBuilder GenerateAllField(string returnType)
+    public static IFieldBuilder GenerateAllField(string returnType)
     {
         return new FieldBuilder()
             .WithName("_all")
@@ -42,7 +42,7 @@ public sealed class FieldGenerator
     /// <summary>
     /// Generates the _empty static field (initialized in static constructor).
     /// </summary>
-    public IFieldBuilder GenerateEmptyField(string returnType)
+    public static IFieldBuilder GenerateEmptyField(string returnType)
     {
         return new FieldBuilder()
             .WithName("_empty")
@@ -57,7 +57,7 @@ public sealed class FieldGenerator
     /// Generates lookup dictionary fields for non-ID properties (e.g., _byName).
     /// Only generates fields for pre-NET8.0 targets that don't support AlternateLookup.
     /// </summary>
-    public List<IFieldBuilder> GenerateLookupDictionaryFields(
+    public static IList<IFieldBuilder> GenerateLookupDictionaryFields(
         GenericTypeInfoModel definition,
         string returnType)
     {
@@ -107,7 +107,7 @@ public sealed class FieldGenerator
             return false;
 
         // Check for net8.0, net9.0, net10.0, etc.
-        if (targetFramework.StartsWith("net", StringComparison.OrdinalIgnoreCase))
+        if (targetFramework!.StartsWith("net", StringComparison.OrdinalIgnoreCase))
         {
             // Extract version number (e.g., "net8.0" -> "8", "net10.0" -> "10")
             var versionPart = targetFramework.Substring(3);
@@ -117,7 +117,7 @@ public sealed class FieldGenerator
                 versionPart = versionPart.Substring(0, dotIndex);
             }
 
-            if (int.TryParse(versionPart, out var version))
+            if (int.TryParse(versionPart, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var version))
             {
                 return version >= 8;
             }
@@ -129,7 +129,7 @@ public sealed class FieldGenerator
     /// <summary>
     /// Generates static fields for enum values (field-per-value pattern).
     /// </summary>
-    public List<IFieldBuilder> GenerateValueFields(
+    public static IList<IFieldBuilder> GenerateValueFields(
         IList<GenericValueInfoModel> values,
         string returnType)
     {

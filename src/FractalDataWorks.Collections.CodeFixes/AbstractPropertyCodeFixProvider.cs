@@ -60,7 +60,7 @@ public class AbstractPropertyCodeFixProvider : CodeFixProvider
             diagnostic);
     }
 
-    private async Task<Solution> ConvertAbstractPropertyToConstructorParameterAsync(
+    private static async Task<Solution> ConvertAbstractPropertyToConstructorParameterAsync(
         Document document,
         PropertyDeclarationSyntax property,
         CancellationToken cancellationToken)
@@ -74,7 +74,7 @@ public class AbstractPropertyCodeFixProvider : CodeFixProvider
         if (classDeclaration == null) return solution;
 
         // Get the property symbol
-        var propertySymbol = semanticModel.GetDeclaredSymbol(property);
+        var propertySymbol = semanticModel.GetDeclaredSymbol(property, cancellationToken);
         if (propertySymbol == null) return solution;
 
         var propertyName = property.Identifier.Text;
@@ -87,7 +87,7 @@ public class AbstractPropertyCodeFixProvider : CodeFixProvider
         var compilation = await document.Project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
         if (compilation == null) return solution;
 
-        var baseTypeSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
+        var baseTypeSymbol = semanticModel.GetDeclaredSymbol(classDeclaration, cancellationToken);
         if (baseTypeSymbol == null) return solution;
 
         var derivedTypes = await SymbolFinder.FindDerivedClassesAsync(baseTypeSymbol, solution, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -97,7 +97,7 @@ public class AbstractPropertyCodeFixProvider : CodeFixProvider
 
         // Remove abstract modifier and add protected set
         var newProperty = property
-            .WithModifiers(SyntaxFactory.TokenList(property.Modifiers.Where(m => m.Kind() != SyntaxKind.AbstractKeyword)))
+            .WithModifiers(SyntaxFactory.TokenList(property.Modifiers.Where(m => !m.IsKind(SyntaxKind.AbstractKeyword))))
             .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List(new[]
             {
                 SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
@@ -199,7 +199,7 @@ public class AbstractPropertyCodeFixProvider : CodeFixProvider
         return solution;
     }
 
-    private async Task<Solution> UpdateDerivedClassAsync(
+    private static async Task<Solution> UpdateDerivedClassAsync(
         Solution solution,
         Document document,
         INamedTypeSymbol derivedType,
@@ -215,7 +215,7 @@ public class AbstractPropertyCodeFixProvider : CodeFixProvider
 
         var classDeclaration = root.DescendantNodes()
             .OfType<ClassDeclarationSyntax>()
-            .FirstOrDefault(c => semanticModel.GetDeclaredSymbol(c)?.Equals(derivedType, SymbolEqualityComparer.Default) == true);
+            .FirstOrDefault(c => semanticModel.GetDeclaredSymbol(c, cancellationToken)?.Equals(derivedType, SymbolEqualityComparer.Default) == true);
 
         if (classDeclaration == null) return solution;
 
@@ -227,7 +227,7 @@ public class AbstractPropertyCodeFixProvider : CodeFixProvider
 
         foreach (var member in classDeclaration.Members.OfType<PropertyDeclarationSyntax>())
         {
-            var memberSymbol = semanticModel.GetDeclaredSymbol(member);
+            var memberSymbol = semanticModel.GetDeclaredSymbol(member, cancellationToken);
             if (memberSymbol?.OverriddenProperty?.Equals(propertySymbol, SymbolEqualityComparer.Default) == true)
             {
                 overriddenProperty = member;

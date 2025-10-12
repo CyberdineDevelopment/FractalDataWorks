@@ -32,7 +32,7 @@ public sealed class ValuePropertyGenerator
     /// <param name="returnType">The return type for the properties.</param>
     /// <param name="useMethods">Whether to generate methods instead of properties.</param>
     /// <returns>A list of property builders.</returns>
-    public IEnumerable<IPropertyBuilder> GenerateValueProperties(
+    public static IEnumerable<IPropertyBuilder> GenerateValueProperties(
         IList<GenericValueInfoModel> values,
         string returnType,
         bool useMethods = false)
@@ -54,7 +54,7 @@ public sealed class ValuePropertyGenerator
     /// <summary>
     /// Generates a static property for a single value.
     /// </summary>
-    private IPropertyBuilder? GenerateValueProperty(GenericValueInfoModel value, string returnType)
+    private static IPropertyBuilder? GenerateValueProperty(GenericValueInfoModel value, string returnType)
     {
         string expressionBody;
         string xmlDoc;

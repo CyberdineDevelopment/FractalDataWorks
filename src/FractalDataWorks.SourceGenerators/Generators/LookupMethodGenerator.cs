@@ -30,7 +30,7 @@ public sealed class LookupMethodGenerator
     /// Creates methods like Name(string name) and Id(int id).
     /// Uses GetAlternateLookup on NET8+ and separate dictionaries on older targets.
     /// </summary>
-    public IMethodBuilder[] GenerateDynamicLookupMethods(
+    public static IMethodBuilder[] GenerateDynamicLookupMethods(
         GenericTypeInfoModel definition,
         string returnType)
     {
@@ -44,7 +44,7 @@ public sealed class LookupMethodGenerator
         return methods;
     }
 
-    private IMethodBuilder GenerateLookupMethod(
+    private static IMethodBuilder GenerateLookupMethod(
         PropertyLookupInfoModel lookup,
         string returnType,
         string? targetFramework)
@@ -114,7 +114,7 @@ public sealed class LookupMethodGenerator
             return false;
 
         // Check for net8.0, net9.0, net10.0, etc.
-        if (targetFramework.StartsWith("net", StringComparison.OrdinalIgnoreCase))
+        if (targetFramework!.StartsWith("net", StringComparison.OrdinalIgnoreCase))
         {
             // Extract version number (e.g., "net8.0" -> "8", "net10.0" -> "10")
             var versionPart = targetFramework.Substring(3);
@@ -124,7 +124,7 @@ public sealed class LookupMethodGenerator
                 versionPart = versionPart.Substring(0, dotIndex);
             }
 
-            if (int.TryParse(versionPart, out var version))
+            if (int.TryParse(versionPart, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var version))
             {
                 return version >= 8;
             }
