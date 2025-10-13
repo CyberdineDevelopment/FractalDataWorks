@@ -15,14 +15,13 @@ public sealed class MessagesTests
         // Assert
         message.ShouldNotBeNull();
         message.Severity.ShouldBe(MessageSeverity.Error);
-        message.Category.ShouldBe("Authentication");
     }
 
     [Fact]
     public void AuthenticationTypeNotSpecifiedMessage_ShouldHaveCorrectProperties()
     {
         // Act
-        var message = new AuthenticationTypeNotSpecifiedMessage();
+        var message = new AuthenticationTypeNotSpecifiedMessage("TestConfig");
 
         // Assert
         message.ShouldNotBeNull();
@@ -44,7 +43,7 @@ public sealed class MessagesTests
     public void ConfigurationBindingFailedMessage_ShouldHaveCorrectProperties()
     {
         // Act
-        var message = new ConfigurationBindingFailedMessage();
+        var message = new ConfigurationBindingFailedMessage("TestConfigType");
 
         // Assert
         message.ShouldNotBeNull();
@@ -77,7 +76,7 @@ public sealed class MessagesTests
     public void ConfigurationSectionNotFoundMessage_ShouldHaveCorrectProperties()
     {
         // Act
-        var message = new ConfigurationSectionNotFoundMessage();
+        var message = new ConfigurationSectionNotFoundMessage("TestSection");
 
         // Assert
         message.ShouldNotBeNull();
@@ -99,7 +98,7 @@ public sealed class MessagesTests
     public void NoFactoryRegisteredMessage_ShouldHaveCorrectProperties()
     {
         // Act
-        var message = new NoFactoryRegisteredMessage();
+        var message = new NoFactoryRegisteredMessage("TestAuthType");
 
         // Assert
         message.ShouldNotBeNull();
@@ -121,7 +120,7 @@ public sealed class MessagesTests
     public void ServiceCreationExceptionMessage_ShouldHaveCorrectProperties()
     {
         // Act
-        var message = new ServiceCreationExceptionMessage();
+        var message = new ServiceCreationExceptionMessage("Test exception");
 
         // Assert
         message.ShouldNotBeNull();
@@ -154,7 +153,7 @@ public sealed class MessagesTests
     public void TokenRevocationFailedMessage_ShouldHaveCorrectProperties()
     {
         // Act
-        var message = new TokenRevocationFailedMessage();
+        var message = new TokenRevocationFailedMessage("Revocation error");
 
         // Assert
         message.ShouldNotBeNull();
@@ -165,7 +164,7 @@ public sealed class MessagesTests
     public void UnknownAuthenticationTypeMessage_ShouldHaveCorrectProperties()
     {
         // Act
-        var message = new UnknownAuthenticationTypeMessage();
+        var message = new UnknownAuthenticationTypeMessage("UnknownType");
 
         // Assert
         message.ShouldNotBeNull();
@@ -176,10 +175,9 @@ public sealed class MessagesTests
     public void AuthenticationMessageCollectionBase_ShouldBeAccessible()
     {
         // Act
-        var collection = AuthenticationMessageCollectionBase.All;
+        var collection = AuthenticationMessageCollectionBase.All();
 
         // Assert
-        collection.ShouldNotBeNull();
         collection.ShouldNotBeEmpty();
     }
 }

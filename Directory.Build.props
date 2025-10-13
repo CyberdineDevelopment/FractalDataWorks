@@ -1,4 +1,7 @@
 <Project>
+  <!-- Import public project tracking -->
+  <Import Project="$(MSBuildThisFileDirectory)PublicProjects.props" />
+
   <PropertyGroup>
 	  <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	  <!-- Language version and framework settings -->
@@ -26,7 +29,6 @@
     <PackageDescription>Development tools and utilities for the FractalDataWorks ecosystem. Build: $(NBGV_GitCommitIdShort)</PackageDescription>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     
     <!-- Symbol packages -->
     <IncludeSymbols>true</IncludeSymbols>
@@ -147,16 +149,6 @@
 
   </ItemGroup>
 
-  <!-- Test projects -->
-  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
-    <TargetFramework>net10.0</TargetFramework>
-    <OutputType>Exe</OutputType>
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <!-- Tests are now enabled for building -->
-  </PropertyGroup>
-
   <!-- Nerdbank.GitVersioning -->
   <ItemGroup Condition="!$(MSBuildProjectDirectory.Contains('\samples\'))">
     <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" Condition="'$(IsTestProject)' != 'true'" />
@@ -165,11 +157,6 @@
   <!-- Source Link -->
   <ItemGroup Condition="!$(MSBuildProjectDirectory.Contains('\samples\'))">
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
-  </ItemGroup>
-
-  <!-- Include README in NuGet packages -->
-  <ItemGroup Condition="'$(IsPackable)' == 'true' And Exists('$(MSBuildThisFileDirectory)README.md')">
-    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <!-- Suppress XML documentation warnings for generated files -->
