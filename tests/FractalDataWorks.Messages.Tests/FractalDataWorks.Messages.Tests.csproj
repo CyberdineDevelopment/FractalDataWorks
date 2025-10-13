@@ -31,4 +31,21 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FractalDataWorks.Messages\FractalDataWorks.Messages.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Only include FractalDataWorks.Messages in coverage -->
+    <Include>[FractalDataWorks.Messages]*</Include>
+    <!-- Exclude everything else -->
+    <Exclude>[FractalDataWorks.*.Abstractions]*,[xunit.*]*,[Moq]*,[Shouldly]*</Exclude>
+  </PropertyGroup>
+
 </Project>
