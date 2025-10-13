@@ -222,15 +222,18 @@ jobs:
           foreach ($proj in $projects) {
             $content = Get-Content $proj.FullName -Raw
 
-            # Remove existing PackageProjectUrl if present
-            $content = $content -replace '\s*<PackageProjectUrl>.*</PackageProjectUrl>\s*\r?\n', ''
+            # Remove existing PackageProjectUrl if present (anywhere in the file)
+            $content = $content -replace '<PackageProjectUrl>.*?</PackageProjectUrl>\s*', ''
 
             # Add PackageProjectUrl after first PropertyGroup opening tag
-            if ($content -match '(<PropertyGroup>\s*\r?\n)') {
-              $content = $content -replace '(<PropertyGroup>\s*\r?\n)', "`$1    <PackageProjectUrl>$publicRepoUrl</PackageProjectUrl>`n"
-              Set-Content -Path $proj.FullName -Value $content -NoNewline
-              Write-Host "  ✓ $($proj.BaseName)" -ForegroundColor Green
-              $updated++
+            if ($content -match '(<PropertyGroup>\s*)') {
+              # Check if it doesn't already have the correct URL
+              if ($content -notmatch "<PackageProjectUrl>$([regex]::Escape($publicRepoUrl))</PackageProjectUrl>") {
+                $content = $content -replace '(<PropertyGroup>\s*\r?\n)', "`$1    <PackageProjectUrl>$publicRepoUrl</PackageProjectUrl>`n"
+                Set-Content -Path $proj.FullName -Value $content -NoNewline
+                Write-Host "  ✓ $($proj.BaseName)" -ForegroundColor Green
+                $updated++
+              }
             }
           }
 
