@@ -1,0 +1,218 @@
+name: Sync Public Mirror
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  workflow_dispatch:
+    inputs:
+      force_sync:
+        description: 'Force full sync even if no changes detected'
+        required: false
+        default: 'false'
+
+jobs:
+  sync:
+    name: Sync to Public Repository
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout private repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+      - name: Discover public projects
+        id: discover
+        shell: pwsh
+        run: |
+          $projects = & ./scripts/Get-PublicProjects.ps1 -ShowDirectories
+          Write-Host "Discovered public projects:"
+          $projects | ForEach-Object { Write-Host "  - $_" }
+
+          # Save to file for sync step
+          $projects | Out-File -FilePath "$env:TEMP\public-projects.txt" -Encoding UTF8
+
+          Write-Output "project_count=$($projects.Count)" >> $env:GITHUB_OUTPUT
+
+      - name: Checkout public repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.PUBLIC_REPO_NAME }}
+          token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+          path: public-repo
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Sync public projects
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $privateRepo = $PWD
+          $publicRepo = Join-Path $PWD "public-repo"
+
+          Write-Host "Private repo: $privateRepo" -ForegroundColor Cyan
+          Write-Host "Public repo:  $publicRepo" -ForegroundColor Cyan
+          Write-Host ""
+
+          # Read public projects list
+          $publicProjects = Get-Content "$env:TEMP\public-projects.txt"
+
+          # Clean public repo (except .git and .github)
+          Get-ChildItem $publicRepo -Exclude ".git",".github" |
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
+          Write-Host "Syncing public projects..." -ForegroundColor Cyan
+
+          # Copy each public project
+          $copiedCount = 0
+          foreach ($projectPath in $publicProjects) {
+            $sourcePath = Join-Path $privateRepo $projectPath
+            $destPath = Join-Path $publicRepo $projectPath
+
+            if (Test-Path $sourcePath) {
+              # Create parent directory
+              $destParent = Split-Path $destPath -Parent
+              if (-not (Test-Path $destParent)) {
+                New-Item -ItemType Directory -Path $destParent -Force | Out-Null
+              }
+
+              # Copy directory
+              Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
+              Write-Host "  ✓ $projectPath" -ForegroundColor Green
+              $copiedCount++
+            } else {
+              Write-Host "  ⚠ $projectPath (not found)" -ForegroundColor Yellow
+            }
+          }
+
+          # Copy root configuration files
+          $rootFiles = @(
+            ".editorconfig",
+            ".gitignore",
+            "Directory.Build.props",
+            "Directory.Packages.props",
+            "PublicProjects.props",
+            "coverlet.runsettings",
+            "global.json",
+            "LICENSE",
+            "NOTICE",
+            "nuget.config",
+            "version.json",
+            "xunit.runner.json"
+          )
+
+          Write-Host ""
+          Write-Host "Copying root configuration files..." -ForegroundColor Cyan
+          foreach ($file in $rootFiles) {
+            $sourcePath = Join-Path $privateRepo $file
+            $destPath = Join-Path $publicRepo $file
+
+            if (Test-Path $sourcePath) {
+              Copy-Item -Path $sourcePath -Destination $destPath -Force
+              Write-Host "  ✓ $file" -ForegroundColor Green
+            }
+          }
+
+          # Copy documentation
+          $docPath = Join-Path $privateRepo "docs"
+          if (Test-Path $docPath) {
+            Write-Host ""
+            Write-Host "Copying documentation..." -ForegroundColor Cyan
+            Copy-Item -Path $docPath -Destination (Join-Path $publicRepo "docs") -Recurse -Force
+            Write-Host "  ✓ docs/" -ForegroundColor Green
+          }
+
+          # Copy samples
+          $samplesPath = Join-Path $privateRepo "samples"
+          if (Test-Path $samplesPath) {
+            Write-Host ""
+            Write-Host "Copying samples..." -ForegroundColor Cyan
+
+            # Only copy public samples (SourceGenerators, EnhancedEnums)
+            $publicSamples = @("SourceGenerators", "EnhancedEnums", "README.md")
+            foreach ($sample in $publicSamples) {
+              $sampleSource = Join-Path $samplesPath $sample
+              if (Test-Path $sampleSource) {
+                $sampleDest = Join-Path $publicRepo "samples" $sample
+                $sampleDestParent = Split-Path $sampleDest -Parent
+                if (-not (Test-Path $sampleDestParent)) {
+                  New-Item -ItemType Directory -Path $sampleDestParent -Force | Out-Null
+                }
+                Copy-Item -Path $sampleSource -Destination $sampleDest -Recurse -Force
+                Write-Host "  ✓ samples/$sample" -ForegroundColor Green
+              }
+            }
+          }
+
+          # Copy public-specific README if it exists
+          $publicReadme = Join-Path $privateRepo ".github" "PUBLIC_README.md"
+          if (Test-Path $publicReadme) {
+            Copy-Item -Path $publicReadme -Destination (Join-Path $publicRepo "README.md") -Force
+            Write-Host "  ✓ README.md (public version)" -ForegroundColor Green
+          } else {
+            # Otherwise copy main README
+            $mainReadme = Join-Path $privateRepo "README.md"
+            if (Test-Path $mainReadme) {
+              Copy-Item -Path $mainReadme -Destination (Join-Path $publicRepo "README.md") -Force
+              Write-Host "  ✓ README.md" -ForegroundColor Green
+            }
+          }
+
+          Write-Host ""
+          Write-Host "✓ Sync complete - copied $copiedCount projects" -ForegroundColor Green
+
+      - name: Commit and push changes
+        shell: pwsh
+        run: |
+          cd public-repo
+
+          # Check for changes
+          $status = git status --porcelain
+          if (-not $status) {
+            Write-Host "No changes to commit" -ForegroundColor Yellow
+            exit 0
+          }
+
+          # Add all changes
+          git add -A
+
+          # Create commit
+          $commitSha = "${{ github.sha }}".Substring(0, 7)
+          $commitMsg = @"
+          Sync from private repo @ $commitSha
+
+          Automated sync from private repository
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          Trigger: ${{ github.event_name }}
+          "@
+
+          git commit -m $commitMsg
+
+          # Push
+          git push origin main
+
+          Write-Host "✓ Changes pushed to public repository" -ForegroundColor Green
+
+      - name: Summary
+        shell: pwsh
+        run: |
+          $summary = @"
+          ### Public Mirror Sync Complete ✓
+
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ``${{ github.sha }}``
+          **Projects synced:** ${{ steps.discover.outputs.project_count }}
+
+          Public repository has been updated with latest changes from projects marked with ``<IsPublicProject>true</IsPublicProject>``.
+          "@
+
+          $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding UTF8

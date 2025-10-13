@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

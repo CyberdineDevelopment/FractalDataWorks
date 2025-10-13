@@ -27,7 +27,7 @@ public sealed class MsSqlConnectionType : ConnectionTypeBase<IGenericConnection,
     public override void Register(IServiceCollection services)
     {
         // Register SQL Server specific services
-        services.AddScoped<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
+        services.AddScoped<IMsSqlConnectionFactory, GenericServiceFactory<MsSqlConnection, MsSqlConfiguration>>();
         services.AddScoped<MsSqlService>();
         services.AddScoped<MsSqlCommandTranslator>();
         services.AddScoped<ExpressionTranslator>();

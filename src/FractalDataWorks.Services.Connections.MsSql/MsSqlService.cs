@@ -24,7 +24,7 @@ namespace FractalDataWorks.Services.Connections.MsSql;
 /// SQL Server implementation of connection service with LINQ query translation.
 /// This service handles SQL Server connection commands and translates LINQ queries to T-SQL.
 /// </summary>
-public sealed class MsSqlService : ServiceBase<IConnectionCommand, MsSqlConfiguration, MsSqlService>, IDisposable
+public sealed class MsSqlService : ConnectionBase<IConnectionCommand, MsSqlConfiguration, MsSqlService>, IDisposable
 {
     private readonly ILoggerFactory _loggerFactory;
     private readonly Dictionary<string, object> _connections; // Stubbed - was MsSqlConnection
@@ -62,18 +62,6 @@ public sealed class MsSqlService : ServiceBase<IConnectionCommand, MsSqlConfigur
     /// Gets the query translator for converting LINQ expressions to T-SQL.
     /// </summary>
     protected IQueryTranslator QueryTranslator => _queryTranslator;
-
-    /// <inheritdoc/>
-    public override async Task<IGenericResult> Execute(IConnectionCommand command)
-    {
-        return await Execute(command, CancellationToken.None).ConfigureAwait(false);
-    }
-
-    /// <inheritdoc/>
-    public override async Task<IGenericResult<T>> Execute<T>(IConnectionCommand command)
-    {
-        return await Execute<T>(command, CancellationToken.None).ConfigureAwait(false);
-    }
 
     /// <inheritdoc/>
     public override async Task<IGenericResult<TOut>> Execute<TOut>(IConnectionCommand command, CancellationToken cancellationToken)

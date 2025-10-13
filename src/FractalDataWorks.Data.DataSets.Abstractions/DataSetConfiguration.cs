@@ -74,20 +74,5 @@ public sealed class DataSetConfiguration : ConfigurationBase<DataSetConfiguratio
     {
         return new DataSetConfigurationValidator();
     }
-
-    /// <inheritdoc/>
-    protected override void CopyTo(DataSetConfiguration target)
-    {
-        base.CopyTo(target);
-        target.DataSetName = DataSetName;
-        target.Description = Description;
-        target.Version = Version;
-        target.Category = Category;
-        target.RecordTypeName = RecordTypeName;
-        target.Fields = new List<DataFieldConfiguration>(Fields);
-        target.KeyFields = new List<string>(KeyFields);
-        target.Sources = new Dictionary<string, SourceMappingConfiguration>(Sources, StringComparer.OrdinalIgnoreCase);
-        target.Caching = Caching;
-    }
 }
 

@@ -116,27 +116,12 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     }
 
     /// <summary>
-    /// Executes a typed command. Derived classes must implement this method.
-    /// </summary>
-    /// <param name="command">The typed command to execute.</param>
-    /// <returns>A result containing the execution outcome.</returns>
-    protected abstract Task<IGenericResult> Execute(TCommand command);
-
-    /// <summary>
-    /// Executes a typed command with generic return type.
-    /// </summary>
-    /// <typeparam name="T">The expected return type.</typeparam>
-    /// <param name="command">The typed command to execute.</param>
-    /// <returns>A result containing the typed execution outcome.</returns>
-    protected abstract Task<IGenericResult<T>> Execute<T>(TCommand command);
-
-    /// <summary>
     /// Executes a typed command with cancellation support.
     /// </summary>
     /// <param name="command">The typed command to execute.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>A result containing the execution outcome.</returns>
-    protected abstract Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
+    public abstract Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
 
     /// <summary>
     /// Executes a typed command with generic return type and cancellation support.
@@ -145,7 +130,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     /// <param name="command">The typed command to execute.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>A result containing the typed execution outcome.</returns>
-    protected abstract Task<IGenericResult<T>> Execute<T>(TCommand command, CancellationToken cancellationToken);
+    public abstract Task<IGenericResult<T>> Execute<T>(TCommand command, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets the logger for derived classes to use.
@@ -165,7 +150,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     /// Disposes the service. Override to add custom disposal logic.
     /// </summary>
     /// <param name="disposing">True if disposing managed resources.</param>
-    protected virtual void Dispose(bool disposing)
+    public virtual void Dispose(bool disposing)
     {
         if (!_disposed)
         {

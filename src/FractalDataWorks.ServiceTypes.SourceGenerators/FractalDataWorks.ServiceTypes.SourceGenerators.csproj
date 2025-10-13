@@ -24,6 +24,7 @@
     
     <!-- Copy dependencies to output -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
     
     <!-- Automatic ILRepack behavior is disabled via empty ILRepack.targets file -->
     <!-- Custom ILRepack merging is handled by MergeAnalyzerDependencies target -->
@@ -80,11 +81,7 @@
     <Message Text="ILRepack: Input assemblies: @(InputAssemblies)" Importance="normal" />
     
     <!-- ILRepack assemblies - internalize all for simplicity -->
-    <ILRepack
-      OutputFile="$(OutputPath)$(AssemblyName).dll"
-      InputAssemblies="@(InputAssemblies)"
-      LibraryPath="@(LibraryPath)"
-      Internalize="true" />
+    <ILRepack OutputFile="$(OutputPath)$(AssemblyName).dll" InputAssemblies="@(InputAssemblies)" LibraryPath="@(LibraryPath)" Internalize="true" />
     
     <!-- Clean up internalized dependency DLLs that are no longer needed -->
     <!-- Keep ServiceTypes.dll as we're packaging it separately -->

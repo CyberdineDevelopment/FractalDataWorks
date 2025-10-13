@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj"/>
+    <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Abstractions\FractalDataWorks.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
@@ -28,7 +28,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor</Configurations>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor;Test</Configurations>
   </PropertyGroup>
 
 </Project>

@@ -144,7 +144,8 @@ public class ManualTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("Description");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("Description");
     }
 
     [Fact]
@@ -179,7 +180,8 @@ public class ManualTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("RequiredRole");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("RequiredRole");
     }
 
     [Fact]
@@ -214,7 +216,8 @@ public class ManualTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("AllowConcurrent");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("AllowConcurrent");
     }
 
     [Theory]

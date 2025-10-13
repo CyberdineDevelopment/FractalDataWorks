@@ -68,28 +68,4 @@ public abstract class ConfigurationBase<TConfiguration> : GenericConfigurationBa
     {
         ModifiedAt = DateTime.UtcNow;
     }
-
-    /// <summary>
-    /// Creates a clone of this configuration.
-    /// </summary>
-    /// <returns>A cloned instance of the configuration.</returns>
-    public virtual TConfiguration Clone()
-    {
-        var clone = new TConfiguration();
-        CopyTo(clone);
-        return clone;
-    }
-
-    /// <summary>
-    /// Copies the properties of this configuration to another instance.
-    /// </summary>
-    /// <param name="target">The target configuration.</param>
-    protected virtual void CopyTo(TConfiguration target)
-    {
-        target.Id = Id;
-        target.Name = Name;
-        target.IsEnabled = IsEnabled;
-        target.CreatedAt = CreatedAt;
-        target.ModifiedAt = ModifiedAt;
-    }
 }

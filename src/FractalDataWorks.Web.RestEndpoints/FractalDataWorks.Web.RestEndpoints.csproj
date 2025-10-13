@@ -28,7 +28,7 @@
     <TargetFrameworks />
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor</Configurations>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor;Test</Configurations>
   </PropertyGroup>
 
 </Project>

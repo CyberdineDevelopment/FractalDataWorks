@@ -1,31 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>true</IsPackable>
     <PackageId>SimpleAbstractions</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
     <Description>Simple abstractions with embedded SimpleGenerator</Description>
+    <!-- Mark as public open-source project -->
+    <IsPublicProject>true</IsPublicProject>
   </PropertyGroup>
-
   <ItemGroup>
     <!-- Build dependency on the generator -->
-    <ProjectReference Include="..\..\SimpleGenerator\SimpleGenerator\SimpleGenerator.csproj" 
-                      ReferenceOutputAssembly="false" 
-                      PrivateAssets="all" />
+    <ProjectReference Include="..\..\SimpleGenerator\SimpleGenerator\SimpleGenerator.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
   </ItemGroup>
-
   <PropertyGroup>
     <IncludeBuildOutput>true</IncludeBuildOutput>
   </PropertyGroup>
-  
   <ItemGroup>
     <!-- Include the built generator DLL directly using MSBuild property -->
-    <None Include="..\..\SimpleGenerator\SimpleGenerator\bin\$(Configuration)\netstandard2.0\SimpleGenerator.dll" 
-          Pack="true" 
-          PackagePath="analyzers/dotnet/cs" 
-          Visible="false" 
-          Condition="Exists('..\..\SimpleGenerator\SimpleGenerator\bin\$(Configuration)\netstandard2.0\SimpleGenerator.dll')" />
+    <None Include="..\..\SimpleGenerator\SimpleGenerator\bin\$(Configuration)\netstandard2.0\SimpleGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="Exists('..\..\SimpleGenerator\SimpleGenerator\bin\$(Configuration)\netstandard2.0\SimpleGenerator.dll')" />
   </ItemGroup>
-
 </Project>

@@ -242,7 +242,8 @@ public class IntervalTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("Interval in minutes is required");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("Interval in minutes is required");
     }
 
     [Fact]
@@ -260,7 +261,8 @@ public class IntervalTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("must be greater than 0");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("must be greater than 0");
     }
 
     [Fact]
@@ -313,7 +315,8 @@ public class IntervalTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("Start time must be a valid DateTime");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("Start time must be a valid DateTime");
     }
 
     [Fact]
@@ -332,7 +335,8 @@ public class IntervalTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("Invalid timezone");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("Invalid timezone");
     }
 
     [Fact]

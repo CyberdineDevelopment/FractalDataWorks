@@ -47,7 +47,7 @@
     <!-- Strong Naming -->
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile Condition="Exists('$(MSBuildThisFileDirectory)..\..\FractalDataWorks.snk')">$(MSBuildThisFileDirectory)..\..\FractalDataWorks.snk</AssemblyOriginatorKeyFile>
-    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor</Configurations>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor;Test</Configurations>
   </PropertyGroup>
   
   

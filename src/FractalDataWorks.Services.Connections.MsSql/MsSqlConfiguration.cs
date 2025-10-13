@@ -256,28 +256,4 @@ public sealed class MsSqlConfiguration : ConfigurationBase<MsSqlConfiguration>, 
     {
         return new MsSqlConfigurationValidator();
     }
-
-    /// <inheritdoc/>
-    protected override void CopyTo(MsSqlConfiguration target)
-    {
-        base.CopyTo(target);
-        target.ConnectionString = ConnectionString;
-        target.CommandTimeoutSeconds = CommandTimeoutSeconds;
-        target.ConnectionTimeoutSeconds = ConnectionTimeoutSeconds;
-        target.DefaultSchema = DefaultSchema;
-        target.SchemaMappings = new Dictionary<string, string>(SchemaMappings, StringComparer.Ordinal);
-        target.EnableConnectionPooling = EnableConnectionPooling;
-        target.MinPoolSize = MinPoolSize;
-        target.MaxPoolSize = MaxPoolSize;
-        target.EnableMultipleActiveResultSets = EnableMultipleActiveResultSets;
-        target.EnableRetryLogic = EnableRetryLogic;
-        target.MaxRetryAttempts = MaxRetryAttempts;
-        target.RetryDelayMilliseconds = RetryDelayMilliseconds;
-        target.EnableSqlLogging = EnableSqlLogging;
-        target.MaxSqlLogLength = MaxSqlLogLength;
-        target.UseTransactions = UseTransactions;
-        target.TransactionIsolationLevel = TransactionIsolationLevel;
-        target.ConnectionType = ConnectionType;
-        target.Lifetime = Lifetime;
-    }
 }

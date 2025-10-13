@@ -5,6 +5,7 @@
     <AssemblyName>FractalDataWorks.Data.DataStores.Rest</AssemblyName>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,10 +14,7 @@
     <ProjectReference Include="..\FractalDataWorks.Messages\FractalDataWorks.Messages.csproj" />
 
     <!-- Source Generators -->
-    <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false"
-                      PrivateAssets="all" />
+    <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,11 +6,12 @@
     <Nullable>enable</Nullable>
     <Authors>mike.blair</Authors>
     <Company>FractalDataWorks Electric Cooperative</Company>
-    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor</Configurations>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor;Test</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FractalDataWorks.Services.Connections.Abstractions\FractalDataWorks.Services.Connections.Abstractions.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.Services.Connections\FractalDataWorks.Services.Connections.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />
   </ItemGroup>
 

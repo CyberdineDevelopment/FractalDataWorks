@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- Target Framework -->
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview</Configurations>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
 
     <!-- Language and Compiler Settings -->
     <LangVersion>preview</LangVersion>

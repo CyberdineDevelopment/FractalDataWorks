@@ -1,0 +1,48 @@
+<Project>
+  <!--
+    PublicProjects.props
+
+    This file defines which projects are part of the public open-source distribution.
+    Projects marked as public will be automatically synced to the public GitHub repository.
+
+    Usage in .csproj files:
+    <IsPublicProject>true</IsPublicProject>
+  -->
+
+  <PropertyGroup>
+    <!-- Default: Projects are private unless explicitly marked public -->
+    <IsPublicProject Condition="'$(IsPublicProject)' == ''">false</IsPublicProject>
+  </PropertyGroup>
+
+  <!-- Emit marker file for GitHub Actions to discover public projects -->
+  <Target Name="EmitPublicProjectMarker"
+          AfterTargets="Build"
+          Condition="'$(IsPublicProject)' == 'true' AND '$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <PublicProjectMarkerFile>$(MSBuildProjectDirectory)\.public-project</PublicProjectMarkerFile>
+      <RelativeProjectPath>$([MSBuild]::MakeRelative('$(MSBuildThisFileDirectory)', '$(MSBuildProjectDirectory)'))</RelativeProjectPath>
+    </PropertyGroup>
+
+    <WriteLinesToFile
+      File="$(PublicProjectMarkerFile)"
+      Lines="$(RelativeProjectPath)"
+      Overwrite="true" />
+
+    <Message Text="Marked as public project: $(MSBuildProjectName)" Importance="low" />
+  </Target>
+
+  <!-- Add badge to project build output -->
+  <Target Name="ShowPublicProjectStatus"
+          BeforeTargets="CoreCompile"
+          Condition="'$(IsPublicProject)' == 'true'">
+    <Message Text="📦 Public Project: $(MSBuildProjectName)" Importance="high" />
+  </Target>
+
+  <!-- Clean marker files -->
+  <Target Name="CleanPublicProjectMarkers"
+          AfterTargets="Clean"
+          Condition="'$(IsPublicProject)' == 'true'">
+    <Delete Files="$(MSBuildProjectDirectory)\.public-project" />
+  </Target>
+
+</Project>

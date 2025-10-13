@@ -173,7 +173,7 @@ public class CronTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
     }
 
     [Fact]
@@ -202,7 +202,8 @@ public class CronTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("Cron expression is required");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("Cron expression is required");
     }
 
     [Fact]
@@ -220,7 +221,8 @@ public class CronTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("Invalid cron expression");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("Invalid cron expression");
     }
 
     [Fact]
@@ -256,7 +258,8 @@ public class CronTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("Invalid timezone");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("Invalid timezone");
     }
 
     [Fact]
@@ -292,7 +295,8 @@ public class CronTriggerTests
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
-        result.Error.ShouldContain("will never execute");
+        result.CurrentMessage.ShouldNotBeNullOrEmpty();
+        result.CurrentMessage.ShouldContain("will never execute");
     }
 
     #endregion

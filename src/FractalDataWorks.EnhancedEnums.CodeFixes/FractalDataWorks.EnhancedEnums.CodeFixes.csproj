@@ -14,6 +14,7 @@
     <Authors>FractalDataWorks Development Team</Authors>
     <Description>Code fixes for FractalDataWorks Enhanced Enums analyzers</Description>
     <PackageTags>enhanced-enums;code-fixes;roslyn</PackageTags>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

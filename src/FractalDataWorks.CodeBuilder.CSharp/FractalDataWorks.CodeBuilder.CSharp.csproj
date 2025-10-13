@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>latest</LangVersion>
-    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor</Configurations>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor;Test</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
