@@ -3,6 +3,7 @@ using FractalDataWorks.Data.DataStores.Abstractions;
 using FractalDataWorks.Messages;
 using Shouldly;
 using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
 
 namespace FractalDataWorks.Data.DataStores.SqlServer.Tests;
 
@@ -204,7 +205,7 @@ public sealed class SqlServerDataStoreTests
 
         // Assert
         metadata.ShouldNotBeNull();
-        metadata.ShouldBeOfType<IReadOnlyDictionary<string, object>>();
+        metadata.ShouldBeAssignableTo<IReadOnlyDictionary<string, object>>();
     }
 
     [Fact]
@@ -215,5 +216,67 @@ public sealed class SqlServerDataStoreTests
 
         // Assert
         dataStore.StoreType.ShouldBe(SqlServerDataStoreType.Instance.Name);
+    }
+
+    [Fact]
+    public async Task TestConnectionAsync_ShouldReturnSuccess_WithValidLocalDbConnection()
+    {
+        // Arrange
+        var config = new SqlServerConfiguration
+        {
+            ConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=master;Integrated Security=true;Connect Timeout=5;"
+        };
+        var dataStore = new SqlServerDataStore("id", "name", config);
+
+        // Act
+        var result = await dataStore.TestConnectionAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Messages.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task DiscoverPathsAsync_ShouldReturnSuccess_WithValidLocalDbConnection()
+    {
+        // Arrange
+        var config = new SqlServerConfiguration
+        {
+            ConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=master;Integrated Security=true;Connect Timeout=5;"
+        };
+        var dataStore = new SqlServerDataStore("id", "name", config);
+
+        // Act
+        var result = await dataStore.DiscoverPathsAsync();
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task UpdateConfigurationAsync_ShouldReturnSuccess_WithValidConnection()
+    {
+        // Arrange
+        var originalConfig = new SqlServerConfiguration
+        {
+            ConnectionString = "Invalid",
+            CommandTimeout = 30
+        };
+        var dataStore = new SqlServerDataStore("id", "name", originalConfig);
+
+        var newConfig = new SqlServerConfiguration
+        {
+            ConnectionString = @"Server=(localdb)\MSSQLLocalDB;Database=master;Integrated Security=true;Connect Timeout=5;",
+            CommandTimeout = 60
+        };
+
+        // Act
+        var result = await dataStore.UpdateConfigurationAsync(newConfig);
+
+        // Assert
+        dataStore.Configuration.ShouldBe(newConfig);
+        dataStore.Location.ShouldBe(newConfig.ConnectionString);
+        result.IsSuccess.ShouldBeTrue();
     }
 }
