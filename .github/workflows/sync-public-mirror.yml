@@ -297,10 +297,11 @@ jobs:
 
           git commit -m $commitMsg
 
-          # Push
-          git push origin master
+          # Push to the same branch name
+          $branch = "${{ github.ref_name }}"
+          git push origin HEAD:$branch
 
-          Write-Host "✓ Changes pushed to public repository" -ForegroundColor Green
+          Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
 
       - name: Summary
         shell: pwsh
