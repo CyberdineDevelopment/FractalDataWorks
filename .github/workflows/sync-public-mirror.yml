@@ -247,13 +247,11 @@ jobs:
 
           Write-Host "Generating README index..." -ForegroundColor Cyan
 
-          # Find all projects with READMEs
-          $readmes = Get-ChildItem -Path . -Filter "README.md" -Recurse -File |
+          # Find all projects with READMEs (excluding root, tests, samples)
+          $readmes = Get-ChildItem -Path "src" -Filter "README.md" -Recurse -File -ErrorAction SilentlyContinue |
             Where-Object {
               $_.FullName -notlike "*\bin\*" -and
-              $_.FullName -notlike "*\obj\*" -and
-              $_.DirectoryName -notmatch "\\(tests|samples)" -and
-              $_.FullName -notmatch "^.*\\README\.md$"  # Exclude root README
+              $_.FullName -notlike "*\obj\*"
             } | Sort-Object DirectoryName
 
           # Build README content
@@ -266,29 +264,9 @@ jobs:
 
           "@
 
-          $currentCategory = ""
           foreach ($file in $readmes) {
             $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $file.FullName)
             $projectName = Split-Path (Split-Path $file.DirectoryName -Leaf) -Leaf
-
-            # Determine category from path
-            $category = if ($relativePath -like "src\*") {
-              $parts = $relativePath.Split('\')
-              if ($parts[1] -match "\.Analyzers$") { "Analyzers & Code Fixes" }
-              elseif ($parts[1] -match "\.SourceGenerators$") { "Source Generators" }
-              elseif ($parts[1] -match "\.Abstractions$") { "Core Abstractions" }
-              elseif ($parts[1] -match "^FractalDataWorks\.(Collections|EnhancedEnums|ServiceTypes|Messages|Results)$") { "Core Framework" }
-              elseif ($parts[1] -match "^FractalDataWorks\.Services") { "Services" }
-              else { "Other" }
-            } else { "Samples" }
-
-            # Add category header if new
-            if ($category -ne $currentCategory) {
-              $readme += "`n### $category`n`n"
-              $currentCategory = $category
-            }
-
-            # Add project link
             $readme += "- [**$projectName**]($($relativePath -replace '\\','/'))`n"
           }
 
