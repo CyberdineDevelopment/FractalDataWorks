@@ -207,6 +207,36 @@ jobs:
             Write-Host "  ✓ publish-nuget.yml (for NuGet.org)" -ForegroundColor Green
           }
 
+      - name: Update project URLs for public repo
+        shell: pwsh
+        run: |
+          cd public-repo
+
+          Write-Host "Updating PackageProjectUrl in all projects..." -ForegroundColor Cyan
+
+          $publicRepoUrl = "https://github.com/CyberdineDevelopment/FractalDataWorks-Platform"
+          $projects = Get-ChildItem -Path . -Filter "*.csproj" -Recurse -File |
+            Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
+
+          $updated = 0
+          foreach ($proj in $projects) {
+            $content = Get-Content $proj.FullName -Raw
+
+            # Remove existing PackageProjectUrl if present
+            $content = $content -replace '\s*<PackageProjectUrl>.*</PackageProjectUrl>\s*\r?\n', ''
+
+            # Add PackageProjectUrl after first PropertyGroup opening tag
+            if ($content -match '(<PropertyGroup>\s*\r?\n)') {
+              $content = $content -replace '(<PropertyGroup>\s*\r?\n)', "`$1    <PackageProjectUrl>$publicRepoUrl</PackageProjectUrl>`n"
+              Set-Content -Path $proj.FullName -Value $content -NoNewline
+              Write-Host "  ✓ $($proj.BaseName)" -ForegroundColor Green
+              $updated++
+            }
+          }
+
+          Write-Host ""
+          Write-Host "✓ Updated $updated projects with public repo URL" -ForegroundColor Green
+
       - name: Create public solution file
         shell: pwsh
         run: |
