@@ -198,7 +198,7 @@ jobs:
           git commit -m $commitMsg
 
           # Push
-          git push origin main
+          git push origin master
 
           Write-Host "✓ Changes pushed to public repository" -ForegroundColor Green
 
