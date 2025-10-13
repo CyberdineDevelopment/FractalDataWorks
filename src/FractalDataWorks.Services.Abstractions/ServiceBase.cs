@@ -22,7 +22,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     where TConfiguration : IGenericConfiguration
     where TService : class
 {
-    private readonly ILogger<TService> _logger;
+    private readonly ILogger<ServiceBase<TCommand,TConfiguration,TService>> _logger;
 
     /// <summary>
     /// Gets the unique identifier for this service instance.
@@ -54,9 +54,9 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     /// </summary>
     /// <param name="logger">The logger for this service.</param>
     /// <param name="configuration">The configuration for this service.</param>
-    protected ServiceBase(ILogger<TService> logger, TConfiguration configuration)
+    protected ServiceBase(ILogger<ServiceBase<TCommand,TConfiguration,TService>> logger, TConfiguration configuration)
     {
-        _logger = logger ?? NullLogger<TService>.Instance;
+        _logger = logger ?? NullLogger<ServiceBase<TCommand,TConfiguration,TService>>.Instance;
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         Id = Guid.NewGuid().ToString();
         ServiceType = typeof(TService).Name;
@@ -97,5 +97,5 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     /// <summary>
     /// Gets the logger for derived classes to use.
     /// </summary>
-    protected ILogger<TService> Logger => _logger;
+    protected ILogger<ServiceBase<TCommand,TConfiguration,TService>> Logger => _logger;
 }

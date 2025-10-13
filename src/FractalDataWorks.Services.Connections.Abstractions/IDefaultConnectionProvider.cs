@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using FractalDataWorks.Results;
 
@@ -8,7 +9,7 @@ namespace FractalDataWorks.Services.Connections.Abstractions;
 /// The provider uses ConnectionTypes to lookup configuration types and factories.
 /// Follows Railway-Oriented Programming - all operations return Results.
 /// </summary>
-public interface IGenericConnectionProvider
+public interface IDefaultConnectionProvider
 {
     /// <summary>
     /// Gets a connection using the provided configuration.

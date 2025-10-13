@@ -12,24 +12,24 @@ using FractalDataWorks.Services.Connections.Logging;
 namespace FractalDataWorks.Services.Connections;
 
 /// <summary>
-/// Implementation of IGenericConnectionProvider that uses ConnectionTypes for factory lookup.
+/// Implementation of IDefaultConnectionProvider that uses ConnectionTypes for factory lookup.
 /// </summary>
-public sealed class GenericConnectionProvider : IGenericConnectionProvider
+public sealed class DefaultConnectionProvider : IDefaultConnectionProvider
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
-    private readonly ILogger<GenericConnectionProvider> _logger;
+    private readonly ILogger<DefaultConnectionProvider> _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GenericConnectionProvider"/> class.
+    /// Initializes a new instance of the <see cref="DefaultConnectionProvider"/> class.
     /// </summary>
     /// <param name="serviceProvider">The service provider for resolving factories.</param>
     /// <param name="configuration">The configuration for loading connection settings.</param>
     /// <param name="logger">The logger for logging operations.</param>
-    public GenericConnectionProvider(
+    public DefaultConnectionProvider(
         IServiceProvider serviceProvider,
         IConfiguration configuration,
-        ILogger<GenericConnectionProvider> logger)
+        ILogger<DefaultConnectionProvider> logger)
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -51,14 +51,14 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
 
         try
         {
-            GenericConnectionProviderLog.GettingConnection(_logger, configuration.ConnectionType);
+            DefaultConnectionProviderLog.GettingConnection(_logger, configuration.ConnectionType);
 
             // Get the factory from DI using the configuration's ConnectionType
             // This assumes factories are registered by their connection type name
             var factory = _serviceProvider.GetService<IConnectionFactory>();
             if (factory == null)
             {
-                GenericConnectionProviderLog.NoFactoryRegistered(_logger, configuration.ConnectionType);
+                DefaultConnectionProviderLog.NoFactoryRegistered(_logger, configuration.ConnectionType);
                 return GenericResult<IGenericConnection>.Failure(
                     new NotFoundMessage($"No factory registered for connection type: {configuration.ConnectionType}"));
             }
@@ -68,18 +68,18 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
 
             if (result.IsSuccess)
             {
-                GenericConnectionProviderLog.ConnectionCreated(_logger, configuration.ConnectionType);
+                DefaultConnectionProviderLog.ConnectionCreated(_logger, configuration.ConnectionType);
             }
             else
             {
-                GenericConnectionProviderLog.ConnectionCreationFailed(_logger, configuration.ConnectionType, result.Error.ToString());
+                DefaultConnectionProviderLog.ConnectionCreationFailed(_logger, configuration.ConnectionType, result.Error.ToString());
             }
 
             return result;
         }
         catch (Exception ex)
         {
-            GenericConnectionProviderLog.ConnectionCreationException(_logger, ex, configuration.ConnectionType);
+            DefaultConnectionProviderLog.ConnectionCreationException(_logger, ex, configuration.ConnectionType);
             return GenericResult<IGenericConnection>.Failure(new ErrorMessage(ex.Message));
         }
     }
@@ -94,7 +94,7 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
     {
         // This would typically load configuration from a database
         // For now, return a not implemented error
-        GenericConnectionProviderLog.GetConnectionByIdNotImplemented(_logger, configurationId);
+        DefaultConnectionProviderLog.GetConnectionByIdNotImplemented(_logger, configurationId);
         return Task.FromResult<IGenericResult<IGenericConnection>>(GenericResult<IGenericConnection>.Failure(new NotImplementedMessage($"Configuration loading by ID not implemented: {configurationId}")));
     }
 
@@ -112,13 +112,13 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
 
         try
         {
-            GenericConnectionProviderLog.GettingConnectionByConfigurationName(_logger, configurationName);
+            DefaultConnectionProviderLog.GettingConnectionByConfigurationName(_logger, configurationName);
 
             // Load configuration section
             var section = _configuration.GetSection($"Connections:{configurationName}");
             if (!section.Exists())
             {
-                GenericConnectionProviderLog.ConfigurationSectionNotFound(_logger, configurationName);
+                DefaultConnectionProviderLog.ConfigurationSectionNotFound(_logger, configurationName);
                 return GenericResult<IGenericConnection>.Failure(new NotFoundMessage($"Configuration section not found: Connections:{configurationName}"));
             }
 
@@ -126,7 +126,7 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
             var connectionTypeName = section["ConnectionType"];
             if (string.IsNullOrEmpty(connectionTypeName))
             {
-                GenericConnectionProviderLog.ConnectionTypeNotSpecified(_logger, configurationName);
+                DefaultConnectionProviderLog.ConnectionTypeNotSpecified(_logger, configurationName);
                 return GenericResult<IGenericConnection>.Failure(new ValidationMessage($"ConnectionType not specified in configuration section: {configurationName}"));
             }
 
@@ -143,7 +143,7 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
         }
         catch (Exception ex)
         {
-            GenericConnectionProviderLog.GetConnectionByNameException(_logger, ex, configurationName);
+            DefaultConnectionProviderLog.GetConnectionByNameException(_logger, ex, configurationName);
             return GenericResult<IGenericConnection>.Failure(new ErrorMessage(ex.Message));
         }
     }

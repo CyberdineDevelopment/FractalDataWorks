@@ -1,3 +1,7 @@
+using System.Threading;
+using System.Threading.Tasks;
+using FractalDataWorks.Results;
+
 namespace FractalDataWorks.Abstractions;
 
 /// <summary>
@@ -24,4 +28,20 @@ public interface IGenericService
     /// Gets a value indicating whether the service is currently available for use.
     /// </summary>
     bool IsAvailable { get; }
+
+    /// <summary>
+    /// Executes a data command against the connection.
+    /// </summary>
+    /// <typeparam name="T">The type of the result expected from the command.</typeparam>
+    /// <param name="command">The data command to execute.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A result containing the command execution outcome and any data returned.</returns>
+    Task<IGenericResult<T>> Execute<T>(IGenericCommand command, CancellationToken cancellationToken);
+    /// <summary>
+    /// Executes a data command against the connection.
+    /// </summary>
+    /// <param name="command">The data command to execute.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A result containing the command execution outcome and any data returned.</returns>
+    Task<IGenericResult> Execute(IGenericCommand command, CancellationToken cancellationToken);
 }

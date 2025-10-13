@@ -15,7 +15,7 @@ namespace FractalDataWorks.Services.DataGateway;
 public sealed class DataGatewayService : IDataGateway
 {
     private readonly ILogger<DataGatewayService> _logger;
-    private readonly IGenericConnectionProvider _connectionProvider;
+    private readonly IDefaultConnectionProvider _connectionProvider;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataGatewayService"/> class.
@@ -24,7 +24,7 @@ public sealed class DataGatewayService : IDataGateway
     /// <param name="connectionProvider">The connection provider for routing.</param>
     public DataGatewayService(
         ILogger<DataGatewayService> logger,
-        IGenericConnectionProvider connectionProvider)
+        IDefaultConnectionProvider connectionProvider)
     {
         _logger = logger;
         _connectionProvider = connectionProvider;
