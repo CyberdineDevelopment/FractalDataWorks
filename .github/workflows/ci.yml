@@ -76,18 +76,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
             
-      - name: Set version variables
-        uses: dotnet/nbgv@master
-        with:
-          setAllVars: true
-          
+      - name: Install Nerdbank.GitVersioning
+        run: dotnet tool install -g nbgv
+
       - name: Display version information
-        run: |
-          echo "NBGV_SemVer2: ${{ env.NBGV_SemVer2 }}"
-          echo "NBGV_NuGetPackageVersion: ${{ env.NBGV_NuGetPackageVersion }}"
-          echo "NBGV_CloudBuildNumber: ${{ env.NBGV_CloudBuildNumber }}"
-          echo "GitHub Run Number: ${{ github.run_number }}"
-          nbgv get-version --format json
+        run: nbgv get-version
           
       - name: Cache .NET tools
         uses: actions/cache@v4
