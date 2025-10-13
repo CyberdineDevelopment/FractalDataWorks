@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
 
 namespace FractalDataWorks.Services.Authentication.AzureEntra.Configuration;
@@ -99,7 +100,6 @@ public sealed class AzureEntraConfigurationValidator : AbstractValidator<AzureEn
     {
         RuleFor(x => x.CacheFilePath)
             .Must(BeValidFilePath)
-            .When(x => !string.IsNullOrEmpty(x.CacheFilePath))
             .WithMessage("CacheFilePath must be a valid file path");
 
         RuleForEach(x => x.AdditionalValidAudiences)
@@ -169,14 +169,7 @@ public sealed class AzureEntraConfigurationValidator : AbstractValidator<AzureEn
             return true; // Nullable, so null/empty is valid
         }
 
-        try
-        {
-            var directory = System.IO.Path.GetDirectoryName(path);
-            return directory != null && System.IO.Path.IsPathRooted(path);
-        }
-        catch
-        {
-            return false;
-        }
+        var directory = System.IO.Path.GetDirectoryName(path);
+        return directory != null && System.IO.Path.IsPathRooted(path);
     }
 }
