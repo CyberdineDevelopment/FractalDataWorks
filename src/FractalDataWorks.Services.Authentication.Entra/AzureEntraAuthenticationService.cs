@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,21 +44,12 @@ public sealed class EntraAuthenticationService :
                 new InvalidTokenMessage("Token cannot be null or empty")));
         }
 
-        try
-        {
-            // FUTURE: Implement actual Azure Entra authentication logic here
-            // This would use Microsoft.Identity.Client (MSAL) library
+        // FUTURE: Implement actual Azure Entra authentication logic here
+        // This would use Microsoft.Identity.Client (MSAL) library
 
-            // For now, return a placeholder failure
-            return Task.FromResult<IGenericResult<IAuthenticationContext>>(GenericResult<IAuthenticationContext>.Failure(
-                "Azure Entra authentication not yet implemented"));
-        }
-        catch (Exception ex)
-        {
-            Logging.EntraAuthenticationServiceLog.AuthenticationFailed(Logger, ex);
-            return Task.FromResult<IGenericResult<IAuthenticationContext>>(GenericResult<IAuthenticationContext>.Failure(
-                ex.Message));
-        }
+        // For now, return a placeholder failure
+        return Task.FromResult<IGenericResult<IAuthenticationContext>>(GenericResult<IAuthenticationContext>.Failure(
+            "Azure Entra authentication not yet implemented"));
     }
 
     /// <inheritdoc/>
@@ -69,20 +61,11 @@ public sealed class EntraAuthenticationService :
                 AuthenticationMessages.TokenNullOrEmpty()));
         }
 
-        try
-        {
-            // FUTURE: Implement actual token validation logic
-            // This would validate the JWT signature, expiration, issuer, audience, etc.
+        // FUTURE: Implement actual token validation logic
+        // This would validate the JWT signature, expiration, issuer, audience, etc.
 
-            // For now, return a placeholder
-            return Task.FromResult<IGenericResult<bool>>(GenericResult<bool>.Success(false));
-        }
-        catch (Exception ex)
-        {
-            Logging.EntraAuthenticationServiceLog.TokenValidationFailed(Logger, ex);
-            return Task.FromResult<IGenericResult<bool>>(GenericResult<bool>.Failure(
-                ex.Message));
-        }
+        // For now, return a placeholder
+        return Task.FromResult<IGenericResult<bool>>(GenericResult<bool>.Success(false));
     }
 
     /// <inheritdoc/>
@@ -94,20 +77,11 @@ public sealed class EntraAuthenticationService :
                 AuthenticationMessages.RefreshTokenInvalid()));
         }
 
-        try
-        {
-            // FUTURE: Implement actual token refresh logic using MSAL
+        // FUTURE: Implement actual token refresh logic using MSAL
 
-            // For now, return a placeholder failure
-            return Task.FromResult<IGenericResult<string>>(GenericResult<string>.Failure(
-                "Refresh token is invalid"));
-        }
-        catch (Exception ex)
-        {
-            Logging.EntraAuthenticationServiceLog.TokenRefreshFailed(Logger, ex);
-            return Task.FromResult<IGenericResult<string>>(GenericResult<string>.Failure(
-                "Refresh token is invalid"));
-        }
+        // For now, return a placeholder failure
+        return Task.FromResult<IGenericResult<string>>(GenericResult<string>.Failure(
+            "Refresh token is invalid"));
     }
 
     /// <inheritdoc/>
@@ -119,21 +93,12 @@ public sealed class EntraAuthenticationService :
                 AuthenticationMessages.TokenNullOrEmpty()));
         }
 
-        try
-        {
-            // FUTURE: Implement token revocation
-            // Note: Azure AD doesn't directly support token revocation for access tokens
-            // but we can implement local blacklisting or session management
+        // FUTURE: Implement token revocation
+        // Note: Azure AD doesn't directly support token revocation for access tokens
+        // but we can implement local blacklisting or session management
 
-            Logging.EntraAuthenticationServiceLog.TokenRevocationRequested(Logger);
-            return Task.FromResult<IGenericResult>(GenericResult.Success());
-        }
-        catch (Exception ex)
-        {
-            Logging.EntraAuthenticationServiceLog.TokenRevocationFailed(Logger, ex);
-            return Task.FromResult<IGenericResult>(GenericResult.Failure(
-                AuthenticationMessages.TokenRevocationFailed(ex.Message)));
-        }
+        Logging.EntraAuthenticationServiceLog.TokenRevocationRequested(Logger);
+        return Task.FromResult<IGenericResult>(GenericResult.Success());
     }
 
     /// <inheritdoc/>
