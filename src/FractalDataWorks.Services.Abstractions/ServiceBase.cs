@@ -12,17 +12,23 @@ namespace FractalDataWorks.Services;
 
 /// <summary>
 /// Base class for all services in the FractalDataWorks framework.
-/// Provides common implementation for service lifecycle management.
+/// Provides common implementation for service lifecycle management and command execution.
 /// </summary>
 /// <typeparam name="TCommand">The type of command this service executes.</typeparam>
 /// <typeparam name="TConfiguration">The type of configuration this service uses.</typeparam>
 /// <typeparam name="TService">The concrete service type for identification purposes.</typeparam>
-public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGenericService<TCommand, TConfiguration, TService>
+/// <remarks>
+/// This class implements IGenericService and provides default Execute implementations
+/// that use pattern matching to convert IGenericCommand to TCommand. Derived classes
+/// implement protected abstract methods that accept the strongly-typed TCommand.
+/// </remarks>
+public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGenericService, IDisposable
     where TCommand : IGenericCommand
     where TConfiguration : IGenericConfiguration
     where TService : class
 {
-    private readonly ILogger<ServiceBase<TCommand,TConfiguration,TService>> _logger;
+    private readonly ILogger _logger;
+    private bool _disposed;
 
     /// <summary>
     /// Gets the unique identifier for this service instance.
@@ -54,48 +60,120 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     /// </summary>
     /// <param name="logger">The logger for this service.</param>
     /// <param name="configuration">The configuration for this service.</param>
-    protected ServiceBase(ILogger<ServiceBase<TCommand,TConfiguration,TService>> logger, TConfiguration configuration)
+    protected ServiceBase(ILogger logger, TConfiguration configuration)
     {
-        _logger = logger ?? NullLogger<ServiceBase<TCommand,TConfiguration,TService>>.Instance;
+        _logger = logger ?? NullLogger.Instance;
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         Id = Guid.NewGuid().ToString();
         ServiceType = typeof(TService).Name;
     }
 
     /// <summary>
-    /// Executes a command using the service.
+    /// Executes a command using pattern matching to convert IGenericCommand to TCommand.
+    /// This is the IGenericService.Execute implementation that provides runtime type checking.
     /// </summary>
-    /// <param name="command">The command to execute.</param>
-    /// <returns>A task containing the execution result.</returns>
-    public abstract Task<IGenericResult> Execute(TCommand command);
-
-    /// <summary>
-    /// Executes a command with generic return type.
-    /// </summary>
-    /// <typeparam name="TOut">The expected return type.</typeparam>
-    /// <param name="command">The command to execute.</param>
-    /// <returns>A task containing the execution result.</returns>
-    public abstract Task<IGenericResult<TOut>> Execute<TOut>(TCommand command);
-
-    /// <summary>
-    /// Executes a command with generic return type and cancellation support.
-    /// </summary>
-    /// <typeparam name="TOut">The expected return type.</typeparam>
-    /// <param name="command">The command to execute.</param>
+    /// <typeparam name="T">The expected return type.</typeparam>
+    /// <param name="command">The command to execute (IGenericCommand).</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
-    /// <returns>A task containing the execution result.</returns>
-    public abstract Task<IGenericResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
+    /// <returns>A result containing the typed execution outcome.</returns>
+    public async Task<IGenericResult<T>> Execute<T>(IGenericCommand command, CancellationToken cancellationToken)
+    {
+        if (command is TCommand typedCommand)
+        {
+            return await Execute<T>(typedCommand, cancellationToken).ConfigureAwait(false);
+        }
+
+        Logger.LogError(
+            "Command type mismatch: expected {ExpectedType}, received {ActualType}",
+            typeof(TCommand).Name,
+            command?.GetType().Name ?? "null");
+
+        return GenericResult<T>.Failure(
+            $"Invalid command type: expected {typeof(TCommand).Name}, received {command?.GetType().Name ?? "null"}");
+    }
 
     /// <summary>
-    /// Executes a command with cancellation support.
+    /// Executes a command using pattern matching to convert IGenericCommand to TCommand.
+    /// This is the IGenericService.Execute implementation that provides runtime type checking.
     /// </summary>
-    /// <param name="command">The command to execute.</param>
+    /// <param name="command">The command to execute (IGenericCommand).</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
-    /// <returns>A task containing the execution result.</returns>
-    public abstract Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
+    /// <returns>A result containing the execution outcome.</returns>
+    public async Task<IGenericResult> Execute(IGenericCommand command, CancellationToken cancellationToken)
+    {
+        if (command is TCommand typedCommand)
+        {
+            return await Execute(typedCommand, cancellationToken).ConfigureAwait(false);
+        }
+
+        Logger.LogError(
+            "Command type mismatch: expected {ExpectedType}, received {ActualType}",
+            typeof(TCommand).Name,
+            command?.GetType().Name ?? "null");
+
+        return GenericResult.Failure(
+            $"Invalid command type: expected {typeof(TCommand).Name}, received {command?.GetType().Name ?? "null"}");
+    }
+
+    /// <summary>
+    /// Executes a typed command. Derived classes must implement this method.
+    /// </summary>
+    /// <param name="command">The typed command to execute.</param>
+    /// <returns>A result containing the execution outcome.</returns>
+    protected abstract Task<IGenericResult> Execute(TCommand command);
+
+    /// <summary>
+    /// Executes a typed command with generic return type.
+    /// </summary>
+    /// <typeparam name="T">The expected return type.</typeparam>
+    /// <param name="command">The typed command to execute.</param>
+    /// <returns>A result containing the typed execution outcome.</returns>
+    protected abstract Task<IGenericResult<T>> Execute<T>(TCommand command);
+
+    /// <summary>
+    /// Executes a typed command with cancellation support.
+    /// </summary>
+    /// <param name="command">The typed command to execute.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A result containing the execution outcome.</returns>
+    protected abstract Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Executes a typed command with generic return type and cancellation support.
+    /// </summary>
+    /// <typeparam name="T">The expected return type.</typeparam>
+    /// <param name="command">The typed command to execute.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A result containing the typed execution outcome.</returns>
+    protected abstract Task<IGenericResult<T>> Execute<T>(TCommand command, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets the logger for derived classes to use.
     /// </summary>
-    protected ILogger<ServiceBase<TCommand,TConfiguration,TService>> Logger => _logger;
+    protected ILogger Logger => _logger;
+
+    /// <summary>
+    /// Disposes the service and releases resources.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Disposes the service. Override to add custom disposal logic.
+    /// </summary>
+    /// <param name="disposing">True if disposing managed resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                // Derived classes override this to dispose their resources
+            }
+            _disposed = true;
+        }
+    }
 }

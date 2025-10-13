@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\FractalDataWorks.Services.Connections.Abstractions\FractalDataWorks.Services.Connections.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Services.Connections.Http.Abstractions\FractalDataWorks.Services.Connections.Http.Abstractions.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.Services.DataGateway.Abstractions\FractalDataWorks.Services.DataGateway.Abstractions.csproj" />
     <ProjectReference Include="..\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />
     <ProjectReference Include="..\FractalDataWorks.Services.Abstractions\FractalDataWorks.Services.Abstractions.csproj" />

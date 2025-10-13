@@ -23,7 +23,7 @@ namespace FractalDataWorks.Services.Connections;
 /// All connection services should inherit from this class to ensure consistent
 /// behavior across different connection types (HTTP, SQL, REST, etc.).
 /// </remarks>
-public abstract class ConnectionBase<TCommand, TConfiguration, TService> : ServiceBase<TCommand,TConfiguration,TService>, IGenericService<TCommand, TConfiguration, TService>, IGenericConnection
+public abstract class ConnectionBase<TCommand, TConfiguration, TService> : ServiceBase<TCommand,TConfiguration,TService>, IGenericConnection
     where TCommand : IConnectionCommand
     where TConfiguration : class, IConnectionConfiguration
     where TService : class

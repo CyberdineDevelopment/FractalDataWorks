@@ -4,7 +4,8 @@ using Microsoft.Extensions.Logging;
 using FractalDataWorks.Data.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Connections.Abstractions;
-using FractalDataWorks.Services.DataGateway.Abstractions;
+using FractalDataWorks.Services.Data.Abstractions;
+
 
 namespace FractalDataWorks.Services.DataGateway;
 
@@ -15,16 +16,16 @@ namespace FractalDataWorks.Services.DataGateway;
 public sealed class DataGatewayService : IDataGateway
 {
     private readonly ILogger<DataGatewayService> _logger;
-    private readonly IDefaultConnectionProvider _connectionProvider;
+    private readonly IDataConnectionProvider _connectionProvider;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataGatewayService"/> class.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="connectionProvider">The connection provider for routing.</param>
+    /// <param name="connectionProvider">The data connection provider for routing.</param>
     public DataGatewayService(
         ILogger<DataGatewayService> logger,
-        IDefaultConnectionProvider connectionProvider)
+        IDataConnectionProvider connectionProvider)
     {
         _logger = logger;
         _connectionProvider = connectionProvider;
@@ -36,19 +37,18 @@ public sealed class DataGatewayService : IDataGateway
         _logger.LogDebug("Routing data command {CommandType} to connection {ConnectionName}",
             command.CommandType, command.ConnectionName);
 
-        // Get connection by name
+        // Get data connection by name
         var connectionResult = await _connectionProvider.GetConnection(command.ConnectionName).ConfigureAwait(false);
-        if (!connectionResult.IsSuccess)
+        if (!connectionResult.IsSuccess || connectionResult.Value == null)
         {
-            _logger.LogError("Failed to get connection {ConnectionName}", command.ConnectionName);
+            _logger.LogError("Failed to get data connection {ConnectionName}", command.ConnectionName);
             return GenericResult<T>.Failure($"Connection '{command.ConnectionName}' not found");
         }
 
         var connection = connectionResult.Value;
 
-        // Execute command on the connection
-        // Note: Connection service will handle translation (LINQ -> SQL, etc.)
-        // FUTURE: Connection service needs to accept IDataCommand and translate the LINQ expression
-        var response = connection.Execute<T>(command,CancellationToken.None);
+        // Execute data command on the data connection
+        // Connection service will handle translation (LINQ -> SQL, etc.)
+        return await connection.Execute<T>(command, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -178,4 +178,61 @@ public static partial class DefaultConnectionProviderLog
         ILogger logger,
         Exception exception,
         string configurationName);
+
+    /// <summary>
+    /// Logs when attempting to get a typed connection.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 1016,
+        Level = LogLevel.Debug,
+        Message = "Attempting to get connection as type: {TargetType}")]
+    public static partial void AttemptingTypedConnection(
+        ILogger logger,
+        string targetType);
+
+    /// <summary>
+    /// Logs when connection cast to specific type succeeds.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 1017,
+        Level = LogLevel.Debug,
+        Message = "Successfully cast connection to type: {TargetType}")]
+    public static partial void ConnectionCastSucceeded(
+        ILogger logger,
+        string targetType);
+
+    /// <summary>
+    /// Logs when connection cast to specific type fails.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 1018,
+        Level = LogLevel.Warning,
+        Message = "Failed to cast connection to type: {TargetType}. Actual type: {ActualType}")]
+    public static partial void ConnectionCastFailed(
+        ILogger logger,
+        string targetType,
+        string actualType);
+
+    /// <summary>
+    /// Logs when getting a data connection by name.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 1019,
+        Level = LogLevel.Debug,
+        Message = "Getting data connection by name: {ConnectionName}")]
+    public static partial void GettingDataConnection(
+        ILogger logger,
+        string connectionName);
+
+    /// <summary>
+    /// Logs when a connection does not support IDataConnection.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 1020,
+        Level = LogLevel.Error,
+        Message = "Connection '{ConnectionName}' does not implement IDataConnection. Actual type: {ActualType}")]
+    public static partial void ConnectionNotDataConnection(
+        ILogger logger,
+        string connectionName,
+        string actualType);
 }

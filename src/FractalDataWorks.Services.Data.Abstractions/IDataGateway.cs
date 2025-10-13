@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FractalDataWorks.Data.Abstractions;
 using FractalDataWorks.Results;
 
-namespace FractalDataWorks.Services.DataGateway.Abstractions;
+namespace FractalDataWorks.Services.Data.Abstractions;
 
 /// <summary>
 /// Service that routes data commands to the appropriate connection.

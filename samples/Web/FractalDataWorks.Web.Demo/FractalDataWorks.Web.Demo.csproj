@@ -14,7 +14,7 @@
     <ProjectReference Include="../../../src/FractalDataWorks.Services.Authentication/FractalDataWorks.Services.Authentication.csproj" />
     <ProjectReference Include="../../../src/FractalDataWorks.Services.SecretManagement/FractalDataWorks.Services.SecretManagement.csproj" />
     <ProjectReference Include="../../../src/FractalDataWorks.Services.Transformations/FractalDataWorks.Services.Transformations.csproj" />
-    <ProjectReference Include="../../../src/FractalDataWorks.Services.DataGateway/FractalDataWorks.Services.DataGateway.csproj" />
+    <ProjectReference Include="../../../src/FractalDataWorks.Services.Data/FractalDataWorks.Services.Data.csproj" />
     <ProjectReference Include="../../../src/FractalDataWorks.Data.DataStores/FractalDataWorks.Data.DataStores.csproj" />
     <ProjectReference Include="../../../src/FractalDataWorks.Configuration/FractalDataWorks.Configuration.csproj" />
     <ProjectReference Include="../../../src/FractalDataWorks.Results/FractalDataWorks.Results.csproj" />

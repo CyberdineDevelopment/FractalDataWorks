@@ -12,9 +12,10 @@ using FractalDataWorks.Services.Connections.Logging;
 namespace FractalDataWorks.Services.Connections;
 
 /// <summary>
-/// Implementation of IDefaultConnectionProvider that uses ConnectionTypes for factory lookup.
+/// Implementation of IDefaultConnectionProvider and IDataConnectionProvider that uses ConnectionTypes for factory lookup.
+/// Provides both generic connection access and specialized data connection access.
 /// </summary>
-public sealed class DefaultConnectionProvider : IDefaultConnectionProvider
+public sealed class DefaultConnectionProvider : IDefaultConnectionProvider, IDataConnectionProvider
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
@@ -146,6 +147,111 @@ public sealed class DefaultConnectionProvider : IDefaultConnectionProvider
             DefaultConnectionProviderLog.GetConnectionByNameException(_logger, ex, configurationName);
             return GenericResult<IGenericConnection>.Failure(new ErrorMessage(ex.Message));
         }
+    }
+
+    /// <summary>
+    /// Gets a connection using the provided configuration and attempts to cast it to the specified type.
+    /// </summary>
+    /// <typeparam name="T">The specific connection interface type to cast to (e.g., IDataConnection).</typeparam>
+    /// <param name="configuration">The configuration containing the connection type and settings.</param>
+    /// <returns>A result containing the typed connection instance or failure information if not found or cast fails.</returns>
+    public async Task<IGenericResult<T>> GetConnection<T>(IConnectionConfiguration configuration) where T : IGenericConnection
+    {
+        DefaultConnectionProviderLog.AttemptingTypedConnection(_logger, typeof(T).Name);
+
+        var connectionResult = await GetConnection(configuration).ConfigureAwait(false);
+        if (!connectionResult.IsSuccess)
+        {
+            return GenericResult<T>.Failure(new ErrorMessage(connectionResult.CurrentMessage ?? "Failed to get connection"));
+        }
+
+        if (connectionResult.Value is T typedConnection)
+        {
+            DefaultConnectionProviderLog.ConnectionCastSucceeded(_logger, typeof(T).Name);
+            return GenericResult<T>.Success(typedConnection);
+        }
+
+        DefaultConnectionProviderLog.ConnectionCastFailed(
+            _logger,
+            typeof(T).Name,
+            connectionResult.Value?.GetType().Name ?? "null");
+
+        return GenericResult<T>.Failure(
+            new ValidationMessage($"Connection does not implement {typeof(T).Name}. Actual type: {connectionResult.Value?.GetType().Name ?? "null"}"));
+    }
+
+    /// <summary>
+    /// Gets a connection by configuration ID and attempts to cast it to the specified type.
+    /// </summary>
+    /// <typeparam name="T">The specific connection interface type to cast to (e.g., IDataConnection).</typeparam>
+    /// <param name="configurationId">The ID of the configuration to load.</param>
+    /// <returns>A result containing the typed connection instance or failure information if not found or cast fails.</returns>
+    public async Task<IGenericResult<T>> GetConnection<T>(int configurationId) where T : IGenericConnection
+    {
+        DefaultConnectionProviderLog.AttemptingTypedConnection(_logger, typeof(T).Name);
+
+        var connectionResult = await GetConnection(configurationId).ConfigureAwait(false);
+        if (!connectionResult.IsSuccess)
+        {
+            return GenericResult<T>.Failure(new ErrorMessage(connectionResult.CurrentMessage ?? "Failed to get connection"));
+        }
+
+        if (connectionResult.Value is T typedConnection)
+        {
+            DefaultConnectionProviderLog.ConnectionCastSucceeded(_logger, typeof(T).Name);
+            return GenericResult<T>.Success(typedConnection);
+        }
+
+        DefaultConnectionProviderLog.ConnectionCastFailed(
+            _logger,
+            typeof(T).Name,
+            connectionResult.Value?.GetType().Name ?? "null");
+
+        return GenericResult<T>.Failure(
+            new ValidationMessage($"Connection does not implement {typeof(T).Name}. Actual type: {connectionResult.Value?.GetType().Name ?? "null"}"));
+    }
+
+    /// <summary>
+    /// Gets a connection by configuration name from appsettings and attempts to cast it to the specified type.
+    /// </summary>
+    /// <typeparam name="T">The specific connection interface type to cast to (e.g., IDataConnection).</typeparam>
+    /// <param name="configurationName">The name of the configuration section.</param>
+    /// <returns>A result containing the typed connection instance or failure information if not found or cast fails.</returns>
+    public async Task<IGenericResult<T>> GetConnection<T>(string configurationName) where T : IGenericConnection
+    {
+        DefaultConnectionProviderLog.AttemptingTypedConnection(_logger, typeof(T).Name);
+
+        var connectionResult = await GetConnection(configurationName).ConfigureAwait(false);
+        if (!connectionResult.IsSuccess)
+        {
+            return GenericResult<T>.Failure(new ErrorMessage(connectionResult.CurrentMessage ?? "Failed to get connection"));
+        }
+
+        if (connectionResult.Value is T typedConnection)
+        {
+            DefaultConnectionProviderLog.ConnectionCastSucceeded(_logger, typeof(T).Name);
+            return GenericResult<T>.Success(typedConnection);
+        }
+
+        DefaultConnectionProviderLog.ConnectionCastFailed(
+            _logger,
+            typeof(T).Name,
+            connectionResult.Value?.GetType().Name ?? "null");
+
+        return GenericResult<T>.Failure(
+            new ValidationMessage($"Connection does not implement {typeof(T).Name}. Actual type: {connectionResult.Value?.GetType().Name ?? "null"}"));
+    }
+
+    /// <summary>
+    /// Explicit implementation of IDataConnectionProvider.GetConnection.
+    /// Gets a data connection by name. This delegates to the generic GetConnection method.
+    /// </summary>
+    /// <param name="connectionName">The name of the connection to retrieve.</param>
+    /// <returns>A result containing the data connection if found, or a failure result if not found.</returns>
+    Task<IGenericResult<IDataConnection>> IDataConnectionProvider.GetConnection(string connectionName)
+    {
+        DefaultConnectionProviderLog.GettingDataConnection(_logger, connectionName);
+        return GetConnection<IDataConnection>(connectionName);
     }
 }
 

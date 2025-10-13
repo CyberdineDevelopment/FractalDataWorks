@@ -60,23 +60,4 @@ public interface IAuthenticationService : IGenericService
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the revocation operation to complete.</param>
     /// <returns>A task that represents the asynchronous token revocation operation.</returns>
     Task<IGenericResult> RevokeToken(string token, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Executes an authentication command and returns a typed result.
-    /// Integrates with the command pattern for unified service execution.
-    /// </summary>
-    /// <typeparam name="TResult">The type of result expected from the command execution.</typeparam>
-    /// <param name="command">The authentication command to execute.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
-    /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IGenericResult<TResult>> Execute<TResult>(IAuthenticationCommand command, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Executes an authentication command without returning a specific result type.
-    /// Integrates with the command pattern for unified service execution.
-    /// </summary>
-    /// <param name="command">The authentication command to execute.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the command execution to complete.</param>
-    /// <returns>A task that represents the asynchronous command execution operation.</returns>
-    Task<IGenericResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken = default);
 }
