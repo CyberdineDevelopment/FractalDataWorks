@@ -28,14 +28,31 @@ jobs:
         id: discover
         shell: pwsh
         run: |
-          $projects = & ./scripts/Get-PublicProjects.ps1 -ShowDirectories
-          Write-Host "Discovered public projects:"
-          $projects | ForEach-Object { Write-Host "  - $_" }
+          Write-Host "Discovering public projects..." -ForegroundColor Cyan
+
+          # Find all .csproj files marked as public
+          $projectFiles = Get-ChildItem -Path . -Filter "*.csproj" -Recurse -File |
+            Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
+
+          $publicProjects = @()
+
+          foreach ($projectFile in $projectFiles) {
+            [xml]$csproj = Get-Content $projectFile.FullName
+            $isPublic = $csproj.Project.PropertyGroup.IsPublicProject | Where-Object { $_ -eq 'true' }
+
+            if ($isPublic) {
+              $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $projectFile.DirectoryName)
+              $publicProjects += $relativePath
+            }
+          }
+
+          Write-Host "Found $($publicProjects.Count) public projects:"
+          $publicProjects | ForEach-Object { Write-Host "  - $_" }
 
           # Save to file for sync step
-          $projects | Out-File -FilePath "$env:TEMP\public-projects.txt" -Encoding UTF8
+          $publicProjects | Out-File -FilePath "$env:TEMP\public-projects.txt" -Encoding UTF8
 
-          Write-Output "project_count=$($projects.Count)" >> $env:GITHUB_OUTPUT
+          Write-Output "project_count=$($publicProjects.Count)" >> $env:GITHUB_OUTPUT
 
       - name: Checkout public repository
         uses: actions/checkout@v4
@@ -168,6 +185,56 @@ jobs:
 
           Write-Host ""
           Write-Host "✓ Sync complete - copied $copiedCount projects" -ForegroundColor Green
+
+      - name: Sync public repo workflows
+        shell: pwsh
+        run: |
+          $privateRepo = $PWD
+          $publicRepo = Join-Path $PWD "public-repo"
+
+          Write-Host "Syncing GitHub workflows for public repo..." -ForegroundColor Cyan
+
+          # Create .github/workflows directory in public repo
+          $workflowDir = Join-Path $publicRepo ".github" "workflows"
+          if (-not (Test-Path $workflowDir)) {
+            New-Item -ItemType Directory -Path $workflowDir -Force | Out-Null
+          }
+
+          # Copy the NuGet.org publish workflow
+          $nugetOrgWorkflow = Join-Path $privateRepo ".github" "workflows" "publish-nuget-org.yml"
+          if (Test-Path $nugetOrgWorkflow) {
+            Copy-Item -Path $nugetOrgWorkflow -Destination (Join-Path $workflowDir "publish-nuget.yml") -Force
+            Write-Host "  ✓ publish-nuget.yml (for NuGet.org)" -ForegroundColor Green
+          }
+
+      - name: Create public solution file
+        shell: pwsh
+        run: |
+          cd public-repo
+
+          Write-Host "Creating public solution file..." -ForegroundColor Cyan
+
+          # Remove old solution if exists
+          if (Test-Path "FractalDataWorks.sln") {
+            Remove-Item "FractalDataWorks.sln" -Force
+          }
+
+          # Create new solution
+          dotnet new sln -n "FractalDataWorks" | Out-Null
+
+          # Find all .csproj files and add to solution
+          $projects = Get-ChildItem -Path . -Filter "*.csproj" -Recurse -File |
+            Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
+
+          $added = 0
+          foreach ($proj in $projects) {
+            Write-Host "  Adding: $($proj.BaseName)" -ForegroundColor White
+            dotnet sln add $proj.FullName 2>&1 | Out-Null
+            if ($LASTEXITCODE -eq 0) { $added++ }
+          }
+
+          Write-Host ""
+          Write-Host "✓ Created FractalDataWorks.sln with $added projects" -ForegroundColor Green
 
       - name: Commit and push changes
         shell: pwsh

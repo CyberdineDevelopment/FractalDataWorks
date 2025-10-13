@@ -1,19 +1,16 @@
-name: Publish to GitHub Packages
+name: Publish to NuGet.org
 
 on:
   push:
     branches:
-      - master   # Publish stable releases (0.1.0)
-      - develop  # Publish pre-release packages (0.1.0-alpha.123)
+      - master   # Publish stable releases (0.4.0)
+      - develop  # Publish pre-release packages (0.4.0-alpha.1003)
   workflow_dispatch:
 
 jobs:
   publish:
-    name: Build and Publish to GitHub Packages
+    name: Build and Publish to NuGet.org
     runs-on: windows-latest
-    permissions:
-      packages: write
-      contents: read
 
     steps:
       - name: Checkout
@@ -43,26 +40,13 @@ jobs:
         shell: pwsh
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore FractalDataWorks.sln
 
-      - name: Discover all projects
-        id: discover
-        shell: pwsh
-        run: |
-          $allProjects = Get-ChildItem -Path src -Filter "*.csproj" -Recurse -File |
-            Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
-
-          Write-Host "All projects to package:"
-          $allProjects | ForEach-Object { Write-Host "  - $($_.BaseName)" }
-
-          # Count projects
-          Write-Output "project_count=$($allProjects.Count)" >> $env:GITHUB_OUTPUT
-
-      - name: Build all projects
-        run: dotnet build --configuration Release --no-restore
+      - name: Build solution
+        run: dotnet build FractalDataWorks.sln --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test FractalDataWorks.sln --configuration Release --no-build --verbosity normal
 
       - name: Pack NuGet packages
         shell: pwsh
@@ -110,10 +94,10 @@ jobs:
             Write-Host "  - $($_.Name)" -ForegroundColor Green
           }
 
-      - name: Publish to GitHub Packages
+      - name: Publish to NuGet.org
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           $packages = Get-ChildItem -Path artifacts -Filter "*.nupkg" | Where-Object { $_.Name -notlike "*.symbols.nupkg" }
 
@@ -121,8 +105,8 @@ jobs:
             Write-Host "Publishing: $($package.Name)" -ForegroundColor Cyan
 
             dotnet nuget push $package.FullName `
-              --source https://nuget.pkg.github.com/CyberdineDevelopment/index.json `
-              --api-key $env:GITHUB_TOKEN `
+              --source https://api.nuget.org/v3/index.json `
+              --api-key $env:NUGET_API_KEY `
               --skip-duplicate
 
             if ($LASTEXITCODE -eq 0) {
@@ -142,34 +126,28 @@ jobs:
       - name: Summary
         shell: pwsh
         run: |
+          $packageCount = (Get-ChildItem -Path artifacts -Filter "*.nupkg" | Where-Object { $_.Name -notlike "*.symbols.nupkg" }).Count
+
           $summary = @"
-          ### GitHub Packages Publishing Complete ✓
+          ### NuGet.org Publishing Complete ✓
 
           **Version:** ${{ steps.nbgv.outputs.nuget_version }}
-          **Published:** ${{ steps.discover.outputs.project_count }} packages
-          **Target:** GitHub Packages (Private - organization members only)
+          **Published:** $packageCount packages
+          **Target:** NuGet.org (Public)
           **Branch:** ${{ github.ref_name }}
 
-          All packages (public and private) are now available on GitHub Packages for internal use.
+          Public packages are now available on NuGet.org for everyone to use.
 
           ## Using these packages
 
-          Add the GitHub Packages source:
-          \`\`\`bash
-          dotnet nuget add source https://nuget.pkg.github.com/CyberdineDevelopment/index.json \
-            --name github \
-            --username YOUR_GITHUB_USERNAME \
-            --password YOUR_GITHUB_PAT
-          \`\`\`
-
-          Install any package:
+          Install from NuGet.org:
           \`\`\`bash
           dotnet add package FractalDataWorks.Results --version ${{ steps.nbgv.outputs.nuget_version }}
-          dotnet add package FractalDataWorks.Services.Authentication --version ${{ steps.nbgv.outputs.nuget_version }}
-          dotnet add package FractalDataWorks.Services.SecretManagers.AzureKeyVault --version ${{ steps.nbgv.outputs.nuget_version }}
+          dotnet add package FractalDataWorks.Collections --version ${{ steps.nbgv.outputs.nuget_version }}
+          dotnet add package FractalDataWorks.Services --version ${{ steps.nbgv.outputs.nuget_version }}
           \`\`\`
 
-          **Note:** Public packages are also published to NuGet.org from the public repository mirror.
+          **Note:** Private packages are available on GitHub Packages from the private repository.
           "@
 
           $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding UTF8

@@ -2,6 +2,9 @@
 # Visual Studio and .NET
 # ===============================================
 
+# Local scripts (development only)
+scripts/
+
 # User-specific files
 *.rsuser
 *.suo
