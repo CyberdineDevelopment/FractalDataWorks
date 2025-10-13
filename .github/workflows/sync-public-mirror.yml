@@ -240,6 +240,91 @@ jobs:
           Write-Host ""
           Write-Host "✓ Updated $updated projects with public repo URL" -ForegroundColor Green
 
+      - name: Generate README index
+        shell: pwsh
+        run: |
+          cd public-repo
+
+          Write-Host "Generating README index..." -ForegroundColor Cyan
+
+          # Find all projects with READMEs
+          $readmes = Get-ChildItem -Path . -Filter "README.md" -Recurse -File |
+            Where-Object {
+              $_.FullName -notlike "*\bin\*" -and
+              $_.FullName -notlike "*\obj\*" -and
+              $_.DirectoryName -notmatch "\\(tests|samples)" -and
+              $_.FullName -notmatch "^.*\\README\.md$"  # Exclude root README
+            } | Sort-Object DirectoryName
+
+          # Build README content
+          $readme = @"
+          # FractalDataWorks Platform
+
+          Open-source .NET framework for service-oriented applications with Railway-Oriented Programming, advanced source generation, and type-safe extensibility.
+
+          ## 📦 Packages
+
+          "@
+
+          $currentCategory = ""
+          foreach ($file in $readmes) {
+            $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $file.FullName)
+            $projectName = Split-Path (Split-Path $file.DirectoryName -Leaf) -Leaf
+
+            # Determine category from path
+            $category = if ($relativePath -like "src\*") {
+              $parts = $relativePath.Split('\')
+              if ($parts[1] -match "\.Analyzers$") { "Analyzers & Code Fixes" }
+              elseif ($parts[1] -match "\.SourceGenerators$") { "Source Generators" }
+              elseif ($parts[1] -match "\.Abstractions$") { "Core Abstractions" }
+              elseif ($parts[1] -match "^FractalDataWorks\.(Collections|EnhancedEnums|ServiceTypes|Messages|Results)$") { "Core Framework" }
+              elseif ($parts[1] -match "^FractalDataWorks\.Services") { "Services" }
+              else { "Other" }
+            } else { "Samples" }
+
+            # Add category header if new
+            if ($category -ne $currentCategory) {
+              $readme += "`n### $category`n`n"
+              $currentCategory = $category
+            }
+
+            # Add project link
+            $readme += "- [**$projectName**]($($relativePath -replace '\\','/'))`n"
+          }
+
+          $readme += @"
+
+          ## 📖 Documentation
+
+          - [Architecture Overview](docs/Architecture-Overview.md)
+          - [Service Developer Guide](docs/Service-Developer-Guide.md)
+          - [Source Generator Guide](docs/Source-Generator-Guide.md)
+          - [Testing Guide](docs/Testing-Guide.md)
+
+          ## 🚀 Getting Started
+
+          Install packages from NuGet.org:
+
+          ``````bash
+          dotnet add package FractalDataWorks.Results
+          dotnet add package FractalDataWorks.Collections
+          dotnet add package FractalDataWorks.Services
+          ``````
+
+          ## 📄 License
+
+          Apache 2.0 - see [LICENSE](LICENSE) for details.
+
+          ## 🔗 Links
+
+          - [GitHub Repository](https://github.com/CyberdineDevelopment/FractalDataWorks-Platform)
+          - [NuGet Packages](https://www.nuget.org/profiles/CyberdineDevelopment)
+          "@
+
+          # Write README
+          Set-Content -Path "README.md" -Value $readme -NoNewline
+          Write-Host "✓ Generated README.md with project index" -ForegroundColor Green
+
       - name: Create public solution file
         shell: pwsh
         run: |
