@@ -1,8 +1,11 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Starts with comparison operator (LIKE value%).
 /// </summary>
+[TypeOption(typeof(ComparisonOperators), "StartsWith")]
 public sealed class StartsWithOperator : ComparisonOperatorBase
 {
     /// <summary>

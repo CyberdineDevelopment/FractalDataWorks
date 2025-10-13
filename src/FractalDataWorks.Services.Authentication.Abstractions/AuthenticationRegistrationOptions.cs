@@ -13,7 +13,7 @@ public class AuthenticationRegistrationOptions
     /// <summary>
     /// Custom configurations for specific authentication types.
     /// </summary>
-    public Dictionary<string, Action<IServiceCollection, IAuthenticationType>> CustomConfigurations { get; } = new();
+    public IDictionary<string, Action<IServiceCollection, IAuthenticationType>> CustomConfigurations { get; } = new Dictionary<string, Action<IServiceCollection, IAuthenticationType>>(StringComparer.Ordinal);
 
     /// <summary>
     /// Configure a specific authentication type.

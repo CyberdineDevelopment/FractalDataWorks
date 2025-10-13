@@ -691,7 +691,7 @@ public sealed class Trigger : IGenericTrigger
     /// <param name="additionalMetadata">Optional additional metadata.</param>
     /// <returns>Combined metadata dictionary, or null if no metadata.</returns>
     [ExcludeFromCodeCoverage] // Helper method - tested through factory methods
-    private static IReadOnlyDictionary<string, object>? CombineMetadata(
+    private static Dictionary<string, object>? CombineMetadata(
         string? description,
         IReadOnlyDictionary<string, object>? additionalMetadata)
     {

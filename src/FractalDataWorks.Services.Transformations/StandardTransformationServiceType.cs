@@ -27,7 +27,7 @@ public sealed class StandardTransformationServiceType :
             inputType: typeof(object),
             outputType: typeof(object),
             supportsStreaming: true,
-            supportedContainers: []) // TODO: Add actual container types
+            supportedContainers: []) // FUTURE: Add actual container types
     {
     }
 
@@ -39,7 +39,7 @@ public sealed class StandardTransformationServiceType :
         // Register the generic factory
         services.AddScoped<IServiceFactory<ITransformationProvider, ITransformationsConfiguration>, GenericServiceFactory<ITransformationProvider, ITransformationsConfiguration>>();
 
-        // TODO: Implement StandardTransformationProvider
+        // FUTURE: Implement StandardTransformationProvider
         // services.AddScoped<ITransformationProvider, StandardTransformationProvider>();
     }
 

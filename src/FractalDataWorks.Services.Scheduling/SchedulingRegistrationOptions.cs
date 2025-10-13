@@ -12,10 +12,12 @@ namespace FractalDataWorks.Services.Scheduling;
 /// </summary>
 public class SchedulingRegistrationOptions
 {
+    private readonly Dictionary<string, Action<IServiceCollection, ISchedulerType>> _customConfigurations = new(StringComparer.Ordinal);
+
     /// <summary>
     /// Custom configurations for specific scheduling types.
     /// </summary>
-    public Dictionary<string, Action<IServiceCollection, ISchedulerType>> CustomConfigurations { get; } = new();
+    public IDictionary<string, Action<IServiceCollection, ISchedulerType>> CustomConfigurations => _customConfigurations;
 
     /// <summary>
     /// Configure a specific scheduling type.

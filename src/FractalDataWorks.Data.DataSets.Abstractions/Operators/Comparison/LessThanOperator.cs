@@ -1,8 +1,11 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Less than comparison operator (&lt;).
 /// </summary>
+[TypeOption(typeof(ComparisonOperators), "LessThan")]
 public sealed class LessThanOperator : ComparisonOperatorBase
 {
     /// <summary>

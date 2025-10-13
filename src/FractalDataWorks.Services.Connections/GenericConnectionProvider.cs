@@ -64,8 +64,8 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
             }
 
             // Create the connection using the factory
-            var result = await factory.CreateConnectionAsync(configuration);
-            
+            var result = await factory.CreateConnectionAsync(configuration).ConfigureAwait(false);
+
             if (result.IsSuccess)
             {
                 GenericConnectionProviderLog.ConnectionCreated(_logger, configuration.ConnectionType);
@@ -90,12 +90,12 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
     /// </summary>
     /// <param name="configurationId">The ID of the configuration to load.</param>
     /// <returns>A result containing the connection instance or failure information.</returns>
-    public async Task<IGenericResult<IGenericConnection>> GetConnection(int configurationId)
+    public Task<IGenericResult<IGenericConnection>> GetConnection(int configurationId)
     {
         // This would typically load configuration from a database
         // For now, return a not implemented error
         GenericConnectionProviderLog.GetConnectionByIdNotImplemented(_logger, configurationId);
-        return GenericResult<IGenericConnection>.Failure(new NotImplementedMessage($"Configuration loading by ID not implemented: {configurationId}"));
+        return Task.FromResult<IGenericResult<IGenericConnection>>(GenericResult<IGenericConnection>.Failure(new NotImplementedMessage($"Configuration loading by ID not implemented: {configurationId}")));
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ public sealed class GenericConnectionProvider : IGenericConnectionProvider
             };
 
             // Use the main method to create the connection
-            return await GetConnection(config);
+            return await GetConnection(config).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -161,8 +161,15 @@ internal sealed class BasicConnectionConfiguration : IConnectionConfiguration
     public bool IsEnabled { get; set; } = true;
     public IServiceLifetime Lifetime { get; set; } = ServiceLifetimes.Scoped;
 
-    public IGenericResult<FluentValidation.Results.ValidationResult> Validate()
+    public static IGenericResult<FluentValidation.Results.ValidationResult> ValidateStatic()
     {
         return GenericResult<FluentValidation.Results.ValidationResult>.Success(new FluentValidation.Results.ValidationResult());
+    }
+
+    #pragma warning disable CA1822 // Member does not access instance data - interface requires instance method
+    public IGenericResult<FluentValidation.Results.ValidationResult> Validate()
+    #pragma warning restore CA1822
+    {
+        return ValidateStatic();
     }
 }

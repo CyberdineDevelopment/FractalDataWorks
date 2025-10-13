@@ -1108,6 +1108,53 @@ public interface ICreateUserCommand : IUserManagementMutationCommand
 }
 ```
 
+### Two-Tier Command Architecture (Framework Pattern)
+
+**Important**: The FractalDataWorks framework uses a two-tier command architecture that separates service-level operations from data-level operations. This is distinct from domain command hierarchies.
+
+#### Service Commands (IConnectionCommand)
+
+Service-level commands for connection management and infrastructure:
+
+```csharp
+// Defined in FractalDataWorks.Services.Connections.Abstractions
+public interface IConnectionCommand : IGenericCommand
+{
+    string CommandId { get; }
+    DateTime CreatedAt { get; }
+    string CommandType { get; }
+}
+```
+
+**Purpose**: Connection creation, testing, discovery, lifecycle management
+**Scope**: Service infrastructure layer
+**Used By**: Connection services like MsSqlConnectionService
+**Examples**: `CreateConnectionCommand`, `TestConnectionCommand`, `DiscoveryCommand`
+
+#### Data Commands (IDataCommand)
+
+Data-level commands executed through established connections:
+
+```csharp
+// Defined in FractalDataWorks.Data.Abstractions
+public interface IDataCommand
+{
+    string ConnectionName { get; }
+    Expression? Query { get; }
+    string CommandType { get; }
+    object? TargetContainer { get; }
+    Dictionary<string, object> Metadata { get; }
+    TimeSpan? Timeout { get; }
+}
+```
+
+**Purpose**: Query operations, CRUD operations, bulk operations
+**Scope**: Data layer through established connections
+**Used By**: Data stores and translators
+**Examples**: `DataQueryCommand`, `DataInsertCommand`, `DataUpdateCommand`
+
+**Key Distinction**: Domain services create their own command hierarchies (like `IUserManagementCommand`) which are separate from these framework commands. The two-tier architecture applies to framework infrastructure (connections and data), while domain commands apply to business logic.
+
 ### Command Implementation Pattern
 
 **Each implementation creates concrete command classes:**

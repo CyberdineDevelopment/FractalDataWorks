@@ -1,8 +1,11 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Equality comparison operator (equals).
 /// </summary>
+[TypeOption(typeof(ComparisonOperators), "Equal")]
 public sealed class EqualOperator : ComparisonOperatorBase
 {
     /// <summary>

@@ -43,11 +43,11 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
     /// </summary>
     /// <param name="configuration">The configuration containing the authentication type and settings.</param>
     /// <returns>A result containing the authentication service instance or failure information.</returns>
-    public async Task<IGenericResult<IAuthenticationService>> GetAuthenticationService(IAuthenticationConfiguration configuration)
+    public Task<IGenericResult<IAuthenticationService>> GetAuthenticationService(IAuthenticationConfiguration configuration)
     {
         if (configuration == null)
         {
-            return GenericResult<IAuthenticationService>.Failure(AuthenticationMessages.ConfigurationNull());
+            return Task.FromResult<IGenericResult<IAuthenticationService>>(GenericResult<IAuthenticationService>.Failure(AuthenticationMessages.ConfigurationNull()));
         }
 
         try
@@ -60,8 +60,8 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             if (authenticationType == AuthenticationTypes.NotFound())
             {
                 AuthenticationProviderLog.UnknownAuthenticationType(_logger, configuration.AuthenticationType);
-                return GenericResult<IAuthenticationService>.Failure(
-                    AuthenticationMessages.UnknownAuthenticationType(configuration.AuthenticationType));
+                return Task.FromResult<IGenericResult<IAuthenticationService>>(GenericResult<IAuthenticationService>.Failure(
+                    AuthenticationMessages.UnknownAuthenticationType(configuration.AuthenticationType)));
             }
 
             // Get the factory from DI
@@ -69,28 +69,28 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             if (factory == null)
             {
                 AuthenticationProviderLog.NoFactoryRegistered(_logger, configuration.AuthenticationType);
-                return GenericResult<IAuthenticationService>.Failure(
-                    AuthenticationMessages.NoFactoryRegistered(configuration.AuthenticationType));
+                return Task.FromResult<IGenericResult<IAuthenticationService>>(GenericResult<IAuthenticationService>.Failure(
+                    AuthenticationMessages.NoFactoryRegistered(configuration.AuthenticationType)));
             }
 
             // Create the authentication service using the factory
             var result = factory.Create(configuration);
 
-            if (result.IsSuccess)
+            if (result.IsSuccess && result.Value != null)
             {
                 AuthenticationProviderLog.AuthenticationServiceCreated(_logger, configuration.AuthenticationType);
-                return GenericResult<IAuthenticationService>.Success((IAuthenticationService)result.Value);
+                return Task.FromResult<IGenericResult<IAuthenticationService>>(GenericResult<IAuthenticationService>.Success((IAuthenticationService)result.Value));
             }
             else
             {
                 AuthenticationProviderLog.AuthenticationServiceCreationFailed(_logger, configuration.AuthenticationType, result.CurrentMessage ?? "Unknown error");
-                return GenericResult<IAuthenticationService>.Failure(result.Messages.ToArray());
+                return Task.FromResult<IGenericResult<IAuthenticationService>>(GenericResult<IAuthenticationService>.Failure(result.Messages.ToArray()));
             }
         }
         catch (Exception ex)
         {
             AuthenticationProviderLog.AuthenticationServiceCreationException(_logger, ex, configuration.AuthenticationType);
-            return GenericResult<IAuthenticationService>.Failure(AuthenticationMessages.ServiceCreationException(ex.Message));
+            return Task.FromResult<IGenericResult<IAuthenticationService>>(GenericResult<IAuthenticationService>.Failure(AuthenticationMessages.ServiceCreationException(ex.Message)));
         }
     }
 
@@ -143,7 +143,7 @@ public sealed class AuthenticationProvider : IAuthenticationProvider
             }
 
             // Use the main method to create the authentication service
-            return await GetAuthenticationService(config);
+            return await GetAuthenticationService(config).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

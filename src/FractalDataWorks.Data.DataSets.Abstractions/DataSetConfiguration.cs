@@ -46,19 +46,19 @@ public sealed class DataSetConfiguration : ConfigurationBase<DataSetConfiguratio
     /// Gets or sets the field definitions that define the schema of this dataset.
     /// </summary>
     /// <value>A collection of field configuration objects describing the structure of records.</value>
-    public List<DataFieldConfiguration> Fields { get; set; } = new List<DataFieldConfiguration>();
+    public IList<DataFieldConfiguration> Fields { get; set; } = new List<DataFieldConfiguration>();
 
     /// <summary>
     /// Gets or sets the names of fields that form the primary key for this dataset.
     /// </summary>
     /// <value>A list of field names that uniquely identify records in this dataset.</value>
-    public List<string> KeyFields { get; set; } = new List<string>();
+    public IList<string> KeyFields { get; set; } = new List<string>();
 
     /// <summary>
     /// Gets or sets source mappings for different connection types.
     /// </summary>
     /// <value>A dictionary mapping connection type names to their specific source configurations.</value>
-    public Dictionary<string, SourceMappingConfiguration> Sources { get; set; } = new Dictionary<string, SourceMappingConfiguration>(StringComparer.OrdinalIgnoreCase);
+    public IDictionary<string, SourceMappingConfiguration> Sources { get; set; } = new Dictionary<string, SourceMappingConfiguration>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Gets or sets caching configuration for this dataset.

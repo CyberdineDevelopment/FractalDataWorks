@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using FractalDataWorks.Configuration;
 using FractalDataWorks.Services.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions;
-using FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpProtocols;
+using FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums;
+
 
 namespace FractalDataWorks.Services.Connections.Http.Abstractions;
 

@@ -1,14 +1,13 @@
-using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
-using FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums;
+using FractalDataWorks.Collections;
+using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Services.Scheduling.Abstractions;
+namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums;
 
 /// <summary>
 /// Collection of trigger types for scheduling system.
 /// </summary>
-[EnumCollection(typeof(TriggerTypeBase), typeof(TriggerTypeBase), typeof(TriggerTypes))]
-public abstract class TriggerTypes : EnumCollectionBase<TriggerTypeBase>
+[TypeCollection(typeof(TriggerTypeBase), typeof(ITriggerType), typeof(TriggerTypes))]
+public abstract partial class TriggerTypes : TypeCollectionBase<TriggerTypeBase, ITriggerType>
 {
     // DO NOT IMPLEMENT BY HAND!
     // Source generator automatically creates static TriggerTypes class with:

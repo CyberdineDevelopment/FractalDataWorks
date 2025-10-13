@@ -5,7 +5,7 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.
 /// <summary>
 /// HTTP GET method - retrieves data from the server.
 /// </summary>
-[TypeOption(typeof(HttpMethods), "Get")]
+[TypeOption(typeof(HttpMethodCollection), "Get")]
 public sealed class GetMethod : HttpMethodBase
 {
     /// <summary>

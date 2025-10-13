@@ -1,8 +1,11 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Ends with comparison operator (LIKE %value).
 /// </summary>
+[TypeOption(typeof(ComparisonOperators), "EndsWith")]
 public sealed class EndsWithOperator : ComparisonOperatorBase
 {
     /// <summary>

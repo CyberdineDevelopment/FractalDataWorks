@@ -44,7 +44,7 @@ public static class ReturnTypeResolver
         }
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        // TODO: Complex solution - resolve generic type arguments from constraints
+        // FUTURE: Complex solution - resolve generic type arguments from constraints
         // When the base type is generic (e.g., ConnectionTypeBase<TService, TConfiguration, TFactory>)
         // and we need the concrete type (not just the interface), we should:
         // 1. Examine the type parameter constraints on the generic base type

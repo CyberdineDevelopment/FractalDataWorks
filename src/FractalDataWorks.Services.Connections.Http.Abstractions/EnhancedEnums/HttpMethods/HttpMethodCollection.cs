@@ -6,8 +6,8 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.
 /// <summary>
 /// Source generator creates static HttpMethods class automatically.
 /// </summary>
-[TypeCollection(typeof(HttpMethodBase), typeof(IHttpMethod), typeof(HttpMethods))]
-public abstract partial class HttpMethods : TypeCollectionBase<HttpMethodBase,IHttpMethod>
+[TypeCollection(typeof(HttpMethodBase), typeof(IHttpMethod), typeof(HttpMethodCollection))]
+public abstract partial class HttpMethodCollection : TypeCollectionBase<HttpMethodBase,IHttpMethod>
 {
     // DO NOT IMPLEMENT BY HAND!
     // Source generator automatically creates static HttpMethods class with:

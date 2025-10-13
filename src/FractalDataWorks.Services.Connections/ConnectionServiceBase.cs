@@ -71,9 +71,9 @@ public abstract class ConnectionServiceBase<TCommand, TConfiguration, TService> 
     public abstract Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
 
     /// <inheritdoc/>
-    public virtual async Task<IGenericResult> Execute(TCommand command)
+    public virtual Task<IGenericResult> Execute(TCommand command)
     {
-        return await Execute(command, CancellationToken.None).ConfigureAwait(false);
+        return Execute(command, CancellationToken.None);
     }
 
     #endregion

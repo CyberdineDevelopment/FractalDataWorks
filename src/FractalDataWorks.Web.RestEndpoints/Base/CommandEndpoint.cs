@@ -130,8 +130,8 @@ public abstract class CommandEndpoint<TCommand> : CommandEndpoint<TCommand, obje
     protected override async Task<IGenericResult<object>> ExecuteCommandAsync(TCommand command, CancellationToken ct)
     {
         var result = await ExecuteVoidCommandAsync(command, ct).ConfigureAwait(false);
-        return result.IsSuccess 
+        return result.IsSuccess
             ? GenericResult<object>.Success(new { Success = true })
-            : GenericResult<object>.Failure(result.CurrentMessage);
+            : GenericResult<object>.Failure(result.CurrentMessage ?? "Command execution failed");
     }
 }

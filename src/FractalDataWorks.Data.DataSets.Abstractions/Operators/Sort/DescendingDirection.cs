@@ -1,8 +1,11 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Descending sort direction (largest to smallest, Z to A).
 /// </summary>
+[TypeOption(typeof(SortDirections), "Descending")]
 public sealed class DescendingDirection : SortDirectionBase
 {
     /// <summary>

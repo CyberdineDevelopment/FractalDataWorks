@@ -111,7 +111,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
                     if (propertyLocation == null || propertyLocation.IsInMetadata)
                     {
                         propertyLocation = collectionClass.GetAttributes()
-                            .FirstOrDefault(a => a.AttributeClass?.Name == "ServiceTypeCollectionAttribute")
+                            .FirstOrDefault(a => string.Equals(a.AttributeClass?.Name, "ServiceTypeCollectionAttribute", StringComparison.Ordinal))
                             ?.ApplicationSyntaxReference?.GetSyntax().GetLocation();
                     }
 
@@ -712,7 +712,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
                         if (!string.IsNullOrEmpty(methodName))
                         {
                             // Check if we already have this property (avoid duplicates from inheritance)
-                            if (!lookupProperties.Any(lp => lp.PropertyName == property.Name))
+                            if (!lookupProperties.Any(lp => string.Equals(lp.PropertyName, property.Name, StringComparison.Ordinal)))
                             {
                                 lookupProperties.Add(new PropertyLookupInfoModel
                                 {
@@ -960,14 +960,9 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
         try
         {
             // Determine the effective return type based on collection inheritance (like TypeCollectionGenerator)
-            var effectiveReturnType = DetermineReturnType(collectionClass);
-            if (effectiveReturnType == null)
-            {
-                // Fallback to ReturnType from the definition (set from ServiceTypeCollectionAttribute)
-                // For generic bases, def.ReturnType contains the interface (e.g., IConnectionType)
-                // whereas def.ClassName contains the generic base without type arguments
-                effectiveReturnType = def.ReturnType;
-            }
+            var effectiveReturnType = DetermineReturnType(collectionClass)
+                ?? def.ReturnType
+                ?? def.FullTypeName;
 
             // Determine if the user's declared class is static or abstract
             var isUserClassStatic = collectionClass.IsStatic;

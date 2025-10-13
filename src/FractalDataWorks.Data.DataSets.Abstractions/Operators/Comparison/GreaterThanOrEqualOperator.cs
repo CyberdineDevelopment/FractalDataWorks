@@ -1,8 +1,11 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Greater than or equal comparison operator (>=).
 /// </summary>
+[TypeOption(typeof(ComparisonOperators), "GreaterThanOrEqual")]
 public sealed class GreaterThanOrEqualOperator : ComparisonOperatorBase
 {
     /// <summary>

@@ -62,5 +62,5 @@ public sealed class FactoryRegistration
     /// Can be used to store additional information about the factory's capabilities,
     /// configuration requirements, or other metadata needed by the application.
     /// </remarks>
-    public Dictionary<string, object> Metadata { get; set; } = new(StringComparer.Ordinal);
+    public IDictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>(StringComparer.Ordinal);
 }

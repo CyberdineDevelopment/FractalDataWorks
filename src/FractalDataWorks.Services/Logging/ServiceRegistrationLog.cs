@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
 namespace FractalDataWorks.Services.Logging;
@@ -5,6 +6,8 @@ namespace FractalDataWorks.Services.Logging;
 /// <summary>
 /// Source-generated logging for service registration operations.
 /// </summary>
+/// <ExcludeFromTest>Source-generated logging class with no business logic to test</ExcludeFromTest>
+[ExcludeFromCodeCoverage]
 public static partial class ServiceRegistrationLog
 {
     /// <summary>

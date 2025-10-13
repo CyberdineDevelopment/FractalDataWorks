@@ -13,7 +13,7 @@
     <Threshold>100</Threshold>
     <ThresholdType>line,branch,method</ThresholdType>
     <ThresholdStat>total</ThresholdStat>
-    <ExcludeByAttribute>ExcludeFromCodeCoverage</ExcludeFromCodeCoverage>
+    <ExcludeByAttribute>ExcludeFromCodeCoverage</ExcludeByAttribute>
   </PropertyGroup>
 
   <ItemGroup>

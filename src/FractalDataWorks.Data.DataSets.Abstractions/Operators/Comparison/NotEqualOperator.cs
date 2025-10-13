@@ -1,8 +1,11 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Inequality comparison operator (!=, &lt;&gt;).
 /// </summary>
+[TypeOption(typeof(ComparisonOperators), "NotEqual")]
 public sealed class NotEqualOperator : ComparisonOperatorBase
 {
     /// <summary>

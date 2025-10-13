@@ -1,5 +1,6 @@
 using FractalDataWorks.EnhancedEnums.Attributes;
-using FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpProtocols;
+using FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums;
+
 
 namespace FractalDataWorks.Services.Connections.Rest.EnhancedEnums.Protocols;
 

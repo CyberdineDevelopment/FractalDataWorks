@@ -1,6 +1,6 @@
 using FractalDataWorks.EnhancedEnums;
 
-namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpProtocols;
+namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums;
 
 /// <summary>
 /// Interface defining the contract for HTTP protocol enum options.

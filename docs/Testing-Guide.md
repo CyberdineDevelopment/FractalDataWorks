@@ -41,47 +41,70 @@ Examples:
 
 **.NET 10 Test Project Structure**:
 
+All test projects inherit from `tests/Directory.Build.props` which provides common configuration:
+
 ```xml
-<Project Sdk="Microsoft.NET.Sdk">
+<Project>
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <LangVersion>preview</LangVersion>
+
+    <!-- Code Coverage Settings -->
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
+    <Threshold>100</Threshold>
+    <ThresholdType>line,branch,method</ThresholdType>
+    <ThresholdStat>total</ThresholdStat>
+    <ExcludeByAttribute>ExcludeFromCodeCoverage</ExcludeByAttribute>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- xUnit v3 -->
-    <PackageReference Include="xunit" Version="3.0.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
 
-    <!-- Assertion Libraries -->
-    <PackageReference Include="Shouldly" Version="4.2.1" />
-    <PackageReference Include="FluentAssertions" Version="7.0.0" />
+    <!-- Shouldly for assertions -->
+    <PackageReference Include="Shouldly" />
 
-    <!-- Mocking -->
-    <PackageReference Include="Moq" Version="4.20.70" />
+    <!-- Coverlet for code coverage -->
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="coverlet.msbuild" />
 
-    <!-- Coverage -->
-    <PackageReference Include="coverlet.collector" Version="6.0.2">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <!-- Microsoft Test SDK -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
 
-    <!-- Microsoft Testing -->
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
+    <!-- Moq for mocking -->
+    <PackageReference Include="Moq" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="Shouldly" />
+    <Using Include="Moq" />
+  </ItemGroup>
+</Project>
+```
+
+**Individual Test Project** (only needs to reference the project under test):
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <!-- Project Under Test -->
     <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
   </ItemGroup>
 </Project>
 ```
+
+**Key Features**:
+- Central Package Management (versions managed in `Directory.Packages.props`)
+- Global usings for Xunit, Shouldly, Moq
+- 100% code coverage target
+- Coverlet integration with both collector and msbuild packages
 
 ### Folder Organization
 
@@ -734,13 +757,22 @@ public class GeneratedCollectionIntegrationTests
 
 ### Code Coverage Targets
 
-| Project Type | Minimum Coverage | Target Coverage |
-|--------------|------------------|-----------------|
-| Core Infrastructure | 80% | 90% |
-| Service Abstractions | 70% | 85% |
-| Service Implementations | 75% | 85% |
-| Source Generators | 60% | 75% |
-| MCP Tools | 70% | 80% |
+**Target: 100% Path Coverage**
+
+The FractalDataWorks Developer Kit targets **100% path coverage** (line, branch, and method) for all projects:
+
+- Measured by Coverlet
+- Calculated across line, branch, and method coverage
+- Untestable code must be marked with `[ExcludeFromCodeCoverage]` attribute
+- Configuration enforced via `tests/Directory.Build.props`
+
+**Coverage Thresholds** (from Directory.Build.props):
+```xml
+<Threshold>100</Threshold>
+<ThresholdType>line,branch,method</ThresholdType>
+<ThresholdStat>total</ThresholdStat>
+<ExcludeByAttribute>ExcludeFromCodeCoverage</ExcludeByAttribute>
+```
 
 ### Exclusions from Coverage
 
@@ -906,24 +938,24 @@ public class UserServiceTests
 
 ### Assertion Libraries
 
-Use expressive assertions:
+Use Shouldly for expressive assertions:
 
 ```csharp
-// ✅ Shouldly - Readable and expressive
+// ✅ Shouldly - Readable and expressive (our standard)
 result.IsSuccess.ShouldBeTrue();
 collection.ShouldContain(x => x.Name == "Test");
 user.Email.ShouldBe("test@example.com");
-
-// ✅ FluentAssertions - Also good
-result.IsSuccess.Should().BeTrue();
-collection.Should().Contain(x => x.Name == "Test");
-user.Email.Should().Be("test@example.com");
 
 // ❌ Basic Assert - Less readable error messages
 Assert.True(result.IsSuccess);
 Assert.Contains(collection, x => x.Name == "Test");
 Assert.Equal("test@example.com", user.Email);
 ```
+
+**Why Shouldly?**
+- Natural language syntax
+- Excellent error messages showing expected vs actual values
+- Globally imported via `Directory.Build.props`
 
 ### Mocking Strategy
 
@@ -979,10 +1011,12 @@ dotnet test --filter "Category=Performance"
 The FractalDataWorks Developer Kit testing strategy emphasizes:
 
 1. **xUnit v3**: Modern test framework with async support
-2. **High Coverage**: 70-90% code coverage across projects
-3. **Clear Structure**: Arrange-Act-Assert pattern
-4. **Independence**: No shared state between tests
-5. **Generator Testing**: Special approaches for source generators
-6. **Fast Execution**: Unit tests <100ms, integration tests <1s
+2. **100% Coverage**: Path coverage (line, branch, method) enforced via Coverlet
+3. **Shouldly Assertions**: Expressive, readable test assertions
+4. **Clear Structure**: Arrange-Act-Assert pattern
+5. **Independence**: No shared state between tests
+6. **Generator Testing**: Special approaches for source generators
+7. **Fast Execution**: Unit tests <100ms, integration tests <1s
+8. **Central Configuration**: All test projects inherit from `tests/Directory.Build.props`
 
 Follow these guidelines to maintain high-quality, maintainable test suites that provide confidence in the framework's reliability.

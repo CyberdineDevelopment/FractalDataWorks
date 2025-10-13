@@ -35,134 +35,134 @@ public sealed class EntraAuthenticationService :
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult<IAuthenticationContext>> Authenticate(string token, CancellationToken cancellationToken = default)
+    public Task<IGenericResult<IAuthenticationContext>> Authenticate(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            return GenericResult<IAuthenticationContext>.Failure(
-                new InvalidTokenMessage("Token cannot be null or empty"));
+            return Task.FromResult<IGenericResult<IAuthenticationContext>>(GenericResult<IAuthenticationContext>.Failure(
+                new InvalidTokenMessage("Token cannot be null or empty")));
         }
 
         try
         {
-            // TODO: Implement actual Azure Entra authentication logic here
+            // FUTURE: Implement actual Azure Entra authentication logic here
             // This would use Microsoft.Identity.Client (MSAL) library
-            
+
             // For now, return a placeholder failure
-            return GenericResult<IAuthenticationContext>.Failure(
-                "Azure Entra authentication not yet implemented");
+            return Task.FromResult<IGenericResult<IAuthenticationContext>>(GenericResult<IAuthenticationContext>.Failure(
+                "Azure Entra authentication not yet implemented"));
         }
         catch (Exception ex)
         {
             Logging.EntraAuthenticationServiceLog.AuthenticationFailed(Logger, ex);
-            return GenericResult<IAuthenticationContext>.Failure(
-                ex.Message);
+            return Task.FromResult<IGenericResult<IAuthenticationContext>>(GenericResult<IAuthenticationContext>.Failure(
+                ex.Message));
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult<bool>> ValidateToken(string token, CancellationToken cancellationToken = default)
+    public Task<IGenericResult<bool>> ValidateToken(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            return GenericResult<bool>.Failure(
-                AuthenticationMessages.TokenNullOrEmpty());
+            return Task.FromResult<IGenericResult<bool>>(GenericResult<bool>.Failure(
+                AuthenticationMessages.TokenNullOrEmpty()));
         }
 
         try
         {
-            // TODO: Implement actual token validation logic
+            // FUTURE: Implement actual token validation logic
             // This would validate the JWT signature, expiration, issuer, audience, etc.
-            
+
             // For now, return a placeholder
-            return GenericResult<bool>.Success(false);
+            return Task.FromResult<IGenericResult<bool>>(GenericResult<bool>.Success(false));
         }
         catch (Exception ex)
         {
             Logging.EntraAuthenticationServiceLog.TokenValidationFailed(Logger, ex);
-            return GenericResult<bool>.Failure(
-                ex.Message);
+            return Task.FromResult<IGenericResult<bool>>(GenericResult<bool>.Failure(
+                ex.Message));
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult<string>> RefreshToken(string refreshToken, CancellationToken cancellationToken = default)
+    public Task<IGenericResult<string>> RefreshToken(string refreshToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
         {
-            return GenericResult<string>.Failure(
-                AuthenticationMessages.RefreshTokenInvalid());
+            return Task.FromResult<IGenericResult<string>>(GenericResult<string>.Failure(
+                AuthenticationMessages.RefreshTokenInvalid()));
         }
 
         try
         {
-            // TODO: Implement actual token refresh logic using MSAL
-            
+            // FUTURE: Implement actual token refresh logic using MSAL
+
             // For now, return a placeholder failure
-            return GenericResult<string>.Failure(
-                "Refresh token is invalid");
+            return Task.FromResult<IGenericResult<string>>(GenericResult<string>.Failure(
+                "Refresh token is invalid"));
         }
         catch (Exception ex)
         {
             Logging.EntraAuthenticationServiceLog.TokenRefreshFailed(Logger, ex);
-            return GenericResult<string>.Failure(
-                "Refresh token is invalid");
+            return Task.FromResult<IGenericResult<string>>(GenericResult<string>.Failure(
+                "Refresh token is invalid"));
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult> RevokeToken(string token, CancellationToken cancellationToken = default)
+    public Task<IGenericResult> RevokeToken(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            return GenericResult.Failure(
-                AuthenticationMessages.TokenNullOrEmpty());
+            return Task.FromResult<IGenericResult>(GenericResult.Failure(
+                AuthenticationMessages.TokenNullOrEmpty()));
         }
 
         try
         {
-            // TODO: Implement token revocation
+            // FUTURE: Implement token revocation
             // Note: Azure AD doesn't directly support token revocation for access tokens
             // but we can implement local blacklisting or session management
-            
+
             Logging.EntraAuthenticationServiceLog.TokenRevocationRequested(Logger);
-            return GenericResult.Success();
+            return Task.FromResult<IGenericResult>(GenericResult.Success());
         }
         catch (Exception ex)
         {
             Logging.EntraAuthenticationServiceLog.TokenRevocationFailed(Logger, ex);
-            return GenericResult.Failure(
-                AuthenticationMessages.TokenRevocationFailed(ex.Message));
+            return Task.FromResult<IGenericResult>(GenericResult.Failure(
+                AuthenticationMessages.TokenRevocationFailed(ex.Message)));
         }
     }
 
     /// <inheritdoc/>
-    public override async Task<IGenericResult> Execute(IAuthenticationCommand command)
+    public override Task<IGenericResult> Execute(IAuthenticationCommand command)
     {
         // Authentication service doesn't use command pattern
         // Direct method calls are preferred
-        return GenericResult.Failure(AuthenticationMessages.CommandExecutionNotSupported());
+        return Task.FromResult<IGenericResult>(GenericResult.Failure(AuthenticationMessages.CommandExecutionNotSupported()));
     }
 
     /// <inheritdoc/>
-    public override async Task<IGenericResult<T>> Execute<T>(IAuthenticationCommand command)
+    public override Task<IGenericResult<T>> Execute<T>(IAuthenticationCommand command)
     {
         // Authentication service doesn't use command pattern
         // Direct method calls are preferred
-        return GenericResult<T>.Failure(AuthenticationMessages.CommandExecutionNotSupported());
+        return Task.FromResult<IGenericResult<T>>(GenericResult<T>.Failure(AuthenticationMessages.CommandExecutionNotSupported()));
     }
 
     /// <inheritdoc/>
-    public override async Task<IGenericResult<TOut>> Execute<TOut>(IAuthenticationCommand command, CancellationToken cancellationToken)
+    public override Task<IGenericResult<TOut>> Execute<TOut>(IAuthenticationCommand command, CancellationToken cancellationToken)
     {
         // Authentication doesn't use command pattern
-        return GenericResult<TOut>.Failure(AuthenticationMessages.CommandExecutionNotSupported());
+        return Task.FromResult<IGenericResult<TOut>>(GenericResult<TOut>.Failure(AuthenticationMessages.CommandExecutionNotSupported()));
     }
 
     /// <inheritdoc/>
-    public override async Task<IGenericResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken)
+    public override Task<IGenericResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken)
     {
         // Authentication doesn't use command pattern
-        return GenericResult.Failure(AuthenticationMessages.CommandExecutionNotSupported());
+        return Task.FromResult<IGenericResult>(GenericResult.Failure(AuthenticationMessages.CommandExecutionNotSupported()));
     }
 }

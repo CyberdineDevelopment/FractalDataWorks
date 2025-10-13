@@ -16,7 +16,7 @@ public class ConnectionRegistrationOptions
     /// <summary>
     /// Custom configurations for specific connection types.
     /// </summary>
-    public Dictionary<string, Action<IServiceCollection, IConnectionType>> CustomConfigurations { get; } = new();
+    public IDictionary<string, Action<IServiceCollection, IConnectionType>> CustomConfigurations { get; } = new Dictionary<string, Action<IServiceCollection, IConnectionType>>(StringComparer.Ordinal);
 
     /// <summary>
     /// Configure a specific connection type.

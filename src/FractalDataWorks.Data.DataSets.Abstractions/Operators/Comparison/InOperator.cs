@@ -1,8 +1,11 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// In comparison operator (IN (value1, value2, ...)).
 /// </summary>
+[TypeOption(typeof(ComparisonOperators), "In")]
 public sealed class InOperator : ComparisonOperatorBase
 {
     /// <summary>

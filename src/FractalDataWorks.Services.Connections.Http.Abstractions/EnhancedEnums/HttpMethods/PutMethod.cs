@@ -5,7 +5,7 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.
 /// <summary>
 /// HTTP PUT method - uploads or replaces a resource on the server.
 /// </summary>
-[TypeOption(typeof(HttpMethods), "Put")]
+[TypeOption(typeof(HttpMethodCollection), "Put")]
 public sealed class PutMethod : HttpMethodBase
 {
     /// <summary>

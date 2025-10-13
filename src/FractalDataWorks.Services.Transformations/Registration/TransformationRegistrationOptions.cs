@@ -13,10 +13,12 @@ namespace FractalDataWorks.Services.Transformations;
 /// </summary>
 public class TransformationRegistrationOptions
 {
+    private readonly Dictionary<string, Action<IServiceCollection, ITransformationType>> _customConfigurations = new(StringComparer.Ordinal);
+
     /// <summary>
     /// Custom configurations for specific transformation types.
     /// </summary>
-    public Dictionary<string, Action<IServiceCollection, ITransformationType>> CustomConfigurations { get; } = new();
+    public IDictionary<string, Action<IServiceCollection, ITransformationType>> CustomConfigurations => _customConfigurations;
 
     /// <summary>
     /// Configure a specific transformation type.

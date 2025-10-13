@@ -60,7 +60,7 @@ public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TS
         ServiceFactoryLog.ConfigurationValidationFailed(_logger, serviceTypeName, "Configuration accepted");
 
         // Try FastGenericNew first for performance - must pass logger as first parameter
-        var serviceLogger = NullLogger<TService>.Instance; // TODO: Get proper logger for service
+        var serviceLogger = NullLogger<TService>.Instance; // FUTURE: Get proper logger for service
         if (FastNew.TryCreateInstance<TService, ILogger<TService>, TConfiguration>(serviceLogger, configuration, out var service))
         {
             ServiceFactoryLog.ServiceCreatedWithFastNew(_logger, serviceTypeName);
@@ -72,7 +72,7 @@ public class GenericServiceFactory<TService, TConfiguration> : ServiceFactory<TS
         try
         {
             // Try with logger and configuration
-            var fallbackServiceLogger = NullLogger<TService>.Instance; // TODO: Get proper logger for service
+            var fallbackServiceLogger = NullLogger<TService>.Instance; // FUTURE: Get proper logger for service
             var constructorParams = new object[] { fallbackServiceLogger, configuration };
             if (Activator.CreateInstance(typeof(TService), constructorParams) is TService activatorServiceWithLogger)
             {

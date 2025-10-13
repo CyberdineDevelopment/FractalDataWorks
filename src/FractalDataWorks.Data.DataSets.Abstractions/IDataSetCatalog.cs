@@ -3,10 +3,10 @@ using System.Collections.Generic;
 namespace FractalDataWorks.Data.DataSets.Abstractions;
 
 /// <summary>
-/// Represents a collection of datasets that provides type-safe lookup and enumeration capabilities.
-/// This interface enables strongly-typed dataset collections with various lookup methods.
+/// Represents a catalog of datasets that provides type-safe lookup and enumeration capabilities.
+/// This interface enables strongly-typed dataset catalogs with various lookup methods.
 /// </summary>
-public interface IDataSetCollection
+public interface IDataSetCatalog
 {
     /// <summary>
     /// Gets all datasets in this collection.

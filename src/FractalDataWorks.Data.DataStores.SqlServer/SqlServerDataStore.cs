@@ -16,7 +16,7 @@ namespace FractalDataWorks.Data.DataStores.SqlServer;
 public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
 {
     private SqlServerConfiguration _configuration;
-    private readonly Dictionary<string, object> _metadata = new();
+    private readonly Dictionary<string, object> _metadata = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlServerDataStore"/> class.
@@ -52,7 +52,7 @@ public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
     public IReadOnlyDictionary<string, object> Metadata => _metadata;
 
     /// <inheritdoc/>
-    public IEnumerable<IDataPath> AvailablePaths => throw new NotImplementedException("Path discovery not yet implemented");
+    public IEnumerable<IDataPath> AvailablePaths => throw new NotSupportedException("Path discovery not yet implemented");
 
     /// <inheritdoc/>
     public async Task<IGenericResult> TestConnectionAsync()
@@ -60,7 +60,7 @@ public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
         try
         {
             using var connection = new SqlConnection(_configuration.ConnectionString);
-            await connection.OpenAsync();
+            await connection.OpenAsync().ConfigureAwait(false);
             return GenericResult.Success();
         }
         catch (SqlException ex)
@@ -79,7 +79,7 @@ public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
         try
         {
             using var connection = new SqlConnection(_configuration.ConnectionString);
-            await connection.OpenAsync();
+            await connection.OpenAsync().ConfigureAwait(false);
 
             // Query for tables and views
             var query = @"
@@ -90,10 +90,10 @@ public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
                 ORDER BY TABLE_SCHEMA, TABLE_NAME";
 
             using var command = new SqlCommand(query, connection);
-            using var reader = await command.ExecuteReaderAsync();
+            using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
 
             var paths = new List<IDataPath>();
-            while (await reader.ReadAsync())
+            while (await reader.ReadAsync().ConfigureAwait(false))
             {
                 var fullName = reader.GetString(0);
                 var type = reader.GetString(1);
@@ -114,7 +114,7 @@ public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
     /// <inheritdoc/>
     public IDataPath? GetPath(string pathName)
     {
-        throw new NotImplementedException("GetPath not yet implemented");
+        throw new NotSupportedException("GetPath not yet implemented");
     }
 
     /// <inheritdoc/>
@@ -131,12 +131,12 @@ public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult> UpdateConfigurationAsync(SqlServerConfiguration configuration)
+    public Task<IGenericResult> UpdateConfigurationAsync(SqlServerConfiguration configuration)
     {
         _configuration = configuration;
         Location = configuration.ConnectionString;
 
         // Test the new configuration
-        return await TestConnectionAsync();
+        return TestConnectionAsync();
     }
 }

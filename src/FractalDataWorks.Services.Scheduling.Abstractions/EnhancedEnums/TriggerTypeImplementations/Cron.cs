@@ -1,7 +1,7 @@
 using System;
 using Cronos;
 using FractalDataWorks.EnhancedEnums;
-using FractalDataWorks.EnhancedEnums.Attributes;
+using FractalDataWorks.Collections.Attributes;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Scheduling.Abstractions.Messages;
 
@@ -40,7 +40,7 @@ namespace FractalDataWorks.Services.Scheduling.Abstractions.EnhancedEnums.Trigge
 /// var nextExecution = cronTrigger.CalculateNextExecution(trigger, DateTime.UtcNow);
 /// </code>
 /// </example>
-[EnumOption(typeof(TriggerTypes), "Cron")]
+[TypeOption(typeof(TriggerTypes), "Cron")]
 public sealed class Cron : TriggerTypeBase
 {
     /// <summary>

@@ -70,7 +70,7 @@ public abstract class RecEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRes
             // Handle IGenericResult conversion to FastEndpoints responses
             if (result is IGenericResult<TResponse> recResult)
             {
-                if (recResult.IsSuccess)
+                if (recResult.IsSuccess && recResult.Value != null)
                     Response = recResult.Value; // FastEndpoints sends 200 OK
                 else
                     HttpContext.Response.StatusCode = 400;

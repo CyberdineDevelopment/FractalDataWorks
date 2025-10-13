@@ -28,5 +28,5 @@ public sealed class SqlServerConfiguration
     /// <summary>
     /// Gets or sets whether to use Azure AD authentication.
     /// </summary>
-    public bool UseAzureAuthentication { get; set; } = false;
+    public bool UseAzureAuthentication { get; set; }
 }

@@ -84,10 +84,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     /// <param name="command">The command to execute.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>A task containing the execution result.</returns>
-    public virtual Task<IGenericResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken)
-    {
-        return Execute<TOut>(command);
-    }
+    public abstract Task<IGenericResult<TOut>> Execute<TOut>(TCommand command, CancellationToken cancellationToken);
 
     /// <summary>
     /// Executes a command with cancellation support.
@@ -95,10 +92,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     /// <param name="command">The command to execute.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>A task containing the execution result.</returns>
-    public virtual Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken)
-    {
-        return Execute(command);
-    }
+    public abstract Task<IGenericResult> Execute(TCommand command, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets the logger for derived classes to use.

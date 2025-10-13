@@ -1,9 +1,12 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Logical AND operator.
 /// Combines conditions where both must be true.
 /// </summary>
+[TypeOption(typeof(LogicalOperators), "And")]
 public sealed class AndOperator : LogicalOperatorBase
 {
     /// <summary>

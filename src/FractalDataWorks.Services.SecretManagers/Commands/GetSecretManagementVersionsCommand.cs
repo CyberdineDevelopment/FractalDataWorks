@@ -50,8 +50,8 @@ public sealed class GetSecretManagerVersionsCommand : SecretManagerCommandBase, 
         int? maxResults = null,
         TimeSpan? timeout = null)
     {
-        var parameters = new Dictionary<string, object?>();
-        
+        var parameters = new Dictionary<string, object?>(StringComparer.Ordinal);
+
         if (includeDisabled)
             parameters["IncludeDisabled"] = true;
             
@@ -68,7 +68,7 @@ public sealed class GetSecretManagerVersionsCommand : SecretManagerCommandBase, 
     /// <returns>A new GetSecretManagerVersionsCommand instance with updated parameters.</returns>
     public new GetSecretManagerVersionsCommand WithParameters(IReadOnlyDictionary<string, object?> parameters)
     {
-        var newParameters = new Dictionary<string, object?>(Parameters);
+        var newParameters = new Dictionary<string, object?>(Parameters, StringComparer.Ordinal);
         foreach (var kvp in parameters)
         {
             newParameters[kvp.Key] = kvp.Value;
@@ -84,7 +84,7 @@ public sealed class GetSecretManagerVersionsCommand : SecretManagerCommandBase, 
     /// <returns>A new GetSecretManagerVersionsCommand instance with updated metadata.</returns>
     public new GetSecretManagerVersionsCommand WithMetadata(IReadOnlyDictionary<string, object> metadata)
     {
-        var newMetadata = new Dictionary<string, object>(Metadata);
+        var newMetadata = new Dictionary<string, object>(Metadata, StringComparer.Ordinal);
         foreach (var kvp in metadata)
         {
             newMetadata[kvp.Key] = kvp.Value;

@@ -54,7 +54,7 @@ public abstract class DataCommandBase : IDataCommand
     /// Gets metadata dictionary for additional command properties.
     /// Used to pass translator-specific options like paging, conflict handling, etc.
     /// </summary>
-    public Dictionary<string, object> Metadata { get; }
+    public IDictionary<string, object> Metadata { get; }
 
     /// <summary>
     /// Gets or sets the optional timeout for this command.

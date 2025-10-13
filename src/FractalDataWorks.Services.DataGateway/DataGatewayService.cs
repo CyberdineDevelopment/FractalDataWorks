@@ -37,7 +37,7 @@ public sealed class DataGatewayService : IDataGateway
             command.CommandType, command.ConnectionName);
 
         // Get connection by name
-        var connectionResult = await _connectionProvider.GetConnection(command.ConnectionName);
+        var connectionResult = await _connectionProvider.GetConnection(command.ConnectionName).ConfigureAwait(false);
         if (!connectionResult.IsSuccess)
         {
             _logger.LogError("Failed to get connection {ConnectionName}", command.ConnectionName);
@@ -48,7 +48,7 @@ public sealed class DataGatewayService : IDataGateway
 
         // Execute command on the connection
         // Note: Connection service will handle translation (LINQ -> SQL, etc.)
-        // TODO: Connection service needs to accept IDataCommand and translate the LINQ expression
-        throw new NotImplementedException("Connection execution not yet implemented");
+        // FUTURE: Connection service needs to accept IDataCommand and translate the LINQ expression
+        var response = connection.Execute<T>(command,CancellationToken.None);
     }
 }

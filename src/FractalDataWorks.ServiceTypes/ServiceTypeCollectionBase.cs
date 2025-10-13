@@ -23,12 +23,6 @@ public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConf
     where TFactory : class , IServiceFactory<TService, TConfiguration>
 {
     /// <summary>
-    /// Gets all service types in this collection.
-    /// This property will be populated by the source generator.
-    /// </summary>
-    public virtual IReadOnlyList<TBase> All => new List<TBase>();
-
-    /// <summary>
     /// Gets an empty/default service type instance for fallback scenarios.
     /// This property will be populated by the source generator.
     /// </summary>

@@ -41,7 +41,7 @@
     <!-- CA1510: Use ArgumentNullException.ThrowIfNull (new .NET feature) -->
     <!-- CA1834: Use StringBuilder.Append(char) (performance) -->
     <!-- MA0051: Method too long (style preference) -->
-    <NoWarn>$(NoWarn);VSTHRD200;CA1716;CA1000;CA1848;CA1510;CA1834;MA0051</NoWarn>
+    <NoWarn>$(NoWarn);VSTHRD200;CA1716;CA1000;CA1848;CA1510;CA1834;MA0051;MA0048;CA1711</NoWarn>
     
     <!-- Nerdbank.GitVersioning -->
     <GitVersioningVersion>3.7.115</GitVersioningVersion>

@@ -5,7 +5,7 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.
 /// <summary>
 /// HTTP POST method - submits data to be processed by the server.
 /// </summary>
-[TypeOption(typeof(HttpMethods), "Post")]
+[TypeOption(typeof(HttpMethodCollection), "Post")]
 public sealed class PostMethod : HttpMethodBase
 {
     /// <summary>

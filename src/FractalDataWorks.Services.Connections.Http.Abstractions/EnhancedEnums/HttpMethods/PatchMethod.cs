@@ -5,7 +5,7 @@ namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.
 /// <summary>
 /// HTTP PATCH method - applies partial modifications to a resource.
 /// </summary>
-[TypeOption(typeof(HttpMethods), "Patch")]
+[TypeOption(typeof(HttpMethodCollection), "Patch")]
 public sealed class PatchMethod : HttpMethodBase
 {
     /// <summary>

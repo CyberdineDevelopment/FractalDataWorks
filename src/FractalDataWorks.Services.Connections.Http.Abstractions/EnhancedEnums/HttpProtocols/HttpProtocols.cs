@@ -1,7 +1,7 @@
 using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
 
-namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums.HttpProtocols;
+namespace FractalDataWorks.Services.Connections.Http.Abstractions.EnhancedEnums;
 
 /// <summary>
 /// Collection of HTTP protocols for enhanced enum functionality.

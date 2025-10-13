@@ -12,10 +12,12 @@ namespace FractalDataWorks.Services.SecretManager;
 /// </summary>
 public class SecretManagerRegistrationOptions
 {
+    private readonly Dictionary<string, Action<IServiceCollection, ISecretManagerType>> _customConfigurations = new(StringComparer.Ordinal);
+
     /// <summary>
     /// Custom configurations for specific secret management types.
     /// </summary>
-    public Dictionary<string, Action<IServiceCollection, ISecretManagerType>> CustomConfigurations { get; } = new();
+    public IDictionary<string, Action<IServiceCollection, ISecretManagerType>> CustomConfigurations => _customConfigurations;
 
     /// <summary>
     /// Configure a specific secret management type.

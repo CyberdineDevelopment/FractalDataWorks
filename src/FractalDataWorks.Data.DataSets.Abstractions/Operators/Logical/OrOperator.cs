@@ -1,9 +1,12 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Logical OR operator.
 /// Combines conditions where either can be true.
 /// </summary>
+[TypeOption(typeof(LogicalOperators), "Or")]
 public sealed class OrOperator : LogicalOperatorBase
 {
     /// <summary>

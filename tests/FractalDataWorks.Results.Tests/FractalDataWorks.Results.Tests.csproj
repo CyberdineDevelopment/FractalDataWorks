@@ -31,4 +31,15 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Only include FractalDataWorks.Results in coverage -->
+    <Include>[FractalDataWorks.Results]*</Include>
+    <!-- Exclude everything else -->
+    <Exclude>[FractalDataWorks.*.Abstractions]*,[FractalDataWorks.Messages]*,[FractalDataWorks.EnhancedEnums]*,[FractalDataWorks.Abstractions]*</Exclude>
+  </PropertyGroup>
+
 </Project>

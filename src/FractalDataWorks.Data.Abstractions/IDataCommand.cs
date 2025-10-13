@@ -33,7 +33,7 @@ public interface IDataCommand
     /// Gets metadata dictionary for additional command properties.
     /// Used to pass translator-specific options like paging, conflict handling, etc.
     /// </summary>
-    Dictionary<string, object> Metadata { get; }
+    IDictionary<string, object> Metadata { get; }
 
     /// <summary>
     /// Gets the optional timeout for this command.

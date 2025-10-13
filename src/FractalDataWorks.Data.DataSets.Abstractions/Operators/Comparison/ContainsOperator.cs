@@ -1,8 +1,11 @@
+using FractalDataWorks.Collections.Attributes;
+
 namespace FractalDataWorks.Data.DataSets.Abstractions.Operators;
 
 /// <summary>
 /// Contains comparison operator (LIKE %value%).
 /// </summary>
+[TypeOption(typeof(ComparisonOperators), "Contains")]
 public sealed class ContainsOperator : ComparisonOperatorBase
 {
     /// <summary>

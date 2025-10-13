@@ -695,7 +695,65 @@ public class LowPriority : PriorityBase { }
 public class HighPriority : PriorityBase { }
 ```
 
-### Pattern 3: Command Execution Flow
+### Pattern 3: Two-Tier Command Architecture
+
+**Separation of service-level and data-level commands**:
+
+The framework uses a two-tier command architecture to separate connection management from data operations:
+
+#### Service Commands (IConnectionCommand)
+Service-level commands manage connection lifecycle and infrastructure:
+
+```csharp
+public interface IConnectionCommand : IGenericCommand
+{
+    string CommandId { get; }
+    DateTime CreatedAt { get; }
+    string CommandType { get; }
+}
+```
+
+**Purpose**: Connection creation, testing, discovery, lifecycle management
+**Scope**: Service infrastructure layer
+**Examples**: `CreateConnectionCommand`, `TestConnectionCommand`, `DiscoveryCommand`
+
+#### Data Commands (IDataCommand)
+Data-level commands execute operations through established connections:
+
+```csharp
+public interface IDataCommand
+{
+    string ConnectionName { get; }
+    Expression? Query { get; }
+    string CommandType { get; }
+    object? TargetContainer { get; }
+    Dictionary<string, object> Metadata { get; }
+    TimeSpan? Timeout { get; }
+}
+```
+
+**Purpose**: Query operations, CRUD operations, bulk operations
+**Scope**: Data layer through established connections
+**Examples**: `DataQueryCommand`, `DataInsertCommand`, `DataUpdateCommand`
+
+#### Command Translation Flow
+
+```mermaid
+graph TB
+    Client[Client Code] --> ServiceCmd[IConnectionCommand]
+    ServiceCmd --> ConnService[Connection Service]
+    ConnService --> DataCmd[IDataCommand]
+    DataCmd --> Translator[Command Translator]
+    Translator --> SQL[SQL/HTTP/etc]
+
+    style ServiceCmd fill:#e1f5fe
+    style DataCmd fill:#f3e5f5
+    style SQL fill:#fff3e0
+```
+
+**Key Principle**: Service commands manage the *connection infrastructure*, while data commands operate *through* the connections. Never confuse the two hierarchies - they serve different architectural layers.
+
+### Pattern 4: Command Execution Flow
 
 **End-to-end command execution with results and messages**:
 
@@ -733,7 +791,7 @@ sequenceDiagram
     end
 ```
 
-### Pattern 4: Source Generator Chain
+### Pattern 5: Source Generator Chain
 
 **How multiple source generators work together**:
 
@@ -775,7 +833,7 @@ graph LR
     CSG -->|generates| GC4
 ```
 
-### Pattern 5: Configuration Hierarchy
+### Pattern 6: Configuration Hierarchy
 
 **Configuration flows from appsettings.json through the service stack**:
 
