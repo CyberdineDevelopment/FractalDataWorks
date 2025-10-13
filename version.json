@@ -2,6 +2,9 @@
   "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
   "version": "0.4-alpha.{height}",
   "versionHeightOffset": 1000,
+  "nuGetPackageVersion": {
+    "semVer": 2
+  },
   "publicReleaseRefSpec": [
     "^refs/heads/master$",
     "^refs/heads/develop$",
