@@ -31,4 +31,21 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FractalDataWorks.Results.Abstractions\FractalDataWorks.Results.Abstractions.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Only include FractalDataWorks.Results.Abstractions in coverage -->
+    <Include>[FractalDataWorks.Results.Abstractions]*</Include>
+    <!-- Exclude everything else -->
+    <Exclude>[xunit.*]*,[Moq]*,[Shouldly]*</Exclude>
+  </PropertyGroup>
+
 </Project>

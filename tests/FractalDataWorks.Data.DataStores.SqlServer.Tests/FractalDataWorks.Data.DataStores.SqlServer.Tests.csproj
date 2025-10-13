@@ -31,4 +31,21 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FractalDataWorks.Data.DataStores.SqlServer\FractalDataWorks.Data.DataStores.SqlServer.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Only include FractalDataWorks.Data.DataStores.SqlServer in coverage -->
+    <Include>[FractalDataWorks.Data.DataStores.SqlServer]*</Include>
+    <!-- Exclude everything else -->
+    <Exclude>[FractalDataWorks.*.Abstractions]*,[xunit.*]*,[Moq]*,[Shouldly]*</Exclude>
+  </PropertyGroup>
+
 </Project>
