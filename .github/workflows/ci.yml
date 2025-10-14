@@ -183,21 +183,17 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-            
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: csharp
-          
+
+      # CodeQL removed - requires GitHub Advanced Security ($4/user/month for private repos)
+      # CodeQL is free for public repos and will be enabled in the public mirror
+      # This repo uses: SecurityCodeScan.VS2019 (build-time), Dependabot (dependencies), and Snyk (manual scans)
+
       - name: Restore packages
         run: dotnet restore
-        
-      - name: Build for CodeQL
+
+      - name: Build for security analysis
         run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
-        
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        
+
       - name: Security audit
         run: dotnet list package --vulnerable --include-transitive
         

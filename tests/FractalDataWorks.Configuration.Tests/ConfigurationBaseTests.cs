@@ -98,9 +98,9 @@ public class ConfigurationBaseTests
 
         // Assert
         result.IsSuccess.ShouldBeTrue(); // Result operation succeeds
-        result.Value.IsValid.ShouldBeFalse(); // But validation fails
-        result.Value.Errors.Count.ShouldBe(1);
-        result.Value.Errors[0].ErrorMessage.ShouldBe("RequiredProperty cannot be empty");
+        result.Value!.IsValid.ShouldBeFalse(); // But validation fails
+        result.Value!.Errors.Count.ShouldBe(1);
+        result.Value!.Errors[0].ErrorMessage.ShouldBe("RequiredProperty cannot be empty");
     }
 
     [Fact]

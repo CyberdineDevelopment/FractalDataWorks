@@ -1,0 +1,71 @@
+name: Snyk Security Scan
+
+on:
+  # Manual trigger only - preserves 200 tests/month limit (66 projects = 66 tests per run)
+  workflow_dispatch:
+    inputs:
+      severity:
+        description: 'Minimum severity threshold (low, medium, high, critical)'
+        required: false
+        default: 'medium'
+
+jobs:
+  snyk-scan:
+    name: Snyk Security Check
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/dotnet@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --all-projects --severity-threshold=${{ github.event.inputs.severity || 'medium' }} --sarif-file-output=snyk.sarif
+
+      - name: Upload Snyk results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+
+      - name: Check for high/critical vulnerabilities
+        uses: snyk/actions/dotnet@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --all-projects --severity-threshold=high
+
+      - name: Summary
+        if: always()
+        shell: pwsh
+        run: |
+          $summary = @"
+          ### Snyk Security Scan Complete 🔒
+
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ``${{ github.sha }}``
+          **Trigger:** ${{ github.event_name }}
+
+          Check the [Security tab](https://github.com/${{ github.repository }}/security/code-scanning) for detailed results.
+          "@
+
+          $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding UTF8

@@ -1,4 +1,4 @@
-name: Sync Public Mirror
+name: Sync Public Mirror (History Preserving)
 
 on:
   push:
@@ -12,9 +12,12 @@ on:
         required: false
         default: 'false'
 
+env:
+  SYNC_STATE_FILE: '.sync-state.json'
+
 jobs:
   sync:
-    name: Sync to Public Repository
+    name: Sync to Public Repository with History
     runs-on: windows-latest
 
     steps:
@@ -24,7 +27,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-      - name: Discover public projects
+      - name: Discover public projects and tests
         id: discover
         shell: pwsh
         run: |
@@ -35,6 +38,7 @@ jobs:
             Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
 
           $publicProjects = @()
+          $testProjects = @()
 
           foreach ($projectFile in $projectFiles) {
             [xml]$csproj = Get-Content $projectFile.FullName
@@ -42,17 +46,31 @@ jobs:
 
             if ($isPublic) {
               $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $projectFile.DirectoryName)
+              $projectName = $projectFile.BaseName
               $publicProjects += $relativePath
+
+              # Look for corresponding test project
+              $testProjectPath = "tests\$projectName.Tests"
+              if (Test-Path $testProjectPath) {
+                $testProjects += $testProjectPath
+                Write-Host "  ✓ $projectName (with tests)" -ForegroundColor Green
+              } else {
+                Write-Host "  ✓ $projectName" -ForegroundColor Green
+              }
             }
           }
 
-          Write-Host "Found $($publicProjects.Count) public projects:"
-          $publicProjects | ForEach-Object { Write-Host "  - $_" }
+          Write-Host ""
+          Write-Host "Found $($publicProjects.Count) public projects"
+          Write-Host "Found $($testProjects.Count) test projects"
 
-          # Save to file for sync step
+          # Save to files for later steps
           $publicProjects | Out-File -FilePath "$env:TEMP\public-projects.txt" -Encoding UTF8
+          $testProjects | Out-File -FilePath "$env:TEMP\test-projects.txt" -Encoding UTF8
 
-          Write-Output "project_count=$($publicProjects.Count)" >> $env:GITHUB_OUTPUT
+          # Output for summary
+          echo "project_count=$($publicProjects.Count)" >> $env:GITHUB_OUTPUT
+          echo "test_count=$($testProjects.Count)" >> $env:GITHUB_OUTPUT
 
       - name: Checkout public repository
         uses: actions/checkout@v4
@@ -69,10 +87,54 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "${{ github.event.head_commit.author.name }}"
+          git config --global user.email "${{ github.event.head_commit.author.email }}"
 
-      - name: Sync public projects
+      - name: Get commits since last sync
+        id: commits
+        shell: pwsh
+        run: |
+          $privateRepo = $PWD
+          $publicRepo = Join-Path $PWD "public-repo"
+
+          cd $publicRepo
+
+          # Check if sync state file exists
+          $syncStateFile = ".sync-state.json"
+          $lastSyncSha = $null
+
+          if (Test-Path $syncStateFile) {
+            $syncState = Get-Content $syncStateFile | ConvertFrom-Json
+            $lastSyncSha = $syncState.lastSyncedCommit
+            Write-Host "Last synced commit: $lastSyncSha" -ForegroundColor Cyan
+          } else {
+            Write-Host "No previous sync state found - this is initial sync" -ForegroundColor Yellow
+          }
+
+          cd $privateRepo
+
+          # Get commits since last sync
+          if ($lastSyncSha) {
+            $commits = git log --format="%H|%an|%ae|%at|%s" "$lastSyncSha..HEAD"
+          } else {
+            # Initial sync - only get current commit
+            $commits = git log --format="%H|%an|%ae|%at|%s" -1
+          }
+
+          if ($commits) {
+            $commits | Out-File -FilePath "$env:TEMP\commits-to-sync.txt" -Encoding UTF8
+            $commitCount = ($commits | Measure-Object).Count
+            Write-Host "Found $commitCount commits to sync" -ForegroundColor Green
+            echo "commit_count=$commitCount" >> $env:GITHUB_OUTPUT
+            echo "has_commits=true" >> $env:GITHUB_OUTPUT
+          } else {
+            Write-Host "No new commits to sync" -ForegroundColor Yellow
+            echo "commit_count=0" >> $env:GITHUB_OUTPUT
+            echo "has_commits=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Sync public projects with history
+        if: steps.commits.outputs.has_commits == 'true'
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -84,230 +146,145 @@ jobs:
           Write-Host "Public repo:  $publicRepo" -ForegroundColor Cyan
           Write-Host ""
 
-          # Read public projects list
+          # Read public projects and tests
           $publicProjects = Get-Content "$env:TEMP\public-projects.txt"
-
-          # Clean public repo (except .git and .github)
-          Get-ChildItem $publicRepo -Exclude ".git",".github" |
-            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-
-          Write-Host "Syncing public projects..." -ForegroundColor Cyan
-
-          # Copy each public project
-          $copiedCount = 0
-          foreach ($projectPath in $publicProjects) {
-            $sourcePath = Join-Path $privateRepo $projectPath
-            $destPath = Join-Path $publicRepo $projectPath
-
-            if (Test-Path $sourcePath) {
-              # Create parent directory
-              $destParent = Split-Path $destPath -Parent
-              if (-not (Test-Path $destParent)) {
-                New-Item -ItemType Directory -Path $destParent -Force | Out-Null
-              }
-
-              # Copy directory
-              Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
-              Write-Host "  ✓ $projectPath" -ForegroundColor Green
-              $copiedCount++
-            } else {
-              Write-Host "  ⚠ $projectPath (not found)" -ForegroundColor Yellow
-            }
+          $testProjects = @()
+          if (Test-Path "$env:TEMP\test-projects.txt") {
+            $testProjects = Get-Content "$env:TEMP\test-projects.txt" | Where-Object { $_ }
           }
 
-          # Copy root configuration files
-          $rootFiles = @(
-            ".editorconfig",
-            ".gitignore",
-            "Directory.Build.props",
-            "Directory.Packages.props",
-            "PublicProjects.props",
-            "coverlet.runsettings",
-            "global.json",
-            "LICENSE",
-            "NOTICE",
-            "nuget.config",
-            "version.json",
-            "xunit.runner.json"
-          )
+          # Read commits to process
+          $commits = Get-Content "$env:TEMP\commits-to-sync.txt"
 
+          Write-Host "Processing $($commits.Count) commits..." -ForegroundColor Cyan
           Write-Host ""
-          Write-Host "Copying root configuration files..." -ForegroundColor Cyan
-          foreach ($file in $rootFiles) {
-            $sourcePath = Join-Path $privateRepo $file
-            $destPath = Join-Path $publicRepo $file
 
-            if (Test-Path $sourcePath) {
-              Copy-Item -Path $sourcePath -Destination $destPath -Force
-              Write-Host "  ✓ $file" -ForegroundColor Green
-            }
-          }
+          foreach ($commitLine in $commits) {
+            $parts = $commitLine -split '\|'
+            $commitSha = $parts[0]
+            $authorName = $parts[1]
+            $authorEmail = $parts[2]
+            $commitTime = $parts[3]
+            $commitMessage = $parts[4..($parts.Length - 1)] -join '|'
 
-          # Copy documentation
-          $docPath = Join-Path $privateRepo "docs"
-          if (Test-Path $docPath) {
-            Write-Host ""
-            Write-Host "Copying documentation..." -ForegroundColor Cyan
-            Copy-Item -Path $docPath -Destination (Join-Path $publicRepo "docs") -Recurse -Force
-            Write-Host "  ✓ docs/" -ForegroundColor Green
-          }
+            Write-Host "Processing commit: $commitSha" -ForegroundColor White
+            Write-Host "  Author: $authorName <$authorEmail>"
+            Write-Host "  Message: $commitMessage"
 
-          # Copy samples
-          $samplesPath = Join-Path $privateRepo "samples"
-          if (Test-Path $samplesPath) {
-            Write-Host ""
-            Write-Host "Copying samples..." -ForegroundColor Cyan
+            # Check if this commit touches any public paths
+            $changedFiles = git diff-tree --no-commit-id --name-only -r $commitSha
+            $touchesPublic = $false
 
-            # Only copy public samples (SourceGenerators, EnhancedEnums)
-            $publicSamples = @("SourceGenerators", "EnhancedEnums", "README.md")
-            foreach ($sample in $publicSamples) {
-              $sampleSource = Join-Path $samplesPath $sample
-              if (Test-Path $sampleSource) {
-                $sampleDest = Join-Path $publicRepo "samples" $sample
-                $sampleDestParent = Split-Path $sampleDest -Parent
-                if (-not (Test-Path $sampleDestParent)) {
-                  New-Item -ItemType Directory -Path $sampleDestParent -Force | Out-Null
+            foreach ($file in $changedFiles) {
+              foreach ($publicPath in $publicProjects) {
+                if ($file -like "$publicPath/*") {
+                  $touchesPublic = $true
+                  break
                 }
-                Copy-Item -Path $sampleSource -Destination $sampleDest -Recurse -Force
-                Write-Host "  ✓ samples/$sample" -ForegroundColor Green
+              }
+              if ($touchesPublic) { break }
+
+              foreach ($testPath in $testProjects) {
+                if ($file -like "$testPath/*") {
+                  $touchesPublic = $true
+                  break
+                }
+              }
+              if ($touchesPublic) { break }
+            }
+
+            if (-not $touchesPublic) {
+              Write-Host "  ⊘ Skipping (no public changes)" -ForegroundColor Gray
+              continue
+            }
+
+            Write-Host "  ✓ Syncing (touches public projects)" -ForegroundColor Green
+
+            # Clean and copy public projects
+            cd $publicRepo
+            Get-ChildItem -Exclude ".git",".github" | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
+            cd $privateRepo
+
+            # Copy public projects
+            foreach ($projectPath in $publicProjects) {
+              $sourcePath = Join-Path $privateRepo $projectPath
+              $destPath = Join-Path $publicRepo $projectPath
+
+              if (Test-Path $sourcePath) {
+                $destParent = Split-Path $destPath -Parent
+                if (-not (Test-Path $destParent)) {
+                  New-Item -ItemType Directory -Path $destParent -Force | Out-Null
+                }
+                Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
               }
             }
-          }
 
-          # Copy public-specific README if it exists
-          $publicReadme = Join-Path $privateRepo ".github" "PUBLIC_README.md"
-          if (Test-Path $publicReadme) {
-            Copy-Item -Path $publicReadme -Destination (Join-Path $publicRepo "README.md") -Force
-            Write-Host "  ✓ README.md (public version)" -ForegroundColor Green
-          } else {
-            # Otherwise copy main README
-            $mainReadme = Join-Path $privateRepo "README.md"
-            if (Test-Path $mainReadme) {
-              Copy-Item -Path $mainReadme -Destination (Join-Path $publicRepo "README.md") -Force
-              Write-Host "  ✓ README.md" -ForegroundColor Green
-            }
-          }
+            # Copy test projects
+            foreach ($testPath in $testProjects) {
+              $sourcePath = Join-Path $privateRepo $testPath
+              $destPath = Join-Path $publicRepo $testPath
 
-          Write-Host ""
-          Write-Host "✓ Sync complete - copied $copiedCount projects" -ForegroundColor Green
-
-      - name: Sync public repo workflows
-        shell: pwsh
-        run: |
-          $privateRepo = $PWD
-          $publicRepo = Join-Path $PWD "public-repo"
-
-          Write-Host "Syncing GitHub workflows for public repo..." -ForegroundColor Cyan
-
-          # Create .github/workflows directory in public repo
-          $workflowDir = Join-Path $publicRepo ".github" "workflows"
-          if (-not (Test-Path $workflowDir)) {
-            New-Item -ItemType Directory -Path $workflowDir -Force | Out-Null
-          }
-
-          # Copy the NuGet.org publish workflow
-          $nugetOrgWorkflow = Join-Path $privateRepo ".github" "workflows" "publish-nuget-org.yml"
-          if (Test-Path $nugetOrgWorkflow) {
-            Copy-Item -Path $nugetOrgWorkflow -Destination (Join-Path $workflowDir "publish-nuget.yml") -Force
-            Write-Host "  ✓ publish-nuget.yml (for NuGet.org)" -ForegroundColor Green
-          }
-
-      - name: Update project URLs for public repo
-        shell: pwsh
-        run: |
-          cd public-repo
-
-          Write-Host "Updating PackageProjectUrl in all projects..." -ForegroundColor Cyan
-
-          $publicRepoUrl = "https://github.com/CyberdineDevelopment/FractalDataWorks-Platform"
-          $projects = Get-ChildItem -Path . -Filter "*.csproj" -Recurse -File |
-            Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
-
-          $updated = 0
-          foreach ($proj in $projects) {
-            $content = Get-Content $proj.FullName -Raw
-
-            # Remove existing PackageProjectUrl if present (anywhere in the file)
-            $content = $content -replace '<PackageProjectUrl>.*?</PackageProjectUrl>\s*', ''
-
-            # Add PackageProjectUrl after first PropertyGroup opening tag
-            if ($content -match '(<PropertyGroup>\s*)') {
-              # Check if it doesn't already have the correct URL
-              if ($content -notmatch "<PackageProjectUrl>$([regex]::Escape($publicRepoUrl))</PackageProjectUrl>") {
-                $content = $content -replace '(<PropertyGroup>\s*\r?\n)', "`$1    <PackageProjectUrl>$publicRepoUrl</PackageProjectUrl>`n"
-                Set-Content -Path $proj.FullName -Value $content -NoNewline
-                Write-Host "  ✓ $($proj.BaseName)" -ForegroundColor Green
-                $updated++
+              if (Test-Path $sourcePath) {
+                $destParent = Split-Path $destPath -Parent
+                if (-not (Test-Path $destParent)) {
+                  New-Item -ItemType Directory -Path $destParent -Force | Out-Null
+                }
+                Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
               }
             }
-          }
 
-          Write-Host ""
-          Write-Host "✓ Updated $updated projects with public repo URL" -ForegroundColor Green
+            # Copy root configuration files
+            $rootFiles = @(
+              ".editorconfig",
+              ".gitignore",
+              "Directory.Build.props",
+              "Directory.Packages.props",
+              "PublicProjects.props",
+              "coverlet.runsettings",
+              "global.json",
+              "LICENSE",
+              "NOTICE",
+              "nuget.config",
+              "version.json",
+              "xunit.runner.json"
+            )
 
-      - name: Generate README index
-        shell: pwsh
-        run: |
-          cd public-repo
+            foreach ($file in $rootFiles) {
+              $sourcePath = Join-Path $privateRepo $file
+              $destPath = Join-Path $publicRepo $file
 
-          Write-Host "Generating README index..." -ForegroundColor Cyan
-
-          # Find all project folders in src
-          $projectDirs = Get-ChildItem -Path "src" -Directory -ErrorAction SilentlyContinue
-
-          # Build README content
-          $readme = @"
-          # FractalDataWorks Platform
-
-          Open-source .NET framework for service-oriented applications with Railway-Oriented Programming, advanced source generation, and type-safe extensibility.
-
-          ## 📦 Packages
-
-          "@
-
-          foreach ($dir in $projectDirs | Sort-Object Name) {
-            $readmePath = Join-Path $dir.FullName "README.md"
-            if (Test-Path $readmePath) {
-              $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $readmePath)
-              $projectName = $dir.Name
-              $readme += "- [**$projectName**]($($relativePath -replace '\\','/'))`n"
+              if (Test-Path $sourcePath) {
+                Copy-Item -Path $sourcePath -Destination $destPath -Force
+              }
             }
+
+            # Create commit in public repo with original metadata
+            cd $publicRepo
+
+            git add -A
+
+            $hasChanges = git status --porcelain
+            if ($hasChanges) {
+              # Set author and committer to original
+              $env:GIT_AUTHOR_NAME = $authorName
+              $env:GIT_AUTHOR_EMAIL = $authorEmail
+              $env:GIT_AUTHOR_DATE = (Get-Date -UnixTimeSeconds $commitTime).ToString("yyyy-MM-ddTHH:mm:sszzz")
+              $env:GIT_COMMITTER_NAME = $authorName
+              $env:GIT_COMMITTER_EMAIL = $authorEmail
+              $env:GIT_COMMITTER_DATE = $env:GIT_AUTHOR_DATE
+
+              git commit -m $commitMessage
+              Write-Host "  ✓ Committed to public repo" -ForegroundColor Green
+            } else {
+              Write-Host "  ⊘ No changes to commit" -ForegroundColor Gray
+            }
+
+            cd $privateRepo
           }
 
-          $readme += @"
-
-          ## 📖 Documentation
-
-          - [Architecture Overview](docs/Architecture-Overview.md)
-          - [Service Developer Guide](docs/Service-Developer-Guide.md)
-          - [Source Generator Guide](docs/Source-Generator-Guide.md)
-          - [Testing Guide](docs/Testing-Guide.md)
-
-          ## 🚀 Getting Started
-
-          Install packages from NuGet.org:
-
-          ``````bash
-          dotnet add package FractalDataWorks.Results
-          dotnet add package FractalDataWorks.Collections
-          dotnet add package FractalDataWorks.Services
-          ``````
-
-          ## 📄 License
-
-          Apache 2.0 - see [LICENSE](LICENSE) for details.
-
-          ## 🔗 Links
-
-          - [GitHub Repository](https://github.com/CyberdineDevelopment/FractalDataWorks-Platform)
-          - [NuGet Packages](https://www.nuget.org/profiles/CyberdineDevelopment)
-          "@
-
-          # Write README
-          Set-Content -Path "README.md" -Value $readme -NoNewline
-          Write-Host "✓ Generated README.md with project index" -ForegroundColor Green
-
-      - name: Create public solution file
+      - name: Generate solution file
+        if: steps.commits.outputs.has_commits == 'true'
         shell: pwsh
         run: |
           cd public-repo
@@ -336,37 +313,186 @@ jobs:
           Write-Host ""
           Write-Host "✓ Created FractalDataWorks.sln with $added projects" -ForegroundColor Green
 
-      - name: Commit and push changes
+      - name: Generate README index
+        if: steps.commits.outputs.has_commits == 'true'
         shell: pwsh
         run: |
           cd public-repo
 
-          # Check for changes
-          $status = git status --porcelain
-          if (-not $status) {
-            Write-Host "No changes to commit" -ForegroundColor Yellow
-            exit 0
+          Write-Host "Generating README index..." -ForegroundColor Cyan
+
+          # Find all project folders in src
+          $projectDirs = Get-ChildItem -Path "src" -Directory -ErrorAction SilentlyContinue | Sort-Object Name
+
+          # Build README content
+          $readme = @"
+# FractalDataWorks Platform
+
+Open-source .NET framework for service-oriented applications with Railway-Oriented Programming, advanced source generation, and type-safe extensibility.
+
+## 📦 Packages
+
+"@
+
+          foreach ($dir in $projectDirs) {
+            $readmePath = Join-Path $dir.FullName "README.md"
+            if (Test-Path $readmePath) {
+              $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $readmePath)
+              $projectName = $dir.Name
+              $readme += "- [**$projectName**]($($relativePath -replace '\\','/'))`n"
+            }
           }
 
-          # Add all changes
-          git add -A
+          $readme += @"
 
-          # Create commit
-          $commitSha = "${{ github.sha }}".Substring(0, 7)
-          $commitMsg = @"
-          Sync from private repo @ $commitSha
+## 🧪 Tests
 
-          Automated sync from private repository
-          Branch: ${{ github.ref_name }}
-          Commit: ${{ github.sha }}
-          Trigger: ${{ github.event_name }}
-          "@
+All public projects include comprehensive test coverage in the `tests/` directory.
 
-          git commit -m $commitMsg
+## 📖 Documentation
 
-          # Push to the same branch name (force push to replace any existing content)
+Documentation is included in each project's README.
+
+## 🚀 Getting Started
+
+Install packages from NuGet.org:
+
+``````bash
+dotnet add package FractalDataWorks.Results
+dotnet add package FractalDataWorks.Collections
+dotnet add package FractalDataWorks.Services
+``````
+
+## 📄 License
+
+Apache 2.0 - see [LICENSE](LICENSE) for details.
+
+## 🔗 Links
+
+- [GitHub Repository](https://github.com/CyberdineDevelopment/FractalDataWorks-Platform)
+- [NuGet Packages](https://www.nuget.org/profiles/CyberdineDevelopment)
+"@
+
+          # Write README
+          Set-Content -Path "README.md" -Value $readme -NoNewline
+          Write-Host "✓ Generated README.md with project index" -ForegroundColor Green
+
+          # Add README to git
+          git add README.md
+
+      - name: Sync public repo workflows
+        if: steps.commits.outputs.has_commits == 'true'
+        shell: pwsh
+        run: |
+          $privateRepo = $PWD
+          $publicRepo = Join-Path $PWD "public-repo"
+
+          Write-Host "Syncing GitHub workflows for public repo..." -ForegroundColor Cyan
+
+          # Create .github/workflows directory in public repo
+          $workflowDir = Join-Path $publicRepo ".github" "workflows"
+          if (-not (Test-Path $workflowDir)) {
+            New-Item -ItemType Directory -Path $workflowDir -Force | Out-Null
+          }
+
+          # Copy the NuGet.org publish workflow
+          $nugetOrgWorkflow = Join-Path $privateRepo ".github" "workflows" "publish-nuget-org.yml"
+          if (Test-Path $nugetOrgWorkflow) {
+            Copy-Item -Path $nugetOrgWorkflow -Destination (Join-Path $workflowDir "publish-nuget.yml") -Force
+            Write-Host "  ✓ publish-nuget.yml (for NuGet.org)" -ForegroundColor Green
+          }
+
+          # Copy CI workflow
+          $ciWorkflow = Join-Path $privateRepo ".github" "workflows" "ci.yml"
+          if (Test-Path $ciWorkflow) {
+            Copy-Item -Path $ciWorkflow -Destination (Join-Path $workflowDir "ci.yml") -Force
+            Write-Host "  ✓ ci.yml" -ForegroundColor Green
+          }
+
+          cd $publicRepo
+          git add .github/
+
+      - name: Update project URLs for public repo
+        if: steps.commits.outputs.has_commits == 'true'
+        shell: pwsh
+        run: |
+          cd public-repo
+
+          Write-Host "Updating PackageProjectUrl in all projects..." -ForegroundColor Cyan
+
+          $publicRepoUrl = "https://github.com/CyberdineDevelopment/FractalDataWorks-Platform"
+          $projects = Get-ChildItem -Path . -Filter "*.csproj" -Recurse -File |
+            Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
+
+          $updated = 0
+          foreach ($proj in $projects) {
+            $content = Get-Content $proj.FullName -Raw
+
+            # Remove existing PackageProjectUrl if present
+            $content = $content -replace '<PackageProjectUrl>.*?</PackageProjectUrl>\s*', ''
+
+            # Add PackageProjectUrl after first PropertyGroup opening tag
+            if ($content -match '(<PropertyGroup>\s*)') {
+              if ($content -notmatch "<PackageProjectUrl>$([regex]::Escape($publicRepoUrl))</PackageProjectUrl>") {
+                $content = $content -replace '(<PropertyGroup>\s*\r?\n)', "`$1    <PackageProjectUrl>$publicRepoUrl</PackageProjectUrl>`n"
+                Set-Content -Path $proj.FullName -Value $content -NoNewline
+                Write-Host "  ✓ $($proj.BaseName)" -ForegroundColor Green
+                $updated++
+              }
+            }
+          }
+
+          Write-Host ""
+          Write-Host "✓ Updated $updated projects with public repo URL" -ForegroundColor Green
+
+          git add *.csproj
+
+      - name: Update sync state
+        if: steps.commits.outputs.has_commits == 'true'
+        shell: pwsh
+        run: |
+          cd public-repo
+
+          $latestCommitSha = "${{ github.sha }}"
+
+          $syncState = @{
+            lastSyncedCommit = $latestCommitSha
+            syncedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+            syncedBy = "${{ github.actor }}"
+            branch = "${{ github.ref_name }}"
+          }
+
+          $syncState | ConvertTo-Json | Set-Content -Path "$env:SYNC_STATE_FILE" -NoNewline
+
+          git add "$env:SYNC_STATE_FILE"
+
+          Write-Host "✓ Updated sync state to commit $latestCommitSha" -ForegroundColor Green
+
+      - name: Commit metadata changes
+        if: steps.commits.outputs.has_commits == 'true'
+        shell: pwsh
+        run: |
+          cd public-repo
+
+          $hasChanges = git status --porcelain
+          if ($hasChanges) {
+            git commit -m "Update metadata (solution, README, workflows, sync state)
+
+Automated update for public repository
+Branch: ${{ github.ref_name }}
+Private commit: ${{ github.sha }}"
+
+            Write-Host "✓ Committed metadata changes" -ForegroundColor Green
+          }
+
+      - name: Push to public repository
+        if: steps.commits.outputs.has_commits == 'true'
+        shell: pwsh
+        run: |
+          cd public-repo
+
           $branch = "${{ github.ref_name }}"
-          git push -f origin HEAD:$branch
+          git push origin HEAD:$branch
 
           Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
 
@@ -379,8 +505,10 @@ jobs:
           **Branch:** ${{ github.ref_name }}
           **Commit:** ``${{ github.sha }}``
           **Projects synced:** ${{ steps.discover.outputs.project_count }}
+          **Tests synced:** ${{ steps.discover.outputs.test_count }}
+          **Commits processed:** ${{ steps.commits.outputs.commit_count }}
 
-          Public repository has been updated with latest changes from projects marked with ``<IsPublicProject>true</IsPublicProject>``.
+          Public repository has been updated with commit history preserved.
           "@
 
           $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding UTF8
