@@ -359,9 +359,9 @@ jobs:
 
           git commit -m $commitMsg
 
-          # Push to the same branch name
+          # Push to the same branch name (force push to replace any existing content)
           $branch = "${{ github.ref_name }}"
-          git push origin HEAD:$branch
+          git push -f origin HEAD:$branch
 
           Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
 
