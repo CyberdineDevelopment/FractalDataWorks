@@ -11,6 +11,9 @@ namespace FractalDataWorks.Commands.Data;
 [TypeOption(typeof(FilterOperators), "Contains")]
 public sealed class ContainsOperator : FilterOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ContainsOperator"/> class.
+    /// </summary>
     public ContainsOperator()
         : base(
             id: 3,
@@ -26,6 +29,7 @@ public sealed class ContainsOperator : FilterOperatorBase
     /// </summary>
     public override string FormatSqlParameter(string paramName) => $"'%' + @{paramName} + '%'";
 
+    /// <inheritdoc/>
     public override string FormatODataValue(object? value)
     {
         // OData contains() function handles wildcards itself

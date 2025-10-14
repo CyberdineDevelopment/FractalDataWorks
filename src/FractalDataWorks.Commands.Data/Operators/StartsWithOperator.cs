@@ -10,6 +10,9 @@ namespace FractalDataWorks.Commands.Data;
 [TypeOption(typeof(FilterOperators), "StartsWith")]
 public sealed class StartsWithOperator : FilterOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StartsWithOperator"/> class.
+    /// </summary>
     public StartsWithOperator()
         : base(
             id: 4,
@@ -25,6 +28,7 @@ public sealed class StartsWithOperator : FilterOperatorBase
     /// </summary>
     public override string FormatSqlParameter(string paramName) => $"@{paramName} + '%'";
 
+    /// <inheritdoc/>
     public override string FormatODataValue(object? value)
     {
         return $"'{value?.ToString()?.Replace("'", "''")}'";

@@ -11,6 +11,9 @@ namespace FractalDataWorks.Commands.Data;
 [TypeOption(typeof(FilterOperators), "GreaterThanOrEqual")]
 public sealed class GreaterThanOrEqualOperator : FilterOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GreaterThanOrEqualOperator"/> class.
+    /// </summary>
     public GreaterThanOrEqualOperator()
         : base(
             id: 7,
@@ -21,6 +24,7 @@ public sealed class GreaterThanOrEqualOperator : FilterOperatorBase
     {
     }
 
+    /// <inheritdoc/>
     public override string FormatODataValue(object? value)
     {
         if (value == null)

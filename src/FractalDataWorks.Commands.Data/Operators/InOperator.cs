@@ -13,6 +13,9 @@ namespace FractalDataWorks.Commands.Data;
 [TypeOption(typeof(FilterOperators), "In")]
 public sealed class InOperator : FilterOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InOperator"/> class.
+    /// </summary>
     public InOperator()
         : base(
             id: 12,
@@ -33,6 +36,7 @@ public sealed class InOperator : FilterOperatorBase
         return $"@{paramName}";
     }
 
+    /// <inheritdoc/>
     public override string FormatODataValue(object? value)
     {
         if (value == null)

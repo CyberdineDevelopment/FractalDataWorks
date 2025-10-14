@@ -11,6 +11,9 @@ namespace FractalDataWorks.Commands.Data;
 [TypeOption(typeof(FilterOperators), "IsNotNull")]
 public sealed class IsNotNullOperator : FilterOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="IsNotNullOperator"/> class.
+    /// </summary>
     public IsNotNullOperator()
         : base(
             id: 11,

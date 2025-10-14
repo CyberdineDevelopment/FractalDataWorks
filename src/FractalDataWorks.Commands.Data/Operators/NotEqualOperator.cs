@@ -11,6 +11,9 @@ namespace FractalDataWorks.Commands.Data;
 [TypeOption(typeof(FilterOperators), "NotEqual")]
 public sealed class NotEqualOperator : FilterOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NotEqualOperator"/> class.
+    /// </summary>
     public NotEqualOperator()
         : base(
             id: 2,
@@ -21,6 +24,7 @@ public sealed class NotEqualOperator : FilterOperatorBase
     {
     }
 
+    /// <inheritdoc/>
     public override string FormatODataValue(object? value)
     {
         if (value == null)

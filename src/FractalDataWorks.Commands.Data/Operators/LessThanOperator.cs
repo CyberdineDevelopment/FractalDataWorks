@@ -11,6 +11,9 @@ namespace FractalDataWorks.Commands.Data;
 [TypeOption(typeof(FilterOperators), "LessThan")]
 public sealed class LessThanOperator : FilterOperatorBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LessThanOperator"/> class.
+    /// </summary>
     public LessThanOperator()
         : base(
             id: 8,
@@ -21,6 +24,7 @@ public sealed class LessThanOperator : FilterOperatorBase
     {
     }
 
+    /// <inheritdoc/>
     public override string FormatODataValue(object? value)
     {
         if (value == null)

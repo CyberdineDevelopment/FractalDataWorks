@@ -6,7 +6,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
   </PropertyGroup>
 
