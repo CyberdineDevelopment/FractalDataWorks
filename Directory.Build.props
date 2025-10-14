@@ -1,6 +1,6 @@
 <Project>
-  <!-- Import public project tracking -->
-  <Import Project="$(MSBuildThisFileDirectory)PublicProjects.props" />
+  <!-- Import public project tracking (only exists in public repo) -->
+  <Import Project="$(MSBuildThisFileDirectory)PublicProjects.props" Condition="Exists('$(MSBuildThisFileDirectory)PublicProjects.props')" />
 
   <PropertyGroup>
 	  <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
