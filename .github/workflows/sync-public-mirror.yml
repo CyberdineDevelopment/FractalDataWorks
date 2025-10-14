@@ -254,6 +254,18 @@ jobs:
               }
             }
 
+            # Copy additional directories (templates, samples)
+            $rootDirs = @("templates", "samples")
+            foreach ($dir in $rootDirs) {
+              $sourcePath = Join-Path $privateRepo $dir
+              $destPath = Join-Path $publicRepo $dir
+
+              if (Test-Path $sourcePath) {
+                Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
+                Write-Host "  ✓ Copied $dir directory" -ForegroundColor Green
+              }
+            }
+
             # Create commit in public repo with original metadata
             cd $publicRepo
 
