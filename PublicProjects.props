@@ -35,7 +35,7 @@
   <Target Name="ShowPublicProjectStatus"
           BeforeTargets="CoreCompile"
           Condition="'$(IsPublicProject)' == 'true'">
-    <Message Text="📦 Public Project: $(MSBuildProjectName)" Importance="high" />
+    <Message Text="Public Project: $(MSBuildProjectName)" Importance="high" />
   </Target>
 
   <!-- Clean marker files -->
