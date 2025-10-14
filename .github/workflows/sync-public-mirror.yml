@@ -15,6 +15,10 @@ on:
 env:
   SYNC_STATE_FILE: '.sync-state.json'
 
+concurrency:
+  group: sync-public-mirror-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   sync:
     name: Sync to Public Repository with History
@@ -112,6 +116,18 @@ jobs:
         run: |
           git config --global user.name "${{ github.event.head_commit.author.name }}"
           git config --global user.email "${{ github.event.head_commit.author.email }}"
+
+      - name: Sync public repo to latest
+        shell: pwsh
+        run: |
+          cd public-repo
+          $branch = "${{ github.ref_name }}"
+          
+          Write-Host "Ensuring public repo is up to date..." -ForegroundColor Cyan
+          git checkout $branch
+          git pull origin $branch
+          
+          Write-Host "✓ Public repo synced to latest remote state" -ForegroundColor Green
 
       - name: Get commits since last sync
         id: commits
@@ -504,24 +520,47 @@ jobs:
 
           $branch = "${{ github.ref_name }}"
 
-          # Fetch latest remote state first
-          Write-Host "Fetching latest from remote..." -ForegroundColor Cyan
+          Write-Host "Fetching and integrating remote changes..." -ForegroundColor Cyan
           git fetch origin $branch
-
-          # Try to push, if rejected due to diverged history, use force-with-lease
-          git push origin HEAD:$branch
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Push rejected, attempting force push with lease..." -ForegroundColor Yellow
-            # Force with lease using the fetched remote ref
-            git push --force-with-lease=refs/heads/${branch}:refs/remotes/origin/$branch origin HEAD:$branch
+          
+          # Check if remote has commits we don't have
+          $behind = git rev-list HEAD..origin/$branch --count
+          if ($behind -gt 0) {
+            Write-Host "Remote is $behind commits ahead, rebasing..." -ForegroundColor Yellow
+            git rebase origin/$branch
+            
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Rebase failed, aborting and using force-with-lease..." -ForegroundColor Red
+              git rebase --abort
+              git push --force-with-lease origin HEAD:$branch
+              
+              if ($LASTEXITCODE -eq 0) {
+                Write-Host "✓ Force pushed to public repository (rebase conflict)" -ForegroundColor Yellow
+              } else {
+                Write-Host "✗ Failed to push to public repository" -ForegroundColor Red
+                exit 1
+              }
+            } else {
+              Write-Host "Rebase successful, pushing..." -ForegroundColor Green
+              git push origin HEAD:$branch
+              
+              if ($LASTEXITCODE -eq 0) {
+                Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
+              } else {
+                Write-Host "✗ Failed to push after rebase" -ForegroundColor Red
+                exit 1
+              }
+            }
+          } else {
+            Write-Host "No remote changes to integrate, pushing directly..." -ForegroundColor Cyan
+            git push origin HEAD:$branch
+            
             if ($LASTEXITCODE -eq 0) {
-              Write-Host "✓ Force pushed to public repository branch: $branch" -ForegroundColor Green
+              Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
             } else {
               Write-Host "✗ Failed to push to public repository" -ForegroundColor Red
               exit 1
             }
-          } else {
-            Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
           }
 
       - name: Summary
