@@ -133,6 +133,59 @@ Console.WriteLine();
 
 Console.WriteLine("Expected OData Translation:");
 Console.WriteLine("  GET /Customers?$select=Id,Name,Email&$filter=IsActive eq true and contains(Name,'Corp')&$orderby=CreatedDate desc,Name asc&$skip=0&$top=50");
+Console.WriteLine();
+
+Console.WriteLine("DataCommand JSON Representation:");
+Console.WriteLine("(Universal format - can be serialized, transmitted, and translated by any translator)");
+var jsonOptions = new JsonSerializerOptions
+{
+    WriteIndented = true,
+    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+};
+
+// Create simplified representation for JSON (without circular references from operators)
+var dataCommandRepresentation = new
+{
+    CommandType = "Query",
+    ContainerName = queryCommand.ContainerName,
+    Category = new
+    {
+        Name = queryCommand.Category.Name,
+        RequiresTransaction = queryCommand.Category.RequiresTransaction,
+        IsCacheable = queryCommand.Category.IsCacheable,
+        IsMutation = queryCommand.Category.IsMutation
+    },
+    Filter = queryCommand.Filter != null ? new
+    {
+        LogicalOperator = queryCommand.Filter.LogicalOperator.Name,
+        Conditions = queryCommand.Filter.Conditions.Select(c => new
+        {
+            PropertyName = c.PropertyName,
+            Operator = c.Operator.Name,
+            OperatorId = c.Operator.Id,
+            Value = c.Value
+        }).ToArray()
+    } : null,
+    Ordering = queryCommand.Ordering != null ? new
+    {
+        OrderedFields = queryCommand.Ordering.OrderedFields.Select(f => new
+        {
+            PropertyName = f.PropertyName,
+            Direction = f.Direction.Name
+        }).ToArray()
+    } : null,
+    Paging = queryCommand.Paging != null ? new
+    {
+        Skip = queryCommand.Paging.Skip,
+        Take = queryCommand.Paging.Take
+    } : null,
+    Projection = queryCommand.Projection != null ? new
+    {
+        Fields = queryCommand.Projection.Fields.Select(f => f.PropertyName).ToArray()
+    } : null
+};
+
+Console.WriteLine(JsonSerializer.Serialize(dataCommandRepresentation, jsonOptions));
 Console.WriteLine("\n");
 
 // ============================================================
