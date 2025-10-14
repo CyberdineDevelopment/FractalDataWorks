@@ -61,6 +61,7 @@ public class ConfigurationBaseTests
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
         result.Value.IsValid.ShouldBeTrue();
     }
 
@@ -78,6 +79,7 @@ public class ConfigurationBaseTests
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
         result.Value.IsValid.ShouldBeTrue();
         result.Value.Errors.ShouldBeEmpty();
     }

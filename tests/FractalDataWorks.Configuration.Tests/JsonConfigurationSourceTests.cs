@@ -111,6 +111,7 @@ public class JsonConfigurationSourceTests : IDisposable
 
         // Assert
         loadResult.IsSuccess.ShouldBeTrue();
+        loadResult.Value.ShouldNotBeNull();
         loadResult.Value.Count().ShouldBe(1);
         var loaded = loadResult.Value.First();
         loaded.Id.ShouldBe(config.Id);
@@ -149,6 +150,7 @@ public class JsonConfigurationSourceTests : IDisposable
 
         // Assert
         result.IsFailure.ShouldBeTrue();
+        result.CurrentMessage.ShouldNotBeNull();
         result.CurrentMessage.ShouldContain("not found");
     }
 
@@ -176,6 +178,7 @@ public class JsonConfigurationSourceTests : IDisposable
 
         // Assert
         result.IsFailure.ShouldBeTrue();
+        result.CurrentMessage.ShouldNotBeNull();
         result.CurrentMessage.ShouldContain("not found");
     }
 
@@ -195,6 +198,7 @@ public class JsonConfigurationSourceTests : IDisposable
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
         result.Value.Count().ShouldBe(1); // Only valid config loaded
         result.Value.First().Id.ShouldBe(1);
     }
@@ -228,11 +232,12 @@ public class JsonConfigurationSourceTests : IDisposable
 
         // Assert
         var loaded = await _source.Load<TestConfig>(1);
+        loaded.Value.ShouldNotBeNull();
         loaded.Value.Value.ShouldBe("Updated");
     }
 
     [Fact]
-    public async Task Name_Property_ReturnsJSON()
+    public void Name_Property_ReturnsJSON()
     {
         // Assert
         _source.Name.ShouldBe("JSON");

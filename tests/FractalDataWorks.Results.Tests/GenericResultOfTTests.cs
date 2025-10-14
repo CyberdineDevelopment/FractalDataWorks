@@ -519,6 +519,7 @@ public class GenericResultOfTTests
         // Assert
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldBe(person);
+        result.Value.ShouldNotBeNull();
         result.Value.Name.ShouldBe("John");
         result.Value.Age.ShouldBe(30);
     }
