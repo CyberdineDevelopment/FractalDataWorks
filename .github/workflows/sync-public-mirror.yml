@@ -31,9 +31,9 @@ jobs:
         id: discover
         shell: pwsh
         run: |
-          Write-Host "Discovering public projects..." -ForegroundColor Cyan
+          Write-Host "Discovering projects to sync..." -ForegroundColor Cyan
 
-          # Define exclusion patterns for projects that should NEVER be synced
+          # Define exclusion patterns for projects that should NEVER be synced (blacklist)
           $excludePatterns = @(
             "*McpTools*",      # MCP tools - private only
             "*\.Mcp\.*",       # MCP projects
@@ -42,7 +42,7 @@ jobs:
             "*\.Rest\.*"       # REST implementations - may have proprietary integrations
           )
 
-          # Find all .csproj files marked as public
+          # Find all .csproj files (all projects will sync unless excluded by pattern)
           $projectFiles = Get-ChildItem -Path . -Filter "*.csproj" -Recurse -File |
             Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
 
@@ -51,35 +51,30 @@ jobs:
           $excludedProjects = @()
 
           foreach ($projectFile in $projectFiles) {
-            [xml]$csproj = Get-Content $projectFile.FullName
-            $isPublic = $csproj.Project.PropertyGroup.IsPublicProject | Where-Object { $_ -eq 'true' }
+            $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $projectFile.DirectoryName)
+            $projectName = $projectFile.BaseName
 
-            if ($isPublic) {
-              $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $projectFile.DirectoryName)
-              $projectName = $projectFile.BaseName
-
-              # Check if project matches any exclusion pattern
-              $isExcluded = $false
-              foreach ($pattern in $excludePatterns) {
-                if ($projectName -like $pattern) {
-                  $isExcluded = $true
-                  $excludedProjects += $projectName
-                  Write-Host "  ⊘ $projectName (excluded by pattern: $pattern)" -ForegroundColor Yellow
-                  break
-                }
+            # Check if project matches any exclusion pattern
+            $isExcluded = $false
+            foreach ($pattern in $excludePatterns) {
+              if ($projectName -like $pattern) {
+                $isExcluded = $true
+                $excludedProjects += $projectName
+                Write-Host "  ⊘ $projectName (excluded by pattern: $pattern)" -ForegroundColor Yellow
+                break
               }
+            }
 
-              if (-not $isExcluded) {
-                $publicProjects += $relativePath
+            if (-not $isExcluded) {
+              $publicProjects += $relativePath
 
-                # Look for corresponding test project
-                $testProjectPath = "tests\$projectName.Tests"
-                if (Test-Path $testProjectPath) {
-                  $testProjects += $testProjectPath
-                  Write-Host "  ✓ $projectName (with tests)" -ForegroundColor Green
-                } else {
-                  Write-Host "  ✓ $projectName" -ForegroundColor Green
-                }
+              # Look for corresponding test project
+              $testProjectPath = "tests\$projectName.Tests"
+              if (Test-Path $testProjectPath) {
+                $testProjects += $testProjectPath
+                Write-Host "  ✓ $projectName (with tests)" -ForegroundColor Green
+              } else {
+                Write-Host "  ✓ $projectName" -ForegroundColor Green
               }
             }
           }

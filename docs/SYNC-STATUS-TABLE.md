@@ -1,121 +1,95 @@
 # Sync Status - Quick Reference
 
+**Sync Strategy**: BLACKLIST - All projects sync unless excluded by pattern
+
 ## Projects That Will Be Synced ✓
+
+**Total: 57 projects** (86.4% of all projects)
+
+All projects EXCEPT those matching exclusion patterns will be synced:
 
 | Project | Category |
 |---------|----------|
 | FractalDataWorks.Abstractions | Core |
+| FractalDataWorks.CodeBuilder.Abstractions | Code Builder |
+| FractalDataWorks.CodeBuilder.Analysis | Code Builder |
+| FractalDataWorks.CodeBuilder.Analysis.CSharp | Code Builder |
+| FractalDataWorks.CodeBuilder.CSharp | Code Builder |
 | FractalDataWorks.Collections | Core |
 | FractalDataWorks.Collections.Analyzers | Analyzers |
+| FractalDataWorks.Collections.CodeFixes | Code Fixes |
+| FractalDataWorks.Collections.SourceGenerators | Source Generators |
+| FractalDataWorks.Commands.Abstractions | Commands |
+| FractalDataWorks.Configuration | Configuration |
+| FractalDataWorks.Configuration.Abstractions | Configuration |
+| FractalDataWorks.Data.Abstractions | Data |
+| FractalDataWorks.Data.DataContainers.Abstractions | Data |
+| FractalDataWorks.Data.DataSets.Abstractions | Data |
+| FractalDataWorks.Data.DataStores | Data |
+| FractalDataWorks.Data.DataStores.Abstractions | Data |
+| FractalDataWorks.Data.DataStores.FileSystem | Data |
+| FractalDataWorks.Data.DataStores.Rest | Data |
+| FractalDataWorks.DependencyInjection | DI |
 | FractalDataWorks.EnhancedEnums | Core |
 | FractalDataWorks.EnhancedEnums.Analyzers | Analyzers |
+| FractalDataWorks.EnhancedEnums.CodeFixes | Code Fixes |
+| FractalDataWorks.EnhancedEnums.SourceGenerators | Source Generators |
+| FractalDataWorks.MCP.Abstractions | MCP |
 | FractalDataWorks.Messages | Core |
+| FractalDataWorks.Messages.SourceGenerators | Source Generators |
 | FractalDataWorks.Results | Core |
+| FractalDataWorks.Results.Abstractions | Core |
 | FractalDataWorks.Services | Core |
+| FractalDataWorks.Services.Abstractions | Services |
+| FractalDataWorks.Services.Authentication | Services |
+| FractalDataWorks.Services.Authentication.Abstractions | Services |
+| FractalDataWorks.Services.Authentication.Entra | Services |
+| FractalDataWorks.Services.Connections | Services |
+| FractalDataWorks.Services.Connections.Abstractions | Services |
+| FractalDataWorks.Services.Connections.Http.Abstractions | Services |
+| FractalDataWorks.Services.Connections.MsSql | Services |
+| FractalDataWorks.Services.Connections.Rest | Services |
+| FractalDataWorks.Services.Data | Services |
+| FractalDataWorks.Services.Data.Abstractions | Services |
 | FractalDataWorks.Services.Execution | Services |
+| FractalDataWorks.Services.Execution.Abstractions | Services |
+| FractalDataWorks.Services.Scheduling | Services |
+| FractalDataWorks.Services.Scheduling.Abstractions | Services |
+| FractalDataWorks.Services.SecretManagers | Services |
+| FractalDataWorks.Services.SecretManagers.Abstractions | Services |
+| FractalDataWorks.Services.SecretManagers.AzureKeyVault | Services |
+| FractalDataWorks.Services.Transformations | Services |
+| FractalDataWorks.Services.Transformations.Abstractions | Services |
 | FractalDataWorks.ServiceTypes | Core |
 | FractalDataWorks.ServiceTypes.Analyzers | Analyzers |
-
-**Total: 11 projects**
+| FractalDataWorks.ServiceTypes.CodeFixes | Code Fixes |
+| FractalDataWorks.ServiceTypes.SourceGenerators | Source Generators |
+| FractalDataWorks.SourceGenerators | Source Generators |
+| FractalDataWorks.Web.Http.Abstractions | Web |
+| FractalDataWorks.Web.RestEndpoints | Web |
 
 ## Projects That Will NOT Be Synced ✗
 
-### Code Builder & Analysis (4)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.CodeBuilder.Abstractions | Not public |
-| FractalDataWorks.CodeBuilder.Analysis | Not public |
-| FractalDataWorks.CodeBuilder.Analysis.CSharp | Not public |
-| FractalDataWorks.CodeBuilder.CSharp | Not public |
+**Total: 9 projects** (13.6% of all projects)
 
-### Source Generators & Code Fixes (6)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.Collections.CodeFixes | Not public |
-| FractalDataWorks.Collections.SourceGenerators | Not public |
-| FractalDataWorks.EnhancedEnums.CodeFixes | Not public |
-| FractalDataWorks.EnhancedEnums.SourceGenerators | Not public |
-| FractalDataWorks.ServiceTypes.CodeFixes | Not public |
-| FractalDataWorks.ServiceTypes.SourceGenerators | Not public |
-| FractalDataWorks.SourceGenerators | Not public |
-| FractalDataWorks.Messages.SourceGenerators | Not public |
+Only projects matching blacklist patterns are excluded:
 
-### Configuration (2)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.Configuration | Not public |
-| FractalDataWorks.Configuration.Abstractions | Not public |
+### SQL Server (1 project)
+| Project | Exclusion Pattern |
+|---------|-------------------|
+| FractalDataWorks.Data.DataStores.SqlServer | `*SqlServer*` |
 
-### Data Layer (7)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.Data.Abstractions | Not public |
-| FractalDataWorks.Data.DataContainers.Abstractions | Not public |
-| FractalDataWorks.Data.DataSets.Abstractions | Not public |
-| FractalDataWorks.Data.DataStores | Not public |
-| FractalDataWorks.Data.DataStores.Abstractions | Not public |
-| FractalDataWorks.Data.DataStores.FileSystem | Not public |
-| FractalDataWorks.Data.DataStores.Rest | Not public (+ matches `*\.Rest\.*` pattern) |
-| FractalDataWorks.Data.DataStores.SqlServer | Not public (+ matches `*SqlServer*` pattern) |
-
-### Dependency Injection (1)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.DependencyInjection | Not public |
-
-### MCP Projects (10)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.MCP.Abstractions | Not public (+ matches `*\.MCP\.*` pattern) |
-| FractalDataWorks.McpTools.Abstractions | Not public (+ matches `*McpTools*` pattern) |
-| FractalDataWorks.McpTools.CodeAnalysis | Not public (+ matches `*McpTools*` pattern) |
-| FractalDataWorks.McpTools.ProjectDependencies | Not public (+ matches `*McpTools*` pattern) |
-| FractalDataWorks.McpTools.Refactoring | Not public (+ matches `*McpTools*` pattern) |
-| FractalDataWorks.McpTools.ServerManagement | Not public (+ matches `*McpTools*` pattern) |
-| FractalDataWorks.McpTools.SessionManagement | Not public (+ matches `*McpTools*` pattern) |
-| FractalDataWorks.McpTools.TypeAnalysis | Not public (+ matches `*McpTools*` pattern) |
-| FractalDataWorks.McpTools.VirtualEditing | Not public (+ matches `*McpTools*` pattern) |
-
-### Results (1)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.Results.Abstractions | Not public |
-
-### Command Infrastructure (1)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.Commands.Abstractions | Not public |
-
-### Services Layer (21)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.Services.Abstractions | Not public |
-| FractalDataWorks.Services.Authentication | Not public |
-| FractalDataWorks.Services.Authentication.Abstractions | Not public |
-| FractalDataWorks.Services.Authentication.Entra | Not public |
-| FractalDataWorks.Services.Connections | Not public |
-| FractalDataWorks.Services.Connections.Abstractions | Not public |
-| FractalDataWorks.Services.Connections.Http.Abstractions | Not public |
-| FractalDataWorks.Services.Connections.MsSql | Not public |
-| FractalDataWorks.Services.Connections.Rest | Not public (+ matches `*\.Rest\.*` pattern) |
-| FractalDataWorks.Services.Data | Not public |
-| FractalDataWorks.Services.Data.Abstractions | Not public |
-| FractalDataWorks.Services.Execution.Abstractions | Not public |
-| FractalDataWorks.Services.Scheduling | Not public |
-| FractalDataWorks.Services.Scheduling.Abstractions | Not public |
-| FractalDataWorks.Services.SecretManagers | Not public |
-| FractalDataWorks.Services.SecretManagers.Abstractions | Not public |
-| FractalDataWorks.Services.SecretManagers.AzureKeyVault | Not public |
-| FractalDataWorks.Services.Transformations | Not public |
-| FractalDataWorks.Services.Transformations.Abstractions | Not public |
-
-### Web (2)
-| Project | Reason |
-|---------|--------|
-| FractalDataWorks.Web.Http.Abstractions | Not public |
-| FractalDataWorks.Web.RestEndpoints | Not public |
-
-**Total: 55 projects**
+### MCP Tools (8 projects)
+| Project | Exclusion Pattern |
+|---------|-------------------|
+| FractalDataWorks.McpTools.Abstractions | `*McpTools*` |
+| FractalDataWorks.McpTools.CodeAnalysis | `*McpTools*` |
+| FractalDataWorks.McpTools.ProjectDependencies | `*McpTools*` |
+| FractalDataWorks.McpTools.Refactoring | `*McpTools*` |
+| FractalDataWorks.McpTools.ServerManagement | `*McpTools*` |
+| FractalDataWorks.McpTools.SessionManagement | `*McpTools*` |
+| FractalDataWorks.McpTools.TypeAnalysis | `*McpTools*` |
+| FractalDataWorks.McpTools.VirtualEditing | `*McpTools*` |
 
 ---
 
@@ -123,29 +97,35 @@
 
 | Category | Synced | Not Synced | Total |
 |----------|--------|------------|-------|
-| Core Abstractions | 6 | 1 | 7 |
-| Analyzers | 3 | 0 | 3 |
-| Source Generators | 0 | 8 | 8 |
-| Services | 2 | 21 | 23 |
-| Data Layer | 0 | 7 | 7 |
-| MCP/Tools | 0 | 10 | 10 |
-| Configuration | 0 | 2 | 2 |
-| Web | 0 | 2 | 2 |
-| Other | 0 | 4 | 4 |
-| **TOTAL** | **11** | **55** | **66** |
+| Core Abstractions | 7 | 0 | 7 |
+| Analyzers | 4 | 0 | 4 |
+| Source Generators | 5 | 0 | 5 |
+| Code Fixes | 3 | 0 | 3 |
+| Code Builder | 4 | 0 | 4 |
+| Services | 21 | 0 | 21 |
+| Data Layer | 7 | 1 | 8 |
+| MCP (non-Tools) | 1 | 0 | 1 |
+| MCP Tools | 0 | 8 | 8 |
+| Configuration | 2 | 0 | 2 |
+| Web | 2 | 0 | 2 |
+| Other | 1 | 0 | 1 |
+| **TOTAL** | **57** | **9** | **66** |
 
 ---
 
 ## Exclusion Patterns Reference
 
-These patterns in the sync workflow will exclude projects even if marked public:
+These patterns in the sync workflow exclude projects (blacklist):
 
 | Pattern | Description | Current Matches |
 |---------|-------------|-----------------|
-| `*McpTools*` | MCP tools | 9 projects (all not public) |
-| `*\.Mcp\.*` | MCP projects | 1 project (not public) |
-| `*\.MCP\.*` | MCP projects (uppercase) | 0 projects |
-| `*SqlServer*` | SQL Server | 1 project (not public) |
-| `*\.Rest\.*` | REST implementations | 2 projects (both not public) |
+| `*McpTools*` | MCP tools - private only | 8 projects ✗ |
+| `*\.Mcp\.*` | MCP projects (with dots) | 0 projects |
+| `*\.MCP\.*` | MCP projects uppercase (with dots) | 0 projects |
+| `*SqlServer*` | SQL Server implementations | 1 project ✗ |
+| `*\.Rest\.*` | REST implementations (with dots) | 0 projects |
 
-**Note:** Currently all exclusion patterns are redundant since no matching projects are marked as public.
+**Notes:**
+- Patterns with dots (like `*\.Rest\.*`) require the word to be between dots in the project name
+- `FractalDataWorks.MCP.Abstractions` does NOT match `*\.Mcp\.*` (case sensitive, requires lowercase "Mcp")
+- `FractalDataWorks.Data.DataStores.Rest` does NOT match `*\.Rest\.*` (no dots around "Rest")
