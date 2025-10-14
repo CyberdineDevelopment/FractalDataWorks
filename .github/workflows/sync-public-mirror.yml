@@ -348,14 +348,9 @@ jobs:
           $projectDirs = Get-ChildItem -Path "src" -Directory -ErrorAction SilentlyContinue | Sort-Object Name
 
           # Build README content
-          $readme = @"
-# FractalDataWorks Platform
-
-Open-source .NET framework for service-oriented applications with Railway-Oriented Programming, advanced source generation, and type-safe extensibility.
-
-## Packages
-
-"@
+          $readme = "# FractalDataWorks Platform`n`n"
+          $readme += "Open-source .NET framework for service-oriented applications with Railway-Oriented Programming, advanced source generation, and type-safe extensibility.`n`n"
+          $readme += "## Packages`n`n"
 
           foreach ($dir in $projectDirs) {
             $readmePath = Join-Path $dir.FullName "README.md"
@@ -366,35 +361,22 @@ Open-source .NET framework for service-oriented applications with Railway-Orient
             }
           }
 
-          $readme += @"
-
-## Tests
-
-All public projects include comprehensive test coverage in the tests directory.
-
-## Documentation
-
-Documentation is included in each project's README.
-
-## Getting Started
-
-Install packages from NuGet.org:
-
-````
-dotnet add package FractalDataWorks.Results
-dotnet add package FractalDataWorks.Collections
-dotnet add package FractalDataWorks.Services
-````
-
-## License
-
-Apache 2.0 - see [LICENSE](LICENSE) for details.
-
-## Links
-
-- [GitHub Repository](https://github.com/CyberdineDevelopment/FractalDataWorks-Platform)
-- [NuGet Packages](https://www.nuget.org/profiles/CyberdineDevelopment)
-"@
+          $readme += "`n## Tests`n`n"
+          $readme += "All public projects include comprehensive test coverage in the tests directory.`n`n"
+          $readme += "## Documentation`n`n"
+          $readme += "Documentation is included in each project's README.`n`n"
+          $readme += "## Getting Started`n`n"
+          $readme += "Install packages from NuGet.org:`n`n"
+          $readme += "```bash`n"
+          $readme += "dotnet add package FractalDataWorks.Results`n"
+          $readme += "dotnet add package FractalDataWorks.Collections`n"
+          $readme += "dotnet add package FractalDataWorks.Services`n"
+          $readme += "``````n`n"
+          $readme += "## License`n`n"
+          $readme += "Apache 2.0 - see [LICENSE](LICENSE) for details.`n`n"
+          $readme += "## Links`n`n"
+          $readme += "- [GitHub Repository](https://github.com/CyberdineDevelopment/FractalDataWorks-Platform)`n"
+          $readme += "- [NuGet Packages](https://www.nuget.org/profiles/CyberdineDevelopment)`n"
 
           # Write README
           Set-Content -Path "README.md" -Value $readme -NoNewline
