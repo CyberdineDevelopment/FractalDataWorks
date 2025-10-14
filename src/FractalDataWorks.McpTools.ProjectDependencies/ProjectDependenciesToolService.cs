@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using FractalDataWorks.McpTools.Abstractions;
+using FractalDataWorks.McpTools.Abstractions.Logging;
 
 namespace FractalDataWorks.McpTools.ProjectDependencies;
 
@@ -39,6 +40,6 @@ public class ProjectDependenciesToolService
     private void RegisterTools()
     {
         // Tools will be registered here as we migrate them
-        _logger.LogInformation("Registered {Count} project dependency tools", _tools.Count);
+        McpToolServiceLog.ToolsRegistered(_logger, _tools.Count, "project dependency");
     }
 }

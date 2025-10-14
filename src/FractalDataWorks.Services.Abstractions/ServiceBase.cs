@@ -5,6 +5,7 @@ using FractalDataWorks.Abstractions;
 using FractalDataWorks.Configuration.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Abstractions;
+using FractalDataWorks.Services.Abstractions.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -83,10 +84,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
             return await Execute<T>(typedCommand, cancellationToken).ConfigureAwait(false);
         }
 
-        Logger.LogError(
-            "Command type mismatch: expected {ExpectedType}, received {ActualType}",
-            typeof(TCommand).Name,
-            command?.GetType().Name ?? "null");
+        ServiceBaseLog.CommandTypeMismatch(Logger, typeof(TCommand).Name, command?.GetType().Name ?? "null");
 
         return GenericResult<T>.Failure(
             $"Invalid command type: expected {typeof(TCommand).Name}, received {command?.GetType().Name ?? "null"}");
@@ -106,10 +104,7 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
             return await Execute(typedCommand, cancellationToken).ConfigureAwait(false);
         }
 
-        Logger.LogError(
-            "Command type mismatch: expected {ExpectedType}, received {ActualType}",
-            typeof(TCommand).Name,
-            command?.GetType().Name ?? "null");
+        ServiceBaseLog.CommandTypeMismatch(Logger, typeof(TCommand).Name, command?.GetType().Name ?? "null");
 
         return GenericResult.Failure(
             $"Invalid command type: expected {typeof(TCommand).Name}, received {command?.GetType().Name ?? "null"}");

@@ -40,15 +40,15 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         TConfiguration configuration,
         IDictionary<string, object>? metadata = null)
     {
-        Id = id ?? throw new ArgumentNullException(nameof(id));
-        Name = name ?? throw new ArgumentNullException(nameof(name));
-        StoreType = storeType ?? throw new ArgumentNullException(nameof(storeType));
-        Location = location ?? throw new ArgumentNullException(nameof(location));
-        Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        
+        Id = id;
+        Name = name;
+        StoreType = storeType;
+        Location = location;
+        Configuration = configuration;
+
         _paths = new Dictionary<string, IDataPath>(StringComparer.Ordinal);
         _metadata = new Dictionary<string, object>(StringComparer.Ordinal);
-        
+
         if (metadata != null)
         {
             foreach (var kvp in metadata)
@@ -84,11 +84,11 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     {
         try
         {
-            return await TestConnectionCoreAsync().ConfigureAwait(false);
+            return await PerformConnectionTestAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            return GenericResult.Failure($"Connection test failed: {ex.Message}");
+            return GenericResult.Failure(string.Format(ConnectionTestFailedMessage.Instance.Message, ex.Message));
         }
     }
 
@@ -97,8 +97,8 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     {
         try
         {
-            var discoveredPaths = await DiscoverPathsCoreAsync().ConfigureAwait(false);
-            
+            var discoveredPaths = await DiscoverStorePathsAsync().ConfigureAwait(false);
+
             if (discoveredPaths.IsSuccess)
             {
                 // Update the internal paths collection
@@ -108,12 +108,12 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
                     _paths[path.Name] = path;
                 }
             }
-            
+
             return discoveredPaths;
         }
         catch (Exception ex)
         {
-            return GenericResult<IEnumerable<IDataPath>>.Failure($"Path discovery failed: {ex.Message}");
+            return GenericResult<IEnumerable<IDataPath>>.Failure(string.Format(PathDiscoveryFailedMessage.Instance.Message, ex.Message));
         }
     }
 
@@ -139,8 +139,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
             return GenericResult.Success();
 
         return GenericResult.Failure(
-            $"Store type '{StoreType}' is not compatible with connection type '{connectionType}'. " +
-            $"Compatible types: {string.Join(", ", compatibleTypes)}");
+            string.Format(StoreTypeIncompatibleMessage.Instance.Message, StoreType, connectionType, string.Join(", ", compatibleTypes)));
     }
 
     /// <inheritdoc/>
@@ -155,7 +154,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
             if (!validationResult.IsSuccess)
                 return validationResult;
 
-            var updateResult = await UpdateConfigurationCoreAsync(configuration).ConfigureAwait(false);
+            var updateResult = await ApplyConfigurationAsync(configuration).ConfigureAwait(false);
             if (updateResult.IsSuccess)
             {
                 Configuration = configuration;
@@ -165,12 +164,12 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return GenericResult.Failure($"Configuration update failed: {ex.Message}");
+            return GenericResult.Failure(string.Format(ConfigurationUpdateFailedMessage.Instance.Message, ex.Message));
         }
     }
 
     /// <summary>
-    /// Performs the core connection test logic specific to the store type.
+    /// Performs the connection test logic specific to the store type.
     /// </summary>
     /// <returns>A result indicating whether the connection test succeeded.</returns>
     /// <remarks>
@@ -178,10 +177,10 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// connectivity testing. It should validate that the store location is reachable
     /// and any required credentials are valid.
     /// </remarks>
-    protected abstract Task<IGenericResult> TestConnectionCoreAsync();
+    protected abstract Task<IGenericResult> PerformConnectionTestAsync();
 
     /// <summary>
-    /// Performs the core path discovery logic specific to the store type.
+    /// Discovers the available data paths within the store.
     /// </summary>
     /// <returns>A result containing the discovered paths.</returns>
     /// <remarks>
@@ -189,7 +188,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// data paths within the store. For example, listing tables in a database,
     /// endpoints in an API, or files in a directory.
     /// </remarks>
-    protected abstract Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverPathsCoreAsync();
+    protected abstract Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverStorePathsAsync();
 
     /// <summary>
     /// Gets the connection types that are compatible with this store type.
@@ -217,7 +216,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     }
 
     /// <summary>
-    /// Performs store-specific configuration update logic.
+    /// Applies store-specific configuration update logic.
     /// </summary>
     /// <param name="configuration">The new configuration to apply.</param>
     /// <returns>A result indicating whether the update succeeded.</returns>
@@ -226,7 +225,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// store-specific update logic such as re-establishing connections or
     /// clearing caches.
     /// </remarks>
-    protected virtual Task<IGenericResult> UpdateConfigurationCoreAsync(TConfiguration configuration)
+    protected virtual Task<IGenericResult> ApplyConfigurationAsync(TConfiguration configuration)
     {
         return Task.FromResult(GenericResult.Success());
     }

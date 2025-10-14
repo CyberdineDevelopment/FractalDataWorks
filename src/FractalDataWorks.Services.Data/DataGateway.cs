@@ -5,7 +5,8 @@ using FractalDataWorks.Data.Abstractions;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Data.Abstractions;
-
+using FractalDataWorks.Services.Data.Abstractions.Messages;
+using FractalDataWorks.Services.Data.Logging;
 
 namespace FractalDataWorks.Services.DataGateway;
 
@@ -34,15 +35,14 @@ public sealed class DataGatewayService : IDataGateway
     /// <inheritdoc/>
     public async Task<IGenericResult<T>> Execute<T>(IDataCommand command, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Routing data command {CommandType} to connection {ConnectionName}",
-            command.CommandType, command.ConnectionName);
+        DataGatewayLog.RoutingCommand(_logger, command.CommandType, command.ConnectionName);
 
         // Get data connection by name
         var connectionResult = await _connectionProvider.GetConnection(command.ConnectionName).ConfigureAwait(false);
         if (!connectionResult.IsSuccess || connectionResult.Value == null)
         {
-            _logger.LogError("Failed to get data connection {ConnectionName}", command.ConnectionName);
-            return GenericResult<T>.Failure($"Connection '{command.ConnectionName}' not found");
+            DataGatewayLog.ConnectionRetrievalFailed(_logger, command.ConnectionName);
+            return GenericResult<T>.Failure(string.Format(ConnectionNotFoundMessage.Instance.Message, command.ConnectionName));
         }
 
         var connection = connectionResult.Value;
