@@ -450,7 +450,9 @@ jobs:
           Write-Host ""
           Write-Host "✓ Updated $updated projects with public repo URL" -ForegroundColor Green
 
-          git add *.csproj
+          if ($updated -gt 0) {
+            git add -A
+          }
 
       - name: Update sync state
         if: steps.commits.outputs.has_commits == 'true'
