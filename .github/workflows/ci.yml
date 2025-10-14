@@ -130,7 +130,7 @@ jobs:
           
       - name: Pack packages
         run: |
-          dotnet pack --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --output ${{ github.workspace }}/packages -p:RepositoryUrl=${{ github.server_url }}/${{ github.repository }} -p:RepositoryBranch=${{ github.ref_name }} -p:RepositoryCommit=${{ github.sha }}
+          dotnet pack --configuration ${{ env.BUILD_CONFIGURATION }} --output ${{ github.workspace }}/packages -p:RepositoryUrl=${{ github.server_url }}/${{ github.repository }} -p:RepositoryBranch=${{ github.ref_name }} -p:RepositoryCommit=${{ github.sha }}
           
       - name: Upload packages
         uses: actions/upload-artifact@v4
