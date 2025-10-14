@@ -353,7 +353,7 @@ jobs:
 
 Open-source .NET framework for service-oriented applications with Railway-Oriented Programming, advanced source generation, and type-safe extensibility.
 
-## 📦 Packages
+## Packages
 
 "@
 
@@ -368,29 +368,29 @@ Open-source .NET framework for service-oriented applications with Railway-Orient
 
           $readme += @"
 
-## 🧪 Tests
+## Tests
 
-All public projects include comprehensive test coverage in the `tests/` directory.
+All public projects include comprehensive test coverage in the tests directory.
 
-## 📖 Documentation
+## Documentation
 
 Documentation is included in each project's README.
 
-## 🚀 Getting Started
+## Getting Started
 
 Install packages from NuGet.org:
 
-``````bash
+````
 dotnet add package FractalDataWorks.Results
 dotnet add package FractalDataWorks.Collections
 dotnet add package FractalDataWorks.Services
-``````
+````
 
-## 📄 License
+## License
 
 Apache 2.0 - see [LICENSE](LICENSE) for details.
 
-## 🔗 Links
+## Links
 
 - [GitHub Repository](https://github.com/CyberdineDevelopment/FractalDataWorks-Platform)
 - [NuGet Packages](https://www.nuget.org/profiles/CyberdineDevelopment)
