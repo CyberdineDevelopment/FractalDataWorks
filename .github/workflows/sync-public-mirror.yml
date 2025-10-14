@@ -504,11 +504,16 @@ jobs:
 
           $branch = "${{ github.ref_name }}"
 
+          # Fetch latest remote state first
+          Write-Host "Fetching latest from remote..." -ForegroundColor Cyan
+          git fetch origin $branch
+
           # Try to push, if rejected due to diverged history, use force-with-lease
           git push origin HEAD:$branch
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Push rejected, attempting force push with lease..." -ForegroundColor Yellow
-            git push --force-with-lease origin HEAD:$branch
+            # Force with lease using the fetched remote ref
+            git push --force-with-lease=refs/heads/${branch}:refs/remotes/origin/$branch origin HEAD:$branch
             if ($LASTEXITCODE -eq 0) {
               Write-Host "✓ Force pushed to public repository branch: $branch" -ForegroundColor Green
             } else {
