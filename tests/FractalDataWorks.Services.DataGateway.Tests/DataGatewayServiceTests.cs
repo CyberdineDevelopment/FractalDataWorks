@@ -45,7 +45,7 @@ public sealed class DataGatewayServiceTests
             .ReturnsAsync(GenericResult<IDataConnection>.Failure("Connection not found"));
 
         // Act
-        var result = await service.Execute<string>(commandMock.Object);
+        var result = await service.Execute<string>(commandMock.Object,TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
@@ -66,7 +66,7 @@ public sealed class DataGatewayServiceTests
             .ReturnsAsync(GenericResult<IDataConnection>.Success(null!));
 
         // Act
-        var result = await service.Execute<string>(commandMock.Object);
+        var result = await service.Execute<string>(commandMock.Object,TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
@@ -92,7 +92,7 @@ public sealed class DataGatewayServiceTests
             .ReturnsAsync(GenericResult<IDataConnection>.Success(connectionMock.Object));
 
         // Act
-        var result = await service.Execute<string>(commandMock.Object);
+        var result = await service.Execute<string>(commandMock.Object,TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -148,7 +148,7 @@ public sealed class DataGatewayServiceTests
             .ReturnsAsync(GenericResult<IDataConnection>.Success(connectionMock.Object));
 
         // Act
-        await service.Execute<string>(commandMock.Object);
+        await service.Execute<string>(commandMock.Object,TestContext.Current.CancellationToken);
 
         // Assert
         _loggerMock.Verify(
@@ -175,7 +175,7 @@ public sealed class DataGatewayServiceTests
             .ReturnsAsync(GenericResult<IDataConnection>.Failure("Not found"));
 
         // Act
-        await service.Execute<string>(commandMock.Object);
+        await service.Execute<string>(commandMock.Object,TestContext.Current.CancellationToken);
 
         // Assert
         _loggerMock.Verify(
