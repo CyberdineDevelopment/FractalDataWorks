@@ -112,6 +112,7 @@ jobs:
         run: |
           git config --global user.name "${{ github.event.head_commit.author.name }}"
           git config --global user.email "${{ github.event.head_commit.author.email }}"
+          git config --global core.longpaths true
 
       - name: Get commits since last sync
         id: commits
