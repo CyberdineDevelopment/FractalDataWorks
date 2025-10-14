@@ -247,12 +247,8 @@ jobs:
 
           Write-Host "Generating README index..." -ForegroundColor Cyan
 
-          # Find all projects with READMEs (excluding root, tests, samples)
-          $readmes = Get-ChildItem -Path "src" -Filter "README.md" -Recurse -File -ErrorAction SilentlyContinue |
-            Where-Object {
-              $_.FullName -notlike "*\bin\*" -and
-              $_.FullName -notlike "*\obj\*"
-            } | Sort-Object DirectoryName
+          # Find all project folders in src
+          $projectDirs = Get-ChildItem -Path "src" -Directory -ErrorAction SilentlyContinue
 
           # Build README content
           $readme = @"
@@ -264,10 +260,13 @@ jobs:
 
           "@
 
-          foreach ($file in $readmes) {
-            $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $file.FullName)
-            $projectName = Split-Path (Split-Path $file.DirectoryName -Leaf) -Leaf
-            $readme += "- [**$projectName**]($($relativePath -replace '\\','/'))`n"
+          foreach ($dir in $projectDirs | Sort-Object Name) {
+            $readmePath = Join-Path $dir.FullName "README.md"
+            if (Test-Path $readmePath) {
+              $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $readmePath)
+              $projectName = $dir.Name
+              $readme += "- [**$projectName**]($($relativePath -replace '\\','/'))`n"
+            }
           }
 
           $readme += @"
