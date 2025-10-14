@@ -129,8 +129,14 @@ jobs:
           path: ${{ runner.temp }}/CodeCoverage
           
       - name: Pack packages
+        shell: pwsh
         run: |
-          dotnet pack --configuration ${{ env.BUILD_CONFIGURATION }} --output ${{ github.workspace }}/packages -p:RepositoryUrl=${{ github.server_url }}/${{ github.repository }} -p:RepositoryBranch=${{ github.ref_name }} -p:RepositoryCommit=${{ github.sha }}
+          $projects = Get-ChildItem -Path src -Filter "*.csproj" -Recurse -File |
+            Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
+
+          foreach ($proj in $projects) {
+            dotnet pack $proj.FullName --configuration ${{ env.BUILD_CONFIGURATION }} --output ${{ github.workspace }}/packages -p:RepositoryUrl=${{ github.server_url }}/${{ github.repository }} -p:RepositoryBranch=${{ github.ref_name }} -p:RepositoryCommit=${{ github.sha }}
+          }
           
       - name: Upload packages
         uses: actions/upload-artifact@v4
