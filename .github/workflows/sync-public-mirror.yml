@@ -499,9 +499,21 @@ jobs:
           cd public-repo
 
           $branch = "${{ github.ref_name }}"
-          git push origin HEAD:$branch
 
-          Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
+          # Try to push, if rejected due to diverged history, use force-with-lease
+          git push origin HEAD:$branch
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Push rejected, attempting force push with lease..." -ForegroundColor Yellow
+            git push --force-with-lease origin HEAD:$branch
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "✓ Force pushed to public repository branch: $branch" -ForegroundColor Green
+            } else {
+              Write-Host "✗ Failed to push to public repository" -ForegroundColor Red
+              exit 1
+            }
+          } else {
+            Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
+          }
 
       - name: Summary
         shell: pwsh
