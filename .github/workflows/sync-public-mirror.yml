@@ -483,6 +483,10 @@ jobs:
 
           $hasChanges = git status --porcelain
           if ($hasChanges) {
+            # Configure git for this commit
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+
             $commitMsg = "Update metadata (solution, README, workflows, sync state)`n`n"
             $commitMsg += "Automated update for public repository`n"
             $commitMsg += "Branch: ${{ github.ref_name }}`n"
