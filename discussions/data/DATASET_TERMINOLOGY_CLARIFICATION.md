@@ -1,5 +1,13 @@
 # DataSet Terminology Clarification
 
+> **✅ ISSUE RESOLVED**
+>
+> This document correctly identifies and resolves the terminology confusion between:
+> - ~~**IDataSet<T>** as queryable collection (EF Core DbSet-like)~~ - **DECLINED**
+> - **IDataSet** as schema/metadata definition - **ACCEPTED**
+>
+> **Outcome**: DataSet refers to metadata/schema only. The queryable collection concept remains undefined (may be IDataCollection<T> or something else in future).
+
 ## The Mismatch
 
 **My View of IDataSet<T>**: I used "DataSet" to mean an **EF Core DbSet-like collection** for querying:

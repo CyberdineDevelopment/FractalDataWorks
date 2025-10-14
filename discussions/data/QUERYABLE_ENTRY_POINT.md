@@ -1,5 +1,13 @@
 # IQueryable Entry Point in FractalDataWorks
 
+> **⚠️ HISTORICAL DOCUMENT - CONCEPT EVOLVED**
+>
+> **~~DataSet as queryable collection API (IDataSet<T> : IQueryable<T>)~~** - This concept was **declined**.
+>
+> **Clarification**: The term "DataSet" in FractalDataWorks refers to **metadata/schema definitions** (what the data IS), not a queryable collection API like EF Core's DbSet<T>.
+>
+> This document remains for historical context showing the evolution of thought around LINQ integration, but the DataSet-as-collection approach was not pursued.
+
 ## The Question: What is "dbContext"?
 
 In my generic DataCommands examples, I used:
