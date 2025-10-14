@@ -193,35 +193,7 @@ jobs:
             Write-Host "Processing commit: $commitSha" -ForegroundColor White
             Write-Host "  Author: $authorName <$authorEmail>"
             Write-Host "  Message: $commitMessage"
-
-            # Check if this commit touches any public paths
-            $changedFiles = git diff-tree --no-commit-id --name-only -r $commitSha
-            $touchesPublic = $false
-
-            foreach ($file in $changedFiles) {
-              foreach ($publicPath in $publicProjects) {
-                if ($file -like "$publicPath/*") {
-                  $touchesPublic = $true
-                  break
-                }
-              }
-              if ($touchesPublic) { break }
-
-              foreach ($testPath in $testProjects) {
-                if ($file -like "$testPath/*") {
-                  $touchesPublic = $true
-                  break
-                }
-              }
-              if ($touchesPublic) { break }
-            }
-
-            if (-not $touchesPublic) {
-              Write-Host "  ⊘ Skipping (no public changes)" -ForegroundColor Gray
-              continue
-            }
-
-            Write-Host "  ✓ Syncing (touches public projects)" -ForegroundColor Green
+            Write-Host "  ✓ Syncing all non-excluded projects" -ForegroundColor Green
 
             # Clean and copy public projects
             cd $publicRepo
