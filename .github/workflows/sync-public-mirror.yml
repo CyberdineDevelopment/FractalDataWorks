@@ -481,11 +481,11 @@ jobs:
 
           $hasChanges = git status --porcelain
           if ($hasChanges) {
-            git commit -m "Update metadata (solution, README, workflows, sync state)
-
-Automated update for public repository
-Branch: ${{ github.ref_name }}
-Private commit: ${{ github.sha }}"
+            $commitMsg = "Update metadata (solution, README, workflows, sync state)`n`n"
+            $commitMsg += "Automated update for public repository`n"
+            $commitMsg += "Branch: ${{ github.ref_name }}`n"
+            $commitMsg += "Private commit: ${{ github.sha }}"
+            git commit -m $commitMsg
 
             Write-Host "✓ Committed metadata changes" -ForegroundColor Green
           }
