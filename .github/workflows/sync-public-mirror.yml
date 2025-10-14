@@ -33,12 +33,22 @@ jobs:
         run: |
           Write-Host "Discovering public projects..." -ForegroundColor Cyan
 
+          # Define exclusion patterns for projects that should NEVER be synced
+          $excludePatterns = @(
+            "*McpTools*",      # MCP tools - private only
+            "*\.Mcp\.*",       # MCP projects
+            "*\.MCP\.*",       # MCP projects (uppercase)
+            "*SqlServer*",     # SQL Server implementations - private only
+            "*\.Rest\.*"       # REST implementations - may have proprietary integrations
+          )
+
           # Find all .csproj files marked as public
           $projectFiles = Get-ChildItem -Path . -Filter "*.csproj" -Recurse -File |
             Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
 
           $publicProjects = @()
           $testProjects = @()
+          $excludedProjects = @()
 
           foreach ($projectFile in $projectFiles) {
             [xml]$csproj = Get-Content $projectFile.FullName
@@ -47,15 +57,29 @@ jobs:
             if ($isPublic) {
               $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $projectFile.DirectoryName)
               $projectName = $projectFile.BaseName
-              $publicProjects += $relativePath
 
-              # Look for corresponding test project
-              $testProjectPath = "tests\$projectName.Tests"
-              if (Test-Path $testProjectPath) {
-                $testProjects += $testProjectPath
-                Write-Host "  ✓ $projectName (with tests)" -ForegroundColor Green
-              } else {
-                Write-Host "  ✓ $projectName" -ForegroundColor Green
+              # Check if project matches any exclusion pattern
+              $isExcluded = $false
+              foreach ($pattern in $excludePatterns) {
+                if ($projectName -like $pattern) {
+                  $isExcluded = $true
+                  $excludedProjects += $projectName
+                  Write-Host "  ⊘ $projectName (excluded by pattern: $pattern)" -ForegroundColor Yellow
+                  break
+                }
+              }
+
+              if (-not $isExcluded) {
+                $publicProjects += $relativePath
+
+                # Look for corresponding test project
+                $testProjectPath = "tests\$projectName.Tests"
+                if (Test-Path $testProjectPath) {
+                  $testProjects += $testProjectPath
+                  Write-Host "  ✓ $projectName (with tests)" -ForegroundColor Green
+                } else {
+                  Write-Host "  ✓ $projectName" -ForegroundColor Green
+                }
               }
             }
           }
@@ -63,6 +87,9 @@ jobs:
           Write-Host ""
           Write-Host "Found $($publicProjects.Count) public projects"
           Write-Host "Found $($testProjects.Count) test projects"
+          if ($excludedProjects.Count -gt 0) {
+            Write-Host "Excluded $($excludedProjects.Count) projects by exclusion patterns" -ForegroundColor Yellow
+          }
 
           # Save to files for later steps
           $publicProjects | Out-File -FilePath "$env:TEMP\public-projects.txt" -Encoding UTF8
@@ -71,6 +98,7 @@ jobs:
           # Output for summary
           echo "project_count=$($publicProjects.Count)" >> $env:GITHUB_OUTPUT
           echo "test_count=$($testProjects.Count)" >> $env:GITHUB_OUTPUT
+          echo "excluded_count=$($excludedProjects.Count)" >> $env:GITHUB_OUTPUT
 
       - name: Checkout public repository
         uses: actions/checkout@v4
@@ -506,9 +534,11 @@ Private commit: ${{ github.sha }}"
           **Commit:** ``${{ github.sha }}``
           **Projects synced:** ${{ steps.discover.outputs.project_count }}
           **Tests synced:** ${{ steps.discover.outputs.test_count }}
+          **Projects excluded:** ${{ steps.discover.outputs.excluded_count }}
           **Commits processed:** ${{ steps.commits.outputs.commit_count }}
 
           Public repository has been updated with commit history preserved.
+          Excluded projects: MCP tools, SQL Server implementations, REST implementations.
           "@
 
           $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding UTF8
