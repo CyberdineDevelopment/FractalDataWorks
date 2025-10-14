@@ -81,7 +81,6 @@ jobs:
 
             dotnet pack $csprojFile.FullName `
               --configuration Release `
-              --no-build `
               --output artifacts `
               /p:IncludeSymbols=true `
               /p:SymbolPackageFormat=snupkg
