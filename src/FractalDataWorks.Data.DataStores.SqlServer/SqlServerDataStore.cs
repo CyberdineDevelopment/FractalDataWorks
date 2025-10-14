@@ -55,7 +55,7 @@ public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
     public IEnumerable<IDataPath> AvailablePaths => throw new NotSupportedException("Path discovery not yet implemented");
 
     /// <inheritdoc/>
-    public async Task<IGenericResult> TestConnectionAsync()
+    public async Task<IGenericResult> TestConnection()
     {
         try
         {
@@ -74,7 +74,7 @@ public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
     }
 
     /// <inheritdoc/>
-    public async Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverPathsAsync()
+    public async Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverPaths()
     {
         try
         {
@@ -131,12 +131,12 @@ public sealed class SqlServerDataStore : IDataStore<SqlServerConfiguration>
     }
 
     /// <inheritdoc/>
-    public Task<IGenericResult> UpdateConfigurationAsync(SqlServerConfiguration configuration)
+    public Task<IGenericResult> UpdateConfiguration(SqlServerConfiguration configuration)
     {
         _configuration = configuration;
         Location = configuration.ConnectionString;
 
         // Test the new configuration
-        return TestConnectionAsync();
+        return TestConnection();
     }
 }

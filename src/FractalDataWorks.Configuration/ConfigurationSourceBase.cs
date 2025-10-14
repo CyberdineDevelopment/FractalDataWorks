@@ -63,17 +63,11 @@ public abstract class ConfigurationSourceBase : IGenericConfigurationSource
     /// <typeparam name="TConfiguration">The type of configuration to save.</typeparam>
     /// <param name="configuration">The configuration to save.</param>
     /// <returns>A task containing the save operation result.</returns>
-    public virtual Task<IGenericResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration)
-        where TConfiguration : IGenericConfiguration
-    {
-        if (!IsWritable)
-        {
-            return Task.FromResult<IGenericResult<TConfiguration>>(
-                GenericResult<TConfiguration>.Failure<TConfiguration>($"Configuration source '{Name}' is read-only"));
-        }
-
-        return SaveCore(configuration);
-    }
+    /// <remarks>
+    /// Implementations should check IsWritable and return failure if the source is read-only.
+    /// </remarks>
+    public abstract Task<IGenericResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration)
+        where TConfiguration : IGenericConfiguration;
 
     /// <summary>
     /// Deletes a configuration from this source.
@@ -81,34 +75,10 @@ public abstract class ConfigurationSourceBase : IGenericConfigurationSource
     /// <typeparam name="TConfiguration">The type of configuration to delete.</typeparam>
     /// <param name="id">The ID of the configuration to delete.</param>
     /// <returns>A task containing the delete operation result.</returns>
-    public virtual Task<IGenericResult<NonResult>> Delete<TConfiguration>(int id)
-        where TConfiguration : IGenericConfiguration
-    {
-        if (!IsWritable)
-        {
-            return Task.FromResult<IGenericResult<NonResult>>(
-                GenericResult<NonResult>.Failure<NonResult>($"Configuration source '{Name}' is read-only"));
-        }
-
-        return DeleteCore<TConfiguration>(id);
-    }
-
-    /// <summary>
-    /// Core implementation of save operation.
-    /// </summary>
-    /// <typeparam name="TConfiguration">The type of configuration to save.</typeparam>
-    /// <param name="configuration">The configuration to save.</param>
-    /// <returns>A task containing the save operation result.</returns>
-    protected abstract Task<IGenericResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
-        where TConfiguration : IGenericConfiguration;
-
-    /// <summary>
-    /// Core implementation of delete operation.
-    /// </summary>
-    /// <typeparam name="TConfiguration">The type of configuration to delete.</typeparam>
-    /// <param name="id">The ID of the configuration to delete.</param>
-    /// <returns>A task containing the delete operation result.</returns>
-    protected abstract Task<IGenericResult<NonResult>> DeleteCore<TConfiguration>(int id)
+    /// <remarks>
+    /// Implementations should check IsWritable and return failure if the source is read-only.
+    /// </remarks>
+    public abstract Task<IGenericResult<NonResult>> Delete<TConfiguration>(int id)
         where TConfiguration : IGenericConfiguration;
 
     /// <summary>

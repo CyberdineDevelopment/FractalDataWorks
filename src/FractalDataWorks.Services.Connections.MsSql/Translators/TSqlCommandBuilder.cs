@@ -27,12 +27,12 @@ internal sealed class TSqlCommandBuilder
         _containerType = containerType ?? throw new ArgumentNullException(nameof(containerType));
     }
 
-    public async Task<IGenericResult<SqlCommand>> BuildAsync(IDataQuery query)
+    public async Task<IGenericResult<SqlCommand>> Build(IDataQuery query)
     {
         try
         {
-            var sql = await BuildSqlAsync(query.Expression).ConfigureAwait(false);
-            
+            var sql = await BuildSql(query.Expression).ConfigureAwait(false);
+
             var command = new SqlCommand(sql);
             foreach (var parameter in _parameters)
             {
@@ -47,7 +47,7 @@ internal sealed class TSqlCommandBuilder
         }
     }
 
-    private async Task<string> BuildSqlAsync(Expression expression)
+    private async Task<string> BuildSql(Expression expression)
     {
         // This is a simplified implementation
         // In a real implementation, this would be a comprehensive LINQ-to-SQL translator

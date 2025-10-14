@@ -80,11 +80,11 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     public IEnumerable<IDataPath> AvailablePaths => _paths.Values;
 
     /// <inheritdoc/>
-    public virtual async Task<IGenericResult> TestConnectionAsync()
+    public virtual async Task<IGenericResult> TestConnection()
     {
         try
         {
-            return await PerformConnectionTestAsync().ConfigureAwait(false);
+            return await PerformConnectionTest().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -93,11 +93,11 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     }
 
     /// <inheritdoc/>
-    public virtual async Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverPathsAsync()
+    public virtual async Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverPaths()
     {
         try
         {
-            var discoveredPaths = await DiscoverStorePathsAsync().ConfigureAwait(false);
+            var discoveredPaths = await DiscoverStorePaths().ConfigureAwait(false);
 
             if (discoveredPaths.IsSuccess)
             {
@@ -143,18 +143,18 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     }
 
     /// <inheritdoc/>
-    public virtual async Task<IGenericResult> UpdateConfigurationAsync(TConfiguration configuration)
+    public virtual async Task<IGenericResult> UpdateConfiguration(TConfiguration configuration)
     {
         if (configuration == null)
             return GenericResult.Failure(DataStoreMessages.DataStoreConfigurationNull());
 
         try
         {
-            var validationResult = await ValidateConfigurationAsync(configuration).ConfigureAwait(false);
+            var validationResult = await ValidateConfiguration(configuration).ConfigureAwait(false);
             if (!validationResult.IsSuccess)
                 return validationResult;
 
-            var updateResult = await ApplyConfigurationAsync(configuration).ConfigureAwait(false);
+            var updateResult = await ApplyConfiguration(configuration).ConfigureAwait(false);
             if (updateResult.IsSuccess)
             {
                 Configuration = configuration;
@@ -177,7 +177,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// connectivity testing. It should validate that the store location is reachable
     /// and any required credentials are valid.
     /// </remarks>
-    protected abstract Task<IGenericResult> PerformConnectionTestAsync();
+    protected abstract Task<IGenericResult> PerformConnectionTest();
 
     /// <summary>
     /// Discovers the available data paths within the store.
@@ -188,7 +188,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// data paths within the store. For example, listing tables in a database,
     /// endpoints in an API, or files in a directory.
     /// </remarks>
-    protected abstract Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverStorePathsAsync();
+    protected abstract Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverStorePaths();
 
     /// <summary>
     /// Gets the connection types that are compatible with this store type.
@@ -210,7 +210,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// The default implementation returns success. Override this method to add
     /// store-specific configuration validation.
     /// </remarks>
-    protected virtual Task<IGenericResult> ValidateConfigurationAsync(TConfiguration configuration)
+    protected virtual Task<IGenericResult> ValidateConfiguration(TConfiguration configuration)
     {
         return Task.FromResult(GenericResult.Success());
     }
@@ -225,7 +225,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     /// store-specific update logic such as re-establishing connections or
     /// clearing caches.
     /// </remarks>
-    protected virtual Task<IGenericResult> ApplyConfigurationAsync(TConfiguration configuration)
+    protected virtual Task<IGenericResult> ApplyConfiguration(TConfiguration configuration)
     {
         return Task.FromResult(GenericResult.Success());
     }

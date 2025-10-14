@@ -72,7 +72,7 @@ public interface IDataStore
     /// This method performs a basic connectivity test without accessing specific data.
     /// It validates that the store location is reachable and credentials are valid.
     /// </remarks>
-    Task<IGenericResult> TestConnectionAsync();
+    Task<IGenericResult> TestConnection();
 
     /// <summary>
     /// Discovers available data paths within this store.
@@ -83,7 +83,7 @@ public interface IDataStore
     /// For example, it might list tables in a database, endpoints in an API,
     /// or directories in a file system.
     /// </remarks>
-    Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverPathsAsync();
+    Task<IGenericResult<IEnumerable<IDataPath>>> DiscoverPaths();
 
     /// <summary>
     /// Gets a specific data path by name.
@@ -133,5 +133,5 @@ public interface IDataStore<TConfiguration> : IDataStore
     /// The store should validate the new configuration and may need to
     /// re-establish connections or clear caches after the update.
     /// </remarks>
-    Task<IGenericResult> UpdateConfigurationAsync(TConfiguration configuration);
+    Task<IGenericResult> UpdateConfiguration(TConfiguration configuration);
 }

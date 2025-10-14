@@ -118,8 +118,14 @@ public class JsonConfigurationSource : ConfigurationSourceBase
     }
 
     /// <inheritdoc/>
-    protected override Task<IGenericResult<TConfiguration>> SaveCore<TConfiguration>(TConfiguration configuration)
+    public override Task<IGenericResult<TConfiguration>> Save<TConfiguration>(TConfiguration configuration)
     {
+        if (!IsWritable)
+        {
+            return Task.FromResult<IGenericResult<TConfiguration>>(
+                GenericResult<TConfiguration>.Failure<TConfiguration>($"Configuration source '{Name}' is read-only"));
+        }
+
         var fileName = GetFileName(configuration);
         var filePath = Path.Combine(_basePath, fileName);
 
@@ -145,8 +151,13 @@ public class JsonConfigurationSource : ConfigurationSourceBase
     }
 
     /// <inheritdoc/>
-    protected override async Task<IGenericResult<NonResult>> DeleteCore<TConfiguration>(int id)
+    public override async Task<IGenericResult<NonResult>> Delete<TConfiguration>(int id)
     {
+        if (!IsWritable)
+        {
+            return GenericResult<NonResult>.Failure<NonResult>($"Configuration source '{Name}' is read-only");
+        }
+
         var fileName = GetFileName<TConfiguration>(id);
         var filePath = Path.Combine(_basePath, fileName);
 
