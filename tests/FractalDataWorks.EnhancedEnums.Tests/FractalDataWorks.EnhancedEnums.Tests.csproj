@@ -20,10 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FractalDataWorks.Abstractions\FractalDataWorks.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
-    <ProjectReference Include="..\..\src\FractalDataWorks.EnhancedEnums.SourceGenerators\FractalDataWorks.EnhancedEnums.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="true"
-                      PrivateAssets="all" />
   </ItemGroup>
   <PropertyGroup>
     <!-- Only include FractalDataWorks.EnhancedEnums in coverage -->
