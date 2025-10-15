@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <Configurations>Debug;Release;Test</Configurations>
+    <IsPublicProject>true</IsPublicProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FractalDataWorks.Data.DataSets\FractalDataWorks.Data.DataSets.csproj" />
+    <ProjectReference Include="..\..\src\FractalDataWorks.Data.DataSets.Abstractions\FractalDataWorks.Data.DataSets.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- Only include FractalDataWorks.Data.DataSets in coverage -->
+    <Include>[FractalDataWorks.Data.DataSets]*</Include>
+    <!-- Exclude everything else -->
+    <Exclude>[FractalDataWorks.*.Abstractions]*,[FractalDataWorks.Messages]*,[FractalDataWorks.EnhancedEnums]*,[FractalDataWorks.Abstractions]*,[FractalDataWorks.Results]*,[FractalDataWorks.Collections]*,[FractalDataWorks.Configuration]*</Exclude>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FractalDataWorks.Data.Transformers.Abstractions\FractalDataWorks.Data.Transformers.Abstractions.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <Include>[FractalDataWorks.Data.Transformers.Abstractions]*</Include>
+    <Exclude>[FractalDataWorks.Messages]*,[FractalDataWorks.Results]*,[FractalDataWorks.Results.Abstractions]*,[FractalDataWorks.Collections]*,[FractalDataWorks.EnhancedEnums]*,[FractalDataWorks.Configuration]*</Exclude>
+  </PropertyGroup>
+</Project>

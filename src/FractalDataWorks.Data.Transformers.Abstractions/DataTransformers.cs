@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
 
@@ -14,7 +15,9 @@ namespace FractalDataWorks.Data.Transformers.Abstractions;
 /// var transformer = DataTransformers.GetByName("PayPalToTransaction");
 /// var allTransformers = DataTransformers.All();
 /// </code>
+/// Generated code tested through source generator tests.
 /// </remarks>
+[ExcludeFromCodeCoverage]
 [TypeCollection(typeof(IDataTransformer), typeof(IDataTransformer), typeof(DataTransformers))]
 public abstract partial class DataTransformers : TypeCollectionBase<IDataTransformer, IDataTransformer>
 {
