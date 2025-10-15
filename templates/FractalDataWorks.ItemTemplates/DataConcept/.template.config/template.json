@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks",
+  "classifications": ["FractalDataWorks", "DataConcept", "Configuration"],
+  "identity": "FractalDataWorks.Templates.DataConcept",
+  "name": "FractalDataWorks DataConcept Configuration",
+  "shortName": "fractaldataworks-dataconcept",
+  "tags": {
+    "language": "JSON",
+    "type": "item"
+  },
+  "sourceName": "dataconcept",
+  "preferNameDirectory": false,
+  "symbols": {
+    "ConceptName": {
+      "type": "parameter",
+      "datatype": "string",
+      "isRequired": true,
+      "replaces": "DataConcept",
+      "fileRename": "dataconcept",
+      "description": "The name of the data concept (e.g., TransactionData, CustomerSales)"
+    },
+    "RecordTypeName": {
+      "type": "parameter",
+      "datatype": "string",
+      "isRequired": true,
+      "replaces": "RecordType",
+      "description": "The .NET type name (e.g., MyApp.Models.Transaction)"
+    },
+    "Description": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "Data concept description",
+      "replaces": "CONCEPT_DESCRIPTION",
+      "description": "Description of this data concept"
+    },
+    "IncludeMultipleSources": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include multiple source examples (federated)"
+    },
+    "IncludeTransformer": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include transformer configuration"
+    },
+    "IncludeDestination": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Include destination configuration (for ETL)"
+    }
+  }
+}

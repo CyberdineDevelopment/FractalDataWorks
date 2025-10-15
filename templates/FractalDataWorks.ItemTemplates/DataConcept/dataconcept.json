@@ -1,0 +1,102 @@
+{
+  "$schema": "https://fractaldataworks.com/schemas/dataconcept.json",
+  "DataConcepts": {
+    "DataConcept": {
+      "Description": "CONCEPT_DESCRIPTION",
+      "RecordTypeName": "RecordType",
+      "Version": "1.0",
+      "Category": "DataConcept",
+      "Fields": [
+        {
+          "Name": "Id",
+          "Type": "string",
+          "IsRequired": true,
+          "Description": "Unique identifier"
+        },
+        {
+          "Name": "Name",
+          "Type": "string",
+          "MaxLength": 200,
+          "IsRequired": true,
+          "Description": "Name field"
+        },
+        {
+          "Name": "CreatedDate",
+          "Type": "datetime",
+          "IsRequired": true,
+          "Description": "Creation timestamp"
+        },
+        {
+          "Name": "IsActive",
+          "Type": "bool",
+          "DefaultValue": true,
+          "Description": "Active status"
+        }
+      ],
+      "KeyFields": ["Id"],
+#if (IncludeMultipleSources)
+      "Sources": {
+        "PrimarySource": {
+          "ConnectionName": "PrimaryDb",
+          "ContainerName": "data_table",
+#if (IncludeTransformer)
+          "TransformerName": "PrimaryToDataConceptTransformer",
+#endif
+          "Query": {
+            "Filter": "IsActive == true",
+            "BatchSize": 1000
+          }
+        },
+        "SecondarySource": {
+          "ConnectionName": "SecondaryAPI",
+          "ContainerName": "https://api.example.com/data",
+#if (IncludeTransformer)
+          "TransformerName": "SecondaryToDataConceptTransformer",
+#endif
+          "Query": {
+            "BatchSize": 500
+          }
+        }
+      },
+#else
+      "Sources": {
+        "DefaultSource": {
+          "ConnectionName": "DefaultConnection",
+          "ContainerName": "data_table",
+#if (IncludeTransformer)
+          "TransformerName": "DataConceptTransformer",
+#endif
+          "Query": {
+            "BatchSize": 1000
+          }
+        }
+      },
+#endif
+#if (IncludeTransformer)
+      "Transformations": [
+        {
+          "Type": "Enrich",
+          "TransformerName": "EnrichWithMetadata",
+          "Description": "Add additional metadata"
+        }
+      ],
+#endif
+#if (IncludeDestination)
+      "Destination": {
+        "ConnectionName": "DataWarehouse",
+        "ContainerName": "fact_dataconcept",
+        "CommandType": "Merge",
+        "KeyFields": ["Id"],
+        "BatchSize": 5000,
+        "Parallel": true,
+        "MaxDegreeOfParallelism": 4
+      },
+#endif
+      "Caching": {
+        "Enabled": false,
+        "ExpirationMinutes": 60,
+        "SlidingExpiration": true
+      }
+    }
+  }
+}
