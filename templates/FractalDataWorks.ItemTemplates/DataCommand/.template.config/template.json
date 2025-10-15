@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks",
+  "classifications": ["FractalDataWorks", "DataCommand", "Class"],
+  "identity": "FractalDataWorks.Templates.DataCommand",
+  "name": "FractalDataWorks DataCommand",
+  "shortName": "fractaldataworks-datacommand",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "DataCommand",
+  "preferNameDirectory": false,
+  "symbols": {
+    "CommandName": {
+      "type": "parameter",
+      "datatype": "string",
+      "isRequired": true,
+      "replaces": "DataCommand",
+      "fileRename": "DataCommand",
+      "description": "The name of the command (e.g., Upsert, BulkInsert, Merge)"
+    },
+    "ResultType": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "int",
+      "replaces": "TResult",
+      "description": "The result type (e.g., IEnumerable<T>, int, bool)"
+    },
+    "InputType": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "T",
+      "replaces": "TInput",
+      "description": "The input type (e.g., T, IEnumerable<T>)"
+    },
+    "Category": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "Query",
+      "choices": [
+        {
+          "choice": "Query",
+          "description": "Read operations (SELECT)"
+        },
+        {
+          "choice": "Insert",
+          "description": "Create operations (INSERT)"
+        },
+        {
+          "choice": "Update",
+          "description": "Modify operations (UPDATE)"
+        },
+        {
+          "choice": "Delete",
+          "description": "Remove operations (DELETE)"
+        }
+      ],
+      "replaces": "CommandCategory",
+      "description": "Command category"
+    },
+    "UniqueId": {
+      "type": "parameter",
+      "datatype": "int",
+      "isRequired": true,
+      "replaces": "99",
+      "description": "Unique ID for this command (must be unique across all DataCommands)"
+    },
+    "HasInputData": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether the command has input data (TInput)"
+    },
+    "HasFilter": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether the command supports Filter property"
+    },
+    "HasProjection": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether the command supports Projection property"
+    },
+    "HasOrdering": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether the command supports Ordering property"
+    },
+    "HasPaging": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether the command supports Paging property"
+    },
+    "namespace": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "FractalDataWorks.Commands.Data",
+      "replaces": "FractalDataWorks.Commands.Data",
+      "description": "The namespace for the command"
+    }
+  }
+}
