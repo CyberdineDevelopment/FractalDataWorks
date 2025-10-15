@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FractalDataWorks.Data.DataStores.Abstractions.Messages;
@@ -88,7 +89,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return GenericResult.Failure(string.Format(ConnectionTestFailedMessage.Instance.Message, ex.Message));
+            return GenericResult.Failure(string.Format(CultureInfo.InvariantCulture, ConnectionTestFailedMessage.Instance.Message, ex.Message));
         }
     }
 
@@ -113,7 +114,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return GenericResult<IEnumerable<IDataPath>>.Failure(string.Format(PathDiscoveryFailedMessage.Instance.Message, ex.Message));
+            return GenericResult<IEnumerable<IDataPath>>.Failure(string.Format(CultureInfo.InvariantCulture, PathDiscoveryFailedMessage.Instance.Message, ex.Message));
         }
     }
 
@@ -131,15 +132,15 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     public virtual IGenericResult ValidateConnectionCompatibility(string connectionType)
     {
         if (string.IsNullOrWhiteSpace(connectionType))
-            return GenericResult.Failure(DataStoreMessages.ConnectionTypeNullOrEmpty());
+            return GenericResult.Failure(ConnectionTypeNullOrEmptyMessage.Instance.Message);
 
         var compatibleTypes = GetCompatibleConnectionTypes();
-        
+
         if (compatibleTypes.Contains(connectionType, StringComparer.OrdinalIgnoreCase))
             return GenericResult.Success();
 
         return GenericResult.Failure(
-            string.Format(StoreTypeIncompatibleMessage.Instance.Message, StoreType, connectionType, string.Join(", ", compatibleTypes)));
+            string.Format(CultureInfo.InvariantCulture, StoreTypeIncompatibleMessage.Instance.Message, StoreType, connectionType, string.Join(", ", compatibleTypes)));
     }
 
     /// <inheritdoc/>
@@ -164,7 +165,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return GenericResult.Failure(string.Format(ConfigurationUpdateFailedMessage.Instance.Message, ex.Message));
+            return GenericResult.Failure(string.Format(CultureInfo.InvariantCulture, ConfigurationUpdateFailedMessage.Instance.Message, ex.Message));
         }
     }
 
