@@ -4,7 +4,7 @@
 
 This guide provides comprehensive documentation for creating FractalDataWorks Translators, which convert universal `IDataCommand` instances into domain-specific `IConnectionCommand` instances.
 
-**Key Principle**: Translators belong WITH the connections that use them (inverted translator architecture).
+**Key Principle**: Translators are SEPARATE, REUSABLE components in `FractalDataWorks.Commands.Data.Translators` project.
 
 ---
 
