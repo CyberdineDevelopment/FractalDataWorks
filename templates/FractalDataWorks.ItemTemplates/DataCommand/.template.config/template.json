@@ -56,7 +56,7 @@
           "description": "Remove operations (DELETE)"
         }
       ],
-      "replaces": "CommandCategory",
+      "replaces": "CATEGORY",
       "description": "Command category"
     },
     "UniqueId": {
