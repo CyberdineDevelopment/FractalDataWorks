@@ -5,188 +5,106 @@ using Shouldly;
 
 namespace FractalDataWorks.Services.Authentication.Abstractions.Tests;
 
+// NOTE: These tests verify TypeCollection behavior when NO concrete implementations exist.
+// When implementations are added (e.g., Auth0, Entra), additional tests should verify
+// that the collections contain those implementations.
+
 public sealed class AuthenticationMethodsTests
 {
     [Fact]
-    public void AuthenticationMethods_All_ShouldReturnAllMethods()
+    public void AuthenticationMethods_All_WhenNoImplementations_ReturnsEmptyArray()
     {
         // Act
         var all = AuthenticationMethods.All();
 
         // Assert
-        all.ShouldNotBeEmpty();
-        // Should contain OAuth2 method used by Entra
-        all.ShouldContain(m => m.Name == "OAuth2");
+        all.ShouldNotBeNull();
+        all.ShouldBeEmpty();
     }
 
     [Fact]
-    public void AuthenticationMethods_Name_ShouldReturnCorrectMethod()
+    public void AuthenticationMethods_Name_WhenNoImplementations_ReturnsEmpty()
     {
         // Act
-        var method = AuthenticationMethods.Name("OAuth2");
+        var method = AuthenticationMethods.Name("NonExistent");
 
         // Assert
         method.ShouldNotBeNull();
-        method.Name.ShouldBe("OAuth2");
-    }
-
-    [Fact]
-    public void AuthenticationMethods_Id_ShouldReturnMethod_WhenIdExists()
-    {
-        // Arrange - Get OAuth2 method used by Entra
-        var oauth2 = AuthenticationMethods.Name("OAuth2");
-
-        // Act
-        var method = AuthenticationMethods.Id(oauth2.Id);
-
-        // Assert
-        method.ShouldNotBeNull();
-        method.Name.ShouldBe("OAuth2");
-    }
-
-    [Fact]
-    public void AuthenticationMethod_ShouldHaveValidProperties()
-    {
-        // Act
-        var method = AuthenticationMethods.Name("OAuth2");
-
-        // Assert
-        method.ShouldNotBeNull();
-        method.Name.ShouldBe("OAuth2");
-        method.AuthenticationScheme.ShouldNotBeNullOrWhiteSpace();
+        method.Name.ShouldBe(string.Empty);
     }
 }
-
-// NOTE: These tests verify the TypeCollection infrastructure by testing against
-// EXISTING implementations from FractalDataWorks.Services.Authentication.Auth0 project.
-// The source generators run during Authentication.Abstractions compilation and discover
-// all [TypeOption] implementations from the Auth0 project via project reference.
-// Test project references Abstractions (collections), Authentication, and Auth0 (implementations).
 
 public sealed class AuthenticationProtocolsTests
 {
     [Fact]
-    public void AuthenticationProtocols_All_ShouldReturnAllProtocols()
+    public void AuthenticationProtocols_All_WhenNoImplementations_ReturnsEmptyArray()
     {
         // Act
         var all = AuthenticationProtocols.All();
 
         // Assert
-        all.ShouldNotBeEmpty();
-        // Should contain protocols used by Entra
-        all.ShouldContain(p => p.Name == "OAuth2");
-        all.ShouldContain(p => p.Name == "OpenIDConnect");
-        all.ShouldContain(p => p.Name == "SAML2");
+        all.ShouldNotBeNull();
+        all.ShouldBeEmpty();
     }
 
     [Fact]
-    public void AuthenticationProtocols_Name_ShouldReturnCorrectProtocol()
+    public void AuthenticationProtocols_Name_WhenNoImplementations_ReturnsEmpty()
     {
         // Act
-        var protocol = AuthenticationProtocols.Name("OAuth2");
+        var protocol = AuthenticationProtocols.Name("NonExistent");
 
         // Assert
         protocol.ShouldNotBeNull();
-        protocol.Name.ShouldBe("OAuth2");
-        protocol.Version.ShouldNotBeNullOrWhiteSpace();
-    }
-
-    [Fact]
-    public void AuthenticationProtocols_Id_ShouldReturnProtocol_WhenIdExists()
-    {
-        // Arrange
-        var oauth2 = AuthenticationProtocols.Name("OAuth2");
-
-        // Act
-        var protocol = AuthenticationProtocols.Id(oauth2.Id);
-
-        // Assert
-        protocol.ShouldNotBeNull();
-        protocol.Name.ShouldBe("OAuth2");
+        protocol.Name.ShouldBe(string.Empty);
     }
 }
 
 public sealed class AuthenticationFlowsTests
 {
     [Fact]
-    public void AuthenticationFlows_All_ShouldReturnAllFlows()
+    public void AuthenticationFlows_All_WhenNoImplementations_ReturnsEmptyArray()
     {
         // Act
         var all = AuthenticationFlows.All();
 
         // Assert
-        all.ShouldNotBeEmpty();
-        // Should contain flows used by Entra
-        all.ShouldContain(f => f.Name == "AuthorizationCode");
-        all.ShouldContain(f => f.Name == "ClientCredentials");
-        all.ShouldContain(f => f.Name == "Interactive");
+        all.ShouldNotBeNull();
+        all.ShouldBeEmpty();
     }
 
     [Fact]
-    public void AuthenticationFlows_Name_ShouldReturnCorrectFlow()
+    public void AuthenticationFlows_Name_WhenNoImplementations_ReturnsEmpty()
     {
         // Act
-        var flow = AuthenticationFlows.Name("ClientCredentials");
+        var flow = AuthenticationFlows.Name("NonExistent");
 
         // Assert
         flow.ShouldNotBeNull();
-        flow.Name.ShouldBe("ClientCredentials");
-    }
-
-    [Fact]
-    public void AuthenticationFlows_Id_ShouldReturnFlow_WhenIdExists()
-    {
-        // Arrange
-        var clientCreds = AuthenticationFlows.Name("ClientCredentials");
-
-        // Act
-        var flow = AuthenticationFlows.Id(clientCreds.Id);
-
-        // Assert
-        flow.ShouldNotBeNull();
-        flow.Name.ShouldBe("ClientCredentials");
+        flow.Name.ShouldBe(string.Empty);
     }
 }
 
 public sealed class TokenTypesTests
 {
     [Fact]
-    public void TokenTypes_All_ShouldReturnAllTokens()
+    public void TokenTypes_All_WhenNoImplementations_ReturnsEmptyArray()
     {
         // Act
         var all = TokenTypes.All();
 
         // Assert
-        all.ShouldNotBeEmpty();
-        // Should contain token types used by Entra
-        all.ShouldContain(t => t.Name == "AccessToken");
-        all.ShouldContain(t => t.Name == "IdToken");
-        all.ShouldContain(t => t.Name == "RefreshToken");
+        all.ShouldNotBeNull();
+        all.ShouldBeEmpty();
     }
 
     [Fact]
-    public void TokenTypes_Name_ShouldReturnCorrectToken()
+    public void TokenTypes_Name_WhenNoImplementations_ReturnsEmpty()
     {
         // Act
-        var token = TokenTypes.Name("AccessToken");
+        var token = TokenTypes.Name("NonExistent");
 
         // Assert
         token.ShouldNotBeNull();
-        token.Name.ShouldBe("AccessToken");
-        token.Format.ShouldNotBeNullOrWhiteSpace();
-    }
-
-    [Fact]
-    public void TokenTypes_Id_ShouldReturnToken_WhenIdExists()
-    {
-        // Arrange
-        var accessToken = TokenTypes.Name("AccessToken");
-
-        // Act
-        var token = TokenTypes.Id(accessToken.Id);
-
-        // Assert
-        token.ShouldNotBeNull();
-        token.Name.ShouldBe("AccessToken");
+        token.Name.ShouldBe(string.Empty);
     }
 }

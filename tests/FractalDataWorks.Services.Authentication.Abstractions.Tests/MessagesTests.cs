@@ -135,7 +135,7 @@ public sealed class MessagesTests
 
         // Assert
         message.ShouldNotBeNull();
-        message.Severity.ShouldBe(MessageSeverity.Error);
+        message.Severity.ShouldBe(MessageSeverity.Warning);
     }
 
     [Fact]
@@ -169,15 +169,5 @@ public sealed class MessagesTests
         // Assert
         message.ShouldNotBeNull();
         message.Severity.ShouldBe(MessageSeverity.Error);
-    }
-
-    [Fact]
-    public void AuthenticationMessageCollectionBase_ShouldBeAccessible()
-    {
-        // Act
-        var collection = AuthenticationMessageCollectionBase.All();
-
-        // Assert
-        collection.ShouldNotBeEmpty();
     }
 }

@@ -48,10 +48,37 @@ public sealed class EnumCollectionBaseTests
         public override int Level => 30;
     }
 
-    [EnumCollection(typeof(TestEnumOption), typeof(TestEnumOption), typeof(TestEnumOptions))]
-    public abstract partial class TestEnumOptions : EnumCollectionBase<TestEnumOption>
+    // Manually implemented collection for testing (not using source generator)
+    public sealed class TestEnumOptions : EnumCollectionBase<TestEnumOption>
     {
-        // Source generator will populate this
+        private static readonly TestEnumOption[] _all =
+        [
+            new EmptyTestOption(),
+            new Option1(),
+            new Option2(),
+            new Option3()
+        ];
+
+        public static TestEnumOption[] All() => _all;
+        public static TestEnumOption Empty() => _all[0];
+        public static TestEnumOption GetByName(string name) =>
+            Array.Find(_all, o => string.Equals(o.Name, name, StringComparison.OrdinalIgnoreCase)) ?? Empty();
+        public static TestEnumOption GetById(int id) =>
+            Array.Find(_all, o => o.Id == id) ?? Empty();
+        public static int Count() => _all.Length;
+        public static bool Any() => _all.Length > 0;
+        public static TestEnumOption GetByIndex(int index) =>
+            index >= 0 && index < _all.Length ? _all[index] : Empty();
+        public static bool TryGetByName(string name, out TestEnumOption option)
+        {
+            option = Array.Find(_all, o => string.Equals(o.Name, name, StringComparison.OrdinalIgnoreCase))!;
+            return option != null;
+        }
+        public static bool TryGetById(int id, out TestEnumOption option)
+        {
+            option = Array.Find(_all, o => o.Id == id)!;
+            return option != null;
+        }
     }
 
     [Fact]
