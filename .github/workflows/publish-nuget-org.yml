@@ -40,13 +40,13 @@ jobs:
         shell: pwsh
 
       - name: Restore dependencies
-        run: dotnet restore FractalDataWorks.sln
+        run: dotnet restore FractalDataWorks.DeveloperKit.sln
 
       - name: Build solution
-        run: dotnet build FractalDataWorks.sln --configuration Release --no-restore
+        run: dotnet build FractalDataWorks.DeveloperKit.sln --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test FractalDataWorks.sln --configuration Release --no-build --verbosity normal
+        run: dotnet test FractalDataWorks.DeveloperKit.sln --configuration Release --no-build --verbosity normal
 
       - name: Pack NuGet packages
         shell: pwsh

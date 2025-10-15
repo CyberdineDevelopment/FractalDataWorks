@@ -31,22 +31,41 @@ jobs:
         id: discover
         shell: pwsh
         run: |
-          Write-Host "Discovering public projects..." -ForegroundColor Cyan
+          Write-Host "Discovering projects to sync..." -ForegroundColor Cyan
 
-          # Find all .csproj files marked as public
+          # Define exclusion patterns for projects that should NEVER be synced (blacklist)
+          $excludePatterns = @(
+            "*McpTools*",      # MCP tools - private only
+            "*\.Mcp\.*",       # MCP projects
+            "*\.MCP\.*",       # MCP projects (uppercase)
+            "*SqlServer*",     # SQL Server implementations - private only
+            "*\.Rest\.*"       # REST implementations - may have proprietary integrations
+          )
+
+          # Find all .csproj files (all projects will sync unless excluded by pattern)
           $projectFiles = Get-ChildItem -Path . -Filter "*.csproj" -Recurse -File |
             Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
 
           $publicProjects = @()
           $testProjects = @()
+          $excludedProjects = @()
 
           foreach ($projectFile in $projectFiles) {
-            [xml]$csproj = Get-Content $projectFile.FullName
-            $isPublic = $csproj.Project.PropertyGroup.IsPublicProject | Where-Object { $_ -eq 'true' }
+            $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $projectFile.DirectoryName)
+            $projectName = $projectFile.BaseName
 
-            if ($isPublic) {
-              $relativePath = [System.IO.Path]::GetRelativePath((Get-Location), $projectFile.DirectoryName)
-              $projectName = $projectFile.BaseName
+            # Check if project matches any exclusion pattern
+            $isExcluded = $false
+            foreach ($pattern in $excludePatterns) {
+              if ($projectName -like $pattern) {
+                $isExcluded = $true
+                $excludedProjects += $projectName
+                Write-Host "  ⊘ $projectName (excluded by pattern: $pattern)" -ForegroundColor Yellow
+                break
+              }
+            }
+
+            if (-not $isExcluded) {
               $publicProjects += $relativePath
 
               # Look for corresponding test project
@@ -63,6 +82,9 @@ jobs:
           Write-Host ""
           Write-Host "Found $($publicProjects.Count) public projects"
           Write-Host "Found $($testProjects.Count) test projects"
+          if ($excludedProjects.Count -gt 0) {
+            Write-Host "Excluded $($excludedProjects.Count) projects by exclusion patterns" -ForegroundColor Yellow
+          }
 
           # Save to files for later steps
           $publicProjects | Out-File -FilePath "$env:TEMP\public-projects.txt" -Encoding UTF8
@@ -71,6 +93,7 @@ jobs:
           # Output for summary
           echo "project_count=$($publicProjects.Count)" >> $env:GITHUB_OUTPUT
           echo "test_count=$($testProjects.Count)" >> $env:GITHUB_OUTPUT
+          echo "excluded_count=$($excludedProjects.Count)" >> $env:GITHUB_OUTPUT
 
       - name: Checkout public repository
         uses: actions/checkout@v4
@@ -89,6 +112,7 @@ jobs:
         run: |
           git config --global user.name "${{ github.event.head_commit.author.name }}"
           git config --global user.email "${{ github.event.head_commit.author.email }}"
+          git config --global core.longpaths true
 
       - name: Get commits since last sync
         id: commits
@@ -170,35 +194,7 @@ jobs:
             Write-Host "Processing commit: $commitSha" -ForegroundColor White
             Write-Host "  Author: $authorName <$authorEmail>"
             Write-Host "  Message: $commitMessage"
-
-            # Check if this commit touches any public paths
-            $changedFiles = git diff-tree --no-commit-id --name-only -r $commitSha
-            $touchesPublic = $false
-
-            foreach ($file in $changedFiles) {
-              foreach ($publicPath in $publicProjects) {
-                if ($file -like "$publicPath/*") {
-                  $touchesPublic = $true
-                  break
-                }
-              }
-              if ($touchesPublic) { break }
-
-              foreach ($testPath in $testProjects) {
-                if ($file -like "$testPath/*") {
-                  $touchesPublic = $true
-                  break
-                }
-              }
-              if ($touchesPublic) { break }
-            }
-
-            if (-not $touchesPublic) {
-              Write-Host "  ⊘ Skipping (no public changes)" -ForegroundColor Gray
-              continue
-            }
-
-            Write-Host "  ✓ Syncing (touches public projects)" -ForegroundColor Green
+            Write-Host "  ✓ Syncing all non-excluded projects" -ForegroundColor Green
 
             # Clean and copy public projects
             cd $publicRepo
@@ -256,6 +252,18 @@ jobs:
 
               if (Test-Path $sourcePath) {
                 Copy-Item -Path $sourcePath -Destination $destPath -Force
+              }
+            }
+
+            # Copy additional directories (templates, samples)
+            $rootDirs = @("templates", "samples")
+            foreach ($dir in $rootDirs) {
+              $sourcePath = Join-Path $privateRepo $dir
+              $destPath = Join-Path $publicRepo $dir
+
+              if (Test-Path $sourcePath) {
+                Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
+                Write-Host "  ✓ Copied $dir directory" -ForegroundColor Green
               }
             }
 
@@ -325,14 +333,9 @@ jobs:
           $projectDirs = Get-ChildItem -Path "src" -Directory -ErrorAction SilentlyContinue | Sort-Object Name
 
           # Build README content
-          $readme = @"
-# FractalDataWorks Platform
-
-Open-source .NET framework for service-oriented applications with Railway-Oriented Programming, advanced source generation, and type-safe extensibility.
-
-## 📦 Packages
-
-"@
+          $readme = "# FractalDataWorks Platform`n`n"
+          $readme += "Open-source .NET framework for service-oriented applications with Railway-Oriented Programming, advanced source generation, and type-safe extensibility.`n`n"
+          $readme += "## Packages`n`n"
 
           foreach ($dir in $projectDirs) {
             $readmePath = Join-Path $dir.FullName "README.md"
@@ -343,35 +346,22 @@ Open-source .NET framework for service-oriented applications with Railway-Orient
             }
           }
 
-          $readme += @"
-
-## 🧪 Tests
-
-All public projects include comprehensive test coverage in the `tests/` directory.
-
-## 📖 Documentation
-
-Documentation is included in each project's README.
-
-## 🚀 Getting Started
-
-Install packages from NuGet.org:
-
-``````bash
-dotnet add package FractalDataWorks.Results
-dotnet add package FractalDataWorks.Collections
-dotnet add package FractalDataWorks.Services
-``````
-
-## 📄 License
-
-Apache 2.0 - see [LICENSE](LICENSE) for details.
-
-## 🔗 Links
-
-- [GitHub Repository](https://github.com/CyberdineDevelopment/FractalDataWorks-Platform)
-- [NuGet Packages](https://www.nuget.org/profiles/CyberdineDevelopment)
-"@
+          $readme += "`n## Tests`n`n"
+          $readme += "All public projects include comprehensive test coverage in the tests directory.`n`n"
+          $readme += "## Documentation`n`n"
+          $readme += "Documentation is included in each project's README.`n`n"
+          $readme += "## Getting Started`n`n"
+          $readme += "Install packages from NuGet.org:`n`n"
+          $readme += "```bash`n"
+          $readme += "dotnet add package FractalDataWorks.Results`n"
+          $readme += "dotnet add package FractalDataWorks.Collections`n"
+          $readme += "dotnet add package FractalDataWorks.Services`n"
+          $readme += "``````n`n"
+          $readme += "## License`n`n"
+          $readme += "Apache 2.0 - see [LICENSE](LICENSE) for details.`n`n"
+          $readme += "## Links`n`n"
+          $readme += "- [GitHub Repository](https://github.com/CyberdineDevelopment/FractalDataWorks-Platform)`n"
+          $readme += "- [NuGet Packages](https://www.nuget.org/profiles/CyberdineDevelopment)`n"
 
           # Write README
           Set-Content -Path "README.md" -Value $readme -NoNewline
@@ -445,7 +435,9 @@ Apache 2.0 - see [LICENSE](LICENSE) for details.
           Write-Host ""
           Write-Host "✓ Updated $updated projects with public repo URL" -ForegroundColor Green
 
-          git add *.csproj
+          if ($updated -gt 0) {
+            git add -A
+          }
 
       - name: Update sync state
         if: steps.commits.outputs.has_commits == 'true'
@@ -476,11 +468,15 @@ Apache 2.0 - see [LICENSE](LICENSE) for details.
 
           $hasChanges = git status --porcelain
           if ($hasChanges) {
-            git commit -m "Update metadata (solution, README, workflows, sync state)
+            # Configure git for this commit
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
 
-Automated update for public repository
-Branch: ${{ github.ref_name }}
-Private commit: ${{ github.sha }}"
+            $commitMsg = "Update metadata (solution, README, workflows, sync state)`n`n"
+            $commitMsg += "Automated update for public repository`n"
+            $commitMsg += "Branch: ${{ github.ref_name }}`n"
+            $commitMsg += "Private commit: ${{ github.sha }}"
+            git commit -m $commitMsg
 
             Write-Host "✓ Committed metadata changes" -ForegroundColor Green
           }
@@ -492,9 +488,27 @@ Private commit: ${{ github.sha }}"
           cd public-repo
 
           $branch = "${{ github.ref_name }}"
-          git push origin HEAD:$branch
 
-          Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
+          # Fetch latest remote state first
+          Write-Host "Fetching latest from remote..." -ForegroundColor Cyan
+          git fetch origin $branch
+          git pull origin $branch --rebase
+
+          # Try to push, if rejected due to diverged history, use force-with-lease
+          git push origin HEAD:$branch
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Push rejected, attempting force push with lease..." -ForegroundColor Yellow
+            # Force with lease using the fetched remote ref
+            git push --force-with-lease=refs/heads/${branch}:refs/remotes/origin/$branch origin HEAD:$branch
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "✓ Force pushed to public repository branch: $branch" -ForegroundColor Green
+            } else {
+              Write-Host "✗ Failed to push to public repository" -ForegroundColor Red
+              exit 1
+            }
+          } else {
+            Write-Host "✓ Changes pushed to public repository branch: $branch" -ForegroundColor Green
+          }
 
       - name: Summary
         shell: pwsh
@@ -506,9 +520,11 @@ Private commit: ${{ github.sha }}"
           **Commit:** ``${{ github.sha }}``
           **Projects synced:** ${{ steps.discover.outputs.project_count }}
           **Tests synced:** ${{ steps.discover.outputs.test_count }}
+          **Projects excluded:** ${{ steps.discover.outputs.excluded_count }}
           **Commits processed:** ${{ steps.commits.outputs.commit_count }}
 
           Public repository has been updated with commit history preserved.
+          Excluded projects: MCP tools, SQL Server implementations, REST implementations.
           "@
 
           $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding UTF8

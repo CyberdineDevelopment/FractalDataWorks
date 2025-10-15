@@ -54,7 +54,7 @@ public sealed class SqlServerDataStoreTests
     }
 
     [Fact]
-    public async Task TestConnectionAsync_ShouldReturnFailure_WhenConnectionStringIsInvalid()
+    public async Task TestConnection_ShouldReturnFailure_WhenConnectionStringIsInvalid()
     {
         // Arrange
         var config = new SqlServerConfiguration
@@ -64,7 +64,7 @@ public sealed class SqlServerDataStoreTests
         var dataStore = new SqlServerDataStore("id", "name", config);
 
         // Act
-        var result = await dataStore.TestConnectionAsync();
+        var result = await dataStore.TestConnection();
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
@@ -72,7 +72,7 @@ public sealed class SqlServerDataStoreTests
     }
 
     [Fact]
-    public async Task TestConnectionAsync_ShouldReturnFailure_WhenServerNotReachable()
+    public async Task TestConnection_ShouldReturnFailure_WhenServerNotReachable()
     {
         // Arrange
         var config = new SqlServerConfiguration
@@ -82,7 +82,7 @@ public sealed class SqlServerDataStoreTests
         var dataStore = new SqlServerDataStore("id", "name", config);
 
         // Act
-        var result = await dataStore.TestConnectionAsync();
+        var result = await dataStore.TestConnection();
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
@@ -91,7 +91,7 @@ public sealed class SqlServerDataStoreTests
     }
 
     [Fact]
-    public async Task DiscoverPathsAsync_ShouldReturnFailure_WhenConnectionStringIsInvalid()
+    public async Task DiscoverPaths_ShouldReturnFailure_WhenConnectionStringIsInvalid()
     {
         // Arrange
         var config = new SqlServerConfiguration
@@ -101,7 +101,7 @@ public sealed class SqlServerDataStoreTests
         var dataStore = new SqlServerDataStore("id", "name", config);
 
         // Act
-        var result = await dataStore.DiscoverPathsAsync();
+        var result = await dataStore.DiscoverPaths();
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
@@ -110,7 +110,7 @@ public sealed class SqlServerDataStoreTests
     }
 
     [Fact]
-    public async Task DiscoverPathsAsync_ShouldReturnFailure_WhenServerNotReachable()
+    public async Task DiscoverPaths_ShouldReturnFailure_WhenServerNotReachable()
     {
         // Arrange
         var config = new SqlServerConfiguration
@@ -120,7 +120,7 @@ public sealed class SqlServerDataStoreTests
         var dataStore = new SqlServerDataStore("id", "name", config);
 
         // Act
-        var result = await dataStore.DiscoverPathsAsync();
+        var result = await dataStore.DiscoverPaths();
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
@@ -168,7 +168,7 @@ public sealed class SqlServerDataStoreTests
     }
 
     [Fact]
-    public async Task UpdateConfigurationAsync_ShouldUpdateConfiguration()
+    public async Task UpdateConfiguration_ShouldUpdateConfiguration()
     {
         // Arrange
         var originalConfig = new SqlServerConfiguration
@@ -185,7 +185,7 @@ public sealed class SqlServerDataStoreTests
         };
 
         // Act
-        var result = await dataStore.UpdateConfigurationAsync(newConfig);
+        var result = await dataStore.UpdateConfiguration(newConfig);
 
         // Assert
         dataStore.Configuration.ShouldBe(newConfig);
@@ -219,7 +219,7 @@ public sealed class SqlServerDataStoreTests
     }
 
     [Fact]
-    public async Task TestConnectionAsync_ShouldReturnSuccess_WithValidLocalDbConnection()
+    public async Task TestConnection_ShouldReturnSuccess_WithValidLocalDbConnection()
     {
         // Arrange
         var config = new SqlServerConfiguration
@@ -229,7 +229,7 @@ public sealed class SqlServerDataStoreTests
         var dataStore = new SqlServerDataStore("id", "name", config);
 
         // Act
-        var result = await dataStore.TestConnectionAsync();
+        var result = await dataStore.TestConnection();
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -237,7 +237,7 @@ public sealed class SqlServerDataStoreTests
     }
 
     [Fact]
-    public async Task DiscoverPathsAsync_ShouldReturnSuccess_WithValidLocalDbConnection()
+    public async Task DiscoverPaths_ShouldReturnSuccess_WithValidLocalDbConnection()
     {
         // Arrange
         var config = new SqlServerConfiguration
@@ -247,7 +247,7 @@ public sealed class SqlServerDataStoreTests
         var dataStore = new SqlServerDataStore("id", "name", config);
 
         // Act
-        var result = await dataStore.DiscoverPathsAsync();
+        var result = await dataStore.DiscoverPaths();
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -255,7 +255,7 @@ public sealed class SqlServerDataStoreTests
     }
 
     [Fact]
-    public async Task UpdateConfigurationAsync_ShouldReturnSuccess_WithValidConnection()
+    public async Task UpdateConfiguration_ShouldReturnSuccess_WithValidConnection()
     {
         // Arrange
         var originalConfig = new SqlServerConfiguration
@@ -272,7 +272,7 @@ public sealed class SqlServerDataStoreTests
         };
 
         // Act
-        var result = await dataStore.UpdateConfigurationAsync(newConfig);
+        var result = await dataStore.UpdateConfiguration(newConfig);
 
         // Assert
         dataStore.Configuration.ShouldBe(newConfig);
