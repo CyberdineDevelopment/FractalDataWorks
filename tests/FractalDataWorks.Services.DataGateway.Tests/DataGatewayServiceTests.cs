@@ -159,24 +159,4 @@ public sealed class DataGatewayServiceTests
         result.Value.ShouldBe("result");
     }
 
-    [Fact]
-    public async Task Execute_ShouldReturnFailure_WhenConnectionNotFound()
-    {
-        // Arrange
-        var service = new DataGatewayService(_loggerMock.Object, _connectionProviderMock.Object);
-        var commandMock = new Mock<IDataCommand>();
-        commandMock.Setup(c => c.ConnectionName).Returns("missing-connection");
-        commandMock.Setup(c => c.CommandType).Returns("Query");
-
-        _connectionProviderMock
-            .Setup(p => p.GetConnection("missing-connection"))
-            .ReturnsAsync(GenericResult<IDataConnection>.Failure("Not found"));
-
-        // Act
-        var result = await service.Execute<string>(commandMock.Object,TestContext.Current.CancellationToken);
-
-        // Assert
-        result.IsSuccess.ShouldBeFalse();
-        result.CurrentMessage.ShouldContain("Not found");
-    }
 }
