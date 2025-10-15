@@ -21,7 +21,7 @@ public sealed class COMMAND_NAMECommand<T> : DataCommandBase<TResult, TInput>
             id: 99,
             name: "COMMAND_NAME",
             containerName,
-            DataCommandCategory.Category,
+            DataCommandCategory.CommandCategory,
             data)
     {
     }
@@ -38,7 +38,7 @@ public sealed class COMMAND_NAMECommand<T> : DataCommandBase<TResult>
             id: 99,
             name: "COMMAND_NAME",
             containerName,
-            DataCommandCategory.Category)
+            DataCommandCategory.CommandCategory)
     {
     }
 #endif
