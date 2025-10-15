@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Threading;
-using System.Threading.Task;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using FractalDataWorks.Data.Abstractions;
 using FractalDataWorks.Results;
@@ -43,7 +43,7 @@ public sealed class DataGatewayService : IDataGateway
         if (!connectionResult.IsSuccess || connectionResult.Value == null)
         {
             DataGatewayLog.ConnectionRetrievalFailed(_logger, command.ConnectionName);
-            return GenericResult<T>.Failure(string.Format(ConnectionNotFoundMessage.Instance.Message, command.ConnectionName));
+            return GenericResult<T>.Failure(string.Format(CultureInfo.InvariantCulture, DataGatewayMessages.ConnectionNotFound().Message, command.ConnectionName));
         }
 
         var connection = connectionResult.Value;

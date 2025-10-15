@@ -6,7 +6,6 @@ namespace FractalDataWorks.Services.Data.Abstractions.Messages;
 /// <summary>
 /// Base class for DataGateway-related messages.
 /// </summary>
-[MessageCollection("DataGatewayMessages")]
 public abstract class DataGatewayMessage : MessageTemplate<MessageSeverity>
 {
     /// <summary>

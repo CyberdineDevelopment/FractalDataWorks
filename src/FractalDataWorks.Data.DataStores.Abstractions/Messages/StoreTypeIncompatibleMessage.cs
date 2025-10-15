@@ -1,17 +1,14 @@
 using FractalDataWorks.Messages;
+using FractalDataWorks.Messages.Attributes;
 
 namespace FractalDataWorks.Data.DataStores.Abstractions.Messages;
 
 /// <summary>
 /// Message indicating that a store type is incompatible with a connection type.
 /// </summary>
+[Message("StoreTypeIncompatible")]
 public sealed class StoreTypeIncompatibleMessage : DataStoreMessage
 {
-    /// <summary>
-    /// Gets the singleton instance of this message.
-    /// </summary>
-    public static StoreTypeIncompatibleMessage Instance { get; } = new();
-
     /// <summary>
     /// Initializes a new instance of the <see cref="StoreTypeIncompatibleMessage"/> class.
     /// </summary>

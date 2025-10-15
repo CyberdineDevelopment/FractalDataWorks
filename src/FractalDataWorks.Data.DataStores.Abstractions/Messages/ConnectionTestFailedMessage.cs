@@ -1,17 +1,14 @@
 using FractalDataWorks.Messages;
+using FractalDataWorks.Messages.Attributes;
 
 namespace FractalDataWorks.Data.DataStores.Abstractions.Messages;
 
 /// <summary>
 /// Message indicating that a connection test failed.
 /// </summary>
+[Message("ConnectionTestFailed")]
 public sealed class ConnectionTestFailedMessage : DataStoreMessage
 {
-    /// <summary>
-    /// Gets the singleton instance of this message.
-    /// </summary>
-    public static ConnectionTestFailedMessage Instance { get; } = new();
-
     /// <summary>
     /// Initializes a new instance of the <see cref="ConnectionTestFailedMessage"/> class.
     /// </summary>

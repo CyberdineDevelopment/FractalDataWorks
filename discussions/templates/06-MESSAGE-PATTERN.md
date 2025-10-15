@@ -105,6 +105,33 @@ public abstract class DataCommandMessageCollectionBase : MessageCollectionBase<D
 
 ---
 
+## Step 2.5: Reference the Messages Source Generator
+
+**CRITICAL**: Your project MUST reference `FractalDataWorks.Messages.SourceGenerators` as an analyzer:
+
+**In your `.csproj` file**:
+
+```xml
+<ItemGroup>
+  <!-- Messages package for base classes and attributes -->
+  <ProjectReference Include="..\FractalDataWorks.Messages\FractalDataWorks.Messages.csproj" />
+
+  <!-- Messages Source Generator - REQUIRED for [MessageCollection] and [Message] -->
+  <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj"
+                    OutputItemType="Analyzer"
+                    ReferenceOutputAssembly="false"
+                    PrivateAssets="all" />
+</ItemGroup>
+```
+
+**Why this matters**:
+- `OutputItemType="Analyzer"` - Runs the generator at compile time
+- `ReferenceOutputAssembly="false"` - Don't reference the DLL, just run it
+- `PrivateAssets="all"` - Don't leak to consumers
+- **Without this**, the `[MessageCollection]` and `[Message]` attributes won't generate code!
+
+---
+
 ## Step 3: Create Concrete Message Classes
 
 **File**: `Messages/CommandRequiredMessage.cs`

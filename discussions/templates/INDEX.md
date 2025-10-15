@@ -354,11 +354,30 @@ Compatible with `dotnet new` template system using standard `template.json` form
 **Always** use this pattern for source generators:
 
 ```xml
-<ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators"
+<!-- Collections Source Generator -->
+<ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj"
+                  OutputItemType="Analyzer"
+                  ReferenceOutputAssembly="false"
+                  PrivateAssets="all" />
+
+<!-- Messages Source Generator - REQUIRED if using [MessageCollection] or [Message] -->
+<ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj"
+                  OutputItemType="Analyzer"
+                  ReferenceOutputAssembly="false"
+                  PrivateAssets="all" />
+
+<!-- EnhancedEnums Source Generator - REQUIRED if using EnhancedEnum -->
+<ProjectReference Include="..\FractalDataWorks.EnhancedEnums.SourceGenerators\FractalDataWorks.EnhancedEnums.SourceGenerators.csproj"
                   OutputItemType="Analyzer"
                   ReferenceOutputAssembly="false"
                   PrivateAssets="all" />
 ```
+
+**Critical**:
+- `OutputItemType="Analyzer"` tells MSBuild to run the generator at compile time
+- `ReferenceOutputAssembly="false"` means don't reference the DLL
+- `PrivateAssets="all"` prevents leaking to package consumers
+- **Without these**, attributes like `[TypeCollection]`, `[MessageCollection]`, `[Message]` won't generate code!
 
 ### 2. TypeCollection Pattern
 

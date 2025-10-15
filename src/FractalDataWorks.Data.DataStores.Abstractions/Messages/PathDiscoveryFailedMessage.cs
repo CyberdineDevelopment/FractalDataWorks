@@ -1,17 +1,14 @@
 using FractalDataWorks.Messages;
+using FractalDataWorks.Messages.Attributes;
 
 namespace FractalDataWorks.Data.DataStores.Abstractions.Messages;
 
 /// <summary>
 /// Message indicating that path discovery failed.
 /// </summary>
+[Message("PathDiscoveryFailed")]
 public sealed class PathDiscoveryFailedMessage : DataStoreMessage
 {
-    /// <summary>
-    /// Gets the singleton instance of this message.
-    /// </summary>
-    public static PathDiscoveryFailedMessage Instance { get; } = new();
-
     /// <summary>
     /// Initializes a new instance of the <see cref="PathDiscoveryFailedMessage"/> class.
     /// </summary>

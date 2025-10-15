@@ -89,7 +89,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return GenericResult.Failure(string.Format(CultureInfo.InvariantCulture, ConnectionTestFailedMessage.Instance.Message, ex.Message));
+            return GenericResult.Failure(string.Format(CultureInfo.InvariantCulture, DataStoreMessages.ConnectionTestFailed().Message, ex.Message));
         }
     }
 
@@ -114,7 +114,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return GenericResult<IEnumerable<IDataPath>>.Failure(string.Format(CultureInfo.InvariantCulture, PathDiscoveryFailedMessage.Instance.Message, ex.Message));
+            return GenericResult<IEnumerable<IDataPath>>.Failure(string.Format(CultureInfo.InvariantCulture, DataStoreMessages.PathDiscoveryFailed().Message, ex.Message));
         }
     }
 
@@ -132,7 +132,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
     public virtual IGenericResult ValidateConnectionCompatibility(string connectionType)
     {
         if (string.IsNullOrWhiteSpace(connectionType))
-            return GenericResult.Failure(ConnectionTypeNullOrEmptyMessage.Instance.Message);
+            return GenericResult.Failure(DataStoreMessages.ConnectionTypeNullOrEmpty().Message);
 
         var compatibleTypes = GetCompatibleConnectionTypes();
 
@@ -140,7 +140,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
             return GenericResult.Success();
 
         return GenericResult.Failure(
-            string.Format(CultureInfo.InvariantCulture, StoreTypeIncompatibleMessage.Instance.Message, StoreType, connectionType, string.Join(", ", compatibleTypes)));
+            string.Format(CultureInfo.InvariantCulture, DataStoreMessages.StoreTypeIncompatible().Message, StoreType, connectionType, string.Join(", ", compatibleTypes)));
     }
 
     /// <inheritdoc/>
@@ -165,7 +165,7 @@ public abstract class DataStoreBase<TConfiguration> : IDataStore<TConfiguration>
         }
         catch (Exception ex)
         {
-            return GenericResult.Failure(string.Format(CultureInfo.InvariantCulture, ConfigurationUpdateFailedMessage.Instance.Message, ex.Message));
+            return GenericResult.Failure(string.Format(CultureInfo.InvariantCulture, DataStoreMessages.ConfigurationUpdateFailed().Message, ex.Message));
         }
     }
 
