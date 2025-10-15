@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "FractalDataWorks",
+  "classifications": ["FractalDataWorks", "DataTransformer", "Class"],
+  "identity": "FractalDataWorks.Templates.DataTransformer",
+  "name": "FractalDataWorks DataTransformer",
+  "shortName": "fractaldataworks-transformer",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "DataTransformer",
+  "preferNameDirectory": false,
+  "symbols": {
+    "TransformerName": {
+      "type": "parameter",
+      "datatype": "string",
+      "isRequired": true,
+      "replaces": "DataTransformer",
+      "fileRename": "DataTransformer",
+      "description": "The name of the transformer (e.g., PayPalToTransaction, SPPCalculator)"
+    },
+    "InputType": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "object",
+      "replaces": "TInput",
+      "description": "The input type (e.g., PayPalTransaction, Meter)"
+    },
+    "OutputType": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "object",
+      "replaces": "TOutput",
+      "description": "The output type (e.g., Transaction, SettlementPointPrice)"
+    },
+    "UniqueId": {
+      "type": "parameter",
+      "datatype": "int",
+      "isRequired": true,
+      "replaces": "99",
+      "description": "Unique ID for this transformer (must be unique across all DataTransformers)"
+    },
+    "IsGenericTransformer": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether the transformer uses generic type parameters"
+    },
+    "SupportsStreaming": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Whether the transformer supports streaming (single record transformation)"
+    },
+    "SupportsParallel": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Whether the transformer is thread-safe for parallel execution"
+    },
+    "namespace": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "FractalDataWorks.Data.Transformers",
+      "replaces": "FractalDataWorks.Data.Transformers",
+      "description": "The namespace for the transformer"
+    }
+  }
+}
