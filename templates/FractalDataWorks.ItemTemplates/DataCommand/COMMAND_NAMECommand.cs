@@ -4,39 +4,39 @@ using FractalDataWorks.Commands.Data.Abstractions;
 namespace FractalDataWorks.Commands.Data;
 
 /// <summary>
-/// DataCommand command for [DESCRIBE OPERATION].
+/// COMMAND_NAME command for [DESCRIBE OPERATION].
 /// </summary>
 /// <typeparam name="T">The type of entity.</typeparam>
 #if (HasInputData)
-[TypeOption(typeof(DataCommands), "DataCommand")]
-public sealed class DataCommandCommand<T> : DataCommandBase<TResult, TInput>
+[TypeOption(typeof(DataCommands), "COMMAND_NAME")]
+public sealed class COMMAND_NAMECommand<T> : DataCommandBase<TResult, TInput>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataCommandCommand{T}"/> class.
+    /// Initializes a new instance of the <see cref="COMMAND_NAMECommand{T}"/> class.
     /// </summary>
     /// <param name="containerName">The name of the container.</param>
     /// <param name="data">The input data.</param>
-    public DataCommandCommand(string containerName, TInput data)
+    public COMMAND_NAMECommand(string containerName, TInput data)
         : base(
             id: 99,
-            name: "DataCommand",
+            name: "COMMAND_NAME",
             containerName,
             DataCommandCategory.Category,
             data)
     {
     }
 #else
-[TypeOption(typeof(DataCommands), "DataCommand")]
-public sealed class DataCommandCommand<T> : DataCommandBase<TResult>
+[TypeOption(typeof(DataCommands), "COMMAND_NAME")]
+public sealed class COMMAND_NAMECommand<T> : DataCommandBase<TResult>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataCommandCommand{T}"/> class.
+    /// Initializes a new instance of the <see cref="COMMAND_NAMECommand{T}"/> class.
     /// </summary>
     /// <param name="containerName">The name of the container.</param>
-    public DataCommandCommand(string containerName)
+    public COMMAND_NAMECommand(string containerName)
         : base(
             id: 99,
-            name: "DataCommand",
+            name: "COMMAND_NAME",
             containerName,
             DataCommandCategory.Category)
     {

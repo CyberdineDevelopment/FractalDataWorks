@@ -9,15 +9,15 @@
     "language": "C#",
     "type": "item"
   },
-  "sourceName": "DataTransformer",
+  "sourceName": "TRANSFORMER_NAME",
   "preferNameDirectory": false,
   "symbols": {
     "TransformerName": {
       "type": "parameter",
       "datatype": "string",
       "isRequired": true,
-      "replaces": "DataTransformer",
-      "fileRename": "DataTransformer",
+      "replaces": "TRANSFORMER_NAME",
+      "fileRename": "TRANSFORMER_NAME",
       "description": "The name of the transformer (e.g., PayPalToTransaction, SPPCalculator)"
     },
     "InputType": {

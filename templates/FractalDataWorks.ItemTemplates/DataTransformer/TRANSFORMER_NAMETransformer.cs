@@ -8,18 +8,18 @@ using FractalDataWorks.Results;
 namespace FractalDataWorks.Data.Transformers;
 
 /// <summary>
-/// DataTransformer transformer for [DESCRIBE TRANSFORMATION].
+/// TRANSFORMER_NAME transformer for [DESCRIBE TRANSFORMATION].
 /// Transforms TInput to TOutput.
 /// </summary>
 #if (IsGenericTransformer)
-[TypeOption(typeof(DataTransformers), "DataTransformer")]
-public sealed class DataTransformerTransformer<TIn, TOut> : TransformerBase<TIn, TOut>
+[TypeOption(typeof(DataTransformers), "TRANSFORMER_NAME")]
+public sealed class TRANSFORMER_NAMETransformer<TIn, TOut> : TransformerBase<TIn, TOut>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataTransformerTransformer{TIn, TOut}"/> class.
+    /// Initializes a new instance of the <see cref="TRANSFORMER_NAMETransformer{TIn, TOut}"/> class.
     /// </summary>
-    public DataTransformerTransformer()
-        : base(id: 99, name: "DataTransformer")
+    public TRANSFORMER_NAMETransformer()
+        : base(id: 99, name: "TRANSFORMER_NAME")
     {
     }
 
@@ -71,14 +71,14 @@ public sealed class DataTransformerTransformer<TIn, TOut> : TransformerBase<TIn,
 #endif
 }
 #else
-[TypeOption(typeof(DataTransformers), "DataTransformer")]
-public sealed class DataTransformerTransformer : TransformerBase<TInput, TOutput>
+[TypeOption(typeof(DataTransformers), "TRANSFORMER_NAME")]
+public sealed class TRANSFORMER_NAMETransformer : TransformerBase<TInput, TOutput>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataTransformerTransformer"/> class.
+    /// Initializes a new instance of the <see cref="TRANSFORMER_NAMETransformer"/> class.
     /// </summary>
-    public DataTransformerTransformer()
-        : base(id: 99, name: "DataTransformer")
+    public TRANSFORMER_NAMETransformer()
+        : base(id: 99, name: "TRANSFORMER_NAME")
     {
     }
 
