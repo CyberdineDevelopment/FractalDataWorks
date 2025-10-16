@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.Data.DataSets.Abstractions\FractalDataWorks.Data.DataSets.Abstractions.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.Configuration\FractalDataWorks.Configuration.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Data.DataSets.Abstractions\FractalDataWorks.Data.DataSets.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Configuration\FractalDataWorks.Configuration.csproj" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
   </ItemGroup>
 
   <ItemGroup>

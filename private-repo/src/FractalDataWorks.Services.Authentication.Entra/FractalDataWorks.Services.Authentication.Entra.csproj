@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.Services.Authentication.Abstractions\FractalDataWorks.Services.Authentication.Abstractions.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.Services.Authentication\FractalDataWorks.Services.Authentication.csproj" />
-    <ProjectReference Include="..\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Services.Authentication.Abstractions\FractalDataWorks.Services.Authentication.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Services.Authentication\FractalDataWorks.Services.Authentication.csproj" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Messages.SourceGenerators\FractalDataWorks.Messages.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Services\FractalDataWorks.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
