@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FractalDataWorks.Data.Execution\FractalDataWorks.Data.Execution.csproj" />
+    <ProjectReference Include="..\..\src\FractalDataWorks.Data.DataSets\FractalDataWorks.Data.DataSets.csproj" />
+    <ProjectReference Include="..\..\src\FractalDataWorks.Data.Transformers.Abstractions\FractalDataWorks.Data.Transformers.Abstractions.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <Include>[FractalDataWorks.Data.Execution]*</Include>
+    <Exclude>[FractalDataWorks.*.Abstractions]*,[FractalDataWorks.Messages]*,[FractalDataWorks.Results]*,[FractalDataWorks.Collections]*</Exclude>
+  </PropertyGroup>
+</Project>

@@ -28,6 +28,16 @@ internal sealed class DataCommandCategory : IGenericCommandCategory
     /// </summary>
     public static readonly DataCommandCategory Delete = new(4, "Delete", requiresTransaction: true, isMutation: true, isCacheable: false);
 
+    /// <summary>
+    /// Gets the singleton Merge category (Upsert operation).
+    /// </summary>
+    public static readonly DataCommandCategory Merge = new(5, "Merge", requiresTransaction: true, isMutation: true, isCacheable: false);
+
+    /// <summary>
+    /// Gets the singleton BulkInsert category.
+    /// </summary>
+    public static readonly DataCommandCategory BulkInsert = new(6, "BulkInsert", requiresTransaction: true, isMutation: true, isCacheable: false);
+
     private DataCommandCategory(int id, string name, bool requiresTransaction, bool isMutation, bool isCacheable)
     {
         Id = id;
