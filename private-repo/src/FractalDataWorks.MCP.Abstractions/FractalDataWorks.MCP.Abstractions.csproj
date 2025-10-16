@@ -1,12 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
   </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
   </PropertyGroup>
-
 </Project>
