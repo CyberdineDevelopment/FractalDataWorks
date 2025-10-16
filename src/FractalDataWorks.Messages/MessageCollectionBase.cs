@@ -2,23 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FractalDataWorks.EnhancedEnums;
 #if NET8_0_OR_GREATER
 using System.Collections.Frozen;
-using System.Diagnostics.CodeAnalysis;
 #endif
 
 namespace FractalDataWorks.Messages;
 
 /// <summary>
 /// Base class for message collections that provides core functionality.
-/// Classes decorated with [MessageCollection] or [GlobalMessageCollection] attributes 
+/// Classes decorated with [MessageCollection] or [GlobalMessageCollection] attributes
 /// can optionally inherit from this base class to get standard collection methods
 /// like GetById(), GetByName(), and TryGetByName() without code generation.
 /// The source generator will populate the static collection in the static constructor.
 /// </summary>
 /// <typeparam name="T">The message type that must derive from MessageTemplate</typeparam>
+[ExcludeFromCodeCoverage]
 public abstract class MessageCollectionBase<T> where T : class, IGenericMessage, IEnumOption
 {
     /// <summary>

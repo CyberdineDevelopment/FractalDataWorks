@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using FractalDataWorks.Messages;
 using FractalDataWorks.Results;
 
@@ -12,7 +14,7 @@ public class IGenericResultTests
         public bool IsEmpty { get; init; }
         public bool Error { get; init; }
         public string? CurrentMessage { get; init; }
-        public IReadOnlyList<IGenericMessage> Messages { get; init; } = Array.Empty<IGenericMessage>();
+        public IReadOnlyList<IGenericMessage> Messages { get; init; } = [];
     }
 
     private class TestResultWithValue<T> : IGenericResult<T>
@@ -22,7 +24,7 @@ public class IGenericResultTests
         public bool IsEmpty { get; init; }
         public bool Error { get; init; }
         public string? CurrentMessage { get; init; }
-        public IReadOnlyList<IGenericMessage> Messages { get; init; } = Array.Empty<IGenericMessage>();
+        public IReadOnlyList<IGenericMessage> Messages { get; init; } = [];
         public T? Value { get; init; }
     }
 
@@ -93,7 +95,7 @@ public class IGenericResultTests
     [Fact]
     public void IGenericResult_Messages_CanBeEmpty()
     {
-        var result = new TestResult { Messages = Array.Empty<IGenericMessage>() };
+        var result = new TestResult { Messages = [] };
 
         result.Messages.ShouldBeEmpty();
     }

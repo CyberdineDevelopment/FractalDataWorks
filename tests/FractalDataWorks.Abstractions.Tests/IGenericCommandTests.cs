@@ -1,3 +1,4 @@
+using System;
 using FractalDataWorks.Abstractions;
 
 namespace FractalDataWorks.Abstractions.Tests;

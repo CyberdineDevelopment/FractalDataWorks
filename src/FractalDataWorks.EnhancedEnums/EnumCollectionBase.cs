@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 #if NET8_0_OR_GREATER
 using System.Collections.Frozen;
@@ -11,12 +12,13 @@ namespace FractalDataWorks.EnhancedEnums;
 
 /// <summary>
 /// Base class for enum collections that provides core functionality.
-/// Classes decorated with [StaticEnumCollection] or [GlobalStaticEnumCollection] attributes 
+/// Classes decorated with [StaticEnumCollection] or [GlobalStaticEnumCollection] attributes
 /// can optionally inherit from this base class to get standard collection methods
 /// like GetById(), GetByName(), and TryGetByName() without code generation.
 /// The source generator will populate the static collection in the static constructor.
 /// </summary>
 /// <typeparam name="T">The enum option type that must derive from EnumOptionBase&lt;T&gt;</typeparam>
+[ExcludeFromCodeCoverage]
 public abstract class EnumCollectionBase<T> where T : IEnumOption<T>
 {
 
