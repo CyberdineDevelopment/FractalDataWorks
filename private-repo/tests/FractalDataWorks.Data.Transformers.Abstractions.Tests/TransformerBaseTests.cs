@@ -88,7 +88,7 @@ public class TransformerBaseTests
         var context = new TransformContext();
 
         // Act
-        var result = transformer.Transform(source, context);
+        var result = transformer.Transform(source, context,TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();

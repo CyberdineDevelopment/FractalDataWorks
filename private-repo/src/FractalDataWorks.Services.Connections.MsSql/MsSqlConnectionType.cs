@@ -12,14 +12,15 @@ namespace FractalDataWorks.Services.Connections.MsSql;
 public sealed class MsSqlConnectionType : ConnectionTypeBase<IGenericConnection, MsSqlConfiguration, IMsSqlConnectionFactory>
 {
     /// <summary>
-    /// Gets the singleton instance of the SQL Server connection type.
-    /// </summary>
-    public static MsSqlConnectionType Instance { get; } = new();
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="MsSqlConnectionType"/> class.
     /// </summary>
-    private MsSqlConnectionType() : base(2, "MsSql", "Database Connections")
+    private MsSqlConnectionType() : base(
+        id: 2,
+        name: "MsSql",
+        sectionName: "MsSql",
+        displayName: "SQL Server",
+        description: "Microsoft SQL Server connection service",
+        category: "Database")
     {
     }
 
@@ -27,7 +28,8 @@ public sealed class MsSqlConnectionType : ConnectionTypeBase<IGenericConnection,
     public override void Register(IServiceCollection services)
     {
         // Register SQL Server specific services
-        services.AddScoped<IMsSqlConnectionFactory, GenericServiceFactory<MsSqlConnection, MsSqlConfiguration>>();
+        // TODO: Implement MsSqlConnectionFactory when MsSqlConnection is restored
+        // services.AddScoped<IMsSqlConnectionFactory, MsSqlConnectionFactory>();
         services.AddScoped<MsSqlService>();
         services.AddScoped<MsSqlCommandTranslator>();
         services.AddScoped<ExpressionTranslator>();

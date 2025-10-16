@@ -10,7 +10,7 @@ public class MsSqlConnectionTypeTests
     public void Constructor_ShouldCreateInstance()
     {
         // Act
-        var connectionType = new MsSqlConnectionType();
+        var connectionType = MsSqlConnectionType;
 
         // Assert
         connectionType.ShouldNotBeNull();

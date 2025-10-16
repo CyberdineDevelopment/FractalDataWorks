@@ -84,7 +84,7 @@ public class DataConceptQueryExecutorTests
         var executor = new DataConceptQueryExecutor(_registryMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await executor.Execute<object>(null!);
+        var result = await executor.Execute<object>(null!,TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.ShouldBeTrue();
@@ -97,7 +97,7 @@ public class DataConceptQueryExecutorTests
         var executor = new DataConceptQueryExecutor(_registryMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await executor.Execute<object>(string.Empty);
+        var result = await executor.Execute<object>(string.Empty, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.ShouldBeTrue();
@@ -110,7 +110,7 @@ public class DataConceptQueryExecutorTests
         var executor = new DataConceptQueryExecutor(_registryMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await executor.Execute<object>("   ");
+        var result = await executor.Execute<object>("   ", TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.ShouldBeTrue();
@@ -126,7 +126,7 @@ public class DataConceptQueryExecutorTests
         var executor = new DataConceptQueryExecutor(_registryMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await executor.Execute<object>("NonExistent");
+        var result = await executor.Execute<object>("NonExistent", TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.ShouldBeTrue();
@@ -152,7 +152,7 @@ public class DataConceptQueryExecutorTests
         var executor = new DataConceptQueryExecutor(_registryMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await executor.Execute<object>("TestConcept");
+        var result = await executor.Execute<object>("TestConcept", TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -189,7 +189,7 @@ public class DataConceptQueryExecutorTests
         var executor = new DataConceptQueryExecutor(_registryMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await executor.Execute<object>("TestConcept");
+        var result = await executor.Execute<object>("TestConcept", TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -235,7 +235,7 @@ public class DataConceptQueryExecutorTests
         var executor = new DataConceptQueryExecutor(_registryMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await executor.Execute<object>("TestConcept");
+        var result = await executor.Execute<object>("TestConcept",TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -289,7 +289,7 @@ public class DataConceptQueryExecutorTests
         var executor = new DataConceptQueryExecutor(_registryMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await executor.Execute<TestRecord>("TestConcept", r => r.Id > 5);
+        var result = await executor.Execute<TestRecord>("TestConcept", r => r.Id > 5, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -310,7 +310,7 @@ public class DataConceptQueryExecutorTests
         var executor = new DataConceptQueryExecutor(_registryMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await executor.Execute<TestRecord>("NonExistent", r => r.Id > 5);
+        var result = await executor.Execute<TestRecord>("NonExistent", r => r.Id > 5, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsFailure.ShouldBeTrue();

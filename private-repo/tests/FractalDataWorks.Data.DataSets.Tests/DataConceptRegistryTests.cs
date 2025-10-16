@@ -399,10 +399,10 @@ public class DataConceptRegistryTests
         await Task.WhenAll(tasks);
 
         // Assert - All should return same instance
-        var firstConcept = tasks[0].Result;
+        var firstConcept = await tasks[0];
         foreach (var task in tasks)
         {
-            task.Result.ShouldBe(firstConcept);
+            (await task).ShouldBe(firstConcept);
         }
     }
 

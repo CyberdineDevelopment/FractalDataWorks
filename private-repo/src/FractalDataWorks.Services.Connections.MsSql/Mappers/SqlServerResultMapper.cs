@@ -56,7 +56,7 @@ internal sealed class SqlServerResultMapper
             var validation = await ValidateResultAsync(connectionResult, dataSet, containerType, typeof(TResult)).ConfigureAwait(false);
             if (!validation.IsSuccess)
             {
-                return GenericResult<IEnumerable<TResult>>.Failure(validation.ErrorMessage!);
+                return GenericResult<IEnumerable<TResult>>.Failure(validation.CurrentMessage ?? "Validation failed");
             }
 
             var results = connectionResult switch
@@ -93,7 +93,7 @@ internal sealed class SqlServerResultMapper
             var validation = await ValidateResultAsync(connectionResult, dataSet, containerType, targetType).ConfigureAwait(false);
             if (!validation.IsSuccess)
             {
-                return GenericResult<IEnumerable<object>>.Failure(validation.ErrorMessage!);
+                return GenericResult<IEnumerable<object>>.Failure(validation.CurrentMessage ?? "Validation failed");
             }
 
             var results = connectionResult switch

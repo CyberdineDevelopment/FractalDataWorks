@@ -8,11 +8,6 @@ namespace FractalDataWorks.Data.DataContainers.Abstractions.Messages;
 public sealed class ReaderCreationFailedMessage : ContainerMessage
 {
     /// <summary>
-    /// Gets the singleton instance of this message.
-    /// </summary>
-    public static ReaderCreationFailedMessage Instance { get; } = new();
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="ReaderCreationFailedMessage"/> class.
     /// </summary>
     public ReaderCreationFailedMessage()

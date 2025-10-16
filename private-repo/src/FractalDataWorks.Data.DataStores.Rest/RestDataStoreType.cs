@@ -8,11 +8,9 @@ namespace FractalDataWorks.Data.DataStores.Rest;
 public sealed class RestDataStoreType : DataStoreTypeBase
 {
     /// <summary>
-    /// Gets the singleton instance of the REST data store type.
+    /// Initializes a new instance of the <see cref="RestDataStoreType"/> class.
     /// </summary>
-    public static RestDataStoreType Instance { get; } = new();
-
-    private RestDataStoreType() : base(
+    public RestDataStoreType() : base(
         id: 2,
         name: "Rest",
         displayName: "REST API",

@@ -8,11 +8,6 @@ namespace FractalDataWorks.Data.DataContainers.Abstractions.Messages;
 public sealed class ReadAccessValidationFailedMessage : ContainerMessage
 {
     /// <summary>
-    /// Gets the singleton instance of this message.
-    /// </summary>
-    public static ReadAccessValidationFailedMessage Instance { get; } = new();
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="ReadAccessValidationFailedMessage"/> class.
     /// </summary>
     public ReadAccessValidationFailedMessage()

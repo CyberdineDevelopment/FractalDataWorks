@@ -18,7 +18,7 @@ public sealed class DataConceptRegistry : IDataConceptRegistry
     private readonly IConfiguration _configuration;
     private readonly ILogger<DataConceptRegistry> _logger;
     private readonly Dictionary<string, DataSetConfiguration> _concepts;
-    private readonly Lock _lock = new Lock();
+    private readonly object _lock = new object();
     private bool _loaded;
 
     /// <summary>
