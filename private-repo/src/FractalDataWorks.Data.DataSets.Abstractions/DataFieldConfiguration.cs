@@ -1,4 +1,4 @@
-namespace FractalDataWorks.Data.DataSets.Abstractions;
+using System;namespace FractalDataWorks.Data.DataSets.Abstractions;
 
 /// <summary>
 /// Configuration class for dataset field definitions.

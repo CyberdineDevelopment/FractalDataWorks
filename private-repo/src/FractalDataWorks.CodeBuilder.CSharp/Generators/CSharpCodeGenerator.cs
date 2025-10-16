@@ -1,6 +1,6 @@
-using System.Collections.Generic;
-using System.Text;
 using FractalDataWorks.CodeBuilder.Abstractions;
+using System;using System.Collections.Generic;
+using System.Text;
 
 namespace FractalDataWorks.CodeBuilder.CSharp.Generators;
 

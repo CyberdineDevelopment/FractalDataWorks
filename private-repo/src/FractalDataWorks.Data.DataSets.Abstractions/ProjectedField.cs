@@ -1,7 +1,7 @@
+using FractalDataWorks.Data.DataSets.Abstractions.Operators;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using FractalDataWorks.Data.DataSets.Abstractions.Operators;
+using System.Linq;using System.Linq.Expressions;
 
 namespace FractalDataWorks.Data.DataSets.Abstractions;
 

@@ -1,7 +1,7 @@
-using System.Collections.Generic;
+using FractalDataWorks.Results;
+using System;using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using FractalDataWorks.Results;
 
 namespace FractalDataWorks.Services.Authentication.Abstractions.Security;
 

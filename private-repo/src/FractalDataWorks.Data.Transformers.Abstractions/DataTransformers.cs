@@ -1,6 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
 using FractalDataWorks.Collections;
 using FractalDataWorks.Collections.Attributes;
+using System;using System.Diagnostics.CodeAnalysis;
 
 namespace FractalDataWorks.Data.Transformers.Abstractions;
 

@@ -1,5 +1,5 @@
 using Microsoft.CodeAnalysis;
-
+using System;
 namespace FractalDataWorks.Messages.SourceGenerators.Discovery;
 
 /// <summary>

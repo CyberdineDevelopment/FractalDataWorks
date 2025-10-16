@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
 using FractalDataWorks.ServiceTypes.SourceGenerators.Models;
+using Microsoft.CodeAnalysis;
+using System;using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace FractalDataWorks.ServiceTypes.SourceGenerators.Generators;
 

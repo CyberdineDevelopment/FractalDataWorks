@@ -1,12 +1,12 @@
-using System;
-using System.Linq;
-using System.Text;
-using Microsoft.CodeAnalysis;
 using FractalDataWorks.CodeBuilder.Abstractions;
 using FractalDataWorks.CodeBuilder.CSharp.Builders;
 using FractalDataWorks.SourceGenerators.Configuration;
 using FractalDataWorks.SourceGenerators.Models;
 using FractalDataWorks.SourceGenerators.Services;
+using Microsoft.CodeAnalysis;
+using System;
+using System.Collections.Generic;using System.Linq;
+using System.Text;
 
 namespace FractalDataWorks.SourceGenerators.Generators;
 
