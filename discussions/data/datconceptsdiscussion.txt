@@ -1,0 +1,35 @@
+
+ ▐▛███▜▌   Claude Code v2.0.19
+▝▜█████▛▘  Sonnet 4.5 · Claude Max
+  ▘▘ ▝▝    D:\FractalDataworks\Developer-Kit-private
+
+ ⚠Large CLAUDE.md will impact performance (42.5k chars > 40.0k) • /memory to edit
+
+> /clear 
+  ⎿  (no content)
+
+> Ok with that in mind set an agent to go file by file and look for classes that don't comply with the requirements 
+in the claude.md file. one example is I know several instances of ILogger being used incorrectly or Logger. instead 
+of using source generated logging. Look up how to do source generated structured logging if you must, but don't do 
+logging differently throught the project. create a partial class for the source generated logging and then add 
+methods with the attribute. The bot should read every file (or you can assign a task per project but the bot 
+shouldn't modify anything. while that is happening I want you to read the data_architecture_plan and 
+data_architecture_detailed files in the .claude folder and then look at the connections and the data projects as 
+well as the datagateway project. I'm not worried about the implementation just yet. I want to see the the 
+abstractions and the domain will support the layout. One thing I think is missing is that any of the Command types 
+should first break that type into an object(or collection of objects) that is common across a domain. then the 
+Connection should take that common object and build or generate the correct method for that type within that domain.
+ that is why we have the Execute and Execute<> methods. So that you don't have to know what is providing the domain,
+ you just need to know what you want. Configuration and other pieces of the framework exist to simplify/standardize 
+the call kind of like a facade applied to the entire domain. I'm not concerned about strict adherence to the detail 
+in a document. What I'm having a hard time envisioning is getting the the workflow we described without some better 
+container/dataset/format/connection/datastore/datagateway/datacommand clarification. It honestly isn't worth setting
+ up implementation if the underlying contracts can't be stubbed out and it should be obvious where each thing is 
+happening ultrathink 
+  ⎿  Interrupted · What should Claude do instead?
+
+> /exit 
+  ⎿  Catch you later!
+
+
+
