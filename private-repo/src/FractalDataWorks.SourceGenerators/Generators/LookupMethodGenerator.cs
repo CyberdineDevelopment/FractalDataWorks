@@ -35,7 +35,7 @@ public sealed class LookupMethodGenerator
         string returnType)
     {
         if (definition?.LookupProperties == null)
-            return Array.Empty<IMethodBuilder>();
+            return [];
 
         var methods = definition.LookupProperties
             .Select(lookup => GenerateLookupMethod(lookup, returnType, definition.TargetFramework))

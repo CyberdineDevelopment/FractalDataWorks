@@ -24,7 +24,7 @@ public class ProjectDependenciesToolService
         Category = "ProjectDependencies";
 
         // Initialize tools
-        _tools = new List<IMcpTool>();
+        _tools = [];
         RegisterTools();
     }
 

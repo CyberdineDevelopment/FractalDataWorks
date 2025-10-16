@@ -27,7 +27,7 @@ internal sealed class ServiceTypeInfoWithCompilation
         Compilation = compilation;
         DiscoveredServiceTypes = discoveredServiceTypes;
         CollectionClass = collectionClass;
-        Diagnostics = diagnostics ?? new List<Diagnostic>();
+        Diagnostics = diagnostics ?? [];
     }
 
     public void Deconstruct(out EnumTypeInfoModel serviceTypeInfoModel, out Compilation compilation, out ImmutableArray<INamedTypeSymbol> discoveredServiceTypes, out INamedTypeSymbol collectionClass)

@@ -100,7 +100,7 @@ public sealed class DataConceptQueryExecutor
         if (concept.Sources.Count == 0)
         {
             _logger.LogWarning("Concept '{ConceptName}' has no configured sources", conceptName);
-            return GenericResult<IEnumerable<T>>.Success(Enumerable.Empty<T>());
+            return GenericResult<IEnumerable<T>>.Success([]);
         }
 
         _logger.LogInformation(

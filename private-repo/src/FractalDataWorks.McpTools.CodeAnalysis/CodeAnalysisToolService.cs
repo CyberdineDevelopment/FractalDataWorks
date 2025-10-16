@@ -24,7 +24,7 @@ public class CodeAnalysisToolService
         Category = "CodeAnalysis";
 
         // Initialize tools
-        _tools = new List<IMcpTool>();
+        _tools = [];
         RegisterTools();
     }
 

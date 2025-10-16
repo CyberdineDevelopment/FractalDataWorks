@@ -31,7 +31,7 @@ internal sealed class EnumTypeInfoWithCompilation
         Compilation = compilation;
         DiscoveredOptionTypes = discoveredOptionTypes;
         CollectionClass = collectionClass;
-        Diagnostics = diagnostics ?? new List<Diagnostic>();
+        Diagnostics = diagnostics ?? [];
     }
 
     public void Deconstruct(

@@ -66,8 +66,8 @@ public sealed class DataQueryBuilder<TSource> : IDataQuery<TSource>
         var methodCall = Expression.Call(
             type: typeof(Queryable),
             methodName: nameof(Queryable.Where),
-            typeArguments: new[] { typeof(TSource) },
-            arguments: new[] { QueryExpression, Expression.Quote(predicate) });
+            typeArguments: [typeof(TSource)],
+            arguments: [QueryExpression, Expression.Quote(predicate)]);
 
         return new DataQueryBuilder<TSource>(DataSetName, methodCall);
     }
@@ -82,8 +82,8 @@ public sealed class DataQueryBuilder<TSource> : IDataQuery<TSource>
         var methodCall = Expression.Call(
             type: typeof(Queryable),
             methodName: nameof(Queryable.Select),
-            typeArguments: new[] { typeof(TSource), typeof(TResult) },
-            arguments: new[] { QueryExpression, Expression.Quote(selector) });
+            typeArguments: [typeof(TSource), typeof(TResult)],
+            arguments: [QueryExpression, Expression.Quote(selector)]);
 
         return new DataQueryBuilder<TResult>(DataSetName, methodCall, typeof(TResult));
     }
@@ -97,8 +97,8 @@ public sealed class DataQueryBuilder<TSource> : IDataQuery<TSource>
         var methodCall = Expression.Call(
             type: typeof(Queryable),
             methodName: nameof(Queryable.OrderBy),
-            typeArguments: new[] { typeof(TSource), typeof(TKey) },
-            arguments: new[] { QueryExpression, Expression.Quote(keySelector) });
+            typeArguments: [typeof(TSource), typeof(TKey)],
+            arguments: [QueryExpression, Expression.Quote(keySelector)]);
 
         return new DataQueryBuilder<TSource>(DataSetName, methodCall);
     }
@@ -112,8 +112,8 @@ public sealed class DataQueryBuilder<TSource> : IDataQuery<TSource>
         var methodCall = Expression.Call(
             type: typeof(Queryable),
             methodName: nameof(Queryable.OrderByDescending),
-            typeArguments: new[] { typeof(TSource), typeof(TKey) },
-            arguments: new[] { QueryExpression, Expression.Quote(keySelector) });
+            typeArguments: [typeof(TSource), typeof(TKey)],
+            arguments: [QueryExpression, Expression.Quote(keySelector)]);
 
         return new DataQueryBuilder<TSource>(DataSetName, methodCall);
     }
@@ -127,8 +127,8 @@ public sealed class DataQueryBuilder<TSource> : IDataQuery<TSource>
         var methodCall = Expression.Call(
             type: typeof(Queryable),
             methodName: nameof(Queryable.Take),
-            typeArguments: new[] { typeof(TSource) },
-            arguments: new[] { QueryExpression, Expression.Constant(count) });
+            typeArguments: [typeof(TSource)],
+            arguments: [QueryExpression, Expression.Constant(count)]);
 
         return new DataQueryBuilder<TSource>(DataSetName, methodCall);
     }
@@ -142,8 +142,8 @@ public sealed class DataQueryBuilder<TSource> : IDataQuery<TSource>
         var methodCall = Expression.Call(
             type: typeof(Queryable),
             methodName: nameof(Queryable.Skip),
-            typeArguments: new[] { typeof(TSource) },
-            arguments: new[] { QueryExpression, Expression.Constant(count) });
+            typeArguments: [typeof(TSource)],
+            arguments: [QueryExpression, Expression.Constant(count)]);
 
         return new DataQueryBuilder<TSource>(DataSetName, methodCall);
     }

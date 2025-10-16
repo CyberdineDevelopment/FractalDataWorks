@@ -24,7 +24,7 @@ public class ServerManagementToolService
         Category = "ServerManagement";
 
         // Initialize tools
-        _tools = new List<IMcpTool>();
+        _tools = [];
         RegisterTools();
     }
 

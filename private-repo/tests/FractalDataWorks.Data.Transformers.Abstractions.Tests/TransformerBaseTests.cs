@@ -32,7 +32,7 @@ public class TransformerBaseTests
             TransformContext context,
             CancellationToken cancellationToken = default)
         {
-            return GenericResult<IEnumerable<int>>.Success(Enumerable.Empty<int>());
+            return GenericResult<IEnumerable<int>>.Success([]);
         }
     }
 
@@ -92,7 +92,7 @@ public class TransformerBaseTests
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe(new[] { 1, 2, 3 });
+        result.Value.ShouldBe([1, 2, 3]);
     }
 
     [Fact]

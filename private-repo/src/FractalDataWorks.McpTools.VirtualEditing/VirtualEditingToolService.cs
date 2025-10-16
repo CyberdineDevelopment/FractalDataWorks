@@ -24,7 +24,7 @@ public class VirtualEditingToolService
         Category = "VirtualEditing";
 
         // Initialize tools
-        _tools = new List<IMcpTool>();
+        _tools = [];
         RegisterTools();
     }
 

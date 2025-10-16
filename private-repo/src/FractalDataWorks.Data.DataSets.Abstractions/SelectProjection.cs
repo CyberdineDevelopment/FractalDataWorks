@@ -13,7 +13,7 @@ public sealed class SelectProjection
     /// <summary>
     /// Gets the fields being selected.
     /// </summary>
-    public IReadOnlyList<ProjectedField> Fields { get; init; } = Array.Empty<ProjectedField>();
+    public IReadOnlyList<ProjectedField> Fields { get; init; } = [];
     
     /// <summary>
     /// Gets the original selector expression.

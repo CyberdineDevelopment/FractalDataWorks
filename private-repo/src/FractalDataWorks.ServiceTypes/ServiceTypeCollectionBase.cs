@@ -50,7 +50,7 @@ public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConf
     /// </summary>
     /// <param name="serviceType">The service type to filter by.</param>
     /// <returns>Collection of service types that match the service type.</returns>
-    public virtual IEnumerable<TBase> GetByServiceType(Type serviceType) => Enumerable.Empty<TBase>();
+    public virtual IEnumerable<TBase> GetByServiceType(Type serviceType) => [];
 
     /// <summary>
     /// Gets all service types that match the specified configuration type.
@@ -58,7 +58,7 @@ public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConf
     /// </summary>
     /// <param name="configurationType">The configuration type to filter by.</param>
     /// <returns>Collection of service types that match the configuration type.</returns>
-    public virtual IEnumerable<TBase> GetByConfigurationType(Type configurationType) => Enumerable.Empty<TBase>();
+    public virtual IEnumerable<TBase> GetByConfigurationType(Type configurationType) => [];
 
     /// <summary>
     /// Gets all service types that match the specified section name.
@@ -66,5 +66,5 @@ public abstract class ServiceTypeCollectionBase<TBase, TGeneric, TService, TConf
     /// </summary>
     /// <param name="sectionName">The section name to filter by.</param>
     /// <returns>Collection of service types that match the section name.</returns>
-    public virtual IEnumerable<TBase> GetBySectionName(string sectionName) => Enumerable.Empty<TBase>();
+    public virtual IEnumerable<TBase> GetBySectionName(string sectionName) => [];
 }

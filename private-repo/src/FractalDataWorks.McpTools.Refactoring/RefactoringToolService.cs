@@ -24,7 +24,7 @@ public class RefactoringToolService
         Category = "Refactoring";
 
         // Initialize tools
-        _tools = new List<IMcpTool>();
+        _tools = [];
         RegisterTools();
     }
 

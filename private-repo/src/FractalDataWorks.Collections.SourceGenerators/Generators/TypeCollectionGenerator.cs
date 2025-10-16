@@ -131,7 +131,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             // Look up pre-discovered options by collection class type
             if (!typeOptionsByCollectionType.TryGetValue(collectionClass, out var allOptionTypes))
             {
-                allOptionTypes = new List<INamedTypeSymbol>();
+                allOptionTypes = [];
             }
 
             // STEP 4.1: Filter based on RestrictToCurrentCompilation flag

@@ -171,7 +171,7 @@ public sealed class ServiceTypeCollectionGenerator : IIncrementalGenerator
             // FIX: Lookup pre-discovered options by collection class, not base type
             if (!serviceOptionsByCollectionType.TryGetValue(collectionClass, out var serviceTypesList))
             {
-                serviceTypesList = new List<INamedTypeSymbol>();
+                serviceTypesList = [];
             }
             var serviceTypes = serviceTypesList.ToImmutableArray();
 

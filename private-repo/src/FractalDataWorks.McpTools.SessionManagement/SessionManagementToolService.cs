@@ -24,7 +24,7 @@ public class SessionManagementToolService
         Category = "SessionManagement";
 
         // Initialize tools
-        _tools = new List<IMcpTool>();
+        _tools = [];
         RegisterTools();
     }
 
