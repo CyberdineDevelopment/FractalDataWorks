@@ -18,7 +18,11 @@ public sealed class DataConceptRegistry : IDataConceptRegistry
     private readonly IConfiguration _configuration;
     private readonly ILogger<DataConceptRegistry> _logger;
     private readonly Dictionary<string, DataSetConfiguration> _concepts;
-    private readonly object _lock = new object();
+#if NET10_0_OR_GREATER
+    private readonly Lock _lock = new();
+#else
+    private readonly object _lock = new();
+#endif
     private bool _loaded;
 
     /// <summary>

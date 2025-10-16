@@ -62,30 +62,9 @@ public sealed class DataConceptQueryExecutor
     /// <param name="conceptName">The name of the data concept to query.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The query results from all sources, transformed and unioned.</returns>
-    /// <remarks>
-    /// Exception handling wrapper - cannot be reliably tested without complex infrastructure.
-    /// Core logic is tested in ExecuteCore.
-    /// </remarks>
-    [ExcludeFromCodeCoverage]
     public async Task<IGenericResult<IEnumerable<T>>> Execute<T>(
         string conceptName,
         CancellationToken cancellationToken = default)
-        where T : class
-    {
-        try
-        {
-            return await ExecuteCore<T>(conceptName, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing query for concept '{ConceptName}'", conceptName);
-            return GenericResult<IEnumerable<T>>.Failure($"Query execution failed: {ex.Message}");
-        }
-    }
-
-    private async Task<IGenericResult<IEnumerable<T>>> ExecuteCore<T>(
-        string conceptName,
-        CancellationToken cancellationToken)
         where T : class
     {
         _logger.LogInformation("Executing query for concept '{ConceptName}'", conceptName);
@@ -113,7 +92,7 @@ public sealed class DataConceptQueryExecutor
         // when connection infrastructure is available
         var results = new List<T>();
 
-        // TODO: In Milestone 1, we'll add actual source querying
+        // MILESTONE 1: In Milestone 1, we'll add actual source querying
         // For now, log what would happen:
         foreach (var source in concept.Sources.Values.OrderBy(s => s.Priority))
         {
@@ -124,7 +103,7 @@ public sealed class DataConceptQueryExecutor
                 source.EstimatedCost);
         }
 
-        return await Task.FromResult(GenericResult<IEnumerable<T>>.Success(results));
+        return await Task.FromResult(GenericResult<IEnumerable<T>>.Success(results)).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -135,17 +114,13 @@ public sealed class DataConceptQueryExecutor
     /// <param name="filter">The filter predicate to apply.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The filtered query results.</returns>
-    /// <remarks>
-    /// Calls Execute internally which is excluded from coverage due to exception handling.
-    /// </remarks>
-    [ExcludeFromCodeCoverage]
     public async Task<IGenericResult<IEnumerable<T>>> Execute<T>(
         string conceptName,
         Func<T, bool> filter,
         CancellationToken cancellationToken = default)
         where T : class
     {
-        var result = await Execute<T>(conceptName, cancellationToken);
+        var result = await Execute<T>(conceptName, cancellationToken).ConfigureAwait(false);
 
         if (!result.IsSuccess || result.Value == null)
         {
