@@ -4,29 +4,50 @@ Complete guide for using FractalDataWorks domain service and connection template
 
 ## Quick Reference
 
-### Create Domain Service
+### Project Templates
+
+#### Create Domain Service
 ```powershell
 dotnet new fractaldataworks-domain -n Billing
 ```
 
-### Create Connection Service
+#### Create Connection Service
 ```powershell
 dotnet new fractaldataworks-connection -n PostgreSql --ConnectionCategory Database
 ```
 
-### Add Service Class to Project
+### Item Templates - Services
+
+#### Add Service Class to Project
 ```powershell
 dotnet new fractaldataworks-service -n MyService --DomainName MyDomain
 ```
 
-### Add ServiceType
+#### Add ServiceType
 ```powershell
 dotnet new fractaldataworks-servicetype -n MyServiceType --DomainName MyDomain
 ```
 
-### Add Structured Logging
+#### Add Structured Logging
 ```powershell
 dotnet new fractaldataworks-logging -n MyService
+```
+
+### Item Templates - Data Architecture
+
+#### Add DataCommand
+```powershell
+dotnet new fractaldataworks-datacommand -n Upsert --UniqueId 5 --Category Insert --HasInputData true --HasFilter true
+```
+
+#### Add DataTransformer
+```powershell
+dotnet new fractaldataworks-transformer -n PayPalToTransaction --UniqueId 1 --InputType PayPalTransaction --OutputType Transaction
+```
+
+#### Add DataConcept Configuration
+```powershell
+dotnet new fractaldataworks-dataconcept -n TransactionData --RecordTypeName MyApp.Models.Transaction --IncludeMultipleSources true
 ```
 
 ## Installation
@@ -191,8 +212,102 @@ dotnet new install templates/FractalDataWorks.Service.Domain
 6. **Add validation** - Implement FluentValidation for configurations
 7. **Document** - Add XML documentation to public APIs
 
+## Data Architecture Templates
+
+### DataCommand Template
+
+Creates a new DataCommand for universal data operations.
+
+**Parameters:**
+- `CommandName`: Name of the command (e.g., Upsert, BulkInsert)
+- `UniqueId`: Unique integer ID (must be unique across all DataCommands)
+- `ResultType`: Return type (default: int)
+- `InputType`: Input data type (default: T)
+- `Category`: Query/Insert/Update/Delete (default: Query)
+- `HasInputData`: true if command takes input data (default: false)
+- `HasFilter`: true to include Filter property (default: false)
+- `HasProjection`: true to include Projection property (default: false)
+- `HasOrdering`: true to include Ordering property (default: false)
+- `HasPaging`: true to include Paging property (default: false)
+
+**Example:**
+```powershell
+dotnet new fractaldataworks-datacommand -n Upsert --UniqueId 5 --Category Insert --HasInputData true --HasFilter true --ResultType int --InputType T
+```
+
+Generates: `UpsertCommand.cs` with TypeOption attribute, proper base class, and selected expression properties.
+
+### DataTransformer Template
+
+Creates a new DataTransformer for ETL operations.
+
+**Parameters:**
+- `TransformerName`: Name of the transformer (e.g., PayPalToTransaction)
+- `UniqueId`: Unique integer ID (must be unique across all DataTransformers)
+- `InputType`: Input type (default: object)
+- `OutputType`: Output type (default: object)
+- `IsGenericTransformer`: true for generic types (default: false)
+- `SupportsStreaming`: true for single-record transformation (default: true)
+- `SupportsParallel`: true if thread-safe (default: true)
+
+**Example:**
+```powershell
+dotnet new fractaldataworks-transformer -n PayPalToTransaction --UniqueId 1 --InputType PayPalTransaction --OutputType Transaction --SupportsStreaming true
+```
+
+Generates: `PayPalToTransactionTransformer.cs` with TypeOption attribute, Transform method, and optional streaming support.
+
+### DataConcept Configuration Template
+
+Creates a JSON configuration file for a DataConcept (logical data abstraction).
+
+**Parameters:**
+- `ConceptName`: Name of the concept (e.g., TransactionData)
+- `RecordTypeName`: .NET type name (e.g., MyApp.Models.Transaction)
+- `Description`: Description of the concept (default: "Data concept description")
+- `IncludeMultipleSources`: true for federated sources (default: true)
+- `IncludeTransformer`: true to include transformer config (default: true)
+- `IncludeDestination`: true for ETL destination (default: false)
+
+**Example:**
+```powershell
+dotnet new fractaldataworks-dataconcept -n TransactionData --RecordTypeName MyApp.Models.Transaction --Description "Unified transaction data from multiple providers" --IncludeMultipleSources true --IncludeDestination true
+```
+
+Generates: `transactiondata.json` with schema, sources, transformers, and optional ETL destination configuration.
+
+## Complete Data Architecture Example
+
+### Scenario: Multi-Provider Transaction ETL
+
+```powershell
+# 1. Create DataConcept configuration
+dotnet new fractaldataworks-dataconcept -n TransactionData --RecordTypeName MyApp.Models.Transaction --IncludeMultipleSources true --IncludeDestination true
+
+# 2. Create transformers for each source
+dotnet new fractaldataworks-transformer -n PayPalToTransaction --UniqueId 1 --InputType PayPalTransaction --OutputType Transaction
+dotnet new fractaldataworks-transformer -n StripeToTransaction --UniqueId 2 --InputType StripeCharge --OutputType Transaction
+
+# 3. Create enrichment transformer
+dotnet new fractaldataworks-transformer -n EnrichWithCustomerData --UniqueId 3 --InputType Transaction --OutputType EnrichedTransaction
+
+# 4. Create custom commands if needed
+dotnet new fractaldataworks-datacommand -n BulkUpsert --UniqueId 10 --Category Insert --HasInputData true --ResultType BulkUpsertResult --InputType "IEnumerable<T>"
+
+# 5. Build and run ETL
+dotnet build
+dotnet run --project MyApp.ETL
+```
+
+This creates a complete ETL pipeline:
+- TransactionData concept queries PayPal + Stripe APIs
+- Transformers normalize to common Transaction type
+- Enrichment adds customer data
+- Bulk upsert loads to data warehouse
+
 ## Support
 
 - Framework conventions: See `CLAUDE.md` in solution root
 - Source generator issues: Check `obj/` folder for generated files
 - Template issues: Verify .NET 10 RC SDK installed
+- Data architecture: See `discussions/data/` for complete architecture docs
