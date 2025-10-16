@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
 using FractalDataWorks.ServiceTypes.SourceGenerators.Models;
+using Microsoft.CodeAnalysis;
+using System;using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace FractalDataWorks.ServiceTypes.SourceGenerators.Generators;
 
@@ -27,7 +27,7 @@ internal sealed class ServiceTypeInfoWithCompilation
         Compilation = compilation;
         DiscoveredServiceTypes = discoveredServiceTypes;
         CollectionClass = collectionClass;
-        Diagnostics = diagnostics ?? new List<Diagnostic>();
+        Diagnostics = diagnostics ?? [];
     }
 
     public void Deconstruct(out EnumTypeInfoModel serviceTypeInfoModel, out Compilation compilation, out ImmutableArray<INamedTypeSymbol> discoveredServiceTypes, out INamedTypeSymbol collectionClass)

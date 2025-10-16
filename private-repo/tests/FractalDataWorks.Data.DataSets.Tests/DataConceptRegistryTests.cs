@@ -2,7 +2,7 @@ using FractalDataWorks.Data.DataSets;
 using FractalDataWorks.Data.DataSets.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
+using Moq;using Shouldly;using System;using System.Collections.Generic;using System.Linq;using System.Threading.Tasks;using Xunit;
 namespace FractalDataWorks.Data.DataSets.Tests;
 
 public class DataConceptRegistryTests
@@ -399,10 +399,10 @@ public class DataConceptRegistryTests
         await Task.WhenAll(tasks);
 
         // Assert - All should return same instance
-        var firstConcept = tasks[0].Result;
+        var firstConcept = await tasks[0];
         foreach (var task in tasks)
         {
-            task.Result.ShouldBe(firstConcept);
+            (await task).ShouldBe(firstConcept);
         }
     }
 

@@ -52,7 +52,7 @@ public sealed class MissingTypeOptionAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: MissingTypeOptionDescription,
-        customTags: new[] { "CompilationEnd" });
+        customTags: ["CompilationEnd"]);
 
     private static readonly DiagnosticDescriptor GenericMismatchRule = new DiagnosticDescriptor(
         GenericTypeMismatchDiagnosticId,
@@ -76,7 +76,7 @@ public sealed class MissingTypeOptionAnalyzer : DiagnosticAnalyzer
     /// Gets the supported diagnostic descriptors for this analyzer.
     /// </summary>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(MissingTypeOptionRule, GenericMismatchRule, BaseMismatchRule);
+        [MissingTypeOptionRule, GenericMismatchRule, BaseMismatchRule];
 
     /// <summary>
     /// Initializes the analyzer by registering compilation analysis actions.

@@ -145,15 +145,13 @@ public abstract class ServiceBase<TCommand, TConfiguration, TService> : IGeneric
     /// Disposes the service. Override to add custom disposal logic.
     /// </summary>
     /// <param name="disposing">True if disposing managed resources.</param>
-    public virtual void Dispose(bool disposing)
+    protected virtual void Dispose(bool disposing)
     {
-        if (!_disposed)
+        if (_disposed) return;
+        if (disposing)
         {
-            if (disposing)
-            {
-                // Derived classes override this to dispose their resources
-            }
-            _disposed = true;
+            // Derived classes override this to dispose their resources
         }
+        _disposed = true;
     }
 }

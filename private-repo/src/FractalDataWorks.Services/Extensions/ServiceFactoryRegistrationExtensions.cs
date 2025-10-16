@@ -1,11 +1,11 @@
-using System;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using FractalDataWorks.Abstractions;
-using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Abstractions;
 using static FractalDataWorks.Services.Abstractions.ServiceLifetimes;
-
+using FractalDataWorks.Services.Connections.Abstractions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
 namespace FractalDataWorks.Services.Extensions;
 
 /// <summary>

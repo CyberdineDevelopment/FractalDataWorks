@@ -1,5 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using System;using System.Diagnostics.CodeAnalysis;
 
 namespace FractalDataWorks.Services.Logging;
 

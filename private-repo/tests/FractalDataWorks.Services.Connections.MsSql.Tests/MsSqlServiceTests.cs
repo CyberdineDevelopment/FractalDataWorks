@@ -1,4 +1,5 @@
 using FluentValidation;
+using FractalDataWorks.Services.Connections.Abstractions.Translators;
 using FractalDataWorks.Services.Connections.MsSql;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -15,10 +16,12 @@ public class MsSqlServiceTests
         // Arrange
         var mockLogger = new Mock<ILogger<MsSqlService>>();
         var mockConfiguration = new Mock<MsSqlConfiguration>();
+        var mockTranslator = new Mock<IQueryTranslator>();
+
         var mockValidator = new Mock<IValidator<MsSqlConfiguration>>();
 
         // Act
-        var service = new MsSqlService(mockLogger.Object, mockConfiguration.Object);
+        var service = new MsSqlService(mockLogger.Object, mockTranslator.Object, mockConfiguration.Object);
 
         // Assert
         service.ShouldNotBeNull();
@@ -33,9 +36,9 @@ public class MsSqlServiceTests
         {
             ConnectionString = "Server=localhost;Database=TestDb;Integrated Security=true;"
         };
-
+        var mockTranslator = new Mock<IQueryTranslator>();
         // Act
-        var service = new MsSqlService(mockLogger.Object, configuration);
+        var service = new MsSqlService(mockLogger.Object, mockTranslator.Object, configuration);
 
         // Assert
         service.Configuration.ShouldBe(configuration);

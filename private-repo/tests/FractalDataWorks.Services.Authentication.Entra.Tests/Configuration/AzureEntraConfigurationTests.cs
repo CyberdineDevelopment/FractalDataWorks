@@ -1,6 +1,6 @@
-using Shouldly;
 using FractalDataWorks.Services.Authentication.AzureEntra.Configuration;
-
+using Shouldly;
+using System;using Xunit;
 namespace FractalDataWorks.Services.Authentication.Entra.Tests.Configuration;
 
 public sealed class AzureEntraConfigurationTests

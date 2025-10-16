@@ -23,11 +23,11 @@ public sealed class TranslatorCapabilities
         bool supportsAggregation,
         IEnumerable<string> limitations)
     {
-        SupportedOperations = new List<string>(supportedOperations ?? Array.Empty<string>()).AsReadOnly();
+        SupportedOperations = new List<string>(supportedOperations ?? []).AsReadOnly();
         MaxComplexity = maxComplexity;
         SupportsJoins = supportsJoins;
         SupportsAggregation = supportsAggregation;
-        Limitations = new List<string>(limitations ?? Array.Empty<string>()).AsReadOnly();
+        Limitations = new List<string>(limitations ?? []).AsReadOnly();
     }
 
     /// <summary>

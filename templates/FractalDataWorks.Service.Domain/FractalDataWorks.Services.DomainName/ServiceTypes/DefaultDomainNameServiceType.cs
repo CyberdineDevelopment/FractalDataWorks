@@ -17,14 +17,9 @@ public sealed class DefaultDomainNameServiceType
     : DomainNameTypeBase<IDomainNameService, IGenericServiceFactory<IDomainNameService, IDomainNameConfiguration>, IDomainNameConfiguration>
 {
     /// <summary>
-    /// Gets the singleton instance of the default DomainName service type.
-    /// </summary>
-    public static DefaultDomainNameServiceType Instance { get; } = new();
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="DefaultDomainNameServiceType"/> class.
     /// </summary>
-    private DefaultDomainNameServiceType()
+    public DefaultDomainNameServiceType()
         : base(
             id: 1, // TODO: Generate deterministic GUID from type name
             name: "DefaultDomainName",

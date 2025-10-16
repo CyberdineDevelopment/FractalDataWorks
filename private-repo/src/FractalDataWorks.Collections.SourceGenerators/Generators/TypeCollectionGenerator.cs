@@ -1,20 +1,20 @@
+using FractalDataWorks.Collections.Attributes;
+using FractalDataWorks.Collections.Models;
+using FractalDataWorks.Collections.SourceGenerators.Diagnostics;
+using FractalDataWorks.Collections.SourceGenerators.Models;
+using FractalDataWorks.SourceGenerators.Builders;
+using FractalDataWorks.SourceGenerators.Configuration;
+using FractalDataWorks.SourceGenerators.Models;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using FractalDataWorks.Collections.Models;
-using FractalDataWorks.Collections.SourceGenerators.Diagnostics;
-using FractalDataWorks.Collections.SourceGenerators.Models;
-using FractalDataWorks.SourceGenerators.Models;
-using FractalDataWorks.SourceGenerators.Builders;
-using FractalDataWorks.SourceGenerators.Configuration;
-using FractalDataWorks.Collections.Attributes;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
+using System.Threading;
 namespace FractalDataWorks.Collections.SourceGenerators.Generators;
 
 /// <summary>
@@ -131,7 +131,7 @@ public sealed class TypeCollectionGenerator : IIncrementalGenerator
             // Look up pre-discovered options by collection class type
             if (!typeOptionsByCollectionType.TryGetValue(collectionClass, out var allOptionTypes))
             {
-                allOptionTypes = new List<INamedTypeSymbol>();
+                allOptionTypes = [];
             }
 
             // STEP 4.1: Filter based on RestrictToCurrentCompilation flag

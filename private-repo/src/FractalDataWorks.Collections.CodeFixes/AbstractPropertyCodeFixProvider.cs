@@ -1,9 +1,3 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Composition;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -11,6 +5,12 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.FindSymbols;
+using System;using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Composition;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FractalDataWorks.Collections.CodeFixes;
 
@@ -98,14 +98,13 @@ public class AbstractPropertyCodeFixProvider : CodeFixProvider
         // Remove abstract modifier and add protected set
         var newProperty = property
             .WithModifiers(SyntaxFactory.TokenList(property.Modifiers.Where(m => !m.IsKind(SyntaxKind.AbstractKeyword))))
-            .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List(new[]
-            {
+            .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List([
                 SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                     .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
                 SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
                     .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword)))
                     .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
-            })));
+            ])));
 
         editor.ReplaceNode(property, newProperty);
 
@@ -128,7 +127,7 @@ public class AbstractPropertyCodeFixProvider : CodeFixProvider
                             SyntaxFactory.IdentifierName(parameterName)))));
 
             var propertyIndex = classDeclaration.Members.IndexOf(property);
-            editor.InsertMembers(classDeclaration, propertyIndex + 1, new[] { constructor });
+            editor.InsertMembers(classDeclaration, propertyIndex + 1, [constructor]);
         }
         else
         {

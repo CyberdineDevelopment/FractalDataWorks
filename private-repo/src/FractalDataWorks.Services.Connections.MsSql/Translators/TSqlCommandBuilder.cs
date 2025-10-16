@@ -23,15 +23,15 @@ internal sealed class TSqlCommandBuilder
 
     public TSqlCommandBuilder(IDataSetType dataSet, string containerType)
     {
-        _dataSet = dataSet ?? throw new ArgumentNullException(nameof(dataSet));
-        _containerType = containerType ?? throw new ArgumentNullException(nameof(containerType));
+        _dataSet = dataSet;
+        _containerType = containerType;
     }
 
     public async Task<IGenericResult<SqlCommand>> Build(IDataQuery query)
     {
         try
         {
-            var sql = await BuildSql(query.Expression).ConfigureAwait(false);
+            var sql = await BuildSql(query.QueryExpression).ConfigureAwait(false);
 
             var command = new SqlCommand(sql);
             foreach (var parameter in _parameters)

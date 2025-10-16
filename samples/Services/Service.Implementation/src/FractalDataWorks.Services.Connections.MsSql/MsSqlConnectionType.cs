@@ -11,14 +11,9 @@ namespace FractalDataWorks.Services.Connections.MsSql;
 public sealed class MsSqlConnectionType : ConnectionTypeBase<MsSqlConnection, MsSqlConfiguration, MsSqlConnectionFactory>
 {
     /// <summary>
-    /// Gets the singleton instance of the SQL Server connection type.
-    /// </summary>
-    public static MsSqlConnectionType Instance { get; } = new();
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="MsSqlConnectionType"/> class.
     /// </summary>
-    private MsSqlConnectionType() : base(1, "MsSql", "Database Connections")
+    public MsSqlConnectionType() : base(1, "MsSql", "Database Connections")
     {
     }
 

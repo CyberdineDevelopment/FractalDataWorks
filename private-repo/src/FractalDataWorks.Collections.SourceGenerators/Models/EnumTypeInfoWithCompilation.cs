@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using FractalDataWorks.Collections.Models;
 using Microsoft.CodeAnalysis;
+using System;using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FractalDataWorks.Collections.SourceGenerators.Models;
 
@@ -31,7 +31,7 @@ internal sealed class EnumTypeInfoWithCompilation
         Compilation = compilation;
         DiscoveredOptionTypes = discoveredOptionTypes;
         CollectionClass = collectionClass;
-        Diagnostics = diagnostics ?? new List<Diagnostic>();
+        Diagnostics = diagnostics ?? [];
     }
 
     public void Deconstruct(

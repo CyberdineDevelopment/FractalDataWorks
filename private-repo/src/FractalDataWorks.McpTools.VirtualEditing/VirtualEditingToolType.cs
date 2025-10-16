@@ -8,11 +8,9 @@ namespace FractalDataWorks.McpTools.VirtualEditing;
 public sealed class VirtualEditingToolType : McpToolType
 {
     /// <summary>
-    /// Gets the singleton instance of the <see cref="VirtualEditingToolType"/>.
+    /// Initializes a new instance of the <see cref="VirtualEditingToolType"/> class.
     /// </summary>
-    public static VirtualEditingToolType Instance { get; } = new();
-
-    private VirtualEditingToolType()
+    public VirtualEditingToolType()
         : base(2,
                "VirtualEditing",
                "Virtual Editing Tool",

@@ -1,7 +1,7 @@
-using System.Collections.Immutable;
+using FractalDataWorks.Collections.SourceGenerators.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using FractalDataWorks.Collections.SourceGenerators.Diagnostics;
+using System;using System.Collections.Immutable;
 
 namespace FractalDataWorks.Collections.SourceGenerators.Analyzers;
 
@@ -18,9 +18,10 @@ public sealed class TypeCollectionDiagnosticsAnalyzer : DiagnosticAnalyzer
     /// Gets the supported diagnostic descriptors for this analyzer.
     /// </summary>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(
-            TypeCollectionDiagnostics.AbstractPropertyInBaseTypeRule,
-            TypeCollectionDiagnostics.GenerationFailureRule);
+    [
+        TypeCollectionDiagnostics.AbstractPropertyInBaseTypeRule,
+            TypeCollectionDiagnostics.GenerationFailureRule
+    ];
 
     /// <summary>
     /// Initializes the analyzer.

@@ -1,5 +1,5 @@
-using System.Text;
 using FractalDataWorks.CodeBuilder.Abstractions;
+using System;using System.Text;
 
 namespace FractalDataWorks.CodeBuilder.CSharp;
 

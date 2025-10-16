@@ -17,14 +17,9 @@ public sealed class SERVICETYPE_NAMEServiceType
     : DOMAIN_NAMETypeBase<IDOMAIN_NAMEService, IGenericServiceFactory<IDOMAIN_NAMEService, IDOMAIN_NAMEConfiguration>, IDOMAIN_NAMEConfiguration>
 {
     /// <summary>
-    /// Gets the singleton instance of the SERVICETYPE_NAME service type.
-    /// </summary>
-    public static SERVICETYPE_NAMEServiceType Instance { get; } = new();
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="SERVICETYPE_NAMEServiceType"/> class.
     /// </summary>
-    private SERVICETYPE_NAMEServiceType()
+    public SERVICETYPE_NAMEServiceType()
         : base(
             id: 1, // TODO: Generate deterministic GUID from type name
             name: "SERVICETYPE_NAME",

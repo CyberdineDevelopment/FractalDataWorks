@@ -1,7 +1,7 @@
+using FluentValidation;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using FluentValidation;
-
+using System.IO;
 namespace FractalDataWorks.Services.Authentication.AzureEntra.Configuration;
 
 /// <summary>

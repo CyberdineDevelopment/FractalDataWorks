@@ -1,9 +1,9 @@
+using FractalDataWorks.Services.Authentication.AzureEntra;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Shouldly;
-using FractalDataWorks.Services.Authentication.AzureEntra;
-
+using System;using System.Collections.Generic;using Xunit;
 namespace FractalDataWorks.Services.Authentication.Entra.Tests;
 
 public sealed class AzureEntraAuthenticationTypeTests

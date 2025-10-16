@@ -102,30 +102,14 @@ public sealed class EntraAuthenticationService :
     }
 
     /// <inheritdoc/>
-    protected override Task<IGenericResult> Execute(IAuthenticationCommand command)
-    {
-        // Authentication service doesn't use command pattern
-        // Direct method calls are preferred
-        return Task.FromResult<IGenericResult>(GenericResult.Failure(AuthenticationMessages.CommandExecutionNotSupported()));
-    }
-
-    /// <inheritdoc/>
-    protected override Task<IGenericResult<T>> Execute<T>(IAuthenticationCommand command)
-    {
-        // Authentication service doesn't use command pattern
-        // Direct method calls are preferred
-        return Task.FromResult<IGenericResult<T>>(GenericResult<T>.Failure(AuthenticationMessages.CommandExecutionNotSupported()));
-    }
-
-    /// <inheritdoc/>
-    protected override Task<IGenericResult<TOut>> Execute<TOut>(IAuthenticationCommand command, CancellationToken cancellationToken)
+    public override Task<IGenericResult<TOut>> Execute<TOut>(IAuthenticationCommand command, CancellationToken cancellationToken)
     {
         // Authentication doesn't use command pattern
         return Task.FromResult<IGenericResult<TOut>>(GenericResult<TOut>.Failure(AuthenticationMessages.CommandExecutionNotSupported()));
     }
 
     /// <inheritdoc/>
-    protected override Task<IGenericResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken)
+    public override Task<IGenericResult> Execute(IAuthenticationCommand command, CancellationToken cancellationToken)
     {
         // Authentication doesn't use command pattern
         return Task.FromResult<IGenericResult>(GenericResult.Failure(AuthenticationMessages.CommandExecutionNotSupported()));

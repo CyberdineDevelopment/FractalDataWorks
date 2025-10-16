@@ -8,11 +8,9 @@ namespace FractalDataWorks.Data.DataStores.SqlServer;
 public sealed class SqlServerDataStoreType : DataStoreTypeBase
 {
     /// <summary>
-    /// Gets the singleton instance of the SQL Server data store type.
+    /// Initializes a new instance of the <see cref="SqlServerDataStoreType"/> class.
     /// </summary>
-    public static SqlServerDataStoreType Instance { get; } = new();
-
-    private SqlServerDataStoreType() : base(
+    public SqlServerDataStoreType() : base(
         id: 1,
         name: "SqlServer",
         displayName: "SQL Server",

@@ -8,11 +8,9 @@ namespace FractalDataWorks.Data.DataStores.FileSystem;
 public sealed class FileSystemDataStoreType : DataStoreTypeBase
 {
     /// <summary>
-    /// Gets the singleton instance of the file system data store type.
+    /// Initializes a new instance of the <see cref="FileSystemDataStoreType"/> class.
     /// </summary>
-    public static FileSystemDataStoreType Instance { get; } = new();
-
-    private FileSystemDataStoreType() : base(
+    public FileSystemDataStoreType() : base(
         id: 3,
         name: "FileSystem",
         displayName: "File System",

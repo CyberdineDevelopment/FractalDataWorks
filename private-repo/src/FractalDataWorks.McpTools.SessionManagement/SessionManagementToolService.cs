@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 using FractalDataWorks.McpTools.Abstractions;
 using FractalDataWorks.McpTools.Abstractions.Logging;
+using Microsoft.Extensions.Logging;
+using System;using System.Collections.Generic;
 
 namespace FractalDataWorks.McpTools.SessionManagement;
 
@@ -24,7 +24,7 @@ public class SessionManagementToolService
         Category = "SessionManagement";
 
         // Initialize tools
-        _tools = new List<IMcpTool>();
+        _tools = [];
         RegisterTools();
     }
 

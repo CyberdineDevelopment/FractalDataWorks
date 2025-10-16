@@ -1,7 +1,7 @@
+using FractalDataWorks.Data.DataSets.Abstractions.Operators;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using FractalDataWorks.Data.DataSets.Abstractions.Operators;
+using System.Linq;using System.Linq.Expressions;
 
 namespace FractalDataWorks.Data.DataSets.Abstractions;
 
@@ -13,7 +13,7 @@ public sealed class SelectProjection
     /// <summary>
     /// Gets the fields being selected.
     /// </summary>
-    public IReadOnlyList<ProjectedField> Fields { get; init; } = Array.Empty<ProjectedField>();
+    public IReadOnlyList<ProjectedField> Fields { get; init; } = [];
     
     /// <summary>
     /// Gets the original selector expression.

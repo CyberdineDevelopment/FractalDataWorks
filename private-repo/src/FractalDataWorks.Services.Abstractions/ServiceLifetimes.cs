@@ -1,4 +1,4 @@
-namespace FractalDataWorks.Services.Abstractions;
+using System;namespace FractalDataWorks.Services.Abstractions;
 
 /// <summary>
 /// Static collection of service lifetimes.

@@ -1,12 +1,12 @@
-using Microsoft.Extensions.Logging;
-using Moq;
-using Shouldly;
 using FractalDataWorks.Results;
 using FractalDataWorks.Services.Authentication.Abstractions;
 using FractalDataWorks.Services.Authentication.Abstractions.Security;
 using FractalDataWorks.Services.Authentication.AzureEntra;
 using FractalDataWorks.Services.Authentication.AzureEntra.Configuration;
-
+using Microsoft.Extensions.Logging;
+using Moq;
+using Shouldly;
+using System;using System.Linq;using System.Threading;using System.Threading.Tasks;using Xunit;
 namespace FractalDataWorks.Services.Authentication.Entra.Tests;
 
 public sealed class EntraAuthenticationServiceTests

@@ -1,6 +1,6 @@
 using FractalDataWorks.Data.Transformers.Abstractions;
 using FractalDataWorks.Results;
-
+using Shouldly;using System;using System.Collections.Generic;using System.Linq;using System.Threading;using Xunit;
 namespace FractalDataWorks.Data.Transformers.Abstractions.Tests;
 
 public class TransformerBaseTests
@@ -32,7 +32,7 @@ public class TransformerBaseTests
             TransformContext context,
             CancellationToken cancellationToken = default)
         {
-            return GenericResult<IEnumerable<int>>.Success(Enumerable.Empty<int>());
+            return GenericResult<IEnumerable<int>>.Success([]);
         }
     }
 
@@ -88,11 +88,11 @@ public class TransformerBaseTests
         var context = new TransformContext();
 
         // Act
-        var result = transformer.Transform(source, context);
+        var result = transformer.Transform(source, context,TestContext.Current.CancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
-        result.Value.ShouldBe(new[] { 1, 2, 3 });
+        result.Value.ShouldBe([1, 2, 3]);
     }
 
     [Fact]

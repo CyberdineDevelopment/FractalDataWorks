@@ -13,7 +13,6 @@ using FractalDataWorks.Services.Connections.Abstractions;
 using FractalDataWorks.Services.Connections.Abstractions.Commands;
 using FractalDataWorks.Services.Connections.Abstractions.Messages;
 using FractalDataWorks.Services.Connections.Abstractions.Translators;
-using FractalDataWorks.Services.Connections.MsSql.Commands;
 using FractalDataWorks.Services.Connections.MsSql.Logging;
 using FractalDataWorks.Services.Connections.MsSql.Mappers;
 using FractalDataWorks.Services.Connections.MsSql.Translators;
@@ -41,12 +40,10 @@ public sealed class MsSqlService : ConnectionBase<IConnectionCommand, MsSqlConfi
     /// <param name="queryTranslator">The T-SQL query translator.</param>
     public MsSqlService(
         ILogger<MsSqlService> logger,
-        ILoggerFactory loggerFactory,
         IQueryTranslator queryTranslator,
         MsSqlConfiguration configuration)
         : base(logger, configuration)
     {
-        _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         _queryTranslator = queryTranslator ?? throw new ArgumentNullException(nameof(queryTranslator));
         _connections = new Dictionary<string, object>(StringComparer.Ordinal);
         _serviceId = Guid.NewGuid().ToString("N");
@@ -61,53 +58,33 @@ public sealed class MsSqlService : ConnectionBase<IConnectionCommand, MsSqlConfi
     /// <summary>
     /// Gets the query translator for converting LINQ expressions to T-SQL.
     /// </summary>
-    protected IQueryTranslator QueryTranslator => _queryTranslator;
+    private IQueryTranslator QueryTranslator => _queryTranslator;
 
     /// <inheritdoc/>
     public override async Task<IGenericResult<TOut>> Execute<TOut>(IConnectionCommand command, CancellationToken cancellationToken)
     {
-        // Handle different command types
-        switch (command)
-        {
-            case SqlConnectionCommand sqlCommand:
-                // Handle translated SQL command from TSqlQueryTranslator
-                var queryResult = await ExecuteSqlCommandAsync<TOut>(sqlCommand, cancellationToken).ConfigureAwait(false);
-                return queryResult;
 
-            case IConnectionCreateCommand createCommand:
-                var createResult = await HandleConnectionCreate(createCommand, cancellationToken).ConfigureAwait(false);
-                return ConvertResult<TOut>(createResult);
 
-            case IConnectionDiscoveryCommand discoveryCommand:
-                var discoveryResult = await HandleConnectionDiscovery(discoveryCommand, cancellationToken).ConfigureAwait(false);
-                return ConvertResult<TOut>(discoveryResult);
-
-            case IConnectionManagementCommand managementCommand:
-                var managementResult = await HandleConnectionManagement(managementCommand, cancellationToken).ConfigureAwait(false);
-                return ConvertResult<TOut>(managementResult);
-
-            default:
                 return GenericResult<TOut>.Failure($"Unsupported command type: {command.GetType().Name}");
-        }
+
     }
 
     /// <inheritdoc/>
     public override async Task<IGenericResult> Execute(IConnectionCommand command, CancellationToken cancellationToken)
     {
         var result = await Execute<object>(command, cancellationToken).ConfigureAwait(false);
-        return result.IsSuccess ? GenericResult.Success() : GenericResult.Failure(result.CurrentMessage);
+        return result.IsSuccess ? GenericResult.Success() : GenericResult.Failure(result.CurrentMessage ?? "Operation failed");
     }
 
     /// <summary>
     /// Executes a translated SQL command and maps the results using the result mapper.
     /// </summary>
     /// <typeparam name="TResult">The expected result type.</typeparam>
-    /// <param name="sqlCommand">The SQL command to execute.</param>
+    /// <param name="command">The SQL command to execute.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The mapped query results.</returns>
-    private async Task<IGenericResult<TResult>> ExecuteSqlCommandAsync<TResult>(
-        SqlConnectionCommand sqlCommand, 
-        CancellationToken cancellationToken) where TResult : class
+    private async Task<IGenericResult<TResult>> ExecuteSqlCommandAsync<TResult>(IDataCommand command,
+        CancellationToken cancellationToken) where TResult : class?
     {
         try
         {
@@ -177,7 +154,7 @@ public sealed class MsSqlService : ConnectionBase<IConnectionCommand, MsSqlConfi
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
-    public void Dispose()
+    public new void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
@@ -187,7 +164,7 @@ public sealed class MsSqlService : ConnectionBase<IConnectionCommand, MsSqlConfi
     /// Releases unmanaged and - optionally - managed resources.
     /// </summary>
     /// <param name="disposing">True to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
-    private void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
         if (!_disposed)
         {

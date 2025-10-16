@@ -8,11 +8,9 @@ namespace FractalDataWorks.McpTools.TypeAnalysis;
 public sealed class TypeAnalysisToolType : McpToolType
 {
     /// <summary>
-    /// Gets the singleton instance of the <see cref="TypeAnalysisToolType"/>.
+    /// Initializes a new instance of the <see cref="TypeAnalysisToolType"/> class.
     /// </summary>
-    public static TypeAnalysisToolType Instance { get; } = new();
-
-    private TypeAnalysisToolType()
+    public TypeAnalysisToolType()
         : base(5,
                "TypeAnalysis",
                "Type Analysis Tool",
