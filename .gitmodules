@@ -1,0 +1,4 @@
+[submodule "public-repo"]
+	path = public-repo
+	url = https://github.com/CyberdineDevelopment/FractalDataWorks.git
+	branch = develop
