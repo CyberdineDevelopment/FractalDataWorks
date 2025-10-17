@@ -1,28 +1,31 @@
 <Project>
   <PropertyGroup>
-    <!-- Language version and framework settings -->
+	  <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	  <!-- Language version and framework settings -->
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <!-- Build configuration settings -->
-    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview</Configurations>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor;Test</Configurations>
+    
+    <!-- Target Framework (except for FractalDataWorks.net which uses netstandard2.0 and projects with explicit TargetFrameworks) -->
+    <TargetFrameworks Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == '' AND '$(MSBuildProjectName)' != 'FractalDataWorks'">netstandard2.0;net10.0</TargetFrameworks>
     
     <!-- Build settings -->
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
     
     <!-- Package settings -->
-    <Authors>Fractal Team</Authors>
-    <Company>Fractal</Company>
+    <Authors>Rec Team</Authors>
+    <Company>Rec</Company>
     <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/CyberdineDevelopment/smart-generators</RepositoryUrl>
+    <RepositoryUrl>https://github.com/CyberdineDevelopment/Developer-Kit.git</RepositoryUrl>
+    <PackageDescription>Development tools and utilities for the FractalDataWorks ecosystem. Build: $(NBGV_GitCommitIdShort)</PackageDescription>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     
     <!-- Symbol packages -->
     <IncludeSymbols>true</IncludeSymbols>
@@ -30,9 +33,17 @@
     
     <!-- Central Package Management -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Exclude samples from central package management and global settings -->
+    <ManagePackageVersionsCentrally Condition="$(MSBuildProjectDirectory.Contains('\samples\'))">false</ManagePackageVersionsCentrally>
+    
+    <!-- Disable specific warnings -->
+    <!-- CA1510: Use ArgumentNullException.ThrowIfNull (new .NET feature) -->
+    <!-- CA1834: Use StringBuilder.Append(char) (performance) -->
+    <!-- MA0051: Method too long (style preference) -->
+    <NoWarn>$(NoWarn);VSTHRD200;CA1716;CA1000;CA1848;CA1510;CA1834;MA0051;MA0048;CA1711</NoWarn>
     
     <!-- Nerdbank.GitVersioning -->
-    <GitVersioningVersion>3.6.143</GitVersioningVersion>
+    <GitVersioningVersion>3.7.115</GitVersioningVersion>
   </PropertyGroup>
 
   <!-- Debug: Minimal checks for fast development -->
@@ -121,50 +132,42 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
-  <!-- Source Generator Projects -->
-  <PropertyGroup Condition="$(MSBuildProjectName.Contains('SmartGenerators')) And !$(MSBuildProjectName.Contains('Tests'))">
+  <!-- Target Framework for FractalDataWorks.net -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'FractalDataWorks.net'">
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IsPackable>true</IsPackable>
-    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <IsRoslynComponent>true</IsRoslynComponent>
-    <DevelopmentDependency>true</DevelopmentDependency>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <!-- Enable cross-assembly discovery for SmartGenerators -->
-    <EnableCrossAssemblyDiscovery>true</EnableCrossAssemblyDiscovery>
-    <!-- Include build output for runtime components -->
-    <IncludeBuildOutput>true</IncludeBuildOutput>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <!-- Test projects -->
-  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
-    <TargetFramework>net10.0</TargetFramework>
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-  </PropertyGroup>
+  <!-- IsExternalInit package for netstandard2.0 projects (required for init-only properties) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="IsExternalInit" PrivateAssets="all">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="PolySharp" PrivateAssets="all" />
+
+  </ItemGroup>
 
   <!-- Nerdbank.GitVersioning -->
-  <ItemGroup>
+  <ItemGroup Condition="!$(MSBuildProjectDirectory.Contains('\samples\'))">
     <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" Condition="'$(IsTestProject)' != 'true'" />
   </ItemGroup>
 
   <!-- Source Link -->
-  <ItemGroup>
+  <ItemGroup Condition="!$(MSBuildProjectDirectory.Contains('\samples\'))">
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
   </ItemGroup>
 
-  <!-- Include README in NuGet packages -->
-  <ItemGroup Condition="'$(IsPackable)' == 'true' And Exists('$(MSBuildThisFileDirectory)README.md')">
-    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
+  <!-- Suppress XML documentation warnings for generated files -->
+  <PropertyGroup>
+    <!-- Add CS1570 to global NoWarn for source generator XML issues -->
+    <NoWarn Condition="'$(Configuration)' == 'Release'">$(NoWarn);CS1570</NoWarn>
+  </PropertyGroup>
 
-  <!-- Analyzers - Applied to all projects -->
-  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
+  <!-- Analyzers - Applied to all projects except samples -->
+  <ItemGroup Condition="'$(IsTestProject)' != 'true' AND !$(MSBuildProjectDirectory.Contains('\samples\'))">
     <PackageReference Include="AsyncFixer" PrivateAssets="All" />
     <PackageReference Include="Meziantou.Analyzer" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="All" />
     <PackageReference Include="Roslynator.Analyzers" PrivateAssets="All" />
+    <PackageReference Include="SecurityCodeScan.VS2019" PrivateAssets="All" />
   </ItemGroup>
 </Project>
