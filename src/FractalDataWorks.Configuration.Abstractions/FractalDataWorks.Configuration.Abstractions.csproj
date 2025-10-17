@@ -2,24 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPublicProject>true</IsPublicProject>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
+
+    <Title>FractalDataWorks Configuration Abstractions</Title>
+    <Description>Base interfaces and contracts for hierarchical, multi-tenant configuration system</Description>
+    <PackageTags>configuration;multi-tenant;hierarchical;options</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="FluentValidation" />
-	  <ProjectReference Include="..\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
-	  <ProjectReference Include="..\FractalDataWorks.EnhancedEnums\FractalDataWorks.EnhancedEnums.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
-
-    <!-- Collections.SourceGenerators for processing [TypeCollection] and [TypeOption] attributes -->
-    <ProjectReference Include="..\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="none" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Explicitly embed the Collections generator DLL -->
-    <None Include="..\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" Condition="Exists('..\FractalDataWorks.Collections.SourceGenerators\bin\$(Configuration)\netstandard2.0\FractalDataWorks.Collections.SourceGenerators.dll')" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
   </ItemGroup>
 
 </Project>
