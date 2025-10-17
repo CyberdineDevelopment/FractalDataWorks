@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPublicProject>true</IsPublicProject>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
+
+    <Title>FractalDataWorks Configuration MsSql Source</Title>
+    <Description>SQL Server configuration source for multi-tenant hierarchical configuration using SqlKata</Description>
+    <PackageTags>configuration;mssql;sqlserver;multi-tenant;source;sqlkata</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="SqlKata" />
+    <PackageReference Include="SqlKata.Execution" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FractalDataWorks.Configuration\FractalDataWorks.Configuration.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,173 @@
+<Project>
+  <PropertyGroup>
+	  <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	  <!-- Language version and framework settings -->
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <!-- Build configuration settings -->
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Refactor;Test</Configurations>
+    
+    <!-- Target Framework (except for FractalDataWorks.net which uses netstandard2.0 and projects with explicit TargetFrameworks) -->
+    <TargetFrameworks Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == '' AND '$(MSBuildProjectName)' != 'FractalDataWorks'">netstandard2.0;net10.0</TargetFrameworks>
+    
+    <!-- Build settings -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    
+    <!-- Package settings -->
+    <Authors>Rec Team</Authors>
+    <Company>Rec</Company>
+    <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/CyberdineDevelopment/Developer-Kit.git</RepositoryUrl>
+    <PackageDescription>Development tools and utilities for the FractalDataWorks ecosystem. Build: $(NBGV_GitCommitIdShort)</PackageDescription>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    
+    <!-- Symbol packages -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Central Package Management -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Exclude samples from central package management and global settings -->
+    <ManagePackageVersionsCentrally Condition="$(MSBuildProjectDirectory.Contains('\samples\'))">false</ManagePackageVersionsCentrally>
+    
+    <!-- Disable specific warnings -->
+    <!-- CA1510: Use ArgumentNullException.ThrowIfNull (new .NET feature) -->
+    <!-- CA1834: Use StringBuilder.Append(char) (performance) -->
+    <!-- MA0051: Method too long (style preference) -->
+    <NoWarn>$(NoWarn);VSTHRD200;CA1716;CA1000;CA1848;CA1510;CA1834;MA0051;MA0048;CA1711</NoWarn>
+    
+    <!-- Nerdbank.GitVersioning -->
+    <GitVersioningVersion>3.7.115</GitVersioningVersion>
+  </PropertyGroup>
+
+  <!-- Debug: Minimal checks for fast development -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <AnalysisLevel>none</AnalysisLevel>
+    <RunAnalyzers>false</RunAnalyzers>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <!-- Treat analyzer warnings as warnings, not errors -->
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+  </PropertyGroup>
+  
+  <!-- Experimental: Minimal enforcement -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Experimental'">
+    <DefineConstants>TRACE;EXPERIMENTAL</DefineConstants>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <AnalysisLevel>latest-minimum</AnalysisLevel>
+    <RunAnalyzers>true</RunAnalyzers>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <!-- Treat analyzer warnings as warnings, not errors -->
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    <ReportAnalyzer>true</ReportAnalyzer>
+  </PropertyGroup>
+  
+  <!-- Alpha: Basic checks -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Alpha'">
+    <DefineConstants>TRACE;ALPHA</DefineConstants>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <AnalysisLevel>latest-minimum</AnalysisLevel>
+    <RunAnalyzers>true</RunAnalyzers>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <!-- Treat analyzer warnings as warnings, not errors -->
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    <ReportAnalyzer>true</ReportAnalyzer>
+  </PropertyGroup>
+  
+  <!-- Beta: Recommended checks, warnings as errors -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Beta'">
+    <DefineConstants>TRACE;BETA</DefineConstants>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <RunAnalyzers>true</RunAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+  
+  <!-- Preview: Strict checks -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Preview'">
+    <DefineConstants>TRACE;PREVIEW</DefineConstants>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <RunAnalyzers>true</RunAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+  
+  <!-- Release: Production ready -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <RunAnalyzers>true</RunAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <!-- Target Framework for FractalDataWorks.net -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'FractalDataWorks.net'">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- IsExternalInit package for netstandard2.0 projects (required for init-only properties) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="IsExternalInit" PrivateAssets="all">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="PolySharp" PrivateAssets="all" />
+
+  </ItemGroup>
+
+  <!-- Nerdbank.GitVersioning -->
+  <ItemGroup Condition="!$(MSBuildProjectDirectory.Contains('\samples\'))">
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" Condition="'$(IsTestProject)' != 'true'" />
+  </ItemGroup>
+
+  <!-- Source Link -->
+  <ItemGroup Condition="!$(MSBuildProjectDirectory.Contains('\samples\'))">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
+
+  <!-- Suppress XML documentation warnings for generated files -->
+  <PropertyGroup>
+    <!-- Add CS1570 to global NoWarn for source generator XML issues -->
+    <NoWarn Condition="'$(Configuration)' == 'Release'">$(NoWarn);CS1570</NoWarn>
+  </PropertyGroup>
+
+  <!-- Analyzers - Applied to all projects except samples -->
+  <ItemGroup Condition="'$(IsTestProject)' != 'true' AND !$(MSBuildProjectDirectory.Contains('\samples\'))">
+    <PackageReference Include="AsyncFixer" PrivateAssets="All" />
+    <PackageReference Include="Meziantou.Analyzer" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="All" />
+    <PackageReference Include="Roslynator.Analyzers" PrivateAssets="All" />
+    <PackageReference Include="SecurityCodeScan.VS2019" PrivateAssets="All" />
+  </ItemGroup>
+</Project>

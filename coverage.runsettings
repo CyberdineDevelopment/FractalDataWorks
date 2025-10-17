@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="Code Coverage" uri="datacollector://Microsoft/CodeCoverage/2.0" assemblyQualifiedName="Microsoft.VisualStudio.Coverage.DynamicCoverageDataCollector, Microsoft.VisualStudio.TraceCollector, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <Configuration>
+          <CodeCoverage>
+            <!-- Match the assembly name of your code under test -->
+            <ModulePaths>
+              <Include>
+                <ModulePath>.*FractalDataWorks\.SqlConfiguration\.dll$</ModulePath>
+              </Include>
+              <Exclude>
+                <ModulePath>.*Tests\.dll$</ModulePath>
+                <ModulePath>.*TestAdapter\.dll$</ModulePath>
+              </Exclude>
+            </ModulePaths>
+
+            <!-- Exclude attributes for code coverage -->
+            <Attributes>
+              <Exclude>
+                <Attribute>^System\.Diagnostics\.CodeAnalysis\.ExcludeFromCodeCoverageAttribute$</Attribute>
+                <Attribute>^System\.CodeDom\.Compiler\.GeneratedCodeAttribute$</Attribute>
+                <Attribute>^System\.Runtime\.CompilerServices\.CompilerGeneratedAttribute$</Attribute>
+              </Exclude>
+            </Attributes>
+
+            <!-- Exclude specific namespaces -->
+            <Sources>
+              <Exclude>
+                <Source>.*\\Migrations\\.*</Source>
+                <Source>.*\\obj\\.*</Source>
+                <Source>.*\\bin\\.*</Source>
+              </Exclude>
+            </Sources>
+
+            <!-- Exclude specific types -->
+            <Classes>
+              <Exclude>
+                <!-- Exclude DTOs -->
+                <Class>^FractalDataWorks\.SqlConfiguration\.Models\.ConfigurationEntry$</Class>
+                <Class>^FractalDataWorks\.SqlConfiguration\.Models\.ConfigurationChangeEntry$</Class>
+                
+                <!-- Exclude Interfaces -->
+                <Class>^FractalDataWorks\.SqlConfiguration\.DataAccess\.Commands\.IConfigurationCommand$</Class>
+                <Class>^FractalDataWorks\.SqlConfiguration\.DataAccess\.Wrappers\..*</Class>
+                
+                <!-- Exclude Configuration Classes -->
+                <Class>^FractalDataWorks\.SqlConfiguration\.Services\.SqlConfigurationServiceConfiguration$</Class>
+                <Class>^FractalDataWorks\.SqlConfiguration\.DataAccess\.SqlConfigurationRepositoryConfiguration$</Class>
+                
+                <!-- Exclude Enhanced Enums -->
+                <Class>^FractalDataWorks\.SqlConfiguration\.EnhancedEnums\.SqlConfigurationType$</Class>
+                
+                <!-- Exclude Not Implemented -->
+                <Class>^FractalDataWorks\.SqlConfiguration\.Extensions\.ConfigurationBuilderExtensions$</Class>
+                <Class>^FractalDataWorks\.SqlConfiguration\.Factories\.SqlConfigurationServiceFactory$</Class>
+              </Exclude>
+            </Classes>
+
+            <!-- We are aiming for 100% code coverage of testable code -->
+            <Functions>
+              <Exclude>
+                <!-- Exclude property getters/setters for DTOs -->
+                <Function>^FractalDataWorks\.SqlConfiguration\.Models\..*\.get_.*</Function>
+                <Function>^FractalDataWorks\.SqlConfiguration\.Models\..*\.set_.*</Function>
+                
+                <!-- Exclude Dispose patterns -->
+                <Function>.*\.Dispose\(\)</Function>
+                
+                <!-- Exclude constructors of DTOs -->
+                <Function>^FractalDataWorks\.SqlConfiguration\.Models\..*\..ctor\(\)</Function>
+                
+                <!-- Exclude NotImplementedException methods -->
+                <Function>.*NotImplementedException.*</Function>
+              </Exclude>
+            </Functions>
+
+            <!-- Additional settings -->
+            <UseVerifiableInstrumentation>True</UseVerifiableInstrumentation>
+            <AllowLowIntegrityProcesses>True</AllowLowIntegrityProcesses>
+            <CollectFromChildProcesses>True</CollectFromChildProcesses>
+            <CollectAspDotNet>False</CollectAspDotNet>
+            
+            <!-- Format of the coverage report -->
+            <Format>Cobertura</Format>
+            
+            <!-- Coverage analysis settings -->
+            <RecordOriginalBranchConditions>True</RecordOriginalBranchConditions>
+            <IncludeTestAssembly>False</IncludeTestAssembly>
+            
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+  
+  <!-- Test run parameters -->
+  <RunConfiguration>
+    <ResultsDirectory>.\TestResults</ResultsDirectory>
+    <TargetFrameworkVersion>net10.0</TargetFrameworkVersion>
+    <DisableAppDomain>True</DisableAppDomain>
+    <CollectSourceInformation>True</CollectSourceInformation>
+  </RunConfiguration>
+  
+  <!-- MSTest adapter settings (if using MSTest) -->
+  <MSTest>
+    <Parallelize>
+      <Workers>0</Workers>
+      <Scope>MethodLevel</Scope>
+    </Parallelize>
+  </MSTest>
+  
+  <!-- xUnit settings -->
+  <xUnit>
+    <ParallelizeTestCollections>true</ParallelizeTestCollections>
+    <ParallelizeAssembly>true</ParallelizeAssembly>
+    <MaxParallelThreads>0</MaxParallelThreads>
+    <LongRunningTestSeconds>60</LongRunningTestSeconds>
+  </xUnit>
+</RunSettings>
