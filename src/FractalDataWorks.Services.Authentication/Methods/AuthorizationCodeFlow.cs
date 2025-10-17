@@ -1,0 +1,24 @@
+using FractalDataWorks.Collections.Attributes;
+using FractalDataWorks.Services.Authentication.Abstractions;
+using FractalDataWorks.Services.Authentication.Abstractions.Methods;
+
+namespace FractalDataWorks.Services.Authentication;
+
+/// <summary>
+/// OAuth 2.0 Authorization Code flow.
+/// </summary>
+[TypeOption(typeof(AuthenticationFlows), "AuthorizationCode")]
+public sealed class AuthorizationCodeFlow : AuthenticationFlowBase
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AuthorizationCodeFlow"/> class.
+    /// </summary>
+    public AuthorizationCodeFlow() : base(
+        id: 1,
+        name: "AuthorizationCode",
+        requiresUserInteraction: true,
+        supportsRefreshTokens: true,
+        isServerToServer: false)
+    {
+    }
+}

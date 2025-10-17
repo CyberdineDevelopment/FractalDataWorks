@@ -4,70 +4,37 @@ on:
   push:
     branches:
       - master
-      - main
       - develop
-      - beta/*
-      - release/*
-      - experimental/*
-      - feature/*
     paths-ignore:
       - 'README.md'
       - 'docs/**'
-      - 'samples/**'
   pull_request:
     branches:
       - master
-      - main
       - develop
 
 env:
-  CI: true
-  GITHUB_ACTIONS: true
   DOTNET_VERSION: '10.0'
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
   DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
-  NuGetPackageSourceCredentials_github: Username=${{ github.actor }};Password=${{ secrets.PACKAGE_READ_PAT }}
-  NBGV_CloudBuildNumber: ${{ github.run_number }}
 
 jobs:
-  validate:
-    name: Validate Build Context
-    runs-on: windows-latest
-    steps:
-      - name: Display build context
-        run: |
-          echo "Build branch: ${{ github.ref }}"
-          echo "Build configuration: ${{ env.BUILD_CONFIGURATION }}"
-          echo ".NET Version: ${{ env.DOTNET_VERSION }}"
-    
-  build:
+  build-and-test:
     name: Build and Test
     runs-on: windows-latest
-    needs: validate
-    permissions:
-      contents: read
-      packages: read
     env:
-      BUILD_CONFIGURATION: ${{ github.ref == 'refs/heads/master' && 'Release' || github.ref == 'refs/heads/develop' && 'Alpha' || startsWith(github.ref, 'refs/heads/beta/') && 'Beta' || startsWith(github.ref, 'refs/heads/release/') && 'Preview' || startsWith(github.ref, 'refs/heads/experimental/') && 'Experimental' || 'Debug' }}
+      BUILD_CONFIGURATION: ${{ github.ref == 'refs/heads/master' && 'Release' || 'Debug' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
-      - name: Cache .NET SDK
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.DOTNET_INSTALL_DIR }}
-          key: ${{ runner.os }}-dotnet-${{ env.DOTNET_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-dotnet-
-            
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-          
+
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -75,209 +42,85 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-            
-      - name: Install Nerdbank.GitVersioning
-        run: dotnet tool install -g nbgv
 
-      - name: Display version information
-        run: nbgv get-version
-          
-      - name: Cache .NET tools
-        uses: actions/cache@v4
-        with:
-          path: ~/.dotnet/tools
-          key: ${{ runner.os }}-dotnet-tools-reportgenerator
-          restore-keys: |
-            ${{ runner.os }}-dotnet-tools-
-            
-      - name: Install ReportGenerator
-        run: |
-          $tools = dotnet tool list -g
-          if ($tools -notmatch "dotnet-reportgenerator-globaltool") {
-            dotnet tool install -g dotnet-reportgenerator-globaltool
-          }
-        
       - name: Restore packages
         run: dotnet restore
-        
-      - name: Build
-        run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore -p:ContinuousIntegrationBuild=true
-        
-      - name: Run unit tests with coverage
-        run: |
-          dotnet test --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings --filter "Category!=Integration" --logger trx --results-directory ${{ runner.temp }}
-        continue-on-error: ${{ contains(fromJSON('["Experimental", "Alpha", "Debug"]'), env.BUILD_CONFIGURATION) || startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/experimental/') || github.ref == 'refs/heads/develop' }}
-        
-      - name: Generate coverage report
-        if: always()
-        run: |
-          reportgenerator -reports:${{ runner.temp }}/**/coverage.cobertura.xml -targetdir:${{ runner.temp }}/CodeCoverage -reporttypes:"Cobertura;Html;Badges"
-        continue-on-error: true
-        
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: ${{ runner.temp }}/*.trx
-          
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: ${{ runner.temp }}/CodeCoverage
-          
-      - name: Pack packages
-        shell: pwsh
-        run: |
-          $projects = Get-ChildItem -Path src -Filter "*.csproj" -Recurse -File |
-            Where-Object { $_.FullName -notlike "*\bin\*" -and $_.FullName -notlike "*\obj\*" }
 
-          foreach ($proj in $projects) {
-            dotnet pack $proj.FullName --configuration ${{ env.BUILD_CONFIGURATION }} --output ${{ github.workspace }}/packages -p:RepositoryUrl=${{ github.server_url }}/${{ github.repository }} -p:RepositoryBranch=${{ github.ref_name }} -p:RepositoryCommit=${{ github.sha }}
-          }
-          
+      - name: Build
+        run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+
+      - name: Run tests
+        run: dotnet test --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --verbosity normal
+
+      - name: Pack packages
+        if: github.ref == 'refs/heads/master'
+        run: dotnet pack --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --output ${{ github.workspace }}/packages
+
       - name: Upload packages
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v4
         with:
           name: packages
           path: ${{ github.workspace }}/packages
-          
+
   security-scan:
-    name: Security Scanning
+    name: Security Scan
     runs-on: windows-latest
-    needs: validate
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/beta/') || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/experimental/') || startsWith(github.ref, 'refs/heads/feature/')
+    needs: build-and-test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
     permissions:
       actions: read
       contents: read
-      packages: read
       security-events: write
-    continue-on-error: ${{ startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/experimental/') || github.ref == 'refs/heads/develop' }}
-    env:
-      BUILD_CONFIGURATION: ${{ github.ref == 'refs/heads/master' && 'Release' || github.ref == 'refs/heads/develop' && 'Alpha' || startsWith(github.ref, 'refs/heads/beta/') && 'Beta' || startsWith(github.ref, 'refs/heads/release/') && 'Preview' || 'Alpha' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
-      - name: Cache .NET SDK
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.DOTNET_INSTALL_DIR }}
-          key: ${{ runner.os }}-dotnet-${{ env.DOTNET_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-dotnet-
-            
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-          
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.NUGET_PACKAGES }}
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
 
-      # CodeQL removed - requires GitHub Advanced Security ($4/user/month for private repos)
-      # CodeQL is free for public repos and will be enabled in the public mirror
-      # This repo uses: SecurityCodeScan.VS2019 (build-time), Dependabot (dependencies), and Snyk (manual scans)
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
 
       - name: Restore packages
         run: dotnet restore
 
-      - name: Build for security analysis
-        run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
 
-      - name: Security audit
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:csharp"
+
+      - name: Security audit (vulnerable packages)
         run: dotnet list package --vulnerable --include-transitive
-        
+        continue-on-error: true
+
   publish-packages:
     name: Publish Packages
     runs-on: windows-latest
-    needs: [build]
-    permissions:
-      contents: read
-      packages: write
-    if: |
-      github.event_name == 'push' &&
-      (github.ref == 'refs/heads/master' || 
-       github.ref == 'refs/heads/main' ||
-       github.ref == 'refs/heads/develop' ||
-       startsWith(github.ref, 'refs/heads/beta/') ||
-       startsWith(github.ref, 'refs/heads/release/') ||
-       startsWith(github.ref, 'refs/heads/experimental/') ||
-       startsWith(github.ref, 'refs/heads/feature/'))
+    needs: [build-and-test, security-scan]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          
-      - name: Check for nopublish file
-        id: check_nopublish
-        run: |
-          if (Test-Path "nopublish") {
-            Write-Host "nopublish file found - skipping package publishing"
-            echo "skip_publish=true" >> $env:GITHUB_OUTPUT
-          } else {
-            Write-Host "No nopublish file found - proceeding with publishing"
-            echo "skip_publish=false" >> $env:GITHUB_OUTPUT
-          }
-          
       - name: Download packages
-        if: steps.check_nopublish.outputs.skip_publish != 'true'
         uses: actions/download-artifact@v4
         with:
           name: packages
           path: ${{ github.workspace }}/packages
-          
-      - name: List package contents
-        if: steps.check_nopublish.outputs.skip_publish != 'true'
-        run: |
-          Get-ChildItem -Path "${{ github.workspace }}/packages" -Recurse
-          
-      # For GitHub Packages - develop, experimental, and feature builds (internal private feed)
-      - name: Push to GitHub Packages (Internal Feed)
-        if: |
-          steps.check_nopublish.outputs.skip_publish != 'true' &&
-          github.event_name == 'push' &&
-          (github.ref == 'refs/heads/develop' ||
-           startsWith(github.ref, 'refs/heads/experimental/') ||
-           startsWith(github.ref, 'refs/heads/feature/'))
-        run: |
-          Get-ChildItem -Path "${{ github.workspace }}/packages" -Filter "*.nupkg" -Recurse | ForEach-Object {
-            dotnet nuget push $_.FullName --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
-          }
-        continue-on-error: true
-        
-      # For NuGet.org - only preview, rc, and release builds (public feed)
-      - name: Push to NuGet.org (Public Feed)
-        if: |
-          steps.check_nopublish.outputs.skip_publish != 'true' &&
-          github.event_name == 'push' && 
-          (github.ref == 'refs/heads/master' || 
-           github.ref == 'refs/heads/main' ||
-           startsWith(github.ref, 'refs/heads/release/')) &&
-          env.NUGET_API_KEY != ''
+
+      - name: Push to NuGet.org
+        if: env.NUGET_API_KEY != ''
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           Get-ChildItem -Path "${{ github.workspace }}/packages" -Filter "*.nupkg" -Recurse | ForEach-Object {
             dotnet nuget push $_.FullName --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
           }
-        continue-on-error: true
-        
-      - name: Tag release
-        if: steps.check_nopublish.outputs.skip_publish != 'true' && github.ref == 'refs/heads/master'
-        run: |
-          git config user.email "cmblair@domesticateddata.com"
-          git config user.name "jConner"
-          git tag -a "v${{ env.NBGV_SemVer2 }}" -m "Release v${{ env.NBGV_SemVer2 }}"
-          git push origin "v${{ env.NBGV_SemVer2 }}"
         continue-on-error: true
