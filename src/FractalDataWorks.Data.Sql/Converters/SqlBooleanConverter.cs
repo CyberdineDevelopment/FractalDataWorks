@@ -7,7 +7,7 @@ namespace FractalDataWorks.Data.Sql;
 /// <summary>
 /// Converts SQL bit to CLR Boolean.
 /// </summary>
-[TypeOption(typeof(DataTypeConverterTypes), "SqlBoolean")]
+[TypeOption(typeof(DataTypeConverters), "SqlBoolean")]
 public sealed class SqlBooleanConverter : DataTypeConverterBase
 {
     /// <summary>

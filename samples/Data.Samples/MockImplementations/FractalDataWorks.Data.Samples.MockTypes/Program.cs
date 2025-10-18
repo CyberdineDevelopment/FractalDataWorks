@@ -34,7 +34,7 @@ class Program
 
     static void DemonstrateConverterTypes()
     {
-        System.Console.WriteLine("--- DataTypeConverterTypes TypeCollection ---");
+        System.Console.WriteLine("--- DataTypeConverters TypeCollection ---");
 
         // Test direct instantiation of converter
         var mockConverter = new MockSqlInt32Converter();
@@ -54,11 +54,12 @@ class Program
         System.Console.WriteLine();
 
         // Check TypeCollection registration
-        System.Console.WriteLine($"Total Converters Registered in TypeCollection: {DataTypeConverterTypes.All().Count}");
+        System.Console.WriteLine($"Total Converters Registered in TypeCollection: {DataTypeConverters.All().Count}");
 
-        if (DataTypeConverterTypes.All().Count > 0)
+        if (DataTypeConverters.All().Count > 0)
         {
-            foreach (var converter in DataTypeConverterTypes.All())
+            System.Console.WriteLine("\nDiscovered Converters:");
+            foreach (var converter in DataTypeConverters.All())
             {
                 var converterBase = (DataTypeConverterBase)converter;
                 System.Console.WriteLine($"  Name: {converterBase.Name}");
@@ -69,11 +70,13 @@ class Program
         }
         else
         {
-            System.Console.WriteLine("  (Note: Cross-assembly discovery happens at runtime reflection)");
+            System.Console.WriteLine("  (0 converters found - this assembly has MockSqlInt32Converter)");
+            System.Console.WriteLine("  Note: Source generator runs at compile-time with RestrictToCurrentCompilation=false");
+            System.Console.WriteLine("  Converters should be discovered across all referenced assemblies.");
         }
 
         // Demo: Single-class pattern - converter contains metadata AND implementation
-        System.Console.WriteLine("Single-class pattern verified: converter contains both metadata AND implementation!");
+        System.Console.WriteLine("Single-class pattern: converter contains both metadata AND implementation!");
     }
 
     static void DemonstratePathsAndContainers()

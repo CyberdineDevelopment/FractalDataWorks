@@ -54,7 +54,7 @@ namespace FractalDataWorks.Data.Samples.MockTypes;
 /// var clrValue = converter.Convert(dbValue);  // Direct call - no switch statement!
 /// </code>
 /// </remarks>
-[TypeOption(typeof(DataTypeConverterTypes), "SqlInt32")]
+[TypeOption(typeof(DataTypeConverters), "SqlInt32")]
 public sealed class MockSqlInt32Converter : DataTypeConverterBase
 {
     /// <summary>

@@ -7,7 +7,7 @@ namespace FractalDataWorks.Data.Sql;
 /// <summary>
 /// Converts SQL int to CLR Int32.
 /// </summary>
-[TypeOption(typeof(DataTypeConverterTypes), "SqlInt32")]
+[TypeOption(typeof(DataTypeConverters), "SqlInt32")]
 public sealed class SqlInt32Converter : DataTypeConverterBase
 {
     /// <summary>

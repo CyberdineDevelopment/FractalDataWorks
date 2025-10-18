@@ -7,7 +7,7 @@ namespace FractalDataWorks.Data.Sql;
 /// <summary>
 /// Converts SQL datetime/datetime2 to CLR DateTime.
 /// </summary>
-[TypeOption(typeof(DataTypeConverterTypes), "SqlDateTime")]
+[TypeOption(typeof(DataTypeConverters), "SqlDateTime")]
 public sealed class SqlDateTimeConverter : DataTypeConverterBase
 {
     /// <summary>

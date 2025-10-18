@@ -7,7 +7,7 @@ namespace FractalDataWorks.Data.Samples.MsSql;
 /// <summary>
 /// Production-ready SQL Server int to CLR Int32 converter.
 /// </summary>
-[TypeOption(typeof(DataTypeConverterTypes), "SqlInt32")]
+[TypeOption(typeof(DataTypeConverters), "SqlInt32")]
 public sealed class SqlInt32Converter : DataTypeConverterBase
 {
     public SqlInt32Converter()

@@ -7,7 +7,7 @@ namespace FractalDataWorks.Data.Sql;
 /// <summary>
 /// Converts SQL nvarchar/varchar to CLR String.
 /// </summary>
-[TypeOption(typeof(DataTypeConverterTypes), "SqlString")]
+[TypeOption(typeof(DataTypeConverters), "SqlString")]
 public sealed class SqlStringConverter : DataTypeConverterBase
 {
     /// <summary>
