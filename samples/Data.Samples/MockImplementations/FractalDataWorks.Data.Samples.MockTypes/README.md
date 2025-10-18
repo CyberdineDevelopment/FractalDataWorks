@@ -33,23 +33,29 @@ Instead of hardcoding type names in code, configuration files reference types by
 Field roles (Identity, Attribute, Measure) are **explicitly specified** in configuration, never inferred from column names or data types.
 
 ### 3. TypeCollection Pattern
-The `[TypeOption]` attribute marks types for automatic discovery by the TypeCollectionGenerator source generator:
+The `[TypeOption]` attribute marks types for automatic discovery by the TypeCollectionGenerator source generator.
+
+**Single-Class Pattern** - Each type contains both metadata AND implementation:
 
 ```csharp
-[TypeOption(typeof(PathTypes), "SqlDatabase")]
-public sealed class MockSqlPathType : PathTypeBase
+[TypeOption(typeof(DataTypeConverterTypes), "SqlInt32")]
+public sealed class MockSqlInt32Converter : DataTypeConverterBase
 {
-    // Metadata only - describes what "SQL database path" means
-    // Actual path implementation lives in PathBase-derived classes
+    // Metadata properties
+    public override string SourceTypeName => "int";
+    public override Type TargetClrType => typeof(int);
+
+    // Implementation methods
+    public override object? Convert(object? value) { /* ... */ }
+    public override object? ConvertBack(object? clrValue) { /* ... */ }
 }
 ```
 
-### 4. Metadata vs. Implementation Separation
-This sample demonstrates the **metadata layer**:
-- **`PathTypeBase`** - Metadata about path types (used by TypeCollection)
-- **`PathBase`** - Actual path implementation (e.g., DatabasePath with connection logic)
-
-Production code has both layers; this sample shows only the metadata layer.
+**Why Single-Class Pattern?**
+- ✅ Simpler - one class, one responsibility
+- ✅ Direct access - `GetByName()` returns usable instance immediately
+- ✅ No duplication - metadata and implementation in same place
+- ✅ Clear ownership - TypeCollection manages instances
 
 ### 5. Cross-Assembly Discovery
 TypeCollections automatically discover types across assemblies:
@@ -66,7 +72,7 @@ TypeCollections automatically discover types across assemblies:
 | `MockTableContainerType` | ContainerTypes | - | Schema discovery support |
 | `MockTSqlTranslatorType` | TranslatorTypes | Sql | Universal → T-SQL translation |
 | `MockJsonFormatType` | FormatTypes | - | Streaming, MIME type |
-| `MockSqlInt32ConverterType` | DataTypeConverterTypes | - | SQL int → CLR Int32 |
+| `MockSqlInt32Converter` | DataTypeConverterTypes | - | SQL int → CLR Int32 (single-class pattern) |
 | `MockAggregateTransformerType` | DataTransformerTypes | - | ETL aggregation |
 
 ## Running the Sample
@@ -81,17 +87,25 @@ Currently shows 0 registered types because the TypeCollectionGenerator source ge
 
 ## How TypeCollections Work
 
-### Step 1: Define the Type Metadata
+### Step 1: Define the Type with Attribute
 ```csharp
-[TypeOption(typeof(PathTypes), "SqlDatabase")]
-public sealed class MockSqlPathType : PathTypeBase
+[TypeOption(typeof(DataTypeConverterTypes), "SqlInt32")]
+public sealed class MockSqlInt32Converter : DataTypeConverterBase
 {
-    public MockSqlPathType()
-        : base(id: 1, name: "SqlDatabase",
-               displayName: "SQL Server Database Path",
-               description: "Path to SQL Server database objects",
-               domain: "Sql")
+    public MockSqlInt32Converter()
+        : base(id: 1, name: "SqlInt32")
     { }
+
+    public override string SourceTypeName => "int";
+    public override Type TargetClrType => typeof(int);
+
+    public override object? Convert(object? value)
+    {
+        if (value is null or DBNull) return null;
+        return System.Convert.ToInt32(value);
+    }
+
+    public override object? ConvertBack(object? clrValue) => clrValue;
 }
 ```
 
@@ -100,25 +114,23 @@ The `TypeCollectionGenerator` scans assemblies for `[TypeOption]` attributes and
 
 ```csharp
 // Generated code (simplified)
-public sealed partial class PathTypes : TypeCollectionBase<PathTypeBase, IPathType>
+public sealed partial class DataTypeConverterTypes : TypeCollectionBase<DataTypeConverterBase, IDataTypeConverter>
 {
-    static PathTypes()
+    static DataTypeConverterTypes()
     {
-        RegisterType(new MockSqlPathType());
-        RegisterType(new MockRestPathType());
-        // ... other discovered types
+        RegisterType(() => new MockSqlInt32Converter());
+        // ... other discovered converters
     }
 }
 ```
 
 ### Step 3: Runtime Resolution
-Configuration strings resolve to type metadata:
+Configuration strings resolve to actual converter instances:
 
 ```csharp
-// Configuration: "PathType": "SqlDatabase"
-var pathType = PathTypes.Get("SqlDatabase");
-Console.WriteLine(pathType.DisplayName); // "SQL Server Database Path"
-Console.WriteLine(pathType.Domain);      // "Sql"
+// Configuration: "ConverterTypeName": "SqlInt32"
+var converter = DataTypeConverterTypes.GetByName("SqlInt32");
+var clrValue = converter.Convert(dbValue);  // Direct call!
 ```
 
 ## Key TypeCollection Features
@@ -176,10 +188,14 @@ In production, you would:
 Example production structure:
 ```
 FractalDataWorks.Data.Sql/
-  ├── SqlDatabasePathType.cs       // Metadata (marked with [TypeOption])
-  ├── SqlDatabasePath.cs           // Implementation (PathBase-derived)
-  ├── TSqlQueryTranslatorType.cs   // Metadata
-  ├── TSqlQueryTranslator.cs       // Implementation
+  ├── Paths/
+  │   └── DatabasePath.cs          // Single class: metadata + implementation
+  ├── Translators/
+  │   ├── TSqlQueryTranslator.cs   // Single class: metadata + implementation
+  │   └── TSqlSprocTranslator.cs   // Single class: metadata + implementation
+  ├── Converters/
+  │   ├── SqlInt32Converter.cs     // Single class with [TypeOption]
+  │   └── SqlStringConverter.cs    // Single class with [TypeOption]
   └── appsettings.json             // References types by name
 ```
 

@@ -1,18 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Reference Data.Abstractions for TypeCollections -->
     <ProjectReference Include="..\..\..\..\src\FractalDataWorks.Data.Abstractions\FractalDataWorks.Data.Abstractions.csproj" />
-
-    <!-- Reference the sample implementation library to load types at runtime -->
-    <ProjectReference Include="..\FractalDataWorks.Data.Samples.MsSql\FractalDataWorks.Data.Samples.MsSql.csproj" />
   </ItemGroup>
 
 </Project>

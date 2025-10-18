@@ -8,8 +8,8 @@ namespace FractalDataWorks.Data.Abstractions;
 /// Converters handle type mapping between data stores and CLR types (SQL → CLR, JSON → CLR, etc.).
 /// Uses CrossAssemblyDiscovery to find converters in domain-specific packages.
 /// </summary>
-[TypeCollection(typeof(DataTypeConverterTypeBase), typeof(IDataTypeConverterType), typeof(DataTypeConverterTypes), RestrictToCurrentCompilation = false)]
-public sealed partial class DataTypeConverterTypes : TypeCollectionBase<DataTypeConverterTypeBase, IDataTypeConverterType>
+[TypeCollection(typeof(DataTypeConverterBase), typeof(IDataTypeConverter), typeof(DataTypeConverterTypes), RestrictToCurrentCompilation = false)]
+public sealed partial class DataTypeConverterTypes : TypeCollectionBase<DataTypeConverterBase, IDataTypeConverter>
 {
     // TypeCollectionGenerator will generate all members
     // CrossAssemblyDiscovery enabled to find converters in:
