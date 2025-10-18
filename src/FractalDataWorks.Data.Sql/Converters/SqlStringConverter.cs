@@ -1,4 +1,5 @@
 using System;
+using FractalDataWorks.Collections.Attributes;
 using FractalDataWorks.Data.Abstractions;
 
 namespace FractalDataWorks.Data.Sql;
@@ -6,6 +7,7 @@ namespace FractalDataWorks.Data.Sql;
 /// <summary>
 /// Converts SQL nvarchar/varchar to CLR String.
 /// </summary>
+[TypeOption(typeof(DataTypeConverterTypes), "SqlString")]
 public sealed class SqlStringConverter : DataTypeConverterBase
 {
     /// <summary>

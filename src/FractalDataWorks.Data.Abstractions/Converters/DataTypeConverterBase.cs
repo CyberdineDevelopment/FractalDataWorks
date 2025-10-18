@@ -37,12 +37,12 @@ public abstract class DataTypeConverterBase : IDataTypeConverter, ITypeOption<Da
     /// <summary>
     /// Gets the source type name.
     /// </summary>
-    public abstract string SourceTypeName { get; }
+    public virtual string SourceTypeName => "unknown";
 
     /// <summary>
     /// Gets the target CLR type.
     /// </summary>
-    public abstract Type TargetClrType { get; }
+    public virtual Type TargetClrType => typeof(object);
 
     /// <summary>
     /// Converts from source data type to CLR type.

@@ -1,4 +1,5 @@
 using System;
+using FractalDataWorks.Collections.Attributes;
 using FractalDataWorks.Data.Abstractions;
 
 namespace FractalDataWorks.Data.Sql;
@@ -6,6 +7,7 @@ namespace FractalDataWorks.Data.Sql;
 /// <summary>
 /// Converts SQL datetime/datetime2 to CLR DateTime.
 /// </summary>
+[TypeOption(typeof(DataTypeConverterTypes), "SqlDateTime")]
 public sealed class SqlDateTimeConverter : DataTypeConverterBase
 {
     /// <summary>
