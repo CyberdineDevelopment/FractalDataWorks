@@ -21,8 +21,9 @@ class Program
         System.Console.WriteLine();
 
         System.Console.WriteLine("=== Demo Complete ===");
-        System.Console.WriteLine("\nNote: Other TypeCollections (Paths, Containers, etc.) still use the old");
-        System.Console.WriteLine("Type/Implementation split pattern and will be updated in Phase 1.5.");
+        System.Console.WriteLine("\nNote: Paths and Containers use a Type/Implementation split pattern,");
+        System.Console.WriteLine("which is CORRECT for those metadata-driven TypeCollections.");
+        System.Console.WriteLine("Only Converters needed the single-class pattern since they contain implementation logic.");
     }
 
 
