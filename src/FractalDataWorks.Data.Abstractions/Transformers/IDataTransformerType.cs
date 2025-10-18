@@ -11,6 +11,21 @@ namespace FractalDataWorks.Data.Abstractions;
 public interface IDataTransformerType : ITypeOption
 {
     /// <summary>
+    /// Gets the configuration key for this transformer type value.
+    /// </summary>
+    string ConfigurationKey { get; }
+
+    /// <summary>
+    /// Gets the display name for this transformer type value.
+    /// </summary>
+    string DisplayName { get; }
+
+    /// <summary>
+    /// Gets the description of this transformer type value.
+    /// </summary>
+    string Description { get; }
+
+    /// <summary>
     /// Gets whether this transformer supports streaming.
     /// </summary>
     bool SupportsStreaming { get; }

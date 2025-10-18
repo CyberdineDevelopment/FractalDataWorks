@@ -11,6 +11,21 @@ namespace FractalDataWorks.Data.Abstractions;
 public interface IFormatType : ITypeOption
 {
     /// <summary>
+    /// Gets the configuration key for this format type value.
+    /// </summary>
+    string ConfigurationKey { get; }
+
+    /// <summary>
+    /// Gets the display name for this format type value.
+    /// </summary>
+    string DisplayName { get; }
+
+    /// <summary>
+    /// Gets the description of this format type value.
+    /// </summary>
+    string Description { get; }
+
+    /// <summary>
     /// Gets the MIME type for this format.
     /// </summary>
     string MimeType { get; }

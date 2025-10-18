@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+    <RootNamespace>FractalDataWorks.Data.Execution</RootNamespace>
+    <AssemblyName>FractalDataWorks.Data.Execution</AssemblyName>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <Configurations>Debug;Release;Experimental;Alpha;Beta;Preview;Test</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FractalDataWorks.Data.DataSets\FractalDataWorks.Data.DataSets.csproj" />
+    <ProjectReference Include="..\FractalDataWorks.Data.Transformers.Abstractions\FractalDataWorks.Data.Transformers.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Services.Connections.Abstractions\FractalDataWorks.Services.Connections.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\public-repo\src\FractalDataWorks.Results\FractalDataWorks.Results.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+</Project>

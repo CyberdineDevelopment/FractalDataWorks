@@ -39,6 +39,20 @@ public interface IDataStore
     string StoreType { get; }
 
     /// <summary>
+    /// Gets the translator type required for this data store.
+    /// </summary>
+    /// <value>
+    /// The name of the translator that can convert universal IDataCommand to
+    /// store-specific IConnectionCommand (e.g., "MsSql", "Rest", "GraphQL").
+    /// </value>
+    /// <remarks>
+    /// This property identifies which translator is needed to convert universal
+    /// data commands into the specific command format this store understands.
+    /// The DataGateway uses this to route commands through the correct translator.
+    /// </remarks>
+    string TranslatorType { get; }
+
+    /// <summary>
     /// Gets the base location string for this data store.
     /// </summary>
     /// <value>

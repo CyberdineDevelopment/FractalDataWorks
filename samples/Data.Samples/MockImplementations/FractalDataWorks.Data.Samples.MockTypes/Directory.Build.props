@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Override central package management for samples -->
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+</Project>

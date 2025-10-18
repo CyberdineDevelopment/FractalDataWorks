@@ -12,6 +12,21 @@ namespace FractalDataWorks.Data.Abstractions;
 public interface IPathType : ITypeOption
 {
     /// <summary>
+    /// Gets the configuration key for this path type value.
+    /// </summary>
+    string ConfigurationKey { get; }
+
+    /// <summary>
+    /// Gets the display name for this path type value.
+    /// </summary>
+    string DisplayName { get; }
+
+    /// <summary>
+    /// Gets the description of this path type value.
+    /// </summary>
+    string Description { get; }
+
+    /// <summary>
     /// Gets the domain this path type belongs to (Sql, Rest, File, GraphQL).
     /// </summary>
     string Domain { get; }

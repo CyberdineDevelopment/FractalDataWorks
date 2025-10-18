@@ -11,6 +11,21 @@ namespace FractalDataWorks.Data.Abstractions;
 public interface IContainerType : ITypeOption
 {
     /// <summary>
+    /// Gets the configuration key for this container type value.
+    /// </summary>
+    string ConfigurationKey { get; }
+
+    /// <summary>
+    /// Gets the display name for this container type value.
+    /// </summary>
+    string DisplayName { get; }
+
+    /// <summary>
+    /// Gets the description of this container type value.
+    /// </summary>
+    string Description { get; }
+
+    /// <summary>
     /// Gets whether this container type supports schema discovery.
     /// </summary>
     bool SupportsSchemaDiscovery { get; }
