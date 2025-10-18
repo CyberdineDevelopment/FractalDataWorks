@@ -7,7 +7,7 @@ namespace FractalDataWorks.Data.Abstractions;
 /// TypeCollection for all path type implementations.
 /// Paths represent navigation to containers within different data store types.
 /// </summary>
-[TypeCollection(typeof(PathTypeBase), typeof(IPathType), typeof(PathTypes))]
+[TypeCollection(typeof(PathTypeBase), typeof(IPathType), typeof(PathTypes), RestrictToCurrentCompilation = false)]
 public sealed partial class PathTypes : TypeCollectionBase<PathTypeBase, IPathType>
 {
     // TypeCollectionGenerator will generate all members

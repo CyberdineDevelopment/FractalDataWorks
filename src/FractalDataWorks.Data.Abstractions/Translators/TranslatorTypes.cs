@@ -7,7 +7,7 @@ namespace FractalDataWorks.Data.Abstractions;
 /// TypeCollection for all translator type implementations.
 /// Translators convert universal data requests to domain-specific queries (SQL, OData, GraphQL, etc.).
 /// </summary>
-[TypeCollection(typeof(TranslatorTypeBase), typeof(ITranslatorType), typeof(TranslatorTypes))]
+[TypeCollection(typeof(TranslatorTypeBase), typeof(ITranslatorType), typeof(TranslatorTypes), RestrictToCurrentCompilation = false)]
 public sealed partial class TranslatorTypes : TypeCollectionBase<TranslatorTypeBase, ITranslatorType>
 {
     // TypeCollectionGenerator will generate all members

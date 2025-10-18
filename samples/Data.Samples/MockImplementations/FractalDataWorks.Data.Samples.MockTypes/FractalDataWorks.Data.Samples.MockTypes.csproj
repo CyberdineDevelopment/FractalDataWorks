@@ -8,13 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Only reference Data.Abstractions - the generator flows through with PrivateAssets="none" -->
     <ProjectReference Include="..\..\..\..\src\FractalDataWorks.Data.Abstractions\FractalDataWorks.Data.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\..\src\FractalDataWorks.Collections\FractalDataWorks.Collections.csproj" />
-
-    <!-- Source generator for TypeCollection discovery -->
-    <ProjectReference Include="..\..\..\..\src\FractalDataWorks.Collections.SourceGenerators\FractalDataWorks.Collections.SourceGenerators.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
